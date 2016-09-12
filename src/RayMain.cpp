@@ -1,5 +1,8 @@
 #include <cstring>
 #include <cstdio>
+#if defined (_WIN32)
+#include <windows.h>
+#endif
 
 #include "Command.h"
 #include "GoBoard.h"
@@ -20,14 +23,15 @@ main( int argc, char **argv )
 
   // 実行ファイルのあるディレクトリのパスを抽出
 #if defined (_WIN32)
-  strcpy_s(program_path, argv[0]);
+  HMODULE hModule = GetModuleHandle(NULL);
+  GetModuleFileNameA(hModule, program_path, 1024);
 #else
   strcpy(program_path, argv[0]);
 #endif
   last = (int)strlen(program_path);
   while (last--){
 #if defined (_WIN32)
-    if (program_path[last] == '\\') {
+    if (program_path[last] == '\\' || program_path[last] == '/') {
       program_path[last] = '\0';
       break;
     }
