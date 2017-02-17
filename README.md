@@ -59,5 +59,5 @@ Ray thinks during the opponent's turn.
 Licence
 -------
 
-Ray is distributed under under the BSD License.
+Ray is distributed under the BSD License.
 Please see the "COPYING" file.
