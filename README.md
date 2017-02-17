@@ -58,6 +58,9 @@ Ray thinks during the opponent's turn.
 
 Licence
 -------
-
 Ray is distributed under the BSD License.
 Please see the "COPYING" file.
+
+Contact
+-------
+rayauthor19x19@gmail.com (Yuki Kobayashi)
