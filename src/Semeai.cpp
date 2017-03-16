@@ -424,3 +424,210 @@ IsSelfAtariCaptureForSimulation( game_info_t *game, int pos, int color, int lib 
 
   return true;
 }
+
+bool
+IsSelfAtari( game_info_t *game, int color, int pos )
+{
+  char *board = game->board;
+  string_t *string = game->string;
+  int *string_id = game->string_id;
+  int other = FLIP_COLOR(color);
+  int already[4] = { 0 };
+  int already_num = 0;
+  int lib, count = 0, libs = 0;
+  int lib_candidate[10];
+  int i;
+  int id;
+  bool checked;
+
+  // 上下左右が空点なら呼吸点の候補に入れる
+  if (board[NORTH(pos)] == S_EMPTY) lib_candidate[libs++] = NORTH(pos);
+  if (board[WEST(pos)] == S_EMPTY) lib_candidate[libs++] = WEST(pos);
+  if (board[EAST(pos)] == S_EMPTY) lib_candidate[libs++] = EAST(pos);
+  if (board[SOUTH(pos)] == S_EMPTY) lib_candidate[libs++] = SOUTH(pos);
+
+  //  空点
+  if (libs >= 2) return false;
+
+  // 上を調べる
+  if (board[NORTH(pos)] == color) {
+    id = string_id[NORTH(pos)];
+    if (string[id].libs > 2) return false;
+    lib = string[id].lib[0];
+    count = 0;
+    while (lib != LIBERTY_END) {
+      if (lib != pos) {
+	checked = false;
+	for (i = 0; i < libs; i++) {
+	  if (lib_candidate[i] == lib) {
+	    checked = true;
+	    break;
+	  }
+	}
+	if (!checked) {
+	  lib_candidate[libs + count] = lib;
+	  count++;
+	}
+      }
+      lib = string[id].lib[lib];
+    }
+    libs += count;
+    already[already_num++] = id;
+    if (libs >= 2) return false;
+  } else if (board[NORTH(pos)] == other &&
+	     string[string_id[NORTH(pos)]].libs == 1) {
+    return false;
+  }
+
+  // 左を調べる
+  if (board[WEST(pos)] == color) {
+    id = string_id[WEST(pos)];
+    if (already[0] != id) {
+      if (string[id].libs > 2) return false;
+      lib = string[id].lib[0];
+      count = 0;
+      while (lib != LIBERTY_END) {
+	if (lib != pos) {
+	  checked = false;
+	  for (i = 0; i < libs; i++) {
+	    if (lib_candidate[i] == lib) {
+	      checked = true;
+	      break;
+	    }
+	  }
+	  if (!checked) {
+	    lib_candidate[libs + count] = lib;
+	    count++;
+	  }
+	}
+	lib = string[id].lib[lib];
+      }
+      libs += count;
+      already[already_num++] = id;
+      if (libs >= 2) return false;
+    }
+  } else if (board[WEST(pos)] == other &&
+	     string[string_id[WEST(pos)]].libs == 1) {
+    return false;
+  }
+
+  // 右を調べる
+  if (board[EAST(pos)] == color) {
+    id = string_id[EAST(pos)];
+    if (already[0] != id && already[1] != id) {
+      if (string[id].libs > 2) return false;
+      lib = string[id].lib[0];
+      count = 0;
+      while (lib != LIBERTY_END) {
+	if (lib != pos) {
+	  checked = false;
+	  for (i = 0; i < libs; i++) {
+	    if (lib_candidate[i] == lib) {
+	      checked = true;
+	      break;
+	    }
+	  }
+	  if (!checked) {
+	    lib_candidate[libs + count] = lib;
+	    count++;
+	  }
+	}
+	lib = string[id].lib[lib];
+      }
+      libs += count;
+      already[already_num++] = id;
+      if (libs >= 2) return false;
+    }
+  } else if (board[EAST(pos)] == other &&
+	     string[string_id[EAST(pos)]].libs == 1) {
+    return false;
+  }
+
+
+  // 下を調べる
+  if (board[SOUTH(pos)] == color) {
+    id = string_id[SOUTH(pos)];
+    if (already[0] != id && already[1] != id && already[2] != id) {
+      if (string[id].libs > 2) return false;
+      lib = string[id].lib[0];
+      count = 0;
+      while (lib != LIBERTY_END) {
+	if (lib != pos) {
+	  checked = false;
+	  for (i = 0; i < libs; i++) {
+	    if (lib_candidate[i] == lib) {
+	      checked = true;
+	      break;
+	    }
+	  }
+	  if (!checked) {
+	    lib_candidate[libs + count] = lib;
+	    count++;
+	  }
+	}
+	lib = string[id].lib[lib];
+      }
+      libs += count;
+      already[already_num++] = id;
+      if (libs >= 2) return false;
+    }
+  } else if (board[SOUTH(pos)] == other &&
+	     string[string_id[SOUTH(pos)]].libs == 1) {
+    return false;
+  }
+
+  return true;
+}
+
+
+bool 
+IsAlreadyCaptured( game_info_t *game, int color, int id, int player_id[], int player_ids )
+{
+  string_t *string = game->string;
+  int *string_id = game->string_id;
+  int lib1, lib2;
+  bool checked;
+  int neighbor4[4];
+  int i, j;
+
+  if (string[id].libs == 1) {
+    return true;
+  } else if (string[id].libs == 2) {
+    lib1 = string[id].lib[0];
+    lib2 = string[id].lib[lib1];
+
+    GetNeighbor4(neighbor4, lib1);
+    checked = false;
+    for (i = 0; i < 4; i++) {
+      for (j = 0; j < player_ids; j++) {
+	if (player_id[j] == string_id[neighbor4[i]]) {
+	  checked = true;
+	  player_id[j] = 0;
+	}
+      }
+    }
+    if (checked == false) return false;
+
+    GetNeighbor4(neighbor4, lib2);
+    checked = false;
+    for (i = 0; i < 4; i++) {
+      for (j = 0; j < player_ids; j++) {
+	if (player_id[j] == string_id[neighbor4[i]]) {
+	  checked = true;
+	  player_id[j] = 0;
+	}
+      }
+    }
+    if (checked == false) return false;
+
+    for (i = 0; i < player_ids; i++) {
+      if (player_id[i] != 0) {
+	return false;
+      }
+    }
+
+    return true;
+  } else {
+    return false;
+  }
+}
