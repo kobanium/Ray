@@ -468,13 +468,13 @@ InitializeEye( void )
     // ###     ###     OOO     ###
     0xFF74, 0xFF75, 0x5566, 0xFD66,
   };
-  const int false_eye_pat3[2] = {
-    // XOO     XO# 
-    // O*O     O*# 
-    // ###     ### 
-    0xFD56, 0xFF76,
+  const unsigned int false_eye_pat3[4] = {
+    // OOX     OOO     XOO     XO# 
+    // O*O     O*O     O*O     O*# 
+    // XOO     XOX     ###     ### 
+    0x5965, 0x9955, 0xFD56, 0xFF76,
   };
-
+  
   // BBB
   // B*B
   // BBB
@@ -503,7 +503,7 @@ InitializeEye( void )
     }
   }
 
-  for (i = 0; i < 2; i++) {
+  for (i = 0; i < 4; i++) {
     Pat3Transpose8(false_eye_pat3[i], transp);
     for (j = 0; j < 8; j++) {
       false_eye[transp[j]] = S_BLACK;
