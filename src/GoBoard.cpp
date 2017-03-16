@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "GoBoard.h"
+#include "Semeai.h"
 #include "UctRating.h"
 #include "ZobristHash.h"
 
@@ -46,6 +47,8 @@ int onboard_pos[PURE_BOARD_MAX];  //  実際の盤上の位置との対応
 
 int corner[4];
 int corner_neighbor[4][2];
+
+int cross[4];
 
 ///////////////
 // 関数宣言  //
@@ -387,6 +390,11 @@ InitializeConst( void )
     }
   }
 
+  cross[0] = - board_size - 1;
+  cross[1] = - board_size + 1;
+  cross[2] = board_size - 1;
+  cross[3] = board_size + 1;
+
   corner[0] = POS(board_start, board_start);
   corner[1] = POS(board_start, board_end);
   corner[2] = POS(board_end, board_start);
@@ -589,7 +597,7 @@ IsLegal( game_info_t *game, int pos, int color )
 //  盤端での処理  //
 ////////////////////
 bool
-IsEdgeConnection( game_info_t *game, int pos, int color )
+IsFalseEyeConnection( game_info_t *game, int pos, int color )
 {
   // +++++XOO#
   // +++++XO+#
@@ -624,16 +632,47 @@ IsEdgeConnection( game_info_t *game, int pos, int color )
   int liberty[STRING_LIB_MAX];
   int i, j, count;
   bool checked;
-  int neighbor4[4];
+  int neighbor4[4], neighbor;
   bool already_checked;
+  int other = FLIP_COLOR(color);
+  int player_id[4] = {0};
+  int player_ids = 0;
 
+  // 欠け眼を構成する連のIDを取り出す
   GetNeighbor4(neighbor4, pos);
+  for (i = 0; i < 4; i++) {
+    checked = false;
+    for (j = 0; j < player_ids; j++) {
+      if (player_id[j] == string_id[neighbor4[i]]) {
+	checked = true;
+      }
+    }
+    if (!checked) {
+      player_id[player_ids++] = string_id[neighbor4[i]];
+    }
+  }
+
+
+  // 斜め方向に取れる, または取れそうな石があったらfalseを返す
+  for (i = 0; i < 4; i++) {
+    if (board[pos + cross[i]] == other) {
+      id = string_id[pos + cross[i]];
+      if (IsAlreadyCaptured(game, other, id, player_id, player_ids)) {
+	return false;
+      }
+    }
+  }
 
   // 隣接する座標が自分の連なら
   // その連の呼吸点を取り出す
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == color) {
       id = string_id[neighbor4[i]];
+      if (string[id].libs == 2) {
+	lib = string[id].lib[0];
+	if (lib == pos) lib = string[id].lib[lib];
+	if (IsSelfAtari(game, color, lib)) return true;
+      }
       already_checked = false;
       for (j = 0; j < strings; j++) {
 	if (checked_string[j] == id) {
@@ -671,6 +710,15 @@ IsEdgeConnection( game_info_t *game, int pos, int color )
     lib_sum += string_liberties[i] - 1;
   }
 
+  neighbor = string[checked_string[0]].neighbor[0];
+  while (neighbor != NEIGHBOR_END) {
+    if (string[neighbor].libs == 1 &&
+	string[checked_string[1]].neighbor[neighbor] != 0) {
+      return false;
+    }
+    neighbor = string[checked_string[0]].neighbor[neighbor];
+  }
+
   // 隣接する連が一続きなら眼なのでfalseを返す
   if (strings == 1) {
     return false;
@@ -683,7 +731,6 @@ IsEdgeConnection( game_info_t *game, int pos, int color )
   } else {
     return false;
   }
-
 }
 
 
@@ -725,7 +772,7 @@ IsLegalNotEye( game_info_t *game, int pos, int color )
 
     // 盤端の特殊処理
     if (false_eye[Pat3(game->pat, pos)] == color) {
-      if (IsEdgeConnection(game, pos, color)) {
+      if (IsFalseEyeConnection(game, pos, color)) {
 	return true;
       } else {
 	game->candidates[pos] = false;

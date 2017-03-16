@@ -37,4 +37,10 @@ bool IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int 
 //  自己アタリになるトリかどうか判定
 bool IsSelfAtariCaptureForSimulation( game_info_t *game, int pos, int color, int lib );
 
+//  自己アタリになるかどうかの判定
+bool IsSelfAtari( game_info_t *game, int color, int pos );
+
+//  欠け眼を継ぐかどうかの判定の準備
+bool IsAlreadyCaptured( game_info_t *game, int color, int id, int player_id[], int player_ids );
+
 #endif
