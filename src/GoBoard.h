@@ -72,6 +72,16 @@ enum stone {
   S_MAX     // 番兵
 };
 
+enum eye_condition {
+  E_NOT_EYE,           // 眼でない
+  E_COMPLETE_HALF_EYE, // 完全に欠け眼(8近傍に打って1眼にできない)
+  E_HALF_3_EYE,        // 欠け眼であるが, 3手で1眼にできる
+  E_HALF_2_EYE,        // 欠け眼であるが, 2手で1眼にできる
+  E_HALF_1_EYE,        // 欠け眼であるが, 1手で1眼にできる
+  E_COMPLETE_ONE_EYE,  // 完全な1眼
+  E_MAX,
+};
+
 // 着手を記録する構造体
 struct move {
   int color;  // 着手した石の色
@@ -114,7 +124,8 @@ typedef struct {
   int string_next[STRING_POS_MAX];  // 連を構成する石のデータ構造
 
   bool candidates[BOARD_MAX];  // 候補手かどうかのフラグ 
-
+  bool seki[BOARD_MAX];
+  
   unsigned int tactical_features1[BOARD_MAX];  // 戦術的特徴 
   unsigned int tactical_features2[BOARD_MAX];  // 戦術的特徴 
 
@@ -173,6 +184,9 @@ extern unsigned char nb4_empty[PAT3_MAX];
 
 // 周囲に石のないパターン
 extern bool empty_pat[PAT3_MAX];
+
+// 眼の状態
+extern unsigned char eye_condition[PAT3_MAX];
 
 // x方向の距離
 extern int border_dis_x[BOARD_MAX]; 

@@ -16,6 +16,7 @@
 #include "Ladder.h"
 #include "Message.h"
 #include "PatternHash.h"
+#include "Seki.h"
 #include "Simulation.h"
 #include "UctRating.h"
 #include "UctSearch.h"
@@ -643,6 +644,7 @@ ExpandRoot(game_info_t *game, int color)
     uct_node[index].width = 0;
     uct_node[index].child_num = 0;
     memset(uct_node[index].statistic, 0, sizeof(statistic_t) * BOARD_MAX); 
+    memset(uct_node[index].seki, false, sizeof(bool) * BOARD_MAX);
     
     uct_child = uct_node[index].child;
     
@@ -665,6 +667,9 @@ ExpandRoot(game_info_t *game, int color)
     
     // 候補手のレーティング
     RatingNode(game, color, index);
+
+    // セキの確認
+    CheckSeki(game, uct_node[index].seki);
     
     uct_node[index].width++;
   }
@@ -711,7 +716,8 @@ ExpandNode(game_info_t *game, int color, int current)
   uct_node[index].width = 0;
   uct_node[index].child_num = 0;
   memset(uct_node[index].statistic, 0, sizeof(statistic_t) * BOARD_MAX);  
-
+  memset(uct_node[index].seki, false, sizeof(bool) * BOARD_MAX);
+  
   uct_child = uct_node[index].child;
 
   // パスノードの展開
@@ -734,6 +740,9 @@ ExpandNode(game_info_t *game, int color, int current)
   // 候補手のレーティング
   RatingNode(game, color, index);
 
+  // セキの確認
+  CheckSeki(game, uct_node[index].seki);
+  
   // 探索幅を1つ増やす
   uct_node[index].width++;
 
@@ -964,9 +973,12 @@ ParallelUctSearch(thread_arg_t *arg)
   bool enough_size = true;
   int winner = 0;
   int interval = CRITICALITY_INTERVAL;
-
+  bool seki[BOARD_MAX] = {false};
+  
   game = AllocateGame();
 
+  CheckSeki(targ->game, seki);
+  
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
@@ -975,6 +987,7 @@ ParallelUctSearch(thread_arg_t *arg)
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
+      memcpy(game->seki, seki, sizeof(bool) * BOARD_MAX);
       // 1回プレイアウトする
       UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
       // 探索を打ち切るか確認
@@ -999,6 +1012,7 @@ ParallelUctSearch(thread_arg_t *arg)
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
+      memcpy(game->seki, seki, sizeof(bool) * BOARD_MAX);
       // 1回プレイアウトする
       UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
       // 探索を打ち切るか確認
@@ -1097,6 +1111,8 @@ UctSearch(game_info_t *game, int color, mt19937_64 *mt, int current, int *winner
     // Virtual Lossを加算
     AddVirtualLoss(&uct_child[next_index], current);
 
+    memcpy(game->seki, uct_node[current].seki, sizeof(bool) * BOARD_MAX);
+    
     // 現在見ているノードのロックを解除
     UNLOCK_NODE(current);
 
