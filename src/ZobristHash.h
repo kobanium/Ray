@@ -22,7 +22,7 @@ typedef struct {
 } node_hash_t;
 
 
-//  bit—ñ
+//  bitåˆ—
 extern unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];  
 extern unsigned long long shape_bit[BOARD_MAX];              
 
@@ -30,28 +30,28 @@ extern node_hash_t *node_hash;
 
 extern unsigned int uct_hash_size; 
 
-//  ƒnƒbƒVƒ…ƒe[ƒuƒ‹‚ÌƒTƒCƒY‚Ìİ’è
+//  ãƒãƒƒã‚·ãƒ¥ãƒ†ãƒ¼ãƒ–ãƒ«ã®ã‚µã‚¤ã‚ºã®è¨­å®š
 void SetHashSize( unsigned int new_size );
 
-//  bit—ñ‚Ì‰Šú‰»
+//  bitåˆ—ã®åˆæœŸåŒ–
 void InitializeHash( void );
 
-//  UCTƒm[ƒh‚ÌƒnƒbƒVƒ…‚Ì‰Šú‰»
+//  UCTãƒãƒ¼ãƒ‰ã®ãƒãƒƒã‚·ãƒ¥ã®åˆæœŸåŒ–
 void InitializeUctHash( void );
 
-//  UCTƒm[ƒh‚ÌƒnƒbƒVƒ…î•ñ‚ÌƒNƒŠƒA
+//  UCTãƒãƒ¼ãƒ‰ã®ãƒãƒƒã‚·ãƒ¥æƒ…å ±ã®ã‚¯ãƒªã‚¢
 void ClearUctHash( void );
 
-//  ŒÃ‚¢ƒf[ƒ^‚Ìíœ
+//  å¤ã„ãƒ‡ãƒ¼ã‚¿ã®å‰Šé™¤
 void DeleteOldHash( game_info_t *game );
 
-//  –¢g—p‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ’T‚·
+//  æœªä½¿ç”¨ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ¢ã™
 unsigned int SearchEmptyIndex( unsigned long long hash, int color, int moves );
 
-//  ƒnƒbƒVƒ…’l‚É‘Î‰‚·‚éƒCƒ“ƒfƒbƒNƒX‚ğ•Ô‚·
+//  ãƒãƒƒã‚·ãƒ¥å€¤ã«å¯¾å¿œã™ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è¿”ã™
 unsigned int FindSameHashIndex( unsigned long long hash, int color, int moves );
 
-//  ƒnƒbƒVƒ…•\‚ª–„‚Ü‚Á‚Ä‚¢‚È‚¢‚©Šm”F
+//  ãƒãƒƒã‚·ãƒ¥è¡¨ãŒåŸ‹ã¾ã£ã¦ã„ãªã„ã‹ç¢ºèª
 bool CheckRemainingHashSize( void );
 
 #endif

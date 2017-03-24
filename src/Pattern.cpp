@@ -5,7 +5,7 @@
 #include "Pattern.h"
 
 
-//  ƒrƒbƒg—ñ‘€ì
+//  ãƒ“ãƒƒãƒˆåˆ—æ“ä½œ
 #define REV18(p) (((p) >> 36) | (((p) & 0x3) << 36))
 #define REV16(p) (((p) >> 32) | (((p) & 0x3) << 32))
 #define REV14(p) (((p) >> 28) | (((p) & 0x3) << 28))
@@ -19,7 +19,7 @@
 #define REV3(p) (((p) >> 4) | ((p) & 0xC) | (((p) & 0x3) << 4))
 #define REV(p) (((p) >> 2) | (((p) & 0x3) << 2))
 
-//  ‹ß–T‚ÌÀ•W
+//  è¿‘å‚ã®åº§æ¨™
 #define N   (-board_size)
 #define S   (board_size)
 #define E   (1)
@@ -35,10 +35,10 @@
 
 
 //////////////////////
-//  ƒOƒ[ƒoƒ‹•Ï”  //
+//  ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°  //
 //////////////////////
 
-//  XV—pƒrƒbƒgƒ}ƒXƒN
+//  æ›´æ–°ç”¨ãƒ“ãƒƒãƒˆãƒã‚¹ã‚¯
 static unsigned int update_mask[40][3] = {
   //  3x3
   { 0, 0x00004000, 0x00008000 }, //  1->8
@@ -117,7 +117,7 @@ static unsigned long long large_mask[][3] = {
 
 
 ////////////////
-//  ‰Šúİ’è  //
+//  åˆæœŸè¨­å®š  //
 ////////////////
 void
 ClearPattern( struct pattern *pat )
@@ -127,97 +127,97 @@ ClearPattern( struct pattern *pat )
   memset(pat, 0, sizeof(struct pattern) * board_max); 
 
   for (y = board_start; y <= board_end; y++){
-    // 1ü
-    // ã
+    // 1ç·š
+    // ä¸Š
     pat[POS(y, board_start)].list[MD_2] |= 0x0003003F;	// 1 2 3 9
     pat[POS(y, board_start)].list[MD_3] |= 0x00F0003F;	// 13 14 15 23 24
     pat[POS(y, board_start)].list[MD_4] |= 0xFC0000FF;	// 25 26 27 28 38 39 40
     pat[POS(y, board_start)].large_list[MD_5] |= 0xFF000003FF;
-    // ‰E
+    // å³
     pat[POS(board_end, y)].list[MD_2] |= 0x000CC330;	// 3 5 8 10
     pat[POS(board_end, y)].list[MD_3] |= 0x00000FFC;	// 14 15 16 17 18
     pat[POS(board_end, y)].list[MD_4] |= 0x0000FFFC;	// 26 27 28 29 30 31 32
     pat[POS(board_end, y)].large_list[MD_5] |= 0x00000FFFFC;
-    // ‰º
+    // ä¸‹
     pat[POS(y, board_end)].list[MD_2] |= 0x0030FC00;	// 6 7 8 11
     pat[POS(y, board_end)].list[MD_3] |= 0x0003FF00;	// 17 18 19 20 21
     pat[POS(y, board_end)].list[MD_4] |= 0x00FFFC00;	// 30 31 32 33 34 35 36
     pat[POS(y, board_end)].large_list[MD_5] |= 0x003FFFF000;
-    // ¶
+    // å·¦
     pat[POS(board_start, y)].list[MD_2] |= 0x00C00CC3;	// 1 4 6 12
     pat[POS(board_start, y)].list[MD_3] |= 0x00FFC000;	// 20 21 22 23 24
     pat[POS(board_start, y)].list[MD_4] |= 0xFFFC0000;	// 34 35 36 37 38 39 40
     pat[POS(board_start, y)].large_list[MD_5] |= 0xFFFFC00000;
 
-    // 2ü
-    // ã
+    // 2ç·š
+    // ä¸Š
     pat[POS(y, board_start + 1)].list[MD_2] |= 0x00030000;	// 9
     pat[POS(y, board_start + 1)].list[MD_3] |= 0x00C0000F;	// 13 14 24
     pat[POS(y, board_start + 1)].list[MD_4] |= 0xF000003F;	// 25 26 27 39 40
     pat[POS(y, board_start + 1)].large_list[MD_5] |= 0xFC000000FF;
-    // ‰E
+    // å³
     pat[POS(board_end - 1, y)].list[MD_2] |= 0x000C0000;	// 10
     pat[POS(board_end - 1, y)].list[MD_3] |= 0x000003F0;	// 15 16 17
     pat[POS(board_end - 1, y)].list[MD_4] |= 0x00003FF0;	// 27 28 29 30 31
     pat[POS(board_end - 1, y)].large_list[MD_5] |= 0x000003FFF0;
-    // ‰º
+    // ä¸‹
     pat[POS(y, board_end - 1)].list[MD_2] |= 0x00300000;	// 11
     pat[POS(y, board_end - 1)].list[MD_3] |= 0x0000FC00;	// 18 19 20
     pat[POS(y, board_end - 1)].list[MD_4] |= 0x003FF000;	// 31 32 33 34 35
     pat[POS(y, board_end - 1)].large_list[MD_5] |= 0x000FFFC000;
-    // ¶
+    // å·¦
     pat[POS(board_start + 1, y)].list[MD_2] |= 0x00C00000;	// 12
     pat[POS(board_start + 1, y)].list[MD_3] |= 0x003F0000;	// 21 22 23
     pat[POS(board_start + 1, y)].list[MD_4] |= 0x3FF00000;	// 35 36 37 38 39
     pat[POS(board_start + 1, y)].large_list[MD_5] |= 0x3FFF000000;
 
-    // 3ü
-    // ã
+    // 3ç·š
+    // ä¸Š
     pat[POS(y, board_start + 2)].list[MD_3] |= 0x00000003;	// 13
     pat[POS(y, board_start + 2)].list[MD_4] |= 0xC000000F;	// 25 26 40
     pat[POS(y, board_start + 2)].large_list[MD_5] |= 0xF00000003F;
-    // ‰E
+    // å³
     pat[POS(board_end - 2, y)].list[MD_3] |= 0x000000C0;	// 16
     pat[POS(board_end - 2, y)].list[MD_4] |= 0x00000FC0;	// 28 29 30
     pat[POS(board_end - 2, y)].large_list[MD_5] |= 0x000000FFC0;
-    // ‰º
+    // ä¸‹
     pat[POS(y, board_end - 2)].list[MD_3] |= 0x00003000;	// 19
     pat[POS(y, board_end - 2)].list[MD_4] |= 0x000FC000;	// 32 33 34
     pat[POS(y, board_end - 2)].large_list[MD_5] |= 0x0003FF0000;
-    // ¶
+    // å·¦
     pat[POS(board_start + 2, y)].list[MD_3] |= 0x000C0000;	// 22
     pat[POS(board_start + 2, y)].list[MD_4] |= 0x0FC00000;	// 36 37 38
     pat[POS(board_start + 2, y)].large_list[MD_5] |= 0x0FFC000000;
 
-    // 4ü 
-    // ã
+    // 4ç·š 
+    // ä¸Š
     pat[POS(y, board_start + 3)].list[MD_4] |= 0x00000003;	// 25
     pat[POS(y, board_start + 3)].large_list[MD_5] |= 0xC00000000F;
-    // ‰E
+    // å³
     pat[POS(board_end - 3, y)].list[MD_4] |= 0x00000300;	// 29
     pat[POS(board_end - 3, y)].large_list[MD_5] |= 0x0000003F00;
-    // ‰º
+    // ä¸‹
     pat[POS(y, board_end - 3)].list[MD_4] |= 0x00030000;	// 33
     pat[POS(y, board_end - 3)].large_list[MD_5] |= 0x0000FC0000;
-    // ¶
+    // å·¦
     pat[POS(board_start + 3, y)].list[MD_4] |= 0x03000000;	// 37
     pat[POS(board_start + 3, y)].large_list[MD_5] |= 0x03F0000000;
 
-    // 5ü
-    // ã
+    // 5ç·š
+    // ä¸Š
     pat[POS(y, board_start + 4)].large_list[MD_5] |= 0x0000000003;
-    // ‰E
+    // å³
     pat[POS(board_end - 4, y)].large_list[MD_5] |= 0x0000000C00;
-    // ‰º
+    // ä¸‹
     pat[POS(y, board_end - 4)].large_list[MD_5] |= 0x0000300000;
-    // ¶
+    // å·¦
     pat[POS(board_start + 4, y)].large_list[MD_5] |= 0x00C0000000;
   }
 }
 
 
 //////////////////////
-//  ƒpƒ^[ƒ“‚ÌXV  //
+//  ãƒ‘ã‚¿ãƒ¼ãƒ³ã®æ›´æ–°  //
 //////////////////////
 
 //  3x3
@@ -282,7 +282,7 @@ UpdateMD2Stone( struct pattern *pat, int color, int pos )
   pat[pos + WW].list[MD_2] |= update_mask[11][color];
 }
 
-//  ‘S•”
+//  å…¨éƒ¨
 void
 UpdatePatternEmpty( struct pattern *pat, int pos )
 {
@@ -433,7 +433,7 @@ UpdatePatternStone( struct pattern *pat, int color, int pos )
 
 
 //////////////////////////
-//  “¯ˆêƒpƒ^[ƒ“‚ğ•Ô‚·  //
+//  åŒä¸€ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’è¿”ã™  //
 //////////////////////////
 
 //  3x3
@@ -615,7 +615,7 @@ MD5Transpose16( unsigned long long md5, unsigned long long *transp )
 
 
 ////////////////
-//  F‚Ì”½“]  //
+//  è‰²ã®åè»¢  //
 ////////////////
 
 //  3x3
@@ -655,7 +655,7 @@ MD5Reverse( unsigned long long md5 )
 
 
 ////////////////
-//  ã‰º‘ÎÌ  //
+//  ä¸Šä¸‹å¯¾ç§°  //
 ////////////////
 
 //  3x3
@@ -718,7 +718,7 @@ MD5VerticalMirror( unsigned long long md5 )
 }
 
 ////////////////
-//  ¶‰E‘ÎÌ  //
+//  å·¦å³å¯¾ç§°  //
 ////////////////
 
 //  3x3
@@ -785,10 +785,10 @@ MD5HorizontalMirror( unsigned long long md5 )
 
 
 ////////////////
-//  90“x‰ñ“]  //
+//  90åº¦å›è»¢  //
 ////////////////
 
-// @3x3
+// ã€€3x3
 unsigned int
 Pat3Rotate90( unsigned int pat3 )
 {
@@ -842,7 +842,7 @@ MD5Rotate90( unsigned long long md5 )
 }
 
 //////////////////////
-//  ƒpƒ^[ƒ“‚ğ•Ô‚·  //
+//  ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’è¿”ã™  //
 //////////////////////
 
 //  3x3 
@@ -882,7 +882,7 @@ MD5( struct pattern *pat, int pos )
 }
 
 ////////////////
-//  •\¦‚·‚é  //
+//  è¡¨ç¤ºã™ã‚‹  //
 ////////////////
 
 //  3x3

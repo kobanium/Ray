@@ -11,7 +11,7 @@ using namespace std;
 
 
 ////////////////////////////////
-//  I‹Ç‚Ü‚ÅƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“  //
+//  çµ‚å±€ã¾ã§ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³  //
 ////////////////////////////////
 void
 Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
@@ -21,33 +21,33 @@ Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
   int length;
   int pass_count;
 
-  // ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‘Å‚¿Ø‚èè”‚ğİ’è
+  // ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³æ‰“ã¡åˆ‡ã‚Šæ‰‹æ•°ã‚’è¨­å®š
   length = MAX_MOVES - game->moves;
   if (length < 0) {
     return;
   }
 
-  // ƒŒ[ƒg‚Ì‰Šú‰»  
+  // ãƒ¬ãƒ¼ãƒˆã®åˆæœŸåŒ–  
   game->sum_rate[0] = game->sum_rate[1] = 0;
   memset(game->sum_rate_row, 0, sizeof(long long) * 2 * BOARD_SIZE);  
   memset(game->rate, 0, sizeof(long long) * 2 * BOARD_MAX);           
 
   pass_count = (game->record[game->moves - 1].pos == PASS && game->moves > 1);
 
-  // •”Ô‚ÌƒŒ[ƒg‚ÌŒvZ
+  // é»’ç•ªã®ãƒ¬ãƒ¼ãƒˆã®è¨ˆç®—
   Rating(game, S_BLACK, &game->sum_rate[0], game->sum_rate_row[0], game->rate[0]);
-  // ”’”Ô‚ÌƒŒ[ƒg‚ÌŒvZ
+  // ç™½ç•ªã®ãƒ¬ãƒ¼ãƒˆã®è¨ˆç®—
   Rating(game, S_WHITE, &game->sum_rate[1], game->sum_rate_row[1], game->rate[1]);
 
-  // I‹Ç‚Ü‚Å‘Î‹Ç‚ğƒVƒ~ƒ…ƒŒ[ƒg
+  // çµ‚å±€ã¾ã§å¯¾å±€ã‚’ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ãƒˆ
   while (length-- && pass_count < 2) {
-    // ’…è‚ğ¶¬‚·‚é
+    // ç€æ‰‹ã‚’ç”Ÿæˆã™ã‚‹
     pos = RatingMove(game, color, mt);
-    // Î‚ğ’u‚­
+    // çŸ³ã‚’ç½®ã
     PoPutStone(game, pos, color);
-    // ƒpƒX‚ÌŠm”F
+    // ãƒ‘ã‚¹ã®ç¢ºèª
     pass_count = (pos == PASS) ? (pass_count + 1) : 0;
-    // è”Ô‚Ì“ü‚ê‘Ö‚¦
+    // æ‰‹ç•ªã®å…¥ã‚Œæ›¿ãˆ
     color = FLIP_COLOR(color);
   }
 

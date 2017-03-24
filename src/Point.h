@@ -6,10 +6,10 @@
 
 extern char gogui_x[26];
 
-//  2ŸŒ³•\‹L‚©‚ç1ŸŒ³•\‹L‚Ö•ÏŠ·  
+//  2æ¬¡å…ƒè¡¨è¨˜ã‹ã‚‰1æ¬¡å…ƒè¡¨è¨˜ã¸å¤‰æ›  
 int StringToInteger( char *cpos );
 
-//  1ŸŒ³•\‹L‚©‚ç2ŸŒ³•\‹L‚Ö•ÏŠ·  
+//  1æ¬¡å…ƒè¡¨è¨˜ã‹ã‚‰2æ¬¡å…ƒè¡¨è¨˜ã¸å¤‰æ›  
 void IntegerToString( int pos, char *cpos );
 
 #endif

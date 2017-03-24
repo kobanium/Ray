@@ -10,27 +10,27 @@
 using namespace std;
 
 
-// 3–Ú’†è‚Ìƒpƒ^[ƒ“‚ÌƒnƒbƒVƒ…’l
+// 3ç›®ä¸­æ‰‹ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒãƒƒã‚·ãƒ¥å€¤
 unsigned long long nakade3_hash[6];
-// 4–Ú’†è‚Ìƒpƒ^[ƒ“‚ÌƒnƒbƒVƒ…’l
+// 4ç›®ä¸­æ‰‹ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒãƒƒã‚·ãƒ¥å€¤
 unsigned long long nakade4_hash[5];
-// 5–Ú’†è‚Ìƒpƒ^[ƒ“‚ÌƒnƒbƒVƒ…’l
+// 5ç›®ä¸­æ‰‹ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒãƒƒã‚·ãƒ¥å€¤
 unsigned long long nakade5_hash[9];
-// 6–Ú’†è‚Ìƒpƒ^[ƒ“‚ÌƒnƒbƒVƒ…’l
+// 6ç›®ä¸­æ‰‹ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒãƒƒã‚·ãƒ¥å€¤
 unsigned long long nakade6_hash[4];
 
-// 3–Ú’†è‚Ì‹}Š
+// 3ç›®ä¸­æ‰‹ã®æ€¥æ‰€
 int nakade3_pos[6];
-// 4–Ú’†è‚Ì‹}Š
+// 4ç›®ä¸­æ‰‹ã®æ€¥æ‰€
 int nakade4_pos[5];
-// 5–Ú’†è‚Ì‹}Š
+// 5ç›®ä¸­æ‰‹ã®æ€¥æ‰€
 int nakade5_pos[9];
-// 6–Ú’†è‚Ì‹}Š
+// 6ç›®ä¸­æ‰‹ã®æ€¥æ‰€
 int nakade6_pos[4];
 
 static int start = BOARD_MAX / 2;  
 
-// ƒiƒJƒf‚ªŒ»‚ê‚È‚¢ƒpƒ^[ƒ“
+// ãƒŠã‚«ãƒ‡ãŒç¾ã‚Œãªã„ãƒ‘ã‚¿ãƒ¼ãƒ³
 const unsigned int nakade_none[134] = {
   0x0000, 0x0001, 0x0004, 0x0005, 0x0006, 0x0012, 0x0015, 0x0016, 0x003f, 0x0044,
   0x0045, 0x0046, 0x0048, 0x0049, 0x0054, 0x0055, 0x0056, 0x0060, 0x0061, 0x0064,
@@ -48,7 +48,7 @@ const unsigned int nakade_none[134] = {
   0x5dff, 0x6699, 0x66bf, 0x6eff, 
 };
 
-// ƒiƒJƒf‚ªoŒ»‚·‚éƒpƒ^[ƒ“‚Æ‚»‚Ì•ûŒü
+// ãƒŠã‚«ãƒ‡ãŒå‡ºç¾ã™ã‚‹ãƒ‘ã‚¿ãƒ¼ãƒ³ã¨ãã®æ–¹å‘
 const unsigned int nakade_mask[446][2] = {
   {0x0011, 0x0004}, {0x0019, 0x0004}, {0x0050, 0x0004}, {0x0051, 0x0004}, {0x0052, 0x0004},
   {0x0058, 0x0004}, {0x0059, 0x0004}, {0x005a, 0x0004}, {0x0062, 0x0008}, {0x0066, 0x0008},
@@ -154,7 +154,7 @@ const unsigned int nakade_mask[446][2] = {
 int nakade_pat3_mask[PAT3_MAX];
 
 //////////////
-//  ‰Šú‰»  //
+//  åˆæœŸåŒ–  //
 //////////////
 void
 InitializeNakadeHash( void )
@@ -164,7 +164,7 @@ InitializeNakadeHash( void )
 
   start = board_max / 2;
 
-  // 3–Ú‚ÌƒiƒJƒf
+  // 3ç›®ã®ãƒŠã‚«ãƒ‡
   nakade3[0][0] = 0; nakade3[0][1] = 1;              nakade3[0][2] = 2;
   nakade3[1][0] = 0; nakade3[1][1] = board_size;     nakade3[1][2] = 2 * board_size;
   nakade3[2][0] = 0; nakade3[2][1] = 1;              nakade3[2][2] = board_size + 1;
@@ -172,7 +172,7 @@ InitializeNakadeHash( void )
   nakade3[4][0] = 0; nakade3[4][1] = board_size;     nakade3[4][2] = board_size + 1;
   nakade3[5][0] = 0; nakade3[5][1] = 1;              nakade3[5][2] = board_size;
 
-  // 4–Ú‚ÌƒiƒJƒf
+  // 4ç›®ã®ãƒŠã‚«ãƒ‡
   nakade4[0][0] = 0;              nakade4[0][1] = board_size - 1; 
   nakade4[0][2] = board_size;     nakade4[0][3] = board_size + 1;
   nakade4[1][0] = 0;              nakade4[1][1] = board_size - 1; 
@@ -184,7 +184,7 @@ InitializeNakadeHash( void )
   nakade4[4][0] = 0;              nakade4[4][1] = 1; 
   nakade4[4][2] = board_size;     nakade4[4][3] = board_size + 1;
 
-  // 5–Ú‚ÌƒiƒJƒf
+  // 5ç›®ã®ãƒŠã‚«ãƒ‡
   nakade5[0][0] = 0;                  nakade5[0][1] = board_size - 1; nakade5[0][2] = board_size;
   nakade5[0][3] = board_size + 1;     nakade5[0][4] = 2 * board_size;
   nakade5[1][0] = 0;                  nakade5[1][1] = board_size - 1; nakade5[1][2] = board_size;
@@ -273,12 +273,12 @@ InitializeNakadeHash( void )
     }
   }
 
-  // ‰Šú‰»
+  // åˆæœŸåŒ–
   for (i = 0; i < PAT3_MAX; i++) {
     nakade_pat3_mask[i] = 0xffff;
   }
 
-  // ƒiƒJƒf‚ªoŒ»‚µ‚È‚¢ƒpƒ^[ƒ“‚Ì‰Šú‰»
+  // ãƒŠã‚«ãƒ‡ãŒå‡ºç¾ã—ãªã„ãƒ‘ã‚¿ãƒ¼ãƒ³ã®åˆæœŸåŒ–
   for (i = 0; i < 134; i++) {
     unsigned int tmp_pat3[16];
     Pat3Transpose16(nakade_none[i], tmp_pat3);
@@ -287,7 +287,7 @@ InitializeNakadeHash( void )
     }
   }
 
-  // ƒiƒJƒf‚ªoŒ»‚µ‚¤‚éƒpƒ^[ƒ“‚Ì‰Šú‰»
+  // ãƒŠã‚«ãƒ‡ãŒå‡ºç¾ã—ã†ã‚‹ãƒ‘ã‚¿ãƒ¼ãƒ³ã®åˆæœŸåŒ–
   for (i = 0; i < 446; i++) {
     unsigned int tmp_pat3[16], tmp_mask[16];
     Pat3Transpose16(nakade_mask[i][0], tmp_pat3);
@@ -300,8 +300,8 @@ InitializeNakadeHash( void )
 
 
 ////////////////////////////////////////////////
-//  ©ŒÈƒAƒ^ƒŠ‚ÌŒ`‚ªƒiƒJƒf‚É‚È‚Á‚Ä‚¢‚é‚©Šm”F  //
-//  3–Ú, 4–Ú, 5–ÚƒiƒJƒf‚Ì‚İŠm”F‚·‚é           //
+//  è‡ªå·±ã‚¢ã‚¿ãƒªã®å½¢ãŒãƒŠã‚«ãƒ‡ã«ãªã£ã¦ã„ã‚‹ã‹ç¢ºèª  //
+//  3ç›®, 4ç›®, 5ç›®ãƒŠã‚«ãƒ‡ã®ã¿ç¢ºèªã™ã‚‹           //
 ////////////////////////////////////////////////
 bool
 IsNakadeSelfAtari( game_info_t *game, int pos, int color )
@@ -318,7 +318,7 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
   int check = 0;
   int id;
 
-  // ã‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // ä¸ŠãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[NORTH(pos)] == color) {
     id = string_id[NORTH(pos)];
     my_stone = string[id].origin;
@@ -329,7 +329,7 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
     checked[check++] = id;
   }
 
-  // ¶‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // å·¦ãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[WEST(pos)] == color) {
     id = string_id[WEST(pos)];
     if (checked[0] != id) {
@@ -342,7 +342,7 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
     }
   }
 
-  // ‰E‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // å³ãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[EAST(pos)] == color) {
     id = string_id[EAST(pos)];
     if (checked[0] != id && checked[1] != id) {
@@ -355,7 +355,7 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
     }
   }
 
-  // ‰º‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // ä¸‹ãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[SOUTH(pos)] == color) {
     id = string_id[SOUTH(pos)];
     if (checked[0] != id && checked[1] != id && checked[2] != id) {
@@ -368,29 +368,29 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
     }
   }
 
-  // Šm”F‚µ‚Ä‚¢‚éÀ•W‚à‰Á‚¦‚é
+  // ç¢ºèªã—ã¦ã„ã‚‹åº§æ¨™ã‚‚åŠ ãˆã‚‹
   stones[n++] = pos;
   
-  // ˜A‚Ì‘å‚«‚³‚ª6ˆÈã‚È‚ç‘Å‚½‚È‚¢‚æ‚¤‚É
-  // false‚ğ•Ô‚·
+  // é€£ã®å¤§ãã•ãŒ6ä»¥ä¸Šãªã‚‰æ‰“ãŸãªã„ã‚ˆã†ã«
+  // falseã‚’è¿”ã™
   if (n > 5) {
     return false;
   }
 
-  // À•W‚ğƒ\[ƒg
+  // åº§æ¨™ã‚’ã‚½ãƒ¼ãƒˆ
   std::sort(stones, stones + n);
 
-  // Î‚ÌÀ•W‚Ì•â³€
+  // çŸ³ã®åº§æ¨™ã®è£œæ­£é …
   reviser = start - stones[0];
 
-  // ƒnƒbƒVƒ…’l‚ğŒvZ
+  // ãƒãƒƒã‚·ãƒ¥å€¤ã‚’è¨ˆç®—
   for (i = 0; i < n; i++) {
     hash ^= shape_bit[stones[i] + reviser];
   }
 
-  // ƒnƒbƒVƒ…’l‚ªˆê’v‚µ‚Ä‚¢‚é‚©Šm”F
-  // ƒiƒJƒf‚Ìƒpƒ^[ƒ“‚È‚ç‚Îtrue‚ğ•Ô‚·
-  // ‚»‚¤‚Å‚È‚¯‚ê‚Îfalse‚ğ•Ô‚·
+  // ãƒãƒƒã‚·ãƒ¥å€¤ãŒä¸€è‡´ã—ã¦ã„ã‚‹ã‹ç¢ºèª
+  // ãƒŠã‚«ãƒ‡ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ãªã‚‰ã°trueã‚’è¿”ã™
+  // ãã†ã§ãªã‘ã‚Œã°falseã‚’è¿”ã™
   switch (n) {
   case 3:
     for (i = 0; i < 6; i++) {
@@ -420,7 +420,7 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
 
 
 //////////////////////////////////////////////////
-//  ©ŒÈƒAƒ^ƒŠ‚ªƒiƒJƒf‚ÌŒ`‚É‚È‚Á‚Ä‚¢‚é‚©‚ğŠm”F  //
+//  è‡ªå·±ã‚¢ã‚¿ãƒªãŒãƒŠã‚«ãƒ‡ã®å½¢ã«ãªã£ã¦ã„ã‚‹ã‹ã‚’ç¢ºèª  //
 //////////////////////////////////////////////////
 bool
 IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
@@ -437,7 +437,7 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
   int check = 0;
   int id;
 
-  // ã‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // ä¸ŠãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[NORTH(pos)] == color) {
     id = string_id[NORTH(pos)];
     my_stone = string[id].origin;
@@ -448,7 +448,7 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
     checked[check++] = id;
   }
 
-  // ¶‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // å·¦ãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[WEST(pos)] == color) {
     id = string_id[WEST(pos)];
     if (checked[0] != id) {
@@ -461,7 +461,7 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
     }
   }
 
-  // ‰E‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // å³ãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[EAST(pos)] == color) {
     id = string_id[EAST(pos)];
     if (checked[0] != id && checked[1] != id) {
@@ -474,7 +474,7 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
     }
   }
 
-  // ‰º‚ª©•ª‚Ì˜A‚¾‚Á‚½‚ç, ‚»‚ê‚¼‚ê‚ÌÎ‚ÌÀ•W‚ğ‹L˜^
+  // ä¸‹ãŒè‡ªåˆ†ã®é€£ã ã£ãŸã‚‰, ãã‚Œãã‚Œã®çŸ³ã®åº§æ¨™ã‚’è¨˜éŒ²
   if (board[SOUTH(pos)] == color) {
     id = string_id[SOUTH(pos)];
     if (checked[0] != id && checked[1] != id && checked[2] != id) {
@@ -487,23 +487,23 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
     }
   }
 
-  // Šm”F‚µ‚Ä‚¢‚éÀ•W‚à‰Á‚¦‚é
+  // ç¢ºèªã—ã¦ã„ã‚‹åº§æ¨™ã‚‚åŠ ãˆã‚‹
   stones[n++] = pos;
 
-  // À•W‚ğƒ\[ƒg
+  // åº§æ¨™ã‚’ã‚½ãƒ¼ãƒˆ
   std::sort(stones, stones + n);
 
-  // Î‚ÌÀ•W‚Ì•â³€
+  // çŸ³ã®åº§æ¨™ã®è£œæ­£é …
   reviser = start - stones[0];
 
-  // ƒnƒbƒVƒ…’l‚ÌŒvZ
+  // ãƒãƒƒã‚·ãƒ¥å€¤ã®è¨ˆç®—
   for (i = 0; i < n; i++) {
     hash ^= shape_bit[stones[i] + reviser];
   }
 
-  // ƒnƒbƒVƒ…’l‚ªˆê’v‚µ‚Ä‚¢‚é‚©Šm”F
-  // ƒiƒJƒf‚Ìƒpƒ^[ƒ“‚È‚ç‚Îtrue‚ğ•Ô‚·
-  // ‚»‚¤‚Å‚È‚¯‚ê‚Îfalse‚ğ•Ô‚·
+  // ãƒãƒƒã‚·ãƒ¥å€¤ãŒä¸€è‡´ã—ã¦ã„ã‚‹ã‹ç¢ºèª
+  // ãƒŠã‚«ãƒ‡ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ãªã‚‰ã°trueã‚’è¿”ã™
+  // ãã†ã§ãªã‘ã‚Œã°falseã‚’è¿”ã™
   switch (n) {
   case 3:
     for (i = 0; i < 6; i++) {
@@ -540,7 +540,7 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
 
 
 ////////////////////////////////////////////////
-//  ’¼‘O‚Ì’…è‚ÅƒiƒJƒf‚ÌŒ`‚ªŒ»‚ê‚Ä‚¢‚é‚©Šm”F  //
+//  ç›´å‰ã®ç€æ‰‹ã§ãƒŠã‚«ãƒ‡ã®å½¢ãŒç¾ã‚Œã¦ã„ã‚‹ã‹ç¢ºèª  //
 ////////////////////////////////////////////////
 int
 FindNakadePos( game_info_t *game, int pos, int color )
@@ -555,25 +555,25 @@ FindNakadePos( game_info_t *game, int pos, int color )
   unsigned long long hash = 0;
   int i, reviser;
 
-  // ƒLƒ…[‚Ì‰Šú‰»
+  // ã‚­ãƒ¥ãƒ¼ã®åˆæœŸåŒ–
   InitializeNakadeQueue(&nakade_queue);
 
-  // ŠJn“_‚ğƒLƒ…[‚É“ü‚ê‚é
+  // é–‹å§‹ç‚¹ã‚’ã‚­ãƒ¥ãƒ¼ã«å…¥ã‚Œã‚‹
   Enqueue(&nakade_queue, pos);
 
-  // Šm”FÏ‚İ‚Ìƒtƒ‰ƒO
+  // ç¢ºèªæ¸ˆã¿ã®ãƒ•ãƒ©ã‚°
   flag[pos] = true;
 
-  // ƒLƒ…[‚ª‹ó‚É‚È‚é‚Ü‚Åƒ‹[ƒv
+  // ã‚­ãƒ¥ãƒ¼ãŒç©ºã«ãªã‚‹ã¾ã§ãƒ«ãƒ¼ãƒ—
   while (!IsQueueEmpty(&nakade_queue)) {
     current_pos = Dequeue(&nakade_queue);
     nakade[nakade_num++] = current_pos;
 
-    // —Ìˆæ‚ÌƒTƒCƒY‚ª6ˆÈã‚É‚È‚Á‚½‚ç
-    // ƒiƒJƒf‚Å‚Í‚È‚¢‚Æ”»’è
+    // é ˜åŸŸã®ã‚µã‚¤ã‚ºãŒ6ä»¥ä¸Šã«ãªã£ãŸã‚‰
+    // ãƒŠã‚«ãƒ‡ã§ã¯ãªã„ã¨åˆ¤å®š
     if (size > 5) return NOT_NAKADE;
 
-    // ã‚ª–¢Šm”F‚Å, ©•ª‚ÌÎ‚©‹ó“_‚È‚ç’Ç‰Á
+    // ä¸ŠãŒæœªç¢ºèªã§, è‡ªåˆ†ã®çŸ³ã‹ç©ºç‚¹ãªã‚‰è¿½åŠ 
     if (!flag[NORTH(current_pos)] &&
 	(board[NORTH(current_pos)] & color) == 0) {
       Enqueue(&nakade_queue, NORTH(current_pos));
@@ -581,7 +581,7 @@ FindNakadePos( game_info_t *game, int pos, int color )
       size++;
     }
 
-    // ¶‚ª–¢Šm”F‚Å, ©•ª‚ÌÎ‚©‹ó“_‚È‚ç’Ç‰Á
+    // å·¦ãŒæœªç¢ºèªã§, è‡ªåˆ†ã®çŸ³ã‹ç©ºç‚¹ãªã‚‰è¿½åŠ 
     if (!flag[WEST(current_pos)] &&
 	(board[WEST(current_pos)] & color) == 0) {
       Enqueue(&nakade_queue, WEST(current_pos));
@@ -589,7 +589,7 @@ FindNakadePos( game_info_t *game, int pos, int color )
       size++;
     }
 
-    // ‰E‚ª–¢Šm”F‚Å, ©•ª‚ÌÎ‚©‹ó“_‚È‚ç’Ç‰Á
+    // å³ãŒæœªç¢ºèªã§, è‡ªåˆ†ã®çŸ³ã‹ç©ºç‚¹ãªã‚‰è¿½åŠ 
     if (!flag[EAST(current_pos)] &&
 	(board[EAST(current_pos)] & color) == 0) {
       Enqueue(&nakade_queue, EAST(current_pos));
@@ -597,7 +597,7 @@ FindNakadePos( game_info_t *game, int pos, int color )
       size++;
     }
 
-    // ‰º‚ª–¢Šm”F‚Å, ©•ª‚ÌÎ‚©‹ó“_‚È‚ç’Ç‰Á
+    // ä¸‹ãŒæœªç¢ºèªã§, è‡ªåˆ†ã®çŸ³ã‹ç©ºç‚¹ãªã‚‰è¿½åŠ 
     if (!flag[SOUTH(current_pos)] &&
 	(board[SOUTH(current_pos)] & color) == 0) {
       Enqueue(&nakade_queue, SOUTH(current_pos));
@@ -606,21 +606,21 @@ FindNakadePos( game_info_t *game, int pos, int color )
     }
   }
 
-  // —Ìˆæ‚ª6ˆÈã‚È‚çƒiƒJƒf‚Å‚Í‚È‚¢
+  // é ˜åŸŸãŒ6ä»¥ä¸Šãªã‚‰ãƒŠã‚«ãƒ‡ã§ã¯ãªã„
   if (nakade_num > 5) return NOT_NAKADE;
 
-  // À•W‚ğƒ\[ƒg
+  // åº§æ¨™ã‚’ã‚½ãƒ¼ãƒˆ
   std::sort(nakade, nakade + nakade_num);
 
-  // À•W‚Ì•â³€‚ğZo
+  // åº§æ¨™ã®è£œæ­£é …ã‚’ç®—å‡º
   reviser = start - nakade[0];
 
-  // ƒnƒbƒVƒ…’l‚ÌŒvZ
+  // ãƒãƒƒã‚·ãƒ¥å€¤ã®è¨ˆç®—
   for (i = 0; i < nakade_num; i++) {
     hash ^= shape_bit[nakade[i] + reviser];
   }
 
-  // ƒiƒJƒf‚ÌŒ`‚É‚È‚Á‚Ä‚¢‚ê‚Î, ‚»‚ÌÀ•W‚ğ•Ô‚·
+  // ãƒŠã‚«ãƒ‡ã®å½¢ã«ãªã£ã¦ã„ã‚Œã°, ãã®åº§æ¨™ã‚’è¿”ã™
   switch (nakade_num) {
   case 3:
     for (i = 0; i < 6; i++) {
@@ -651,7 +651,7 @@ FindNakadePos( game_info_t *game, int pos, int color )
 
 
 //////////////////////////////////////
-//  ’¼‘O‚Ì’…è‚ÅƒiƒJƒf‚ª‚ ‚é‚©Šm”F  //
+//  ç›´å‰ã®ç€æ‰‹ã§ãƒŠã‚«ãƒ‡ãŒã‚ã‚‹ã‹ç¢ºèª  //
 //////////////////////////////////////
 void
 SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos )
@@ -666,25 +666,25 @@ SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos )
   };
   unsigned int pat3 = Pat3(game->pat, pos);
 
-  // ƒiƒJƒf‚ªoŒ»‚µ“¾‚È‚¢ƒpƒ^[ƒ“‚È‚ç–ß‚é
+  // ãƒŠã‚«ãƒ‡ãŒå‡ºç¾ã—å¾—ãªã„ãƒ‘ã‚¿ãƒ¼ãƒ³ãªã‚‰æˆ»ã‚‹
   if ((nakade_pat3_mask[pat3] & all_mask[last_color - 1]) == 0) return;
 
-  // ã‚ÌŠm”F
+  // ä¸Šã®ç¢ºèª
   if ((nakade_pat3_mask[pat3] & mask[last_color - 1][0]) != 0) {
     nakade_pos[(*nakade_num)++] = FindNakadePos(game, NORTH(pos), last_color);
   }
   
-  // ¶‚ÌŠm”F
+  // å·¦ã®ç¢ºèª
   if ((nakade_pat3_mask[pat3] & mask[last_color - 1][1]) != 0) {
     nakade_pos[(*nakade_num)++] = FindNakadePos(game, WEST(pos), last_color);
   }
   
-  // ‰E‚ÌŠm”F
+  // å³ã®ç¢ºèª
   if ((nakade_pat3_mask[pat3] & mask[last_color - 1][2]) != 0) {
     nakade_pos[(*nakade_num)++] = FindNakadePos(game, EAST(pos), last_color);
   }
 
-  // ‰º‚ÌŠm”F
+  // ä¸‹ã®ç¢ºèª
   if ((nakade_pat3_mask[pat3] & mask[last_color - 1][3]) != 0) {
     nakade_pos[(*nakade_num)++] = FindNakadePos(game, SOUTH(pos), last_color);
   }
@@ -694,7 +694,7 @@ SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos )
 
 
 ////////////////////////////////////////////////////
-//  Î‚ğæ‚èœ‚¢‚½‰ÓŠ‚ªƒiƒJƒf‚É‚È‚Á‚Ä‚¢‚é‚©Šm”F  //
+//  çŸ³ã‚’å–ã‚Šé™¤ã„ãŸç®‡æ‰€ãŒãƒŠã‚«ãƒ‡ã«ãªã£ã¦ã„ã‚‹ã‹ç¢ºèª  //
 ////////////////////////////////////////////////////
 int
 CheckRemovedStoneNakade( game_info_t *game, int color )
@@ -704,22 +704,22 @@ CheckRemovedStoneNakade( game_info_t *game, int color )
   int reviser, i;
   unsigned long long hash = 0;
 
-  // •ßŠl‚µ‚½Î‚Ì”‚ª3ŒÂˆÈã6ŒÂˆÈ‰º‚È‚çŠm”F‚µ
-  // ‚»‚êˆÈŠO‚È‚ç‰½‚à‚µ‚È‚¢‚ÅI—¹
+  // æ•ç²ã—ãŸçŸ³ã®æ•°ãŒ3å€‹ä»¥ä¸Š6å€‹ä»¥ä¸‹ãªã‚‰ç¢ºèªã—
+  // ãã‚Œä»¥å¤–ãªã‚‰ä½•ã‚‚ã—ãªã„ã§çµ‚äº†
   if (capture_num > 6 ||
       capture_num < 3) {
     return NOT_NAKADE;
   }
 
-  // À•W‚Ì•â³€‚ÌZo
+  // åº§æ¨™ã®è£œæ­£é …ã®ç®—å‡º
   reviser = start - capture_pos[0];
 
-  // ƒnƒbƒVƒ…’l‚ÌŒvZ
+  // ãƒãƒƒã‚·ãƒ¥å€¤ã®è¨ˆç®—
   for (i = 0; i < capture_num; i++) {
     hash ^= shape_bit[capture_pos[i] + reviser];
   }
 
-  // ƒiƒJƒf‚É‚È‚Á‚Ä‚¢‚ê‚Î, ‚»‚ÌÀ•W‚ğ•Ô‚·
+  // ãƒŠã‚«ãƒ‡ã«ãªã£ã¦ã„ã‚Œã°, ãã®åº§æ¨™ã‚’è¿”ã™
   switch (capture_num) {
   case 3:
     for (i = 0; i < 6; i++) {

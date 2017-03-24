@@ -107,7 +107,7 @@ const int PREVIOUS_DISTANCE_MAX = 3;
 const int PO_TACTICALS_MAX1 = (1 << F_MAX1);
 const int PO_TACTICALS_MAX2 = (1 << F_MAX2);
 
-// MD2ƒpƒ^[ƒ“‚É“ü‚éŽè‚Ì”
+// MD2ãƒ‘ã‚¿ãƒ¼ãƒ³ã«å…¥ã‚‹æ‰‹ã®æ•°
 const int UPDATE_NUM = 13;
 
 const int F_MASK_MAX = 30;
@@ -118,7 +118,7 @@ const double JUMP_BIAS = 4.63207;
 const double PO_BIAS = 1.66542;
 
 ////////////
-//  •Ï”  //
+//  å¤‰æ•°  //
 ////////////
 
 extern float po_tactical_features[TACTICAL_FEATURE_MAX];
@@ -131,56 +131,56 @@ extern float po_tactical_set2[PO_TACTICALS_MAX2];
 
 extern char po_params_path[1024];
 
-// ƒrƒbƒgƒ}ƒXƒN
+// ãƒ“ãƒƒãƒˆãƒžã‚¹ã‚¯
 extern unsigned int tactical_features_mask[F_MASK_MAX];
 
 ////////////
-//  ŠÖ”  //
+//  é–¢æ•°  //
 ////////////
 
-//  MD2‚ÉŽû‚Ü‚éÀ•W‚ÌŒvŽZ
+//  MD2ã«åŽã¾ã‚‹åº§æ¨™ã®è¨ˆç®—
 void SetNeighbor( void );
 
-//  ‰Šú‰»
+//  åˆæœŸåŒ–
 void InitializeRating( void );
 
-//  íp“I“Á’¥‚Ì‰Šú‰»
+//  æˆ¦è¡“çš„ç‰¹å¾´ã®åˆæœŸåŒ–
 void InitializePoTacticalFeaturesSet( void );
 
-//  ’…Žè(Elo Rating)
+//  ç€æ‰‹(Elo Rating)
 int RatingMove( game_info_t *game, int color, std::mt19937_64 *mt);
 
-//  ƒŒ[ƒeƒBƒ“ƒO 
+//  ãƒ¬ãƒ¼ãƒ†ã‚£ãƒ³ã‚° 
 void Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate );
 
-//  ƒŒ[ƒeƒBƒ“ƒO 
+//  ãƒ¬ãƒ¼ãƒ†ã‚£ãƒ³ã‚° 
 void PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate );
 
-//  ŒÄ‹z“_‚ª1‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  
+//  å‘¼å¸ç‚¹ãŒ1ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  
 void PoCheckFeaturesLib1( game_info_t *game, int color, int *update, int *update_num, int pos );
 
-//  ŒÄ‹z“_‚ª2‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  
+//  å‘¼å¸ç‚¹ãŒ2ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  
 void PoCheckFeaturesLib2( game_info_t *game, int color, int *update, int *update_num, int pos );
 
-//  ŒÄ‹z“_‚ª3‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  
+//  å‘¼å¸ç‚¹ãŒ3ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  
 void PoCheckFeaturesLib3( game_info_t *game, int color, int *update, int *update_num, int pos );
 
-//  “Á’¥‚Ì”»’è
+//  ç‰¹å¾´ã®åˆ¤å®š
 void PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num );
 
-//  …‚ð‰ðÁ‚·‚éƒgƒŠ‚Ì”»’è
+//  åŠ«ã‚’è§£æ¶ˆã™ã‚‹ãƒˆãƒªã®åˆ¤å®š
 void PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_num );
 
-//  Ž©ŒÈƒAƒ^ƒŠ‚Ì”»’è
+//  è‡ªå·±ã‚¢ã‚¿ãƒªã®åˆ¤å®š
 bool PoCheckSelfAtari( game_info_t *game, int color, int pos );
 
-//  ƒgƒŠ‚ÆƒAƒ^ƒŠ‚Ì”»’è
+//  ãƒˆãƒªã¨ã‚¢ã‚¿ãƒªã®åˆ¤å®š
 void PoCheckCaptureAndAtari( game_info_t *game, int color, int pos );
 
-//  2–Ú‚Ì”²‚«Œã‚É‘Î‚·‚éƒzƒEƒŠƒRƒ~   
+//  2ç›®ã®æŠœãå¾Œã«å¯¾ã™ã‚‹ãƒ›ã‚¦ãƒªã‚³ãƒŸ   
 void PoCheckRemove2Stones( game_info_t *game, int color, int *update, int *update_num );
 
-//  Œ»‹Ç–Ê‚Ì•]‰¿’l
+//  ç¾å±€é¢ã®è©•ä¾¡å€¤
 void AnalyzePoRating( game_info_t *game, int color, double rate[] );
 
 #endif

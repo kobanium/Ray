@@ -5,49 +5,49 @@
 #include "UctSearch.h"
 
 
-//  ƒGƒ‰[ƒƒbƒZ[ƒW‚Ìo—Í‚Ìİ’è
+//  ã‚¨ãƒ©ãƒ¼ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®å‡ºåŠ›ã®è¨­å®š
 void SetDebugMessageMode( bool flag );
 
-//  ”Õ–Ê‚Ì•\¦
+//  ç›¤é¢ã®è¡¨ç¤º
 void PrintBoard( game_info_t *game );
 
-//  ˜A‚Ìî•ñ‚Ì•\¦              
-//    ŒÄ‹z“_‚Ì”, À•W          
-//    ˜A‚ğ\¬‚·‚éÎ‚Ì”, À•W  
-//    —×Ú‚·‚é“G‚Ì˜A‚ÌID
+//  é€£ã®æƒ…å ±ã®è¡¨ç¤º              
+//    å‘¼å¸ç‚¹ã®æ•°, åº§æ¨™          
+//    é€£ã‚’æ§‹æˆã™ã‚‹çŸ³ã®æ•°, åº§æ¨™  
+//    éš£æ¥ã™ã‚‹æ•µã®é€£ã®ID
 void PrintString( game_info_t *game );
 
-//  ŠeÀ•W‚Ì˜AID‚Ì•\¦  
+//  å„åº§æ¨™ã®é€£IDã®è¡¨ç¤º  
 void PrintStringID( game_info_t *game );
 
-//  ˜AƒŠƒXƒg‚ÌŒq‚ª‚è‚ğ•\¦(Debug—p)
+//  é€£ãƒªã‚¹ãƒˆã®ç¹‹ãŒã‚Šã‚’è¡¨ç¤º(Debugç”¨)
 void PrintStringNext( game_info_t *game );
 
-//  ‡–@è‚Å‚ ‚éŒó•âè‚ğ•\¦ 
+//  åˆæ³•æ‰‹ã§ã‚ã‚‹å€™è£œæ‰‹ã‚’è¡¨ç¤º 
 void PrintLegal( game_info_t *game, int color );
 
-//  ƒI[ƒi[‚Ì•\¦
+//  ã‚ªãƒ¼ãƒŠãƒ¼ã®è¡¨ç¤º
 void PrintOwner( uct_node_t *root, int color, double *own );
 
-//  Å‘P‰è—ñ‚Ì•\¦
+//  æœ€å–„å¿œæ‰‹åˆ—ã®è¡¨ç¤º
 void PrintBestSequence( game_info_t *game, uct_node_t *uct_node, int root, int start_color );
 
-//  ’Tõ‚Ìî•ñ‚Ì•\¦
+//  æ¢ç´¢ã®æƒ…å ±ã®è¡¨ç¤º
 void PrintPlayoutInformation( uct_node_t *root, po_info_t *po_info, double finish_time, int pre_simulated );
 
-//  À•W‚Ìo—Í
+//  åº§æ¨™ã®å‡ºåŠ›
 void PrintPoint( int pos );
 
-//  ƒRƒ~‚Ì’l‚Ìo—Í
+//  ã‚³ãƒŸã®å€¤ã®å‡ºåŠ›
 void PrintKomiValue( void );
 
-//  Pondering‚ÌƒvƒŒƒCƒAƒEƒg‰ñ”‚Ìo—Í
+//  Ponderingã®ãƒ—ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆå›æ•°ã®å‡ºåŠ›
 void PrintPonderingCount( int count );
 
-//  ’TõŠÔ‚Ìo—Í
+//  æ¢ç´¢æ™‚é–“ã®å‡ºåŠ›
 void PrintPlayoutLimits( double time_limit, int playout_limit );
 
-//  Ä—˜—p‚µ‚½’Tõ‰ñ”‚Ìo—Í
+//  å†åˆ©ç”¨ã—ãŸæ¢ç´¢å›æ•°ã®å‡ºåŠ›
 void PrintReuseCount( int count );
 
 #endif

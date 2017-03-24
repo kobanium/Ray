@@ -9,31 +9,31 @@ const int BIT_MAX = 60;
 
 #define TRANS20(hash)	(((hash&0xFFFFFFFF)^((hash>>32)&0xFFFFFFFF))&0xFFFFF)
 
-// ƒpƒ^[ƒ“
+// ãƒ‘ã‚¿ãƒ¼ãƒ³
 typedef struct _pattern_hash {
   unsigned long long list[MD_MAX + MD_LARGE_MAX];
 } pattern_hash_t;
 
-// ƒCƒ“ƒfƒbƒNƒX 
+// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ 
 typedef struct _index_hash {
   unsigned long long hash;
   int index;
 } index_hash_t;
 
 ////////////
-//  ŠÖ”  //
+//  é–¢æ•°  //
 ////////////
 
-//  ƒpƒ^[ƒ“‚ÌƒnƒbƒVƒ…ŠÖ”
+//  ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒãƒƒã‚·ãƒ¥é–¢æ•°
 void PatternHash( struct pattern *pat, pattern_hash_t *hash_pat );
 
-//  ƒpƒ^[ƒ“‚ÌƒnƒbƒVƒ…ŠÖ”
+//  ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒãƒƒã‚·ãƒ¥é–¢æ•°
 unsigned long long MD2Hash( unsigned int md2 );
 unsigned long long MD3Hash( unsigned int md3 );
 unsigned long long MD4Hash( unsigned int md4 );
 unsigned long long MD5Hash( unsigned long long int md5 );
 
-//  ƒCƒ“ƒfƒbƒNƒX‚ð’Tõ
+//  ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æŽ¢ç´¢
 int SearchIndex( index_hash_t *index, unsigned long long hash );
 
 #endif	// _PATTTERNHASH_H_ 

@@ -21,7 +21,7 @@ main( int argc, char **argv )
   char program_path[1024];
   int last;
 
-  // Àsƒtƒ@ƒCƒ‹‚Ì‚ ‚éƒfƒBƒŒƒNƒgƒŠ‚ÌƒpƒX‚ğ’Šo
+  // å®Ÿè¡Œãƒ•ã‚¡ã‚¤ãƒ«ã®ã‚ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®ãƒ‘ã‚¹ã‚’æŠ½å‡º
 #if defined (_WIN32)
   HMODULE hModule = GetModuleHandle(NULL);
   GetModuleFileNameA(hModule, program_path, 1024);
@@ -43,7 +43,7 @@ main( int argc, char **argv )
 #endif
   }
 
-  // ŠeíƒpƒX‚Ìİ’è
+  // å„ç¨®ãƒ‘ã‚¹ã®è¨­å®š
 #if defined (_WIN32)
   sprintf_s(uct_params_path, 1024, "%s\\uct_params", program_path);
   sprintf_s(po_params_path, 1024, "%s\\sim_params", program_path);
@@ -51,10 +51,10 @@ main( int argc, char **argv )
   sprintf(uct_params_path, "%s/uct_params", program_path);
   sprintf(po_params_path, "%s/sim_params", program_path);
 #endif
-  // ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚Ì‰ğÍ  
+  // ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ã®è§£æ  
   AnalyzeCommand(argc, argv);
 
-  // Šeí‰Šú‰»
+  // å„ç¨®åˆæœŸåŒ–
   InitializeConst();
   InitializeRating();
   InitializeUctRating();

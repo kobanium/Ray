@@ -3,17 +3,17 @@
 
 #include <ctime>
 
-// ����Ԃ̎Z�o
+// 消費時間の算出
 double GetSpendTime( clock_t start_time );
 
 #if !defined (_WIN32)
 double GetSpendTimeForLinux( struct timeval *start_time );
 #endif
 
-// �f�[�^�ǂݍ���(float)
+// データ読み込み(float)
 void InputTxtFLT( const char *filename, float *ap, int array_size );
 
-// �f�[�^�ǂݍ���(double)
+// データ読み込み(double)
 void InputTxtDBL( const char *filename, double *ap, int array_size );
 
 #endif

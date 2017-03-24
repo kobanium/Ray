@@ -5,17 +5,17 @@
 #include "Semeai.h"
 #include "UctRating.h"
 
-// IsCapturableAtariŠÖ”—p
+// IsCapturableAtarié–¢æ•°ç”¨
 game_info_t capturable_game;
-// CheckOiotoshiŠÖ”—p
+// CheckOiotoshié–¢æ•°ç”¨
 game_info_t oiotoshi_game;
-// CheckLibertyStateŠÖ”—p
+// CheckLibertyStateé–¢æ•°ç”¨
 game_info_t liberty_game;
-// IsSelfAtariCaptureŠÖ”—p
+// IsSelfAtariCaptureé–¢æ•°ç”¨
 game_info_t capture_game;
 
 /////////////////////////
-//  1è‚Åæ‚ê‚é‚©Šm”F  //
+//  1æ‰‹ã§å–ã‚Œã‚‹ã‹ç¢ºèª  //
 /////////////////////////
 bool
 IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos )
@@ -31,16 +31,16 @@ IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos )
     return false;
   }
 
-  // ‹Ç–Ê‚ğƒRƒs[
+  // å±€é¢ã‚’ã‚³ãƒ”ãƒ¼
   CopyGame(&capturable_game, game);
-  // ‚Æ‚è‚ ‚¦‚¸Î‚ğ’u‚­
+  // ã¨ã‚Šã‚ãˆãšçŸ³ã‚’ç½®ã
   PutStone(&capturable_game, pos, color);
 
   string = capturable_game.string;
   string_id = capturable_game.string_id;
   id = string_id[opponent_pos];
 
-  // üˆÍ‚Éæ‚è•Ô‚¹‚éÎ‚ª‚ ‚ê‚ÎˆÀ‘S
+  // å‘¨å›²ã«å–ã‚Šè¿”ã›ã‚‹çŸ³ãŒã‚ã‚Œã°å®‰å…¨
   neighbor = string[id].neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
@@ -52,12 +52,12 @@ IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos )
   if (!IsLegal(&capturable_game, string[string_id[opponent_pos]].lib[0], other)) {
     return true;
   }
-  // “¦‚°‚é‚Â‚à‚è‚Åƒ_ƒ‚É‘Å‚Â
+  // é€ƒã’ã‚‹ã¤ã‚‚ã‚Šã§ãƒ€ãƒ¡ã«æ‰“ã¤
   PutStone(&capturable_game, string[string_id[opponent_pos]].lib[0], other);
 
   libs = string[string_id[opponent_pos]].libs;
 
-  // “¦‚°‚Ä‚àŒÄ‹z“_‚ª1‚Â‚È‚ç•ßŠl‰Â”\‚Æ”»’è
+  // é€ƒã’ã¦ã‚‚å‘¼å¸ç‚¹ãŒ1ã¤ãªã‚‰æ•ç²å¯èƒ½ã¨åˆ¤å®š
   if (libs == 1) {
     return true;
   } else {
@@ -67,9 +67,9 @@ IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos )
 
 
 ////////////////////////////////
-//  ƒIƒCƒIƒgƒV‚©‚Ç‚¤‚©‚ğŠm”F  //
+//  ã‚ªã‚¤ã‚ªãƒˆã‚·ã‹ã©ã†ã‹ã‚’ç¢ºèª  //
 ////////////////////////////////
-// •Ô‚è’l‚ªint‚Æbool‚Ìˆá‚¢‚¾‚¯‚ÅIsCapturableAtariŠÖ”‚Æ“¯‚¶
+// è¿”ã‚Šå€¤ãŒintã¨boolã®é•ã„ã ã‘ã§IsCapturableAtarié–¢æ•°ã¨åŒã˜
 int
 CheckOiotoshi( game_info_t *game, int pos, int color, int opponent_pos )
 {
@@ -111,7 +111,7 @@ CheckOiotoshi( game_info_t *game, int pos, int color, int opponent_pos )
 
 
 //////////////////////////////////////////////
-//  Î‚ğ‚·‚®‚É•ßŠl‚Å‚«‚»‚¤‚ÈŒó•âè‚ğ‹‚ß‚é  //
+//  çŸ³ã‚’ã™ãã«æ•ç²ã§ããã†ãªå€™è£œæ‰‹ã‚’æ±‚ã‚ã‚‹  //
 //////////////////////////////////////////////
 int
 CapturableCandidate( game_info_t *game, int id )
@@ -121,7 +121,7 @@ CapturableCandidate( game_info_t *game, int id )
   bool flag = false;
   int capturable_pos = -1;
 
-  // —×Ú‚·‚éŒÄ‹z“_‚ª1‚Â‚Ì“G˜A‚ª1‚Â‚¾‚¯‚Ì, Œó•â‚ğ•Ô‚·
+  // éš£æ¥ã™ã‚‹å‘¼å¸ç‚¹ãŒ1ã¤ã®æ•µé€£ãŒ1ã¤ã ã‘ã®æ™‚, å€™è£œã‚’è¿”ã™
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       if (string[neighbor].size >= 2) {
@@ -142,7 +142,7 @@ CapturableCandidate( game_info_t *game, int id )
 
 
 ////////////////////////////////////
-//  ‚·‚®‚É•ß‚Ü‚éè‚©‚Ç‚¤‚©‚ğ”»’è  //
+//  ã™ãã«æ•ã¾ã‚‹æ‰‹ã‹ã©ã†ã‹ã‚’åˆ¤å®š  //
 ////////////////////////////////////
 bool
 IsDeadlyExtension( game_info_t *game, int color, int id )
@@ -170,7 +170,7 @@ IsDeadlyExtension( game_info_t *game, int color, int id )
 
 
 ////////////////////////////////////
-//  —×Ú‚·‚é“G˜A‚ªæ‚ê‚é‚©‚ğ”»’è  //
+//  éš£æ¥ã™ã‚‹æ•µé€£ãŒå–ã‚Œã‚‹ã‹ã‚’åˆ¤å®š  //
 ////////////////////////////////////
 bool
 IsCapturableNeighborNone(game_info_t *game, int id)
@@ -190,7 +190,7 @@ IsCapturableNeighborNone(game_info_t *game, int id)
 
 
 /////////////////////////////////
-//  ©ŒÈƒAƒ^ƒŠ‚É‚È‚éƒgƒŠ‚©”»’è  //
+//  è‡ªå·±ã‚¢ã‚¿ãƒªã«ãªã‚‹ãƒˆãƒªã‹åˆ¤å®š  //
 /////////////////////////////////
 bool
 IsSelfAtariCapture( game_info_t *game, int pos, int color, int id )
@@ -217,7 +217,7 @@ IsSelfAtariCapture( game_info_t *game, int pos, int color, int id )
 }
 
 ////////////////////////////////////////
-//  ŒÄ‹z“_‚ª‚Ç‚Ì‚æ‚¤‚É•Ï‰»‚·‚é‚©‚ğŠm”F  //
+//  å‘¼å¸ç‚¹ãŒã©ã®ã‚ˆã†ã«å¤‰åŒ–ã™ã‚‹ã‹ã‚’ç¢ºèª  //
 ////////////////////////////////////////
 int
 CheckLibertyState( game_info_t *game, int pos, int color, int id )
@@ -251,7 +251,7 @@ CheckLibertyState( game_info_t *game, int pos, int color, int id )
 
 
 ///////////////////////////////////////////////
-//  1è‚Åæ‚ê‚é‚©‚ğ”»’è(ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“—p)  //
+//  1æ‰‹ã§å–ã‚Œã‚‹ã‹ã‚’åˆ¤å®š(ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ç”¨)  //
 ///////////////////////////////////////////////
 bool
 IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
@@ -276,11 +276,11 @@ IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
 
   index_distance = lib - pos;
 
-  // ‹l‚ß‚é•û‚Æ‚Í‹t‚Ìƒ_ƒ‚ÌüˆÍ‚Ì‹ó“_”‚ğ’²‚×‚é
+  // è©°ã‚ã‚‹æ–¹ã¨ã¯é€†ã®ãƒ€ãƒ¡ã®å‘¨å›²ã®ç©ºç‚¹æ•°ã‚’èª¿ã¹ã‚‹
   pat3 = Pat3(game->pat, lib);
   empty = nb4_empty[pat3];
 
-  // ‹t‚Ìƒ_ƒ‚ÌüˆÍ‚Ì‹ó“_”‚ª3‚È‚çæ‚ê‚È‚¢‚Ì‚Åfalse
+  // é€†ã®ãƒ€ãƒ¡ã®å‘¨å›²ã®ç©ºç‚¹æ•°ãŒ3ãªã‚‰å–ã‚Œãªã„ã®ã§false
   if (empty == 3) {
     return false;
   }
@@ -290,17 +290,17 @@ IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
   if (index_distance ==  board_size) neighbor = true;
   if (index_distance == -board_size) neighbor = true;
 
-  // ƒ_ƒ‚ª—×‚è‡‚Á‚Ä‚¢‚é‚Æ
-  // ƒ_ƒ‚ª—£‚ê‚Ä‚¢‚é‚Ì•ªŠò
+  // ãƒ€ãƒ¡ãŒéš£ã‚Šåˆã£ã¦ã„ã‚‹æ™‚ã¨
+  // ãƒ€ãƒ¡ãŒé›¢ã‚Œã¦ã„ã‚‹æ™‚ã®åˆ†å²
   if (( neighbor && empty >= 3) ||
       (!neighbor && empty >= 2)) {
     return false;
   }
 
-  // —×Ú‚·‚é˜A‚ªlibˆÈŠO‚É‚ÂŒÄ‹z“_‚Ì‡Œv”‚ª
-  // 2ˆÈã‚È‚ç–³ğŒ‚Å1è‚Åæ‚ê‚éƒAƒ^ƒŠ‚Å‚Í‚È‚¢‚Ì‚Åfalse
+  // éš£æ¥ã™ã‚‹é€£ãŒlibä»¥å¤–ã«æŒã¤å‘¼å¸ç‚¹ã®åˆè¨ˆæ•°ãŒ
+  // 2ä»¥ä¸Šãªã‚‰ç„¡æ¡ä»¶ã§1æ‰‹ã§å–ã‚Œã‚‹ã‚¢ã‚¿ãƒªã§ã¯ãªã„ã®ã§false
 
-  // ã‚ÌŠm”F
+  // ä¸Šã®ç¢ºèª
   if (board[NORTH(lib)] == other && 
       string_id[NORTH(lib)] != id) {
     tmp_id = string_id[NORTH(lib)];
@@ -311,7 +311,7 @@ IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
     }
   } 
 
-  // ¶‚ÌŠm”F
+  // å·¦ã®ç¢ºèª
   if (board[WEST(lib)] == other && 
       string_id[WEST(lib)] != id) {
     tmp_id = string_id[WEST(lib)];
@@ -322,7 +322,7 @@ IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
     }
   }
 
-  // ‰E‚ÌŠm”F
+  // å³ã®ç¢ºèª
   if (board[EAST(lib)] == other && 
       string_id[EAST(lib)] != id) {
     tmp_id = string_id[EAST(lib)];
@@ -333,7 +333,7 @@ IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
     }
   }
 
-  // ‰º‚ÌŠm”F
+  // ä¸‹ã®ç¢ºèª
   if (board[SOUTH(lib)] == other && 
       string_id[SOUTH(lib)] != id) {
     tmp_id = string_id[SOUTH(lib)];
@@ -344,8 +344,8 @@ IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
     }
   }
 
-  // ƒ_ƒ‚É‘Å‚Á‚Ä‚à‘‚¦‚éŒÄ‹z“_”‚ª1ˆÈ‰º‚È‚ç
-  // 1è‚Åæ‚ê‚éƒAƒ^ƒŠ
+  // ãƒ€ãƒ¡ã«æ‰“ã£ã¦ã‚‚å¢—ãˆã‚‹å‘¼å¸ç‚¹æ•°ãŒ1ä»¥ä¸‹ãªã‚‰
+  // 1æ‰‹ã§å–ã‚Œã‚‹ã‚¢ã‚¿ãƒª
   if (( neighbor && connect_libs < 2) ||
       (!neighbor && connect_libs < 1)) {
     return true;
@@ -440,16 +440,16 @@ IsSelfAtari( game_info_t *game, int color, int pos )
   int id;
   bool checked;
 
-  // ã‰º¶‰E‚ª‹ó“_‚È‚çŒÄ‹z“_‚ÌŒó•â‚É“ü‚ê‚é
+  // ä¸Šä¸‹å·¦å³ãŒç©ºç‚¹ãªã‚‰å‘¼å¸ç‚¹ã®å€™è£œã«å…¥ã‚Œã‚‹
   if (board[NORTH(pos)] == S_EMPTY) lib_candidate[libs++] = NORTH(pos);
   if (board[WEST(pos)] == S_EMPTY) lib_candidate[libs++] = WEST(pos);
   if (board[EAST(pos)] == S_EMPTY) lib_candidate[libs++] = EAST(pos);
   if (board[SOUTH(pos)] == S_EMPTY) lib_candidate[libs++] = SOUTH(pos);
 
-  //  ‹ó“_
+  //  ç©ºç‚¹
   if (libs >= 2) return false;
 
-  // ã‚ğ’²‚×‚é
+  // ä¸Šã‚’èª¿ã¹ã‚‹
   if (board[NORTH(pos)] == color) {
     id = string_id[NORTH(pos)];
     if (string[id].libs > 2) return false;
@@ -479,7 +479,7 @@ IsSelfAtari( game_info_t *game, int color, int pos )
     return false;
   }
 
-  // ¶‚ğ’²‚×‚é
+  // å·¦ã‚’èª¿ã¹ã‚‹
   if (board[WEST(pos)] == color) {
     id = string_id[WEST(pos)];
     if (already[0] != id) {
@@ -511,7 +511,7 @@ IsSelfAtari( game_info_t *game, int color, int pos )
     return false;
   }
 
-  // ‰E‚ğ’²‚×‚é
+  // å³ã‚’èª¿ã¹ã‚‹
   if (board[EAST(pos)] == color) {
     id = string_id[EAST(pos)];
     if (already[0] != id && already[1] != id) {
@@ -544,7 +544,7 @@ IsSelfAtari( game_info_t *game, int color, int pos )
   }
 
 
-  // ‰º‚ğ’²‚×‚é
+  // ä¸‹ã‚’èª¿ã¹ã‚‹
   if (board[SOUTH(pos)] == color) {
     id = string_id[SOUTH(pos)];
     if (already[0] != id && already[1] != id && already[2] != id) {

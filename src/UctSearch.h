@@ -7,235 +7,235 @@
 #include "GoBoard.h"
 #include "ZobristHash.h"
 
-const int THREAD_MAX = 32;              // Ћg—p‚·‚йѓXѓЊѓbѓhђ”‚МЌЕ‘е’l
-const int MAX_NODES = 1000000;          // UCT‚МѓmЃ[ѓh‚М”z—с‚МѓTѓCѓY
-const double ALL_THINKING_TIME = 90.0;  // Ћќ‚їЋћЉФ(ѓfѓtѓHѓ‹ѓg)
-const int CONST_PLAYOUT = 10000;        // 1Ћи‚ ‚Ѕ‚и‚МѓvѓЊѓCѓAѓEѓg‰сђ”(ѓfѓtѓHѓ‹ѓg)
-const double CONST_TIME = 10.0;         // 1Ћи‚ ‚Ѕ‚и‚МЋvЌlЋћЉФ(ѓfѓtѓHѓ‹ѓg)
-const int PLAYOUT_SPEED = 1000;         // Џ‰Љъ”Х–К‚Й‚Ё‚Ї‚йѓvѓЊѓCѓAѓEѓg‘¬“x
+const int THREAD_MAX = 32;              // дЅїз”ЁгЃ™г‚‹г‚№гѓ¬гѓѓгѓ‰ж•°гЃ®жњЂе¤§еЂ¤
+const int MAX_NODES = 1000000;          // UCTгЃ®гѓЋгѓјгѓ‰гЃ®й…Ќе€—гЃ®г‚µг‚¤г‚є
+const double ALL_THINKING_TIME = 90.0;  // жЊЃгЃЎж™‚й–“(гѓ‡гѓ•г‚©гѓ«гѓ€)
+const int CONST_PLAYOUT = 10000;        // 1ж‰‹гЃ‚гЃџг‚ЉгЃ®гѓ—гѓ¬г‚¤г‚ўг‚¦гѓ€е›ћж•°(гѓ‡гѓ•г‚©гѓ«гѓ€)
+const double CONST_TIME = 10.0;         // 1ж‰‹гЃ‚гЃџг‚ЉгЃ®жЂќиЂѓж™‚й–“(гѓ‡гѓ•г‚©гѓ«гѓ€)
+const int PLAYOUT_SPEED = 1000;         // е€ќжњџз›¤йќўгЃ«гЃЉгЃ‘г‚‹гѓ—гѓ¬г‚¤г‚ўг‚¦гѓ€йЂџеє¦
 
 
-// ЋvЌlЋћЉФ‚МЉ„‚иђU‚и
+// жЂќиЂѓж™‚й–“гЃ®е‰Іг‚ЉжЊЇг‚Љ
 const int TIME_RATE_9 = 20;
 const int TIME_C_13 = 30;
 const int TIME_MAXPLY_13 = 30;
 const int TIME_C_19 = 60;
 const int TIME_MAXPLY_19 = 80;
 
-// Criticality‚ЖOwner‚рЊvЋZ‚·‚йЉФЉu
+// CriticalityгЃЁOwnerг‚’иЁ€з®—гЃ™г‚‹й–“йљ”
 const int CRITICALITY_INTERVAL = 100;
 
-// ђж“Є‘Е’…‹Щ‹}“x
+// е…€й ­ж‰“зќЂз·ЉжЂҐеє¦
 const double FPU = 5.0;
 
 // Progressive Widening
 const double PROGRESSIVE_WIDENING = 1.8;
 
-// ѓmЃ[ѓh“WЉJ‚Ми‡’l
+// гѓЋгѓјгѓ‰е±•й–‹гЃ®й–ѕеЂ¤
 const int EXPAND_THRESHOLD_9  = 20;
 const int EXPAND_THRESHOLD_13 = 25;
 const int EXPAND_THRESHOLD_19 = 40;
 
 
-// Њу•вЋи‚МЌЕ‘еђ”(”ХЏг‘S‘М + ѓpѓX)
+// еЂ™иЈњж‰‹гЃ®жњЂе¤§ж•°(з›¤дёЉе…ЁдЅ“ + гѓ‘г‚№)
 const int UCT_CHILD_MAX = PURE_BOARD_MAX + 1;
 
-// –ў“WЉJ‚МѓmЃ[ѓh‚МѓCѓ“ѓfѓbѓNѓX
+// жњЄе±•й–‹гЃ®гѓЋгѓјгѓ‰гЃ®г‚¤гѓігѓ‡гѓѓг‚Їг‚№
 const int NOT_EXPANDED = -1;
 
-// ѓpѓX‚МѓCѓ“ѓfѓbѓNѓX
+// гѓ‘г‚№гЃ®г‚¤гѓігѓ‡гѓѓг‚Їг‚№
 const int PASS_INDEX = 0;
 
-// UCB Bonus‚ЙЉЦ‚·‚й’иђ”
+// UCB BonusгЃ«й–ўгЃ™г‚‹е®љж•°
 const double BONUS_EQUIVALENCE = 1000;
 const double BONUS_WEIGHT = 0.35;
 
-// ѓpѓX‚·‚йЏџ—¦‚Ми‡’l
+// гѓ‘г‚№гЃ™г‚‹е‹ќзЋ‡гЃ®й–ѕеЂ¤
 const double PASS_THRESHOLD = 0.90;
-// “Љ—№‚·‚йЏџ—¦‚Ми‡’l
+// жЉ•дє†гЃ™г‚‹е‹ќзЋ‡гЃ®й–ѕеЂ¤
 const double RESIGN_THRESHOLD = 0.20;
 
 // Virtual Loss (Best Parameter)
 const int VIRTUAL_LOSS = 1;
 
 enum SEARCH_MODE {
-  CONST_PLAYOUT_MODE, // 1Ћи‚МѓvѓЊѓCѓAѓEѓg‰сђ”‚рЊЕ’и‚µ‚Ѕѓ‚Ѓ[ѓh
-  CONST_TIME_MODE,    // 1Ћи‚МЋvЌlЋћЉФ‚рЊЕ’и‚µ‚Ѕѓ‚Ѓ[ѓh
-  TIME_SETTING_MODE,  // Ћќ‚їЋћЉФ‚ ‚и‚Мѓ‚Ѓ[ѓh
+  CONST_PLAYOUT_MODE, // 1ж‰‹гЃ®гѓ—гѓ¬г‚¤г‚ўг‚¦гѓ€е›ћж•°г‚’е›єе®љгЃ—гЃџгѓўгѓјгѓ‰
+  CONST_TIME_MODE,    // 1ж‰‹гЃ®жЂќиЂѓж™‚й–“г‚’е›єе®љгЃ—гЃџгѓўгѓјгѓ‰
+  TIME_SETTING_MODE,  // жЊЃгЃЎж™‚й–“гЃ‚г‚ЉгЃ®гѓўгѓјгѓ‰
 };
 
 
 typedef struct {
-  game_info_t *game; // ’TЌх‘ОЏЫ‚М‹З–К
-  int thread_id;   // ѓXѓЊѓbѓhЋЇ•К”ФЌ†
-  int color;       // ’TЌх‚·‚йЋи”Ф
+  game_info_t *game; // жЋўзґўеЇѕи±ЎгЃ®е±Ђйќў
+  int thread_id;   // г‚№гѓ¬гѓѓгѓ‰и­е€Ґз•ЄеЏ·
+  int color;       // жЋўзґўгЃ™г‚‹ж‰‹з•Є
 }thread_arg_t;
 
 typedef struct{
-  std::atomic<int> colors[3];  // ‚»‚М‰УЏЉ‚р—М’n‚Й‚µ‚Ѕ‰сђ”
+  std::atomic<int> colors[3];  // гЃќгЃ®з®‡ж‰Ђг‚’й ењ°гЃ«гЃ—гЃџе›ћж•°
 } statistic_t;
 
 typedef struct {
-  int pos;  // ’…Ћи‚·‚йЌА•W
-  std::atomic<int> move_count;  // ’TЌх‰сђ”
-  std::atomic<int> win;         // Џџ‚Б‚Ѕ‰сђ”
-  int index;   // ѓCѓ“ѓfѓbѓNѓX
-  double rate; // ’…Ћи‚МѓЊЃ[ѓg
-  bool flag;   // Progressive Widening‚Мѓtѓ‰ѓO
-  bool open;   // Џн‚Й’TЌхЊу•в‚Й“ь‚к‚й‚©‚З‚¤‚©‚Мѓtѓ‰ѓO
-  bool ladder; // ѓVѓ`ѓ‡ѓE‚Мѓtѓ‰ѓO
+  int pos;  // зќЂж‰‹гЃ™г‚‹еє§жЁ™
+  std::atomic<int> move_count;  // жЋўзґўе›ћж•°
+  std::atomic<int> win;         // е‹ќгЃЈгЃџе›ћж•°
+  int index;   // г‚¤гѓігѓ‡гѓѓг‚Їг‚№
+  double rate; // зќЂж‰‹гЃ®гѓ¬гѓјгѓ€
+  bool flag;   // Progressive WideningгЃ®гѓ•гѓ©г‚°
+  bool open;   // еёёгЃ«жЋўзґўеЂ™иЈњгЃ«е…Ґг‚Њг‚‹гЃ‹гЃ©гЃ†гЃ‹гЃ®гѓ•гѓ©г‚°
+  bool ladder; // г‚·гѓЃгѓ§г‚¦гЃ®гѓ•гѓ©г‚°
 } child_node_t;
 
 //  9x9  : 1828bytes
 // 13x13 : 3764bytes
 // 19x19 : 7988bytes
 typedef struct {
-  int previous_move1;                 // 1Ћи‘O‚М’…Ћи
-  int previous_move2;                 // 2Ћи‘O‚М’…Ћи
+  int previous_move1;                 // 1ж‰‹е‰ЌгЃ®зќЂж‰‹
+  int previous_move2;                 // 2ж‰‹е‰ЌгЃ®зќЂж‰‹
   std::atomic<int> move_count;
   std::atomic<int> win;
-  int width;                          // ’TЌх•ќ
-  int child_num;                      // ЋqѓmЃ[ѓh‚Мђ”
-  child_node_t child[UCT_CHILD_MAX];  // ЋqѓmЃ[ѓh‚МЏо•с
-  statistic_t statistic[BOARD_MAX];   // “ќЊvЏо•с 
+  int width;                          // жЋўзґўе№…
+  int child_num;                      // е­ђгѓЋгѓјгѓ‰гЃ®ж•°
+  child_node_t child[UCT_CHILD_MAX];  // е­ђгѓЋгѓјгѓ‰гЃ®жѓ…е ±
+  statistic_t statistic[BOARD_MAX];   // зµ±иЁ€жѓ…е ± 
   bool seki[BOARD_MAX];
 } uct_node_t;
 
 typedef struct {
-  int num;   // Ћџ‚МЋи‚М’TЌх‰сђ”
-  int halt;  // ’TЌх‚р‘Е‚їђШ‚й‰сђ”
-  std::atomic<int> count;       // Њ»ЌЭ‚М’TЌх‰сђ”
+  int num;   // ж¬ЎгЃ®ж‰‹гЃ®жЋўзґўе›ћж•°
+  int halt;  // жЋўзґўг‚’ж‰“гЃЎе€‡г‚‹е›ћж•°
+  std::atomic<int> count;       // зЏѕењЁгЃ®жЋўзґўе›ћж•°
 } po_info_t;
 
 typedef struct {
-  int index;    // ѓmЃ[ѓh‚МѓCѓ“ѓfѓbѓNѓX
-  double rate;  // ‚»‚МЋи‚МѓЊЃ[ѓg
+  int index;    // гѓЋгѓјгѓ‰гЃ®г‚¤гѓігѓ‡гѓѓг‚Їг‚№
+  double rate;  // гЃќгЃ®ж‰‹гЃ®гѓ¬гѓјгѓ€
 } rate_order_t;
 
 
-// Ћc‚иЋћЉФ
+// ж®‹г‚Љж™‚й–“
 extern double remaining_time[S_MAX];
-// UCT‚МѓmЃ[ѓh
+// UCTгЃ®гѓЋгѓјгѓ‰
 extern uct_node_t *uct_node;
 
-// Њ»ЌЭ‚Мѓ‹Ѓ[ѓg‚МѓCѓ“ѓfѓbѓNѓX
+// зЏѕењЁгЃ®гѓ«гѓјгѓ€гЃ®г‚¤гѓігѓ‡гѓѓг‚Їг‚№
 extern int current_root;
 
-// ЉeЌА•W‚МCriticality
+// еђ„еє§жЁ™гЃ®Criticality
 extern double criticality[BOARD_MAX]; 
 
 
-// —\‘Є“З‚Э‚М—L–і‚рЉm”F
+// дє€жё¬иЄ­гЃїгЃ®жњ‰з„Ўг‚’зўєиЄЌ
 bool IsPondered( void );
 
-// —\‘Є“З‚Э‚рЋ~‚Я‚й
+// дє€жё¬иЄ­гЃїг‚’ж­ўг‚Ѓг‚‹
 void StopPondering( void );
 
-// —\‘Є“З‚Э‚Мѓ‚Ѓ[ѓh‚МђЭ’и
+// дє€жё¬иЄ­гЃїгЃ®гѓўгѓјгѓ‰гЃ®иЁ­е®љ
 void SetPonderingMode( bool flag );
 
-// ’TЌх‚Мѓ‚Ѓ[ѓh‚МЋw’и
+// жЋўзґўгЃ®гѓўгѓјгѓ‰гЃ®жЊ‡е®љ
 void SetMode( enum SEARCH_MODE mode );
 
-// 1Ћи‚ ‚Ѕ‚и‚МѓvѓЊѓCѓAѓEѓg‰сђ”‚МЋw’и
+// 1ж‰‹гЃ‚гЃџг‚ЉгЃ®гѓ—гѓ¬г‚¤г‚ўг‚¦гѓ€е›ћж•°гЃ®жЊ‡е®љ
 void SetPlayout( int po );
 
-// 1Ћи‚ ‚Ѕ‚и‚МЋvЌlЋћЉФ‚МЋw’и
+// 1ж‰‹гЃ‚гЃџг‚ЉгЃ®жЂќиЂѓж™‚й–“гЃ®жЊ‡е®љ
 void SetConstTime( double time );
 
-// Ћg—p‚·‚йѓXѓЊѓbѓhђ”‚МЋw’и
+// дЅїз”ЁгЃ™г‚‹г‚№гѓ¬гѓѓгѓ‰ж•°гЃ®жЊ‡е®љ
 void SetThread( int new_thread );
 
-// Ћќ‚їЋћЉФ‚МЋw’и
+// жЊЃгЃЎж™‚й–“гЃ®жЊ‡е®љ
 void SetTime( double time );
 
-// ѓpѓ‰ѓЃЃ[ѓ^‚МђЭ’и
+// гѓ‘гѓ©гѓЎгѓјг‚їгЃ®иЁ­е®љ
 void SetParameter( void );
 
-// UCT’TЌх‚МЏ‰ЉъђЭ’и
+// UCTжЋўзґўгЃ®е€ќжњџиЁ­е®љ
 void InitializeUctSearch( void ); 
 
-// ’TЌхђЭ’и‚МЏ‰Љъ‰»
+// жЋўзґўиЁ­е®љгЃ®е€ќжњџеЊ–
 void InitializeSearchSetting( void );
 
-// UCT’TЌх‚МЏI—№Џ€—ќ
+// UCTжЋўзґўгЃ®зµ‚дє†е‡¦зђ†
 void FinalizeUctSearch( void );
 
-// UCT’TЌх‚Й‚ж‚й’…Ћиђ¶ђ¬
+// UCTжЋўзґўгЃ«г‚€г‚‹зќЂж‰‹з”џж€ђ
 int UctSearchGenmove( game_info_t *game, int color );
 
-// —\‘Є‚ж‚Э
+// дє€жё¬г‚€гЃї
 void UctSearchPondering( game_info_t *game, int color );
 
-// ѓ‹Ѓ[ѓg‚М“WЉJ
+// гѓ«гѓјгѓ€гЃ®е±•й–‹
 int ExpandRoot( game_info_t *game, int color );
 
-// ѓmЃ[ѓh‚М“WЉJ
+// гѓЋгѓјгѓ‰гЃ®е±•й–‹
 int ExpandNode( game_info_t *game, int color, int current );
 
-// ѓmЃ[ѓh‚МѓЊЃ[ѓeѓBѓ“ѓO
+// гѓЋгѓјгѓ‰гЃ®гѓ¬гѓјгѓ†г‚Јгѓіг‚°
 void RatingNode( game_info_t *game, int color, int index );
 
-// UCT’TЌх
+// UCTжЋўзґў
 void ParallelUctSearch( thread_arg_t *arg );
 
-// UCT’TЌх(—\‘Є“З‚Э)
+// UCTжЋўзґў(дє€жё¬иЄ­гЃї)
 void ParallelUctSearchPondering( thread_arg_t *arg );
 
-// UCT’TЌх(1‰с‚МЊД‚СЏo‚µ‚Й‚В‚«, 1‰с‚М’TЌх)
+// UCTжЋўзґў(1е›ћгЃ®е‘јгЃіе‡єгЃ—гЃ«гЃ¤гЃЌ, 1е›ћгЃ®жЋўзґў)
 int UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *winner );
 
-// UCB’l‚ЄЌЕ‘е‚МЋqѓmЃ[ѓh‚р•Ф‚·
+// UCBеЂ¤гЃЊжњЂе¤§гЃ®е­ђгѓЋгѓјгѓ‰г‚’иї”гЃ™
 int SelectMaxUcbChild( int current, int color );
 
-// ЉeѓmЃ[ѓh‚М“ќЊvЏо•с‚МЌXђV
+// еђ„гѓЋгѓјгѓ‰гЃ®зµ±иЁ€жѓ…е ±гЃ®ж›ґж–°
 void UpdateNodeStatistic( game_info_t *game, int winner, statistic_t *node_statistic );
 
-// ЉeЌА•W‚М“ќЊvЏ€—ќ
+// еђ„еє§жЁ™гЃ®зµ±иЁ€е‡¦зђ†
 void Statistic( game_info_t *game, int winner );
 
-// Virtual Loss‚р‰БЋZ
+// Virtual Lossг‚’еЉ з®—
 void AddVirtualLoss( child_node_t *child, int current );
 
-// Њ‹‰К‚МЌXђV
+// зµђжћњгЃ®ж›ґж–°
 void UpdateResult( child_node_t *child, int result, int current );
 
-// ’TЌх‘Е‚їђШ‚и‚МЉm”F
+// жЋўзґўж‰“гЃЎе€‡г‚ЉгЃ®зўєиЄЌ
 bool InterruptionCheck( void );
 
-// ЋvЌlЋћЉФ‚р‰„’·‚·‚йЏ€—ќ
+// жЂќиЂѓж™‚й–“г‚’е»¶й•·гЃ™г‚‹е‡¦зђ†
 bool ExtendTime( void );
 
-// Criticaliity‚МЊvЋZ
+// CriticaliityгЃ®иЁ€з®—
 void CalculateCriticality( int color );
 
 // Criticality
 void CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index );
 
-// Ownership‚МЊvЋZ
+// OwnershipгЃ®иЁ€з®—
 void CalculateOwner( int color, int count );
 
 // Ownership
 void CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistc, int color, int *index );
 
-// Ћџ‚МѓvѓЊѓCѓAѓEѓg‰сђ”‚МђЭ’и
+// ж¬ЎгЃ®гѓ—гѓ¬г‚¤г‚ўг‚¦гѓ€е›ћж•°гЃ®иЁ­е®љ
 void CalculateNextPlayouts( game_info_t *game, int color, double best_wp, double finish_time );
 
-// UCT’TЌх‚Й‚ж‚й’…Ћиђ¶ђ¬
+// UCTжЋўзґўгЃ«г‚€г‚‹зќЂж‰‹з”џж€ђ
 int UctAnalyze( game_info_t *game, int color );
 
-// —М’n‚Й‚И‚йЉm—¦‚рdest‚ЙѓRѓsЃ[‚·‚й
+// й ењ°гЃ«гЃЄг‚‹зўєзЋ‡г‚’destгЃ«г‚ігѓ”гѓјгЃ™г‚‹
 void OwnerCopy( int *dest );
 
-// Criticalty‚рdest‚Й
+// Criticaltyг‚’destгЃ«
 void CopyCriticality( double *dest );
 
 void CopyStatistic( statistic_t *dest );
 
-// UCT’TЌх‚Й‚ж‚й’…Ћиђ¶ђ¬(Clean Upѓ‚Ѓ[ѓh)
+// UCTжЋўзґўгЃ«г‚€г‚‹зќЂж‰‹з”џж€ђ(Clean Upгѓўгѓјгѓ‰)
 int UctSearchGenmoveCleanUp( game_info_t *game, int color );
 
-// ’TЌх‚МЌД——p‚МђЭ’и
+// жЋўзґўгЃ®е†Ќе€©з”ЁгЃ®иЁ­е®љ
 void SetReuseSubtree( bool flag );
 
 int RateComp( const void *a, const void *b );
