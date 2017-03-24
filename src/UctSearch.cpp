@@ -653,12 +653,23 @@ ExpandRoot(game_info_t *game, int color)
     child_num++;
     
     // 候補手の展開
-    for (i = 0; i < pure_board_max; i++) {
-      pos = onboard_pos[i];
-      // 探索候補かつ合法手であれば探索対象にする
-      if (candidates[pos] && IsLegal(game, pos, color)) {
-	InitializeCandidate(&uct_child[child_num], pos, ladder[pos]);
-	child_num++;
+    if (game->moves == 1) {
+      for (i = 0; i < first_move_candidates; i++) {
+	pos = first_move_candidate[i];
+	// 探索候補かつ合法手であれば探索対象にする
+	if (candidates[pos] && IsLegal(game, pos, color)) {
+	  InitializeCandidate(&uct_child[child_num], pos, ladder[pos]);
+	  child_num++;
+	}	
+      }
+    } else {
+      for (i = 0; i < pure_board_max; i++) {
+	pos = onboard_pos[i];
+	// 探索候補かつ合法手であれば探索対象にする
+	if (candidates[pos] && IsLegal(game, pos, color)) {
+	  InitializeCandidate(&uct_child[child_num], pos, ladder[pos]);
+	  child_num++;
+	}
       }
     }
     

@@ -1,3 +1,4 @@
+
 #ifndef _GO_BOARD_H_
 #define _GO_BOARD_H_
 
@@ -158,6 +159,8 @@ extern int board_start;
 
 extern int board_end;
 
+extern int first_move_candidates;
+
 // コミ
 extern double komi[S_OB];
 
@@ -198,7 +201,10 @@ extern int border_dis_y[BOARD_MAX];
 extern int move_dis[PURE_BOARD_SIZE][PURE_BOARD_SIZE];
 
 // 盤上の位置からデータ上の位置の対応
-extern int onboard_pos[PURE_BOARD_MAX]; 
+extern int onboard_pos[PURE_BOARD_MAX];
+
+// 初手の候補手
+extern int first_move_candidate[PURE_BOARD_MAX];
 
 //////////////
 //   関数   //

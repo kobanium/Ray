@@ -11,7 +11,6 @@
 
 using namespace std;
 
-
 /////////////////////
 //     大域変数    //
 /////////////////////
@@ -23,6 +22,8 @@ int board_size = BOARD_SIZE;            // 盤外を含む盤の辺の大きさ
 
 int board_start = BOARD_START;  // 盤の左(上)端
 int board_end = BOARD_END;      //  盤の右(下)端
+
+int first_move_candidates;
 
 double komi[S_WHITE + 1];          // コミの値
 double dynamic_komi[S_WHITE + 1];  // ダイナミックコミの値
@@ -44,7 +45,9 @@ int border_dis_x[BOARD_MAX];                     // x方向の距離
 int border_dis_y[BOARD_MAX];                     // y方向の距離   
 int move_dis[PURE_BOARD_SIZE][PURE_BOARD_SIZE];  // 着手距離  
 
-int onboard_pos[PURE_BOARD_MAX];  //  実際の盤上の位置との対応    
+int onboard_pos[PURE_BOARD_MAX];  //  実際の盤上の位置との対応
+int first_move_candidate[PURE_BOARD_MAX]; // 初手の候補手
+
 
 int corner[4];
 int corner_neighbor[4][2];
@@ -161,6 +164,13 @@ SetBoardSize( int size )
       board_pos_id[POS(board_end + OB_SIZE - y, x)] = i;
       board_pos_id[POS(board_end + OB_SIZE - y, board_end + OB_SIZE - x)] = i;
       i++;
+    }
+  }
+
+  first_move_candidates = 0;
+  for (y = board_start; y <= (board_start + board_end) / 2; y++) {
+    for (x = board_end + board_start - y; x <= board_end; x++) {
+      first_move_candidate[first_move_candidates++] = POS(x, y);
     }
   }
 
@@ -388,6 +398,13 @@ InitializeConst( void )
       board_pos_id[POS(board_end + OB_SIZE - y, x)] = i;
       board_pos_id[POS(board_end + OB_SIZE - y, board_end + OB_SIZE - x)] = i;
       i++;
+    }
+  }
+
+  first_move_candidates = 0;
+  for (y = board_start; y <= (board_start + board_end) / 2; y++) {
+    for (x = board_end + board_start - y; x <= board_end; x++) {
+      first_move_candidate[first_move_candidates++] = POS(x, y);
     }
   }
 
