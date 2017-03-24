@@ -17,34 +17,34 @@
 
 using namespace std;
 
-// ŠeíƒŒ[ƒg‚ªŠi”[‚³‚ê‚Ä‚¢‚éƒfƒBƒŒƒNƒgƒŠ‚Ö‚ÌƒpƒX
+// å„ç¨®ãƒ¬ãƒ¼ãƒˆãŒæ ¼ç´ã•ã‚Œã¦ã„ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¸ã®ãƒ‘ã‚¹
 char uct_params_path[1024];
 
 // w_0
 double weight_zero;
-// íp“I“Á’¥‚ÌƒŒ[ƒg
+// æˆ¦è¡“çš„ç‰¹å¾´ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_tactical_features[UCT_TACTICAL_FEATURE_MAX];
-// ”Õã‚ÌˆÊ’u‚ÌƒŒ[ƒg
+// ç›¤ä¸Šã®ä½ç½®ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_pos_id[POS_ID_MAX];
-// ƒpƒX‚ÌƒŒ[ƒg
+// ãƒ‘ã‚¹ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_pass[UCT_PASS_MAX];
-// ’¼‘O‚Ì’…è‚©‚ç‚Ì‹——£‚ÌƒŒ[ƒg
+// ç›´å‰ã®ç€æ‰‹ã‹ã‚‰ã®è·é›¢ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_move_distance_1[MOVE_DISTANCE_MAX];
-// 2è‘O‚Ì’…è‚©‚ç‚Ì‹——£‚ÌƒŒ[ƒg
+// 2æ‰‹å‰ã®ç€æ‰‹ã‹ã‚‰ã®è·é›¢ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_move_distance_2[MOVE_DISTANCE_MAX];
-// 3x3ƒpƒ^[ƒ“‚ÌƒŒ[ƒg
+// 3x3ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_pat3[PAT3_LIMIT];
-// ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£2‚Ìƒpƒ^[ƒ“‚ÌƒŒ[ƒg
+// ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢2ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_md2[MD2_LIMIT];
-// ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£3‚Ìƒpƒ^[ƒ“‚ÌƒŒ[ƒg
+// ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢3ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_md3[LARGE_PAT_MAX];
-// ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£4‚Ìƒpƒ^[ƒ“‚ÌƒŒ[ƒg
+// ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢4ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_md4[LARGE_PAT_MAX];
-// ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£5‚Ìƒpƒ^[ƒ“‚ÌƒŒ[ƒg
+// ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢5ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ãƒ¬ãƒ¼ãƒˆ
 latent_factor_t uct_md5[LARGE_PAT_MAX];
-// ƒI[ƒi[‚ÌƒŒ[ƒg
+// ã‚ªãƒ¼ãƒŠãƒ¼ã®ãƒ¬ãƒ¼ãƒˆ
 double uct_owner[OWNER_MAX];
-// ƒNƒŠƒeƒBƒJƒŠƒeƒB‚ÌƒŒ[ƒg
+// ã‚¯ãƒªãƒ†ã‚£ã‚«ãƒªãƒ†ã‚£ã®ãƒ¬ãƒ¼ãƒˆ
 double uct_criticality[CRITICALITY_MAX];
 
 index_hash_t md3_index[HASH_MAX];
@@ -57,7 +57,7 @@ int md2_index[MD2_MAX];
 game_info_t snapback_game;
 
 
-// íp“I“Á’¥‚Ìƒrƒbƒgƒ}ƒXƒN
+// æˆ¦è¡“çš„ç‰¹å¾´ã®ãƒ“ãƒƒãƒˆãƒã‚¹ã‚¯
 const unsigned long long uct_mask[UCT_MASK_MAX] = {
   0x0000000000000001, 0x0000000000000002, 0x0000000000000004, 0x0000000000000008,   
   0x0000000000000010, 0x0000000000000020, 0x0000000000000040, 0x0000000000000080,   
@@ -86,27 +86,27 @@ double owner_k = OWNER_K;
 
 unsigned long long atari_mask, capture_mask;
 
-//  ƒÁ“Ç‚İ‚İ
+//  Î³èª­ã¿è¾¼ã¿
 static void InputUCTParameter( void );
-//  “Ç‚İ‚İ 
+//  èª­ã¿è¾¼ã¿ 
 static void InputLatentFactor( const char *filename, latent_factor_t *lf, int n );
-//  “Ç‚İ‚İ Pat3
+//  èª­ã¿è¾¼ã¿ Pat3
 static void InputPat3( const char *filename, latent_factor_t *lf );
-//  “Ç‚İ‚İ MD2
+//  èª­ã¿è¾¼ã¿ MD2
 static void InputMD2( const char *filename, latent_factor_t *lf );
-//  “Ç‚İ‚İ
+//  èª­ã¿è¾¼ã¿
 static void InputLargePattern( const char *filename, latent_factor_t *lf, index_hash_t *pat_index );
 
 
 
 //////////////////////
-//  ƒÁ’l‚Ì‰Šúİ’è  //
+//  Î³å€¤ã®åˆæœŸè¨­å®š  //
 //////////////////////
 void
 InitializeUctRating()
 {
   int i;
-  //  ƒÁ“Ç‚İ‚İ
+  //  Î³èª­ã¿è¾¼ã¿
   InputUCTParameter();
 
   for (i = UCT_SAVE_CAPTURE_1_1; i <= UCT_SEMEAI_CAPTURE; i++) {
@@ -120,7 +120,7 @@ InitializeUctRating()
 
 
 /////////////////////////////////////////
-//  ŒÄ‹z“_‚ª1‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  //
+//  å‘¼å¸ç‚¹ãŒ1ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  //
 /////////////////////////////////////////
 void
 UctCheckFeaturesLib1( game_info_t *game, int color, int id, bool ladder, uct_features_t *uct_features )
@@ -129,10 +129,10 @@ UctCheckFeaturesLib1( game_info_t *game, int color, int id, bool ladder, uct_fea
   int lib, neighbor;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
-  // ŒÄ‹z“_‚ª1‚Â‚É‚È‚Á‚½˜A‚ÌŒÄ‹z“_‚ğæ‚èo‚·
+  // å‘¼å¸ç‚¹ãŒ1ã¤ã«ãªã£ãŸé€£ã®å‘¼å¸ç‚¹ã‚’å–ã‚Šå‡ºã™
   lib = string[id].lib[0];
 
-  // ƒVƒ`ƒ‡ƒE‚ğ“¦‚°‚éè‚©‚Ç‚¤‚©‚Å“Á’¥‚ğ”»’è
+  // ã‚·ãƒãƒ§ã‚¦ã‚’é€ƒã’ã‚‹æ‰‹ã‹ã©ã†ã‹ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (ladder) {
     tactical_features1[lib] |= uct_mask[UCT_LADDER_EXTENSION];
   } else {
@@ -145,8 +145,8 @@ UctCheckFeaturesLib1( game_info_t *game, int color, int id, bool ladder, uct_fea
     }
   }
 
-  // “G˜A‚ğæ‚é‚±‚Æ‚É‚æ‚Á‚Ä˜A‚ğ•‚¯‚éè‚Ì“Á’¥‚Ì”»’è
-  // ©•ª‚Ì˜A‚Ì‘å‚«‚³‚Æ“G‚Ì˜A‚Ì‘å‚«‚³‚Å“Á’¥‚ğ”»’è
+  // æ•µé€£ã‚’å–ã‚‹ã“ã¨ã«ã‚ˆã£ã¦é€£ã‚’åŠ©ã‘ã‚‹æ‰‹ã®ç‰¹å¾´ã®åˆ¤å®š
+  // è‡ªåˆ†ã®é€£ã®å¤§ãã•ã¨æ•µã®é€£ã®å¤§ãã•ã§ç‰¹å¾´ã‚’åˆ¤å®š
   neighbor = string[id].neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
@@ -191,7 +191,7 @@ UctCheckFeaturesLib1( game_info_t *game, int color, int id, bool ladder, uct_fea
 
 
 /////////////////////////////////////////
-//  ŒÄ‹z“_‚ª2‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  //
+//  å‘¼å¸ç‚¹ãŒ2ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  //
 /////////////////////////////////////////
 void
 UctCheckFeaturesLib2( game_info_t *game, int color, int id, uct_features_t *uct_features )
@@ -201,11 +201,11 @@ UctCheckFeaturesLib2( game_info_t *game, int color, int id, uct_features_t *uct_
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
   int lib1_state, lib2_state;
 
-  // ŒÄ‹z“_‚ª2‚Â‚É‚È‚Á‚½˜A‚ÌŒÄ‹z“_‚ğæ‚èo‚·
+  // å‘¼å¸ç‚¹ãŒ2ã¤ã«ãªã£ãŸé€£ã®å‘¼å¸ç‚¹ã‚’å–ã‚Šå‡ºã™
   lib1 = string[id].lib[0];
   lib2 = string[id].lib[lib1];
 
-  // ŒÄ‹z“_‚É‘Å‚Â“Á’¥
+  // å‘¼å¸ç‚¹ã«æ‰“ã¤ç‰¹å¾´
   lib1_state = CheckLibertyState(game, lib1, color, id);
   lib2_state = CheckLibertyState(game, lib2, color, id);
   switch (lib1_state) {
@@ -235,11 +235,11 @@ UctCheckFeaturesLib2( game_info_t *game, int color, int id, uct_features_t *uct_
     break;
   }
 
-  // ŒÄ‹z“_‚ª2‚Â‚É‚È‚Á‚½˜A‚ÌüˆÍ‚Ì“G˜A‚ğ’²‚×‚é
-  // 1. ŒÄ‹z“_‚ª1‚Â‚Ì“G˜A
-  // 2. ŒÄ‹z“_‚ª2‚Â‚Ì“G˜A
-  // ‚»‚ê‚¼‚ê‚É‘Î‚µ‚Ä, “Á’¥‚ğ”»’è‚·‚é
-  // ‚³‚ç‚É2.‚ÉŠÖ‚µ‚Ä‚Í1è‚Åæ‚ê‚é‚©‚Ç‚¤‚©‚àl—¶‚·‚é
+  // å‘¼å¸ç‚¹ãŒ2ã¤ã«ãªã£ãŸé€£ã®å‘¨å›²ã®æ•µé€£ã‚’èª¿ã¹ã‚‹
+  // 1. å‘¼å¸ç‚¹ãŒ1ã¤ã®æ•µé€£
+  // 2. å‘¼å¸ç‚¹ãŒ2ã¤ã®æ•µé€£
+  // ãã‚Œãã‚Œã«å¯¾ã—ã¦, ç‰¹å¾´ã‚’åˆ¤å®šã™ã‚‹
+  // ã•ã‚‰ã«2.ã«é–¢ã—ã¦ã¯1æ‰‹ã§å–ã‚Œã‚‹ã‹ã©ã†ã‹ã‚‚è€ƒæ…®ã™ã‚‹
   neighbor = string[id].neighbor[0];
   if (string[id].size <= 2) {
     while (neighbor != NEIGHBOR_END) {
@@ -322,7 +322,7 @@ UctCheckFeaturesLib2( game_info_t *game, int color, int id, uct_features_t *uct_
 
 
 /////////////////////////////////////////
-//  ŒÄ‹z“_‚ª3‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  //
+//  å‘¼å¸ç‚¹ãŒ3ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  //
 /////////////////////////////////////////
 void
 UctCheckFeaturesLib3( game_info_t *game, int color, int id, uct_features_t *uct_features )
@@ -332,12 +332,12 @@ UctCheckFeaturesLib3( game_info_t *game, int color, int id, uct_features_t *uct_
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
   int lib1_state, lib2_state, lib3_state;
 
-  // ŒÄ‹z“_‚ª3‚Â‚É‚È‚Á‚½˜A‚ÌŒÄ‹z“_‚ğæ‚èo‚·
+  // å‘¼å¸ç‚¹ãŒ3ã¤ã«ãªã£ãŸé€£ã®å‘¼å¸ç‚¹ã‚’å–ã‚Šå‡ºã™
   lib1 = string[id].lib[0];
   lib2 = string[id].lib[lib1];
   lib3 = string[id].lib[lib2];
 
-  // ŒÄ‹z“_‚É‘Å‚Â“Á’¥
+  // å‘¼å¸ç‚¹ã«æ‰“ã¤ç‰¹å¾´
   lib1_state = CheckLibertyState(game, lib1, color, id);
   lib2_state = CheckLibertyState(game, lib2, color, id);
   lib3_state = CheckLibertyState(game, lib3, color, id);
@@ -382,12 +382,12 @@ UctCheckFeaturesLib3( game_info_t *game, int color, int id, uct_features_t *uct_
   }
 
 
-  // ŒÄ‹z“_‚ª3‚Â‚É‚È‚Á‚½˜A‚ÌüˆÍ‚Ì“G˜A‚ğ’²‚×‚é
-  // 1. ŒÄ‹z“_‚ª1‚Â‚Ì“G˜A
-  // 2. ŒÄ‹z“_‚ª2‚Â‚Ì“G˜A
-  // 3. ŒÄ‹z“_‚ª3‚Â‚Ì“G˜A
-  // ‚»‚ê‚¼‚ê‚É‘Î‚µ‚Ä, “Á’¥‚ğ”»’è‚·‚é
-  // ‚³‚ç‚É2‚ÉŠÖ‚µ‚Ä‚Í1è‚Åæ‚ê‚é‚©‚ğl—¶‚·‚é
+  // å‘¼å¸ç‚¹ãŒ3ã¤ã«ãªã£ãŸé€£ã®å‘¨å›²ã®æ•µé€£ã‚’èª¿ã¹ã‚‹
+  // 1. å‘¼å¸ç‚¹ãŒ1ã¤ã®æ•µé€£
+  // 2. å‘¼å¸ç‚¹ãŒ2ã¤ã®æ•µé€£
+  // 3. å‘¼å¸ç‚¹ãŒ3ã¤ã®æ•µé€£
+  // ãã‚Œãã‚Œã«å¯¾ã—ã¦, ç‰¹å¾´ã‚’åˆ¤å®šã™ã‚‹
+  // ã•ã‚‰ã«2ã«é–¢ã—ã¦ã¯1æ‰‹ã§å–ã‚Œã‚‹ã‹ã‚’è€ƒæ…®ã™ã‚‹
 
   neighbor = string[id].neighbor[0];
   if (string[id].size <= 2) {
@@ -498,7 +498,7 @@ UctCheckFeaturesLib3( game_info_t *game, int color, int id, uct_features_t *uct_
 
 
 //////////////////
-//  “Á’¥‚Ì”»’è  //
+//  ç‰¹å¾´ã®åˆ¤å®š  //
 //////////////////
 void
 UctCheckFeatures( game_info_t *game, int color, uct_features_t *uct_features )
@@ -547,7 +547,7 @@ UctCheckFeatures( game_info_t *game, int color, uct_features_t *uct_features )
 
 
 ////////////////////////
-//  …‚ğ‰ğÁ‚·‚éƒgƒŠ  //
+//  åŠ«ã‚’è§£æ¶ˆã™ã‚‹ãƒˆãƒª  //
 ////////////////////////
 void
 UctCheckCaptureAfterKo( game_info_t *game, int color, uct_features_t *uct_features )
@@ -576,7 +576,7 @@ UctCheckCaptureAfterKo( game_info_t *game, int color, uct_features_t *uct_featur
 
 
 //////////////////
-//  ©ŒÈƒAƒ^ƒŠ  //
+//  è‡ªå·±ã‚¢ã‚¿ãƒª  //
 //////////////////
 bool
 UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_features )
@@ -606,10 +606,10 @@ UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_fe
     }
   }
 
-  //  ‹ó“_
+  //  ç©ºç‚¹
   if (libs >= 2) return true;
 
-  //  ã‰º¶‰E‚ÌŠm”F
+  //  ä¸Šä¸‹å·¦å³ã®ç¢ºèª
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == color) {
       id = string_id[neighbor4[i]];
@@ -650,10 +650,10 @@ UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_fe
     }
   }
 
-  // ©ŒÈƒAƒ^ƒŠ‚Ì•ª—Ş
-  // 1.‘å‚«‚³‚ª2ˆÈ‰º‚Ì©ŒÈƒAƒ^ƒŠ
-  // 2.‘å‚«‚³‚ª6ˆÈ‰º‚ÅƒiƒJƒf‚ÌŒ`‚É‚È‚é©ŒÈƒAƒ^ƒŠ
-  // 3.‚»‚êˆÈŠO‚Ì©ŒÈƒAƒ^ƒŠ 
+  // è‡ªå·±ã‚¢ã‚¿ãƒªã®åˆ†é¡
+  // 1.å¤§ãã•ãŒ2ä»¥ä¸‹ã®è‡ªå·±ã‚¢ã‚¿ãƒª
+  // 2.å¤§ãã•ãŒ6ä»¥ä¸‹ã§ãƒŠã‚«ãƒ‡ã®å½¢ã«ãªã‚‹è‡ªå·±ã‚¢ã‚¿ãƒª
+  // 3.ãã‚Œä»¥å¤–ã®è‡ªå·±ã‚¢ã‚¿ãƒª 
   if (size < 2) {
     tactical_features1[pos] |= uct_mask[UCT_SELF_ATARI_SMALL];
     flag = true;
@@ -674,7 +674,7 @@ UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_fe
 
 
 //////////////////
-//  ƒgƒŠ‚Ì”»’è  //
+//  ãƒˆãƒªã®åˆ¤å®š  //
 //////////////////
 void
 UctCheckCapture( game_info_t *game, int color, int pos, uct_features_t *uct_features )
@@ -718,7 +718,7 @@ UctCheckCapture( game_info_t *game, int color, int pos, uct_features_t *uct_feat
 
 
 ////////////////////
-//  ƒAƒ^ƒŠ‚Ì”»’è  //
+//  ã‚¢ã‚¿ãƒªã®åˆ¤å®š  //
 ////////////////////
 void
 UctCheckAtari( game_info_t *game, int color, int pos, uct_features_t *uct_features )
@@ -754,7 +754,7 @@ UctCheckAtari( game_info_t *game, int color, int pos, uct_features_t *uct_featur
 
 
 ////////////////
-//  …‚Ì‰ğÁ  //
+//  åŠ«ã®è§£æ¶ˆ  //
 ////////////////
 void
 UctCheckKoConnection( game_info_t *game, uct_features_t *uct_features )
@@ -768,7 +768,7 @@ UctCheckKoConnection( game_info_t *game, uct_features_t *uct_features )
 
 
 ////////////////////////////////
-// 2–Úæ‚ç‚ê‚½Œã‚ÌƒzƒEƒŠƒRƒ~  //
+// 2ç›®å–ã‚‰ã‚ŒãŸå¾Œã®ãƒ›ã‚¦ãƒªã‚³ãƒŸ  //
 ////////////////////////////////
 void
 UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_features )
@@ -821,7 +821,7 @@ UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_feature
 
 
 /////////////////////////////
-//  3–Ú”²‚©‚ê‚½Œã‚ÌƒiƒJƒf  //
+//  3ç›®æŠœã‹ã‚ŒãŸå¾Œã®ãƒŠã‚«ãƒ‡  //
 /////////////////////////////
 void
 UctCheckRemove3Stones( game_info_t *game, int color, uct_features_t *uct_features )
@@ -849,7 +849,7 @@ UctCheckRemove3Stones( game_info_t *game, int color, uct_features_t *uct_feature
 
 
 //////////////////////////////
-//  ƒPƒCƒ}‚ÌƒcƒPƒRƒV‚Ì”»’è  //
+//  ã‚±ã‚¤ãƒã®ãƒ„ã‚±ã‚³ã‚·ã®åˆ¤å®š  //
 //////////////////////////////
 void
 UctCheckKeimaTsukekoshi(game_info_t *game, int color, int pos, uct_features_t *uct_features)
@@ -993,7 +993,7 @@ UctCheckKeimaTsukekoshi(game_info_t *game, int color, int pos, uct_features_t *u
 
 
 //////////////////////
-//  —¼ƒPƒCƒ}‚Ì”»’è  //
+//  ä¸¡ã‚±ã‚¤ãƒã®åˆ¤å®š  //
 //////////////////////
 void
 UctCheckDoubleKeima( game_info_t *game, int color, int pos, uct_features_t *uct_features )
@@ -1003,7 +1003,7 @@ UctCheckDoubleKeima( game_info_t *game, int color, int pos, uct_features_t *uct_
   // +++X+++
   // +O+++O+
   // ++O+O++
-  // O‚Ì‚¤‚¿©•ª‚Æ‘Šè‚ÌÎ‚ª1ŒÂ‚¸‚ÂˆÈã‚ ‚é‚Ì“Á’¥
+  // Oã®ã†ã¡è‡ªåˆ†ã¨ç›¸æ‰‹ã®çŸ³ãŒ1å€‹ãšã¤ä»¥ä¸Šã‚ã‚‹æ™‚ã®ç‰¹å¾´
   char *board = game->board;
   int other = FLIP_COLOR(color);
   int keima_pos[8];
@@ -1036,7 +1036,7 @@ UctCheckDoubleKeima( game_info_t *game, int color, int pos, uct_features_t *uct_
 
 
 ////////////////////
-//  ƒEƒbƒeƒKƒGƒV  //
+//  ã‚¦ãƒƒãƒ†ã‚¬ã‚¨ã‚·  //
 ////////////////////
 void
 UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_features )
@@ -1092,7 +1092,7 @@ CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct
   if (moves > 1) pm1 = game->record[moves - 1].pos;
   if (moves > 2) pm2 = game->record[moves - 2].pos;
 
-  // ƒpƒX‚Ì‚Ì•ªŠò
+  // ãƒ‘ã‚¹ã®æ™‚ã®åˆ†å²
   if (pos == PASS) {
     if (moves > 1 && pm1 == PASS) {
       score += uct_pass[UCT_PASS_AFTER_PASS].w;
@@ -1119,23 +1119,23 @@ CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct
   pat3 = pat3_index[Pat3(pat, pos)];
   md2 = md2_index[MD2(pat, pos)];
 
-  // “Á’¥‚ğ
+  // ç‰¹å¾´ã‚’
   for (i = 0; i < UCT_TACTICAL_FEATURE_MAX; i++) {
     if ((tactical_features1[pos] & uct_mask[i]) != 0) {
       all_feature[feature_num++] = &uct_tactical_features[i];
     }
   }
-  // ”Õã‚ÌˆÊ’u
+  // ç›¤ä¸Šã®ä½ç½®
   all_feature[feature_num++] = &uct_pos_id[board_pos_id[pos]];
-  // 1è‘O‚©‚ç‚Ì‹——£
+  // 1æ‰‹å‰ã‹ã‚‰ã®è·é›¢
   if (dis1 != -1) {
     all_feature[feature_num++] = &uct_move_distance_1[dis1];
   }
-  // 2è‘O‚©‚ç‚Ì‹——£
+  // 2æ‰‹å‰ã‹ã‚‰ã®è·é›¢
   if (dis2 != -1) {
     all_feature[feature_num++] = &uct_move_distance_2[dis2];	
   }
-  // ƒpƒ^[ƒ“
+  // ãƒ‘ã‚¿ãƒ¼ãƒ³
   if (index[2] != -1) {
     all_feature[feature_num++] = &uct_md5[index[2]];
   } else if (index[1] != -1) {
@@ -1148,12 +1148,12 @@ CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct
     all_feature[feature_num++] = &uct_pat3[pat3];
   }
 
-  // w‚Ì‘«‚µZ
+  // wã®è¶³ã—ç®—
   for (i = 0; i < feature_num; i++) {
     score += all_feature[i]->w;
   }
 
-  // v‚ÌŒvZ
+  // vã®è¨ˆç®—
   for (f = 0; f < LFR_DIMENSION; f++) {
     for (i = 0; i < feature_num; i++) {
       tmp_score = 0.0;
@@ -1169,7 +1169,7 @@ CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct
 
 
 //////////////////////////////////////////
-//  ’…è—\‘z‚Ì¸“x‚ğŠm”F‚·‚é‚½‚ß‚ÌŠÖ”  //
+//  ç€æ‰‹äºˆæƒ³ã®ç²¾åº¦ã‚’ç¢ºèªã™ã‚‹ãŸã‚ã®é–¢æ•°  //
 //////////////////////////////////////////
 void
 AnalyzeUctRating( game_info_t *game, int color, double rate[] )
@@ -1219,7 +1219,7 @@ AnalyzeUctRating( game_info_t *game, int color, double rate[] )
 }
 
 //////////////////
-//  ƒÁ“Ç‚İ‚İ  //
+//  Î³èª­ã¿è¾¼ã¿  //
 //////////////////
 void
 InputUCTParameter(void)
@@ -1238,43 +1238,43 @@ InputUCTParameter(void)
   //  W_0
   InputTxtDBL(path.c_str(), &weight_zero, 1);
 
-  //  íp“I“Á’¥
+  //  æˆ¦è¡“çš„ç‰¹å¾´
   path = uct_parameters_path + "TacticalFeature.txt";
   InputLatentFactor(path.c_str(), uct_tactical_features, UCT_TACTICAL_FEATURE_MAX);
 
-  // ”Õã‚ÌˆÊ’u
+  // ç›¤ä¸Šã®ä½ç½®
   path = uct_parameters_path + "PosID.txt";
   InputLatentFactor(path.c_str(), uct_pos_id, POS_ID_MAX);
 
-  // ƒpƒX
+  // ãƒ‘ã‚¹
   path = uct_parameters_path + "Pass.txt";
   InputLatentFactor(path.c_str(), uct_pass, UCT_PASS_MAX);
 
-  //  ’¼‘O‚Ìè‚Æ‚Ì‹——£
+  //  ç›´å‰ã®æ‰‹ã¨ã®è·é›¢
   path = uct_parameters_path + "MoveDistance1.txt";
   InputLatentFactor(path.c_str(), uct_move_distance_1, MOVE_DISTANCE_MAX);
 
-  //  2è‘O‚Ìè‚Æ‚Ì‹——£
+  //  2æ‰‹å‰ã®æ‰‹ã¨ã®è·é›¢
   path = uct_parameters_path + "MoveDistance2.txt";
   InputLatentFactor(path.c_str(), uct_move_distance_2, MOVE_DISTANCE_MAX);
 
-  //  3x3ƒpƒ^[ƒ“
+  //  3x3ãƒ‘ã‚¿ãƒ¼ãƒ³
   path = uct_parameters_path + "Pat3.txt";
   InputPat3(path.c_str(), uct_pat3);
 
-  //  ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£2‚Ìƒpƒ^[ƒ“
+  //  ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢2ã®ãƒ‘ã‚¿ãƒ¼ãƒ³
   path = uct_parameters_path + "MD2.txt";
   InputMD2(path.c_str(), uct_md2);
 
-  //  ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£3‚Ìƒpƒ^[ƒ“
+  //  ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢3ã®ãƒ‘ã‚¿ãƒ¼ãƒ³
   path = uct_parameters_path + "MD3.txt";
   InputLargePattern(path.c_str(), uct_md3, md3_index);
 
-  //  ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£4‚Ìƒpƒ^[ƒ“
+  //  ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢4ã®ãƒ‘ã‚¿ãƒ¼ãƒ³
   path = uct_parameters_path + "MD4.txt";
   InputLargePattern(path.c_str(), uct_md4, md4_index);
 
-  //  ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£5‚Ìƒpƒ^[ƒ“
+  //  ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢5ã®ãƒ‘ã‚¿ãƒ¼ãƒ³
   path = uct_parameters_path + "MD5.txt";
   InputLargePattern(path.c_str(), uct_md5, md5_index);
 
@@ -1290,7 +1290,7 @@ InputUCTParameter(void)
 }
 
 ///////////////////////////
-//  ƒÁ“Ç‚İ‚İ ’…è‹——£  //
+//  Î³èª­ã¿è¾¼ã¿ ç€æ‰‹è·é›¢  //
 ///////////////////////////
 static void
 InputLatentFactor( const char *filename, latent_factor_t *lf, int n )
@@ -1339,7 +1339,7 @@ InputLatentFactor( const char *filename, latent_factor_t *lf, int n )
 
 
 //////////////////////
-//  ƒÁ“Ç‚İ‚İ Pat3  //
+//  Î³èª­ã¿è¾¼ã¿ Pat3  //
 //////////////////////
 static void
 InputPat3( const char *filename, latent_factor_t *lf )
@@ -1409,7 +1409,7 @@ InputPat3( const char *filename, latent_factor_t *lf )
 }
 
 //////////////////////
-//  ƒÁ“Ç‚İ‚İ MD2  //
+//  Î³èª­ã¿è¾¼ã¿ MD2  //
 //////////////////////
 static void
 InputMD2( const char *filename, latent_factor_t *lf )
@@ -1470,7 +1470,7 @@ InputMD2( const char *filename, latent_factor_t *lf )
 }
 
 
-//  “Ç‚İ‚İ
+//  èª­ã¿è¾¼ã¿
 static void 
 InputLargePattern( const char *filename, latent_factor_t *lf, index_hash_t *pat_index )
 {

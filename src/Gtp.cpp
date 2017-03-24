@@ -74,7 +74,7 @@ GTP_main( void )
 
 
 ///////////////////////
-//  GTP�̏o�͂̐ݒ�  //
+//  GTPの出力の設定  //
 ///////////////////////
 void
 GTP_message( void )
@@ -165,7 +165,7 @@ GTP_response( const char *res, bool success )
 
 
 /////////////////////////////
-//�@ void GTP_boardsize()  //
+//　 void GTP_boardsize()  //
 /////////////////////////////
 void
 GTP_boardsize( void )

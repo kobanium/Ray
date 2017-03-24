@@ -42,7 +42,7 @@ const string errmessage[COMMAND_MAX] = {
 
 
 //////////////////////
-//  ƒRƒ}ƒ“ƒh‚Ìˆ—  //
+//  ã‚³ãƒãƒ³ãƒ‰ã®å‡¦ç†  //
 //////////////////////
 void
 AnalyzeCommand( int argc, char **argv )

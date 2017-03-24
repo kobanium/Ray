@@ -9,7 +9,7 @@
 
 using namespace std;
 
-// bit—ñ
+// bitåˆ—
 unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];  
 
 unsigned long long shape_bit[BOARD_MAX];  
@@ -49,7 +49,7 @@ TransHash(unsigned long long hash)
 
 
 /////////////////////
-//  bit—ñ‚Ì‰Šú‰»  //
+//  bitåˆ—ã®åˆæœŸåŒ–  //
 /////////////////////
 void
 InitializeHash(void)
@@ -80,7 +80,7 @@ InitializeHash(void)
 
 
 //////////////////////////////////
-//  UCTƒm[ƒh‚ÌƒnƒbƒVƒ…‚Ì‰Šú‰»  //
+//  UCTãƒãƒ¼ãƒ‰ã®ãƒãƒƒã‚·ãƒ¥ã®åˆæœŸåŒ–  //
 //////////////////////////////////
 void
 InitializeUctHash(void)
@@ -99,7 +99,7 @@ InitializeUctHash(void)
 
 
 //////////////////////////////////////
-//  UCTƒm[ƒh‚ÌƒnƒbƒVƒ…î•ñ‚ÌƒNƒŠƒA  //
+//  UCTãƒãƒ¼ãƒ‰ã®ãƒãƒƒã‚·ãƒ¥æƒ…å ±ã®ã‚¯ãƒªã‚¢  //
 /////////////////////////////////////
 void
 ClearUctHash(void)
@@ -119,7 +119,7 @@ ClearUctHash(void)
 
 
 ///////////////////////
-//  ŒÃ‚¢ƒf[ƒ^‚Ìíœ  //
+//  å¤ã„ãƒ‡ãƒ¼ã‚¿ã®å‰Šé™¤  //
 ///////////////////////
 void
 DeleteOldHash(game_info_t *game)
@@ -143,7 +143,7 @@ DeleteOldHash(game_info_t *game)
 }
 
 //////////////////////////////////////
-//  –¢g—p‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ’T‚µ‚Ä•Ô‚·  //
+//  æœªä½¿ç”¨ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ¢ã—ã¦è¿”ã™  //
 //////////////////////////////////////
 unsigned int
 SearchEmptyIndex(unsigned long long hash, int color, int moves)
@@ -169,7 +169,7 @@ SearchEmptyIndex(unsigned long long hash, int color, int moves)
 }
 
 ////////////////////////////////////////////
-//  ƒnƒbƒVƒ…’l‚É‘Î‰‚·‚éƒCƒ“ƒfƒbƒNƒX‚ğ•Ô‚·  //
+//  ãƒãƒƒã‚·ãƒ¥å€¤ã«å¯¾å¿œã™ã‚‹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è¿”ã™  //
 ////////////////////////////////////////////
 unsigned int
 FindSameHashIndex(unsigned long long hash, int color, int moves)

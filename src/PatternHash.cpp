@@ -6,7 +6,7 @@
 using namespace std;
 
 ////////////
-//  変数  //
+//  螟画焚  //
 ////////////
 
 // bit
@@ -75,7 +75,7 @@ const unsigned long long random_bitstrings[BIT_MAX][S_MAX] = {
 
 
 /////////////////////////////
-//  パターンのハッシュ関数  //
+//  繝代ち繝ｼ繝ｳ縺ｮ繝上ャ繧ｷ繝･髢｢謨ｰ  //
 /////////////////////////////
 void
 PatternHash( struct pattern *pat, pattern_hash_t *hash_pat )
@@ -134,7 +134,7 @@ PatternHash( struct pattern *pat, pattern_hash_t *hash_pat )
 
 
 /////////////////////////////
-//  パターンのハッシュ関数  //
+//  繝代ち繝ｼ繝ｳ縺ｮ繝上ャ繧ｷ繝･髢｢謨ｰ  //
 /////////////////////////////
 unsigned long long
 MD2Hash( unsigned int md2 )
@@ -187,7 +187,7 @@ MD5Hash( unsigned long long md5 )
 
 
 ////////////////////
-//  データを探索  //
+//  繝�繝ｼ繧ｿ繧呈爾邏｢  //
 ////////////////////
 int
 SearchIndex( index_hash_t *index, unsigned long long hash )

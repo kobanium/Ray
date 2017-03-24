@@ -5,17 +5,17 @@
 #include "UctSearch.h"
 
 ////////////////
-//    ’иђ”    //
+//    е®љж•°    //
 ////////////////
 
-// ѓRѓ~‚рЉЙ‚Я‚йЏџ—¦‚Ми‡’l
+// г‚ігѓџг‚’з·©г‚Ѓг‚‹е‹ќзЋ‡гЃ®й–ѕеЂ¤
 const double RED = 0.35;
-// ѓRѓ~‚рЊµ‚µ‚­‚·‚йЏџ—¦‚Ми‡’l
+// г‚ігѓџг‚’еЋігЃ—гЃЏгЃ™г‚‹е‹ќзЋ‡гЃ®й–ѕеЂ¤
 const double GREEN = 0.75;
 
-// ѓRѓ~‚М’l‚рЋы‘©‚і‚№‚йЋиђ”
+// г‚ігѓџгЃ®еЂ¤г‚’еЏЋжќџгЃ•гЃ›г‚‹ж‰‹ж•°
 const int LINEAR_THRESHOLD = 200;
-// ’u‚«ђО1Ћq‚ ‚Ѕ‚и‚МЏd‚Э
+// зЅ®гЃЌзџі1е­ђгЃ‚гЃџг‚ЉгЃ®й‡ЌгЃї
 const int HANDICAP_WEIGHT = 8;
 
 
@@ -26,22 +26,22 @@ enum DYNAMIC_KOMI_MODE {
 };
 
 ////////////////
-//    ЉЦђ”    //
+//    й–ўж•°    //
 ////////////////
 
-// ’u‚«ђО‚МЊВђ”‚МђЭ’и
+// зЅ®гЃЌзџігЃ®еЂ‹ж•°гЃ®иЁ­е®љ
 void SetHandicapNum( int num );
 
-// ’u‚«ђО‚МЊВђ”‚МђЭ’и(ѓeѓXѓg‘О‹З—p)
+// зЅ®гЃЌзџігЃ®еЂ‹ж•°гЃ®иЁ­е®љ(гѓ†г‚№гѓ€еЇѕе±Ђз”Ё)
 void SetConstHandicapNum( int num );
 
 // Dynamic Komi
 void DynamicKomi( game_info_t *game, uct_node_t *root, int color );
 
-// ѓRѓ~‚М’l‚р’јђь“I‚ЙЊё‚з‚·Dynamic Komi
+// г‚ігѓџгЃ®еЂ¤г‚’з›ґз·љзљ„гЃ«жё›г‚‰гЃ™Dynamic Komi
 void LinearHandicap( game_info_t *game );
 
-// Џџ—¦‚ЙЉо‚Г‚ў‚ДѓRѓ~‚М’l‚р•ПЌX‚·‚йDynamic Komi
+// е‹ќзЋ‡гЃ«еџєгЃҐгЃ„гЃ¦г‚ігѓџгЃ®еЂ¤г‚’е¤‰ж›ґгЃ™г‚‹Dynamic Komi
 void ValueSituational( uct_node_t *root, int color );
 
 #endif

@@ -29,53 +29,53 @@ typedef struct {
 
 #define CHOMP(command) if(command[strlen(command)-1] == '\n') command[strlen(command)-1] = '\0'
 
-// gtp–{‘Ì
+// gtpæœ¬ä½“
 void GTP_main( void );
-// gtp‚Ìo—Í
+// gtpã®å‡ºåŠ›
 void GTP_message( void );
-// gtpƒRƒ}ƒ“ƒh‚ğİ’è‚·‚é
+// gtpã‚³ãƒãƒ³ãƒ‰ã‚’è¨­å®šã™ã‚‹
 void GTP_setCommand( void );
-// gtp‚Ìo—Í—pŠÖ”
+// gtpã®å‡ºåŠ›ç”¨é–¢æ•°
 void GTP_response( const char *res, bool success );
-// boardsizeƒRƒ}ƒ“ƒh‚ğˆ—
+// boardsizeã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_boardsize( void );
-// clearboardƒRƒ}ƒ“ƒh‚ğˆ—
+// clearboardã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_clearboard( void );
-// nameƒRƒ}ƒ“ƒh‚ğˆ—
+// nameã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_name( void );
-// protocolversionƒRƒ}ƒ“ƒh‚ğˆ—
+// protocolversionã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_protocolversion( void );
-// genmoveƒRƒ}ƒ“ƒh‚ğˆ—
+// genmoveã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_genmove( void );
-// playƒRƒ}ƒ“ƒh‚ğˆ—
+// playã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_play( void );
-// knowncommandƒRƒ}ƒ“ƒh‚ğˆ—
+// knowncommandã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_knowncommand( void );
-// listcommandsƒRƒ}ƒ“ƒh‚ğˆ—
+// listcommandsã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_listcommands( void );
-// quitƒRƒ}ƒ“ƒh‚ğˆ—
+// quitã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_quit( void );
-// komiƒRƒ}ƒ“ƒh‚ğˆ—
+// komiã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_komi( void );
-// getkomiƒRƒ}ƒ“ƒh‚ğˆ—
+// getkomiã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_getkomi( void );
-// finalscoreƒRƒ}ƒ“ƒh‚ğˆ—
+// finalscoreã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_finalscore( void );
-// timesettingsƒRƒ}ƒ“ƒh‚ğˆ—
+// timesettingsã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_timesettings( void );
-// timeleftƒRƒ}ƒ“ƒh‚ğˆ—
+// timeleftã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_timeleft( void );
-// versionƒRƒ}ƒ“ƒh‚ğˆ—
+// versionã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_version( void );
-// showboardƒRƒ}ƒ“ƒh‚ğˆ—
+// showboardã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_showboard( void );
-// kgs-genmove_cleanupƒRƒ}ƒ“ƒh‚ğˆ—
+// kgs-genmove_cleanupã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_kgs_genmove_cleanup( void );
-// final_status_listƒRƒ}ƒ“ƒh‚ğˆ—
+// final_status_listã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_final_status_list( void );
-// set_free_handicapƒRƒ}ƒ“ƒh‚ğˆ—
+// set_free_handicapã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_set_free_handicap( void );
-// fixed_handicapƒRƒ}ƒ“ƒh‚ğˆ—
+// fixed_handicapã‚³ãƒãƒ³ãƒ‰ã‚’å‡¦ç†
 void GTP_fixed_handicap( void );
 
 #endif

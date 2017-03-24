@@ -13,38 +13,38 @@ using namespace std;
 
 
 /////////////////////
-//     ���ϐ�    //
+//     大域変数    //
 /////////////////////
 
-int pure_board_max = PURE_BOARD_MAX;    // �Ղ̂̑傫��    
-int pure_board_size = PURE_BOARD_SIZE;  // �Ղ̕ӂ̑傫��  
-int board_max = BOARD_MAX;              // �ՊO���܂ޔՂ̑傫��  
-int board_size = BOARD_SIZE;            // �ՊO���܂ޔՂ̕ӂ̑傫�� 
+int pure_board_max = PURE_BOARD_MAX;    // 盤のの大きさ    
+int pure_board_size = PURE_BOARD_SIZE;  // 盤の辺の大きさ  
+int board_max = BOARD_MAX;              // 盤外を含む盤の大きさ  
+int board_size = BOARD_SIZE;            // 盤外を含む盤の辺の大きさ 
 
-int board_start = BOARD_START;  // �Ղ̍�(��)�[
-int board_end = BOARD_END;      //  �Ղ̉E(��)�[
+int board_start = BOARD_START;  // 盤の左(上)端
+int board_end = BOARD_END;      //  盤の右(下)端
 
-double komi[S_WHITE + 1];          // �R�~�̒l
-double dynamic_komi[S_WHITE + 1];  // �_�C�i�~�b�N�R�~�̒l
-double default_komi = KOMI;        // �f�t�H���g�̃R�~�̒l
+double komi[S_WHITE + 1];          // コミの値
+double dynamic_komi[S_WHITE + 1];  // ダイナミックコミの値
+double default_komi = KOMI;        // デフォルトのコミの値
 
-int board_pos_id[BOARD_MAX];  // �Տ�̈ʒu�̎��ʔԍ� 
+int board_pos_id[BOARD_MAX];  // 盤上の位置の識別番号 
 
-int board_x[BOARD_MAX];  // x�����̍��W  
-int board_y[BOARD_MAX];  // y�����̍��W  
+int board_x[BOARD_MAX];  // x方向の座標  
+int board_y[BOARD_MAX];  // y方向の座標  
 
-unsigned char eye[PAT3_MAX];        // �ڂ̃p�^�[��
+unsigned char eye[PAT3_MAX];        // 目のパターン
 unsigned char false_eye[PAT3_MAX];
-unsigned char territory[PAT3_MAX];  // �̒n�̃p�^�[��
-unsigned char nb4_empty[PAT3_MAX];  // �㉺���E�̋�_�̐�
-bool empty_pat[PAT3_MAX];           //  8�ߖT�ɐ΂��Ȃ��p�^�[��
+unsigned char territory[PAT3_MAX];  // 領地のパターン
+unsigned char nb4_empty[PAT3_MAX];  // 上下左右の空点の数
+bool empty_pat[PAT3_MAX];           //  8近傍に石がないパターン
 unsigned char eye_condition[PAT3_MAX];
 
-int border_dis_x[BOARD_MAX];                     // x�����̋���   
-int border_dis_y[BOARD_MAX];                     // y�����̋���   
-int move_dis[PURE_BOARD_SIZE][PURE_BOARD_SIZE];  // ���苗��  
+int border_dis_x[BOARD_MAX];                     // x方向の距離   
+int border_dis_y[BOARD_MAX];                     // y方向の距離   
+int move_dis[PURE_BOARD_SIZE][PURE_BOARD_SIZE];  // 着手距離  
 
-int onboard_pos[PURE_BOARD_MAX];  //  ���ۂ̔Տ�̈ʒu�Ƃ̑Ή�    
+int onboard_pos[PURE_BOARD_MAX];  //  実際の盤上の位置との対応    
 
 int corner[4];
 int corner_neighbor[4][2];
@@ -52,63 +52,63 @@ int corner_neighbor[4][2];
 int cross[4];
 
 ///////////////
-// �֐��錾  //
+// 関数宣言  //
 ///////////////
 
-// 4�ߖT�̋�_���̏�����
+// 4近傍の空点数の初期化
 static void InitializeNeighbor( void );
 
-// ��̃p�^�[���̐ݒ�
+// 眼のパターンの設定
 static void InitializeEye( void );
 
-// �n�̃p�^�[���̐ݒ�
+// 地のパターンの設定
 static void InitializeTerritory( void );
 
-// 8�ߖT�ɐ΂��Ȃ��p�^�[����ݒ� 
+// 8近傍に石がないパターンを設定 
 static void InitializeNeighborEmptyPattern( void );
 
-// �_��(pos)��A(string)�ɉ�����
-// �������_��(pos)��Ԃ�
+// ダメ(pos)を連(string)に加える
+// 加えたダメ(pos)を返す
 static int AddLiberty( string_t *string, int pos, int head );
 
-// �_��(pos)��A(string)�����菜��
+// ダメ(pos)を連(string)から取り除く
 static void RemoveLiberty( game_info_t *game, string_t *string, int pos );
 
-// �_��(pos)��A(string)�����菜��
+// ダメ(pos)を連(string)から取り除く
 static void PoRemoveLiberty( game_info_t *game, string_t *string, int pos, int color );
 
-// ��1�̘A�����
+// 石1つの連を作る
 static void MakeString( game_info_t *game, int pos, int color );
 
-// �A��1�̐΂̐ڑ�
+// 連と1つの石の接続
 static void AddStone( game_info_t *game, int pos, int color, int id );
 
-/// 2�ȏ�̘A�̐ڑ�
+/// 2つ以上の連の接続
 static void ConnectString( game_info_t *game, int pos, int color, int connection, int id[] );
 
-// 2�ȏ�̘A�̃}�[�W
+// 2つ以上の連のマージ
 static void MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n );
 
-// �A��1�΂�������
+// 連に1つ石を加える
 static void AddStoneToString( game_info_t *game, string_t *string, int pos, int head );
 
-// �A��Տォ�珜��
-// ��菜�����΂̐���Ԃ�
+// 連を盤上から除去
+// 取り除いた石の数を返す
 static int RemoveString( game_info_t *game, string_t *string );
 
-// �A��Տォ�珜��
-// ��菜�����΂̐���Ԃ�
+// 連を盤上から除去
+// 取り除いた石の数を返す
 static int PoRemoveString( game_info_t *game, string_t *string, int color );
 
-// �אڂ���AID�̒ǉ�
+// 隣接する連IDの追加
 static void AddNeighbor( string_t *string, int id, int head );
 
-// �אڂ���AID�̍폜
+// 隣接する連IDの削除
 static void RemoveNeighborString( string_t *string, int id );
 
 
 ///////////////////////
-//  �Ղ̑傫���̐ݒ�  //
+//  盤の大きさの設定  //
 ///////////////////////
 void
 SetBoardSize( int size )
@@ -180,7 +180,7 @@ SetBoardSize( int size )
 }
 
 //////////////////////
-//  �R�~�̒l�̐ݒ�  //
+//  コミの値の設定  //
 //////////////////////
 void
 SetKomi( double new_komi )
@@ -196,7 +196,7 @@ SetKomi( double new_komi )
 
 
 ////////////////////////////
-//  �㉺���E�̍��W�̓��o  //
+//  上下左右の座標の導出  //
 ////////////////////////////
 void
 GetNeighbor4( int neighbor4[4], int pos )
@@ -208,7 +208,7 @@ GetNeighbor4( int neighbor4[4], int pos )
 }
 
 ////////////////////////
-//  �������̈�̊m��  //
+//  メモリ領域の確保  //
 ////////////////////////
 game_info_t *
 AllocateGame( void )
@@ -222,7 +222,7 @@ AllocateGame( void )
 
 
 ////////////////////////
-//  �������̈�̉��  //
+//  メモリ領域の解放  //
 ////////////////////////
 void
 FreeGame( game_info_t *game )
@@ -232,7 +232,7 @@ FreeGame( game_info_t *game )
 
 
 ////////////////////////
-//  �΋Ǐ��̏�����  //
+//  対局情報の初期化  //
 ////////////////////////
 void
 InitializeBoard( game_info_t *game )
@@ -295,7 +295,7 @@ InitializeBoard( game_info_t *game )
 
 
 //////////////
-//  �R�s�[  //
+//  コピー  //
 //////////////
 void
 CopyGame( game_info_t *dst, game_info_t *src )
@@ -338,7 +338,7 @@ CopyGame( game_info_t *dst, game_info_t *src )
 
 
 ////////////////////
-//  �萔�̏�����  //
+//  定数の初期化  //
 ////////////////////
 void
 InitializeConst( void )
@@ -418,7 +418,7 @@ InitializeConst( void )
 
 
 //////////////////////////////
-//  �אڂ����_���̏�����  //
+//  隣接する空点数の初期化  //
 //////////////////////////////
 static void
 InitializeNeighbor( void )
@@ -440,22 +440,22 @@ InitializeNeighbor( void )
 
 
 ////////////////////////////
-//  ��̃p�^�[���̏�����  //
+//  眼のパターンの初期化  //
 ////////////////////////////
 static void
 InitializeEye( void )
 {
   int i, j;
   unsigned int transp[8], pat3_transp16[16];
-  //  ��̃p�^�[���͂��ꂼ��1����������2�r�b�g�ŕ\��
+  //  眼のパターンはそれぞれ1か所あたり2ビットで表現
   //	123
   //	4*5
   //	678
-  //  ���ꂼ��̔ԍ��~2�r�b�g�����V�t�g������
-  //	O:�����̐�
-  //	X:����̐�
-  //	+:��_
-  //	#:�ՊO
+  //  それぞれの番号×2ビットだけシフトさせる
+  //	O:自分の石
+  //	X:相手の石
+  //	+:空点
+  //	#:盤外
   const int eye_pat3[] = {
     // +OO     XOO     +O+     XO+
     // O*O     O*O     O*O     O*O
@@ -611,7 +611,7 @@ InitializeEye( void )
 
 
 /////////////////////////////////////////
-//  �n�̃p�^�[���i4�ߖT�����F�j��ݒ�  //
+//  地のパターン（4近傍が同色）を設定  //
 /////////////////////////////////////////
 static void
 InitializeTerritory( void )
@@ -629,7 +629,7 @@ InitializeTerritory( void )
 
 
 /////////////////////////////////////
-//  8�ߖT�ɐ΂��Ȃ��p�^�[����ݒ�  //
+//  8近傍に石がないパターンを設定  //
 /////////////////////////////////////
 static void
 InitializeNeighborEmptyPattern( void )
@@ -654,23 +654,23 @@ InitializeNeighborEmptyPattern( void )
 
 
 //////////////////
-//  ���@�蔻��  //
+//  合法手判定  //
 //////////////////
 bool
 IsLegal( game_info_t *game, int pos, int color )
 {
-  // ���ɐ΂�����
+  // 既に石がある
   if (game->board[pos] != S_EMPTY) {
     return false;
   }
 
-  // ���E��ł���
+  // 自殺手である
   if (nb4_empty[Pat3(game->pat, pos)] == 0 &&
       IsSuicide(game, game->string, color, pos)) {
     return false;
   }
 
-  // ���ł���
+  // 劫である
   if (game->ko_pos == pos &&
       game->ko_move == (game->moves - 1)) {
     return false;
@@ -681,7 +681,7 @@ IsLegal( game_info_t *game, int pos, int color )
 
 
 ////////////////////
-//  �Ւ[�ł̏���  //
+//  盤端での処理  //
 ////////////////////
 bool
 IsFalseEyeConnection( game_info_t *game, int pos, int color )
@@ -692,17 +692,17 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
   // ++XOOXXO#
   // +++O*OO*#
   // #########
-  // �V�~�����[�V�������ɏ�̋ǖʂ�*����ƔF�������ɑł悤��,
+  // シミュレーション中に上の局面の*を眼と認識せずに打つように,
   // ++++XXXX#
   // +++XXOOO#
   // +++XO+XO#
   // +++XOOO*#
   // #########
-  // �V�~�����[�V�������ɏ�̋ǖʂ�*����ƔF�����đł��Ȃ��悤�ɂ���.
+  // シミュレーション中に上の局面の*を眼と認識して打たないようにする.
   //
-  // �אڂ���2�̎����̘A�̌ċz�_�ɋ��ʂ�����̂��Ȃ���Αł�
-  // ���ʂ�����̂�����Αł��Ȃ��悤�ɂ��Ă���.
-  // �ȉ��̋ǖʂ͌�F�����đł��Ă��܂��̂ŗv�Ή�.
+  // 隣接する2つの自分の連の呼吸点に共通するものがなければ打ち
+  // 共通するものがあれば打たないようにしている.
+  // 以下の局面は誤認識して打ってしまうので要対応.
   // ++++XXXX#
   // +++XXOOO#
   // +++XOX+O#
@@ -725,7 +725,7 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
   int player_id[4] = {0};
   int player_ids = 0;
 
-  // ��������\������A��ID�����o��
+  // 欠け眼を構成する連のIDを取り出す
   GetNeighbor4(neighbor4, pos);
   for (i = 0; i < 4; i++) {
     checked = false;
@@ -740,7 +740,7 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
   }
 
 
-  // �΂ߕ����Ɏ���, �܂��͎�ꂻ���Ȑ΂���������false��Ԃ�
+  // 斜め方向に取れる, または取れそうな石があったらfalseを返す
   for (i = 0; i < 4; i++) {
     if (board[pos + cross[i]] == other) {
       id = string_id[pos + cross[i]];
@@ -750,8 +750,8 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
     }
   }
 
-  // �אڂ�����W�������̘A�Ȃ�
-  // ���̘A�̌ċz�_�����o��
+  // 隣接する座標が自分の連なら
+  // その連の呼吸点を取り出す
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == color) {
       id = string_id[neighbor4[i]];
@@ -792,7 +792,7 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
     }
   }
 
-  // ���̘A�������Ă���ċz�_�����߂�
+  // その連が持っている呼吸点を求める
   for (i = 0, lib_sum = 0; i < strings; i++) {
     lib_sum += string_liberties[i] - 1;
   }
@@ -806,13 +806,13 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
     neighbor = string[checked_string[0]].neighbor[neighbor];
   }
 
-  // �אڂ���A���ꑱ���Ȃ��Ȃ̂�false��Ԃ�
+  // 隣接する連が一続きなら眼なのでfalseを返す
   if (strings == 1) {
     return false;
   }
 
-  // 2�̘A���ċz�_�����L���Ă��Ȃ����true
-  // �����łȂ����false��Ԃ�
+  // 2つの連が呼吸点を共有していなければtrue
+  // そうでなければfalseを返す
   if (libs == lib_sum) {
     return true;
   } else {
@@ -822,7 +822,7 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
 
 
 ////////////////////////////////////
-//  ���@��ł��ڂłȂ����𔻒�  //
+//  合法手でかつ目でないかを判定  //
 ////////////////////////////////////
 bool
 IsLegalNotEye( game_info_t *game, int pos, int color )
@@ -830,9 +830,9 @@ IsLegalNotEye( game_info_t *game, int pos, int color )
   int *string_id = game->string_id;
   string_t *string = game->string;
 
-  // ���ɐ΂�����
+  // 既に石がある
   if (game->board[pos] != S_EMPTY) {
-    // ���肩�珜�O
+    // 候補手から除外
     game->candidates[pos] = false;
 
     return false;
@@ -842,26 +842,26 @@ IsLegalNotEye( game_info_t *game, int pos, int color )
     return false;
   }
 
-  // ��
+  // 眼
   if (eye[Pat3(game->pat, pos)] != color ||
       string[string_id[NORTH(pos)]].libs == 1 ||
       string[string_id[EAST(pos)]].libs == 1 ||
       string[string_id[SOUTH(pos)]].libs == 1 ||
       string[string_id[WEST(pos)]].libs == 1){
 
-    // ���E�肩�ǂ���
+    // 自殺手かどうか
     if (nb4_empty[Pat3(game->pat, pos)] == 0 &&
 	IsSuicide(game, string, color, pos)) {
       return false;
     }
 
-    // ��
+    // 劫
     if (game->ko_pos == pos &&
 	game->ko_move == (game->moves - 1)) {
       return false;
     }
 
-    // �Ւ[�̓��ꏈ��
+    // 盤端の特殊処理
     if (false_eye[Pat3(game->pat, pos)] == color) {
       if (IsFalseEyeConnection(game, pos, color)) {
 	return true;
@@ -874,7 +874,7 @@ IsLegalNotEye( game_info_t *game, int pos, int color )
     return true;
   }
 
-  // ���肩�珜�O
+  // 候補手から除外
   game->candidates[pos] = false;
 
   return false;
@@ -882,7 +882,7 @@ IsLegalNotEye( game_info_t *game, int pos, int color )
 
 
 ////////////////////
-//  ���E��̔���  //
+//  自殺手の判定  //
 ////////////////////
 bool
 IsSuicide( game_info_t *game, string_t *string, int color, int pos )
@@ -894,9 +894,9 @@ IsSuicide( game_info_t *game, string_t *string, int color, int pos )
 
   GetNeighbor4(neighbor4, pos);
 
-  // �אڂ���̐΂ɂ��Ă̔���
-  // �אڂ���΂�����ł��A���̐΂��܂ޘA�̌ċz�_��1�̎��͍��@��
-  // �אڂ���΂������ŁA���̐΂��܂ޘA�̌ċz�_��2�ȏ�̎��͍��@��
+  // 隣接するの石についての判定
+  // 隣接する石が相手でも、その石を含む連の呼吸点が1の時は合法手
+  // 隣接する石が自分で、その石を含む連の呼吸点が2以上の時は合法手
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other &&
 	string[string_id[neighbor4[i]]].libs == 1) {
@@ -912,7 +912,7 @@ IsSuicide( game_info_t *game, string_t *string, int color, int pos )
 
 
 ////////////////
-//  �΂�u��  //
+//  石を置く  //
 ////////////////
 void
 PutStone( game_info_t *game, int pos, int color )
@@ -927,10 +927,10 @@ PutStone( game_info_t *game, int pos, int color )
   int neighbor[4];
   int i;
 
-  // ���̎�Ԃ̒���őł��グ���΂̐���0�ɂ���
+  // この手番の着手で打ち上げた石の数を0にする
   game->capture_num[color] = 0;
 
-  // ����ӏ��̐�p�I������S�ď���
+  // 着手箇所の戦術的特徴を全て消す
   game->tactical_features1[pos] = 0;
   game->tactical_features2[pos] = 0;
 
@@ -941,13 +941,13 @@ PutStone( game_info_t *game, int pos, int color )
     game->current_hash ^= hash_bit[game->ko_pos][HASH_KO];
   }
 
-  // ����ӏ��ƐF���L�^
+  // 着手箇所と色を記録
   if (game->moves < MAX_RECORDS) {
     game->record[game->moves].color = color;
     game->record[game->moves].pos = pos;
   }
 
-  // ���肪�p�X�Ȃ�萔��i�߂ďI��
+  // 着手がパスなら手数を進めて終了
   if (pos == PASS) {
     game->current_hash ^= hash_bit[game->pass_count++][HASH_PASS];
     if (game->pass_count >= BOARD_MAX) { 
@@ -957,23 +957,23 @@ PutStone( game_info_t *game, int pos, int color )
     return;
   }
 
-  // �΂�u��
+  // 石を置く
   board[pos] = (char)color;
 
-  // ���肩�珜�O
+  // 候補手から除外
   game->candidates[pos] = false;
 
   game->current_hash ^= hash_bit[pos][color];
 
-  // �p�^�[���̍X�V(MD5)
+  // パターンの更新(MD5)
   UpdatePatternStone(game->pat, color, pos);
 
-  // ����_�̏㉺���E�̍��W�𓱏o
+  // 着手点の上下左右の座標を導出
   GetNeighbor4(neighbor, pos);
 
-  // ����ӏ��̏㉺���E�̊m�F
-  // �����̘A�������, ���̘A�̌ċz�_��1���炵, �ڑ����ɓ����
-  // �G�̘A�ł����, ���̘A�̌ċz�_��1���炵, �ċz�_��0�ɂȂ������菜��
+  // 着手箇所の上下左右の確認
+  // 自分の連があれば, その連の呼吸点を1つ減らし, 接続候補に入れる
+  // 敵の連であれば, その連の呼吸点を1つ減らし, 呼吸点が0になったら取り除く
   for (i = 0; i < 4; i++) {
     if (board[neighbor[i]] == color) {
       RemoveLiberty(game, &string[string_id[neighbor[i]]], pos);
@@ -986,12 +986,12 @@ PutStone( game_info_t *game, int pos, int color )
     }
   }
 
-  // �ł��グ���΂��A�Q�n�}�ɒǉ�
+  // 打ち上げた石をアゲハマに追加
   game->prisoner[color] += prisoner;
 
-  // �ڑ���₪�Ȃ����, �V�����A���쐬����, �����ǂ����̊m�F������
-  // �ڑ���₪1�Ȃ��, ���̘A�ɐ΂�ǉ�����
-  // �ڑ���₪2�ȏ�Ȃ��, �A���m���q�����킹��, �΂�ǉ�����
+  // 接続候補がなければ, 新しい連を作成して, 劫かどうかの確認をする
+  // 接続候補が1つならば, その連に石を追加する
+  // 接続候補が2つ以上ならば, 連同士を繋ぎ合わせて, 石を追加する
   if (connection == 0) {
     MakeString(game, pos, color);
     if (prisoner == 1 &&
@@ -1006,13 +1006,13 @@ PutStone( game_info_t *game, int pos, int color )
     ConnectString(game, pos, color, connection, connect);
   }
 
-  // �萔��1�����i�߂�
+  // 手数を1つだけ進める
   game->moves++;
 }
 
 
 ////////////////
-//  �΂�u��  //
+//  石を置く  //
 ////////////////
 void
 PoPutStone( game_info_t *game, int pos, int color )
@@ -1027,32 +1027,32 @@ PoPutStone( game_info_t *game, int pos, int color )
   int neighbor[4];
   int i;
 
-  // ���̎�ԂŎ�����΂̌���0��
+  // この手番で取った石の個数を0に
   game->capture_num[color] = 0;
 
-  // ���萧���̌��E�𒴂��Ă��Ȃ���΋L�^
+  // 着手制限の限界を超えていなければ記録
   if (game->moves < MAX_RECORDS) {
     game->record[game->moves].color = color;
     game->record[game->moves].pos = pos;
   }
 
-  // ���肪�p�X�Ȃ�萔��i�߂ďI��
+  // 着手がパスなら手数を進めて終了
   if (pos == PASS) {
     game->moves++;
     return;
   }
 
-  // ��Ղɐ΂�u��
+  // 碁盤に石を置く
   board[pos] = (char)color;
 
-  // �������珜�O
+  // 候補酒から除外
   game->candidates[pos] = false;
 
-  // ����ӏ��̐�p�I������S�ď���
+  // 着手箇所の戦術的特徴を全て消す
   game->tactical_features1[pos] = 0;
   game->tactical_features2[pos] = 0;
 
-  // ����ӏ��̃��[�g��0�ɖ߂�
+  // 着手箇所のレートを0に戻す
   game->sum_rate[0] -= game->rate[0][pos];
   game->sum_rate_row[0][board_y[pos]] -= game->rate[0][pos];
   game->rate[0][pos] = 0;
@@ -1060,15 +1060,15 @@ PoPutStone( game_info_t *game, int pos, int color )
   game->sum_rate_row[1][board_y[pos]] -= game->rate[1][pos];
   game->rate[1][pos] = 0;
 
-  // �p�^�[���̍X�V(MD2)  
+  // パターンの更新(MD2)  
   UpdateMD2Stone(game->pat, color, pos);
 
-  // ����ӏ��̏㉺���E�̍��W�̓��o
+  // 着手箇所の上下左右の座標の導出
   GetNeighbor4(neighbor, pos);
 
-  // ����ӏ��̏㉺���E�̊m�F
-  // �����̘A�������, ���̘A�̌ċz�_��1���炵, �ڑ����ɓ����
-  // �G�̘A�ł����, ���̘A�̌ċz�_��1���炵, �ċz�_��0�ɂȂ������菜��  
+  // 着手箇所の上下左右の確認
+  // 自分の連があれば, その連の呼吸点を1つ減らし, 接続候補に入れる
+  // 敵の連であれば, その連の呼吸点を1つ減らし, 呼吸点が0になったら取り除く  
   for (i = 0; i < 4; i++) {
     if (board[neighbor[i]] == color) {
       PoRemoveLiberty(game, &string[string_id[neighbor[i]]], pos, color);
@@ -1081,12 +1081,12 @@ PoPutStone( game_info_t *game, int pos, int color )
     }
   }
 
-  // �ł��グ���΂��A�Q�n�}�ɒǉ�
+  // 打ち上げた石をアゲハマに追加
   game->prisoner[color] += prisoner;
 
-  // �ڑ���₪�Ȃ����, �V�����A���쐬����, �����ǂ����̊m�F������
-  // �ڑ���₪1�Ȃ��, ���̘A�ɐ΂�ǉ�����
-  // �ڑ���₪2�ȏ�Ȃ��, �A���m���q�����킹��, �΂�ǉ�����  
+  // 接続候補がなければ, 新しい連を作成して, 劫かどうかの確認をする
+  // 接続候補が1つならば, その連に石を追加する
+  // 接続候補が2つ以上ならば, 連同士を繋ぎ合わせて, 石を追加する  
   if (connection == 0) {
     MakeString(game, pos, color);
     if (prisoner == 1 &&
@@ -1100,13 +1100,13 @@ PoPutStone( game_info_t *game, int pos, int color )
     ConnectString(game, pos, color, connection, connect);
   }
 
-  // �萔��i�߂�
+  // 手数を進める
   game->moves++;
 }
 
 
 //////////////////////
-//  �V�����A�̍쐬  //
+//  新しい連の作成  //
 //////////////////////
 static void
 MakeString( game_info_t *game, int pos, int color )
@@ -1120,13 +1120,13 @@ MakeString( game_info_t *game, int pos, int color )
   int other = FLIP_COLOR(color);
   int neighbor, neighbor4[4], i;
 
-  // ���g�p�̘A�̃C���f�b�N�X��������
+  // 未使用の連のインデックスを見つける
   while (string[id].flag) { id++; }
 
-  // �V�����A�̃f�[�^���i�[����ӏ���ێ�
+  // 新しく連のデータを格納する箇所を保持
   new_string = &game->string[id];
 
-  // �A�̃f�[�^�̏�����
+  // 連のデータの初期化
   memset(new_string->lib, 0, sizeof(short) * STRING_LIB_MAX);
   memset(new_string->neighbor, 0, sizeof(short) * MAX_NEIGHBOR);
   new_string->lib[0] = LIBERTY_END;
@@ -1139,12 +1139,12 @@ MakeString( game_info_t *game, int pos, int color )
   game->string_id[pos] = id;
   game->string_next[pos] = STRING_END;
 
-  // �㉺���E�̍��W�̓��o
+  // 上下左右の座標の導出
   GetNeighbor4(neighbor4, pos);
 
-  // �V�����쐬�����A�̏㉺���E�̍��W���m�F
-  // ��_�Ȃ��, �쐬�����A�Ɍċz�_��ǉ�����
-  // �G�̘A�Ȃ��, �אڂ���A�����݂��ɒǉ�����
+  // 新しく作成した連の上下左右の座標を確認
+  // 空点ならば, 作成した連に呼吸点を追加する
+  // 敵の連ならば, 隣接する連をお互いに追加する
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == S_EMPTY) {
       lib_add = AddLiberty(new_string, neighbor4[i], lib_add);
@@ -1155,28 +1155,28 @@ MakeString( game_info_t *game, int pos, int color )
     }
   }
 
-  // �A�̑��݃t���O���I���ɂ���
+  // 連の存在フラグをオンにする
   new_string->flag = true;
 }
 
 
 ///////////////////////////
-//  �A�ɐ΂�1�ǉ�����  //
+//  連に石を1つ追加する  //
 ///////////////////////////
 static void
 AddStoneToString( game_info_t *game, string_t *string, int pos, int head )
-// game_info_t *game : �Ֆʂ̏��������|�C���^ 
-// string_t *string  : �΂̒ǉ���̘A
-// int pos         : �ǉ�����΂̍��W
-// int head        : ���������̂��߂̕ϐ�
+// game_info_t *game : 盤面の情報を示すポインタ 
+// string_t *string  : 石の追加先の連
+// int pos         : 追加する石の座標
+// int head        : 高速処理のための変数
 {
   int *string_next = game->string_next;
   int str_pos;
 
   if (pos == STRING_END) return;
 
-  // �ǉ���̘A�̐擪�̑O�Ȃ�ΐ擪�ɒǉ�
-  // �����łȂ���Α}���ʒu��T���o���ǉ�
+  // 追加先の連の先頭の前ならば先頭に追加
+  // そうでなければ挿入位置を探し出し追加
   if (string->origin > pos) {
     string_next[pos] = string->origin;
     string->origin = pos;
@@ -1197,14 +1197,14 @@ AddStoneToString( game_info_t *game, string_t *string, int pos, int head )
 
 
 ////////////////////////
-//  �A�ɐ΂�ǉ�����  //
+//  連に石を追加する  //
 ////////////////////////
 static void
 AddStone( game_info_t *game, int pos, int color, int id )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
-// int pos           : �u�����΂̍��W
-// int color         : �u�����΂̐F
-// int id            : �΂�ǉ������̘A��ID
+// game_info_t *game : 盤面の情報を示すポインタ
+// int pos           : 置いた石の座標
+// int color         : 置いた石の色
+// int id            : 石を追加する先の連のID
 {
   string_t *string = game->string;
   string_t *add_str;
@@ -1214,20 +1214,20 @@ AddStone( game_info_t *game, int pos, int color, int id )
   int other = FLIP_COLOR(color);
   int neighbor, neighbor4[4], i;
 
-  // ID���X�V
+  // IDを更新
   string_id[pos] = id;
 
-  // �ǉ���̘A�����o��
+  // 追加先の連を取り出す
   add_str = &string[id];
 
-  // �΂�ǉ�����
+  // 石を追加する
   AddStoneToString(game, add_str, pos, 0);
 
-  // �㉺���E�̍��W�̓��o
+  // 上下左右の座標の導出
   GetNeighbor4(neighbor4, pos);
 
-  // ��_�Ȃ�ċz�_��ǉ���
-  // �G�̐΂�����Ηאڂ���G�A�̏����X�V
+  // 空点なら呼吸点を追加し
+  // 敵の石があれば隣接する敵連の情報を更新
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == S_EMPTY) {
       lib_add = AddLiberty(add_str, neighbor4[i], lib_add);
@@ -1241,15 +1241,15 @@ AddStone( game_info_t *game, int pos, int color, int id )
 
 
 //////////////////////////
-//  �A���m�̌����̔���  //
+//  連同士の結合の判定  //
 //////////////////////////
 static void
 ConnectString( game_info_t *game, int pos, int color, int connection, int id[] )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
-// int pos           : �u�����΂̍��W
-// int color         : �u�����΂̐F
-// int connection    : �ڑ�����A�̌��̌�
-// int id[]          : �ڑ�����A�̌���ID
+// game_info_t *game : 盤面の情報を示すポインタ
+// int pos           : 置いた石の座標
+// int color         : 置いた石の色
+// int connection    : 接続する連の候補の個数
+// int id[]          : 接続する連の候補のID
 {
   int i, j, min = id[0];
   string_t *string = game->string;
@@ -1257,7 +1257,7 @@ ConnectString( game_info_t *game, int pos, int color, int connection, int id[] )
   int connections = 0;
   bool flag = true;
 
-  // �ڑ�����A�̌��������Ɋm�F
+  // 接続する連の個数を厳密に確認
   for (i = 1; i < connection; i++) {
     flag = true;
     for (j = 0; j < i; j++) {
@@ -1277,10 +1277,10 @@ ConnectString( game_info_t *game, int pos, int color, int connection, int id[] )
     }
   }
 
-  // �΂�ǉ�
+  // 石を追加
   AddStone(game, pos, color, min);
 
-  // �����̘A���ڑ�����Ƃ��̏���
+  // 複数の連が接続するときの処理
   if (connections > 0) {
     MergeString(game, &game->string[min], str, connections);
   }
@@ -1288,14 +1288,14 @@ ConnectString( game_info_t *game, int pos, int color, int connection, int id[] )
 
 
 ////////////////
-//  �A�̌���  //
+//  連の結合  //
 ////////////////
 static void
 MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
-// string_t *dst     : �}�[�W��̘A
-// string_t *src[3]  : �}�[�W���̘A(�ő�3��)
-// int n             : �}�[�W����A�̌�
+// game_info_t *game : 盤面の情報を示すポインタ
+// string_t *dst     : マージ先の連
+// string_t *src[3]  : マージ元の連(最大3つ)
+// int n             : マージする連の個数
 {
   int i, tmp, pos, prev, neighbor;
   int *string_next = game->string_next;
@@ -1304,10 +1304,10 @@ MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n )
   string_t *string = game->string;
 
   for (i = 0; i < n; i++) {
-    // �ڑ��ŏ�����A��ID
+    // 接続で消える連のID
     rm_id = string_id[src[i]->origin];
 
-    // �ċz�_���}�[�W
+    // 呼吸点をマージ
     prev = 0;
     pos = src[i]->lib[0];
     while (pos != LIBERTY_END) {
@@ -1315,7 +1315,7 @@ MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n )
       pos = src[i]->lib[pos];
     }
 
-    // �A��ID���X�V
+    // 連のIDを更新
     prev = 0;
     pos = src[i]->origin;
     while (pos != STRING_END) {
@@ -1326,7 +1326,7 @@ MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n )
       pos = tmp;
     }
 
-    // �אڂ���G�A�̏����}�[�W
+    // 隣接する敵連の情報をマージ
     prev = 0;
     neighbor = src[i]->neighbor[0];
     while (neighbor != NEIGHBOR_END) {
@@ -1337,73 +1337,73 @@ MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n )
       neighbor = src[i]->neighbor[neighbor];
     }
 
-    // �g�p�ς݃t���O���I�t
+    // 使用済みフラグをオフ
     src[i]->flag = false;
   }
 }
 
 
 ////////////////////
-//  �ċz�_�̒ǉ�  //
+//  呼吸点の追加  //
 ////////////////////
 static int
 AddLiberty( string_t *string, int pos, int head )
-// string_t *string : �ċz�_��ǉ�����Ώۂ̘A
-// int pos        : �ǉ�����ċz�_�̍��W
-// int head       : �T���Ώۂ̐擪�̃C���f�b�N�X
+// string_t *string : 呼吸点を追加する対象の連
+// int pos        : 追加する呼吸点の座標
+// int head       : 探索対象の先頭のインデックス
 {
   int lib;
 
-  // ���ɒǉ�����Ă���ꍇ�͉������Ȃ�
+  // 既に追加されている場合は何もしない
   if (string->lib[pos] != 0) return pos;
 
-  // �T���Ώۂ̐擪�̃C���f�b�N�X����
+  // 探索対象の先頭のインデックスを代入
   lib = head;
 
-  // �ǉ�����ꏊ��������܂Ői�߂�
+  // 追加する場所を見つけるまで進める
   while (string->lib[lib] < pos) {
     lib = string->lib[lib];
   }
 
-  // �ċz�_�̍��W��ǉ�����
+  // 呼吸点の座標を追加する
   string->lib[pos] = string->lib[lib];
   string->lib[lib] = (short)pos;
 
-  // �ċz�_�̐���1���₷
+  // 呼吸点の数を1つ増やす
   string->libs++;
 
-  // �ǉ������ċz�_�̍��W��Ԃ�
+  // 追加した呼吸点の座標を返す
   return pos;
 }
 
 
 ////////////////////
-//  �ċz�_�̏���  //
+//  呼吸点の除去  //
 ////////////////////
 static void
 RemoveLiberty( game_info_t *game, string_t *string, int pos )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
-// string_t *string  : �ċz�_����菜���Ώۂ̘A
-// int pos         : ��菜�����ċz�_
+// game_info_t *game : 盤面の情報を示すポインタ
+// string_t *string  : 呼吸点を取り除く対象の連
+// int pos         : 取り除かれる呼吸点
 {
   int lib = 0;
 
-  // ���Ɏ�菜����Ă���ꍇ�͉������Ȃ�
+  // 既に取り除かれている場合は何もしない
   if (string->lib[pos] == 0) return;
 
-  // ��菜���ċz�_�̍��W��������܂Ői�߂�
+  // 取り除く呼吸点の座標を見つけるまで進める
   while (string->lib[lib] != pos) {
     lib = string->lib[lib];
   }
 
-  // �ċz�_�̍��W�̏�����菜��
+  // 呼吸点の座標の情報を取り除く
   string->lib[lib] = string->lib[string->lib[lib]];
   string->lib[pos] = (short)0;
 
-  // �A�̌ċz�_�̐���1���炷
+  // 連の呼吸点の数を1つ減らす
   string->libs--;
 
-  // �ċz�_��1�Ȃ��, ���̘A�̌ċz�_������ɒǉ�
+  // 呼吸点が1つならば, その連の呼吸点を候補手に追加
   if (string->libs == 1) {
     game->candidates[string->lib[0]] = true;
   }
@@ -1411,36 +1411,36 @@ RemoveLiberty( game_info_t *game, string_t *string, int pos )
 
 
 //////////////////////
-//  �ċz�_�̏���    //
-// (�v���C�A�E�g�p) //
+//  呼吸点の除去    //
+// (プレイアウト用) //
 //////////////////////
 static void
 PoRemoveLiberty( game_info_t *game, string_t *string, int pos, int color )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
-// string_t *string  : �ċz�_����菜���Ώۂ̘A
-// int pos         : ��菜�����ċz�_
-// int color       : ���̎�Ԃ̐F
+// game_info_t *game : 盤面の情報を示すポインタ
+// string_t *string  : 呼吸点を取り除く対象の連
+// int pos         : 取り除かれる呼吸点
+// int color       : その手番の色
 {
   int lib = 0;
 
-  // ���Ɏ�菜����Ă���ꍇ�͉������Ȃ�
+  // 既に取り除かれている場合は何もしない
   if (string->lib[pos] == 0) return;
 
-  // ��菜���ċz�_�̍��W��������܂Ői�߂�
+  // 取り除く呼吸点の座標を見つけるまで進める
   while (string->lib[lib] != pos) {
     lib = string->lib[lib];
   }
 
-  // �ċz�_�̍��W�̏�����菜��
+  // 呼吸点の座標の情報を取り除く
   string->lib[lib] = string->lib[string->lib[lib]];
   string->lib[pos] = 0;
 
-  // �ċz�_�̐���1���炷
+  // 呼吸点の数を1つ減らす
   string->libs--;
 
-  // �A�̌ċz�_�̐����m�F
-  // �ċz�_��1�Ȃ��, ���̌ċz�_������ɖ߂���, ���[�g�̍X�V�Ώۂɉ�����
-  // �ċz�_��2�Ȃ��, ���[�g�̍X�V�Ώۂɉ�����
+  // 連の呼吸点の数を確認
+  // 呼吸点が1つならば, その呼吸点を候補手に戻して, レートの更新対象に加える
+  // 呼吸点が2つならば, レートの更新対象に加える
   if (string->libs == 1) {
     game->candidates[string->lib[0]] = true;
     game->update_pos[color][game->update_num[color]++] = string->lib[0];
@@ -1450,12 +1450,12 @@ PoRemoveLiberty( game_info_t *game, string_t *string, int pos, int color )
 
 
 ////////////////
-//  �A�̏���  //
+//  連の除去  //
 ////////////////
 static int
 RemoveString( game_info_t *game, string_t *string )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
-// string_t *string  : ��菜���Ώۂ̘A
+// game_info_t *game : 盤面の情報を示すポインタ
+// string_t *string  : 取り除く対象の連
 {
   string_t *str = game->string;
   int *string_next = game->string_next;
@@ -1467,59 +1467,59 @@ RemoveString( game_info_t *game, string_t *string )
   int removed_color = board[pos];
 
   do {
-    // ��_�ɖ߂�
+    // 空点に戻す
     board[pos] = S_EMPTY;
 
-    // ����ɒǉ�����
+    // 候補手に追加する
     candidates[pos] = true;
 
-    // �p�^�[���̍X�V
+    // パターンの更新
     UpdatePatternEmpty(game->pat, pos);
 
     game->current_hash ^= hash_bit[pos][removed_color];
 
-    // �㉺���E���m�F����
-    // �אڂ���A������Όċz�_��ǉ�����
+    // 上下左右を確認する
+    // 隣接する連があれば呼吸点を追加する
     if (str[string_id[NORTH(pos)]].flag) AddLiberty(&str[string_id[NORTH(pos)]], pos, 0);
     if (str[string_id[ WEST(pos)]].flag) AddLiberty(&str[string_id[ WEST(pos)]], pos, 0);
     if (str[string_id[ EAST(pos)]].flag) AddLiberty(&str[string_id[ EAST(pos)]], pos, 0);
     if (str[string_id[SOUTH(pos)]].flag) AddLiberty(&str[string_id[SOUTH(pos)]], pos, 0);
 
-    // �A���\�����鎟�̐΂̍��W���L�^
+    // 連を構成する次の石の座標を記録
     next = string_next[pos];
 
-    // �A�̍\���v�f�����菜��, 
-    // �΂���菜�����ӏ��̘AID�����ɖ߂�
+    // 連の構成要素から取り除き, 
+    // 石を取り除いた箇所の連IDを元に戻す
     string_next[pos] = 0;
     string_id[pos] = 0;
 
-    // �A���\�����鎟�̐΂̍��W�Ɉړ�
+    // 連を構成する次の石の座標に移動
     pos = next;
   } while (pos != STRING_END);
 
-  // ��菜�����A�ɗאڂ���A����אڏ�����菜��
+  // 取り除いた連に隣接する連から隣接情報を取り除く
   neighbor = string->neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     RemoveNeighborString(&str[neighbor], rm_id);
     neighbor = string->neighbor[neighbor];
   }
 
-  // �A�̑��݃t���O���I�t
+  // 連の存在フラグをオフ
   string->flag = false;
 
-  // �ł��グ���΂̐���Ԃ�
+  // 打ち上げた石の数を返す
   return string->size;
 }
 
 
 ////////////////
-//  �A�̏���  //
+//  連の除去  //
 ////////////////
 static int
 PoRemoveString( game_info_t *game, string_t *string, int color )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
-// string_t *string  : ��菜���Ώۂ̘A
-// int color       : ��Ԃ̐F(�A���\������F�Ƃ͈Ⴄ�F)
+// game_info_t *game : 盤面の情報を示すポインタ
+// string_t *string  : 取り除く対象の連
+// int color       : 手番の色(連を構成する色とは違う色)
 {
   string_t *str = game->string;
   int *string_next = game->string_next;
@@ -1534,7 +1534,7 @@ PoRemoveString( game_info_t *game, string_t *string, int color )
   int *update_num = &game->update_num[color];
   int lib;
   
-  // �אڂ���A�̌ċz�_���X�V�̑Ώۂɉ�����
+  // 隣接する連の呼吸点を更新の対象に加える
   neighbor = string->neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     if (str[neighbor].libs < 3) {
@@ -1549,111 +1549,111 @@ PoRemoveString( game_info_t *game, string_t *string, int color )
   }
   
   do {
-    // ��_�ɖ߂�
+    // 空点に戻す
     board[pos] = S_EMPTY;
-    // ����ɒǉ�����
+    // 候補手に追加する
     candidates[pos] = true;
 
-    // ���[�e�B���O�X�V�Ώۂɒǉ�
+    // レーティング更新対象に追加
     capture_pos[(*capture_num)++] = pos;
 
-    // 3x3�̃p�^�[���̍X�V
+    // 3x3のパターンの更新
     UpdateMD2Empty(game->pat, pos);
     
-    // �㉺���E���m�F����
-    // �אڂ���A������Όċz�_��ǉ�����
+    // 上下左右を確認する
+    // 隣接する連があれば呼吸点を追加する
     if (str[string_id[NORTH(pos)]].flag) AddLiberty(&str[string_id[NORTH(pos)]], pos, 0);
     if (str[string_id[ WEST(pos)]].flag) AddLiberty(&str[string_id[ WEST(pos)]], pos, 0);
     if (str[string_id[ EAST(pos)]].flag) AddLiberty(&str[string_id[ EAST(pos)]], pos, 0);
     if (str[string_id[SOUTH(pos)]].flag) AddLiberty(&str[string_id[SOUTH(pos)]], pos, 0);
 
-    // �A���\�����鎟�̐΂̍��W���L�^
+    // 連を構成する次の石の座標を記録
     next = string_next[pos];
 
-    // �A�̍\���v�f�����菜��, 
-    // �΂���菜�����ӏ��̘AID�����ɖ߂�
+    // 連の構成要素から取り除き, 
+    // 石を取り除いた箇所の連IDを元に戻す
     string_next[pos] = 0;
     string_id[pos] = 0;
 
-    // �A���\�����鎟�̐΂ֈړ�
+    // 連を構成する次の石へ移動
     pos = next;
   } while (pos != STRING_END);
 
-  // ��菜�����A�ɗאڂ���A����אڏ�����菜��
+  // 取り除いた連に隣接する連から隣接情報を取り除く
   neighbor = string->neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     RemoveNeighborString(&str[neighbor], rm_id);
     neighbor = string->neighbor[neighbor];
   }
 
-  // �A�̑��݃t���O���I�t
+  // 連の存在フラグをオフ
   string->flag = false;
 
-  // �ł��グ���΂̌���Ԃ�
+  // 打ち上げた石の個数を返す
   return string->size;
 }
 
 
 ////////////////////////////////////
-//  �אڂ���AID�̒ǉ�(�d���m�F)  //
+//  隣接する連IDの追加(重複確認)  //
 ////////////////////////////////////
 static void
 AddNeighbor( string_t *string, int id, int head )
-// string_t *string : �אڏ���ǉ�����A
-// int id         : �ǉ������AID
-// int head       : �T���Ώۂ̐擪�̃C���f�b�N�X
+// string_t *string : 隣接情報を追加する連
+// int id         : 追加される連ID
+// int head       : 探索対象の先頭のインデックス
 {
   int neighbor = 0;
 
-  // ���ɒǉ�����Ă���ꍇ�͉������Ȃ�
+  // 既に追加されている場合は何もしない
   if (string->neighbor[id] != 0) return;
 
-  // �T���Ώۂ̐擪�̃C���f�b�N�X����
+  // 探索対象の先頭のインデックスを代入
   neighbor = head;
 
-  // �ǉ��ꏊ��������܂Ői�߂�
+  // 追加場所を見つけるまで進める
   while (string->neighbor[neighbor] < id) {
     neighbor = string->neighbor[neighbor];
   }
 
-  // �אڂ���AID��ǉ�����
+  // 隣接する連IDを追加する
   string->neighbor[id] = string->neighbor[neighbor];
   string->neighbor[neighbor] = (short)id;
 
-  // �אڂ���A�̐���1���₷
+  // 隣接する連の数を1つ増やす
   string->neighbors++;
 }
 
 
 //////////////////////////
-//  �אڂ���AID�̏���  //
+//  隣接する連IDの除去  //
 //////////////////////////
 static void
 RemoveNeighborString( string_t *string, int id )
-// string_t *string : �אڂ���A��ID����菜���Ώۂ̘A
-// int id         : ��菜���A��ID
+// string_t *string : 隣接する連のIDを取り除く対象の連
+// int id         : 取り除く連のID
 {
   int neighbor = 0;
 
-  // ���ɏ��O����Ă���Ή������Ȃ�
+  // 既に除外されていれば何もしない
   if (string->neighbor[id] == 0) return;
 
-  // ��菜���אڂ���AID��������܂Ői�߂�
+  // 取り除く隣接する連IDを見つけるまで進める
   while (string->neighbor[neighbor] != id) {
     neighbor = string->neighbor[neighbor];
   }
 
-  // �אڂ���AID����菜��
+  // 隣接する連IDを取り除く
   string->neighbor[neighbor] = string->neighbor[string->neighbor[neighbor]];
   string->neighbor[id] = 0;
 
-  // �אڂ���A�̐���1���炷
+  // 隣接する連の数を1つ減らす
   string->neighbors--;
 }
 
 
 ///////////////////////////
-//  ���̃}�K���l�ڂ̊m�F  //
+//  隅のマガリ四目の確認  //
 ///////////////////////////
 void
 CheckBentFourInTheCorner( game_info_t *game )
@@ -1670,8 +1670,8 @@ CheckBentFourInTheCorner( game_info_t *game )
   int lib1, lib2;
   int neighbor_lib1, neighbor_lib2;
 
-  // �l���ɂ��ċ��̃}�K���l�ڂ����݂��邩�m�F��
-  // ���݂���Βn���������
+  // 四隅について隅のマガリ四目が存在するか確認し
+  // 存在すれば地を訂正する
   for (i = 0; i < 4; i++) {
     id = string_id[corner[i]];
     if (string[id].size == 3 &&
@@ -1687,7 +1687,7 @@ CheckBentFourInTheCorner( game_info_t *game )
 	neighbor = string[id].neighbor[0];
 	if (string[neighbor].libs == 2 &&
 	    string[neighbor].size > 6) {
-	  // �ċz�_�����L���Ă��邩�̊m�F
+	  // 呼吸点を共有しているかの確認
 	  neighbor_lib1 = string[neighbor].lib[0];
 	  neighbor_lib2 = string[neighbor].lib[neighbor_lib1];
 	  if ((neighbor_lib1 == lib1 && neighbor_lib2 == lib2) ||
@@ -1710,11 +1710,11 @@ CheckBentFourInTheCorner( game_info_t *game )
 
 
 ////////////////
-//  �n�̌v�Z  //
+//  地の計算  //
 ////////////////
 int
 CalculateScore( game_info_t *game )
-// game_info_t *game : �Ֆʂ̏��������|�C���^
+// game_info_t *game : 盤面の情報を示すポインタ
 {
   char *board = game->board;
   int i;
@@ -1722,10 +1722,10 @@ CalculateScore( game_info_t *game )
   int color;
   int scores[S_MAX] = { 0 };
 
-  // ���̃}�K���l�ڂ̊m�F
+  // 隅のマガリ四目の確認
   CheckBentFourInTheCorner(game);
 
-  // �n�̐����グ
+  // 地の数え上げ
   for (i = 0; i < pure_board_max; i++) {
     pos = onboard_pos[i];
     color = board[pos];
@@ -1733,6 +1733,6 @@ CalculateScore( game_info_t *game )
     scores[color]++;
   }
 
-  //  ���|����Ԃ�(�R�~�Ȃ�)
+  //  黒−白を返す(コミなし)
   return(scores[S_BLACK] - scores[S_WHITE]);
 }

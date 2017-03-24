@@ -17,7 +17,7 @@ enum COMMAND {
 };
 
 
-// ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“ˆø”‚ÌƒRƒ}ƒ“ƒh‚Ì‰ğÍ
+// ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³å¼•æ•°ã®ã‚³ãƒãƒ³ãƒ‰ã®è§£æ
 void AnalyzeCommand( int argc, char **argv );
 
 #endif

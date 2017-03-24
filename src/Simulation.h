@@ -6,7 +6,7 @@
 #include "GoBoard.h"
 #include "UctSearch.h"
 
-// ‘Î‹Ç‚ÌƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“(’m¯‚ ‚è)
+// å¯¾å±€ã®ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³(çŸ¥è­˜ã‚ã‚Š)
 void Simulation( game_info_t *game, int color, std::mt19937_64 *mt );
 
 #endif

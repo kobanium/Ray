@@ -10,7 +10,7 @@ using namespace std;
 
 
 //////////////////
-//  セキの判定  //
+//  繧サ繧ュ縺ョ蛻、螳 //
 //////////////////
 void
 CheckSeki( game_info_t *game, bool seki[] )
@@ -26,7 +26,7 @@ CheckSeki( game_info_t *game, bool seki[] )
   int neighbor4[4];
   bool already_checked;
 
-  // 双方が自己アタリになっている座標を抽出
+  // 蜿梧婿縺瑚㌕蟾ア繧「繧ソ繝ェ縺ォ縺ェ縺」縺ヲ縺ｋ蠎ァ讓吶ｒ謚ス蜃コ
   for (i = 0; i < pure_board_max; i++) {
     pos = onboard_pos[i];
     if (IsSelfAtari(game, S_BLACK, pos) &&
@@ -36,21 +36,17 @@ CheckSeki( game_info_t *game, bool seki[] )
   }
 
   for (i = 0; i < MAX_STRING; i++) {
-    // 連が存在しない, 
-    // または連の呼吸点数が2個でなければ次を調べる
-    if (!string[i].flag || string[i].libs != 2) continue;
+    // 騾」縺悟ュ伜惠縺励↑縺 
+    // 縺セ縺溘騾」縺ョ蜻シ蜷ク轤ケ謨ー縺蛟九〒縺ェ縺代ｌ縺ー谺。繧定ェソ縺ケ繧    if (!string[i].flag || string[i].libs != 2) continue;
 
-    // 連の大きさが6以上ならシミュレーションで
-    // 自己アタリを打たないので次を調べる
-    if (string[i].size >= 6) continue;
+    // 騾」縺ョ螟ァ縺阪＆縺莉・荳翫↑繧峨す繝溘Η繝ャ繝シ繧キ繝ァ繝ウ縺ァ
+    // 閾ェ蟾ア繧「繧ソ繝ェ繧呈遠縺溘↑縺縺ァ谺。繧定ェソ縺ケ繧    if (string[i].size >= 6) continue;
 
     lib1 = string[i].lib[0];
     lib2 = string[i].lib[lib1];
-    // 連の持つ呼吸点が共にセキの候補
-    if (seki_candidate[lib1] &&
+    // 騾」縺ョ謖√▽蜻シ蜷ク轤ケ縺悟縺ォ繧サ繧ュ縺ョ蛟呵」    if (seki_candidate[lib1] &&
 	seki_candidate[lib2]) {
-      // 呼吸点1の周囲の連のIDを取り出す
-      GetNeighbor4(neighbor4, lib1);
+      // 蜻シ蜷ク轤ケ1縺ョ蜻ィ蝗イ縺ョ騾」縺ョID繧貞叙繧雁縺      GetNeighbor4(neighbor4, lib1);
       lib1_ids = 0;
       for (j = 0; j < 4; j++) {
 	if (board[neighbor4[j]] == S_BLACK ||
@@ -70,8 +66,7 @@ CheckSeki( game_info_t *game, bool seki[] )
 	  }
 	}
       }
-      // 呼吸点2の周囲の連のIDを取り出す
-      GetNeighbor4(neighbor4, lib2);
+      // 蜻シ蜷ク轤ケ2縺ョ蜻ィ蝗イ縺ョ騾」縺ョID繧貞叙繧雁縺      GetNeighbor4(neighbor4, lib2);
       lib2_ids = 0;
       for (j = 0; j < 4; j++) {
 	if (board[neighbor4[j]] == S_BLACK ||

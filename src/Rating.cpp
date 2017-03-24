@@ -19,29 +19,29 @@
 using namespace std;
 
 ////////////////
-//    •Ï”    //
+//    å¤‰æ•°    //
 ////////////////
 
-// íp“I“Á’¥‚ÌƒÁ’l
+// æˆ¦è¡“çš„ç‰¹å¾´ã®Î³å€¤
 float po_tactical_features[TACTICAL_FEATURE_MAX];
-// 3x3ƒpƒ^[ƒ“‚ÌƒÁ’l
+// 3x3ãƒ‘ã‚¿ãƒ¼ãƒ³ã®Î³å€¤
 float po_pat3[PAT3_MAX];
-// MD2‚Ìƒpƒ^[ƒ“‚ÌƒÁ’l
+// MD2ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®Î³å€¤
 float po_md2[MD2_MAX];
-// 3x3‚ÆMD2‚Ìƒpƒ^[ƒ“‚ÌƒÁ’l‚ÌÏ
+// 3x3ã¨MD2ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®Î³å€¤ã®ç©
 float po_pattern[MD2_MAX];
-// ŠwK‚µ‚½’…è‹——£‚Ì“Á’¥ 
+// å­¦ç¿’ã—ãŸç€æ‰‹è·é›¢ã®ç‰¹å¾´ 
 float po_neighbor_orig[PREVIOUS_DISTANCE_MAX];
-// •â³‚µ‚½’…è‹——£‚Ì“Á’¥
+// è£œæ­£ã—ãŸç€æ‰‹è·é›¢ã®ç‰¹å¾´
 float po_previous_distance[PREVIOUS_DISTANCE_MAX];
-// íp“I“Á’¥1
+// æˆ¦è¡“çš„ç‰¹å¾´1
 float po_tactical_set1[PO_TACTICALS_MAX1];
-// íp“I“Á’¥2
+// æˆ¦è¡“çš„ç‰¹å¾´2
 float po_tactical_set2[PO_TACTICALS_MAX2];
-// ƒpƒ‰ƒ[ƒ^‚Ìƒtƒ@ƒCƒ‹‚ğŠi”[‚µ‚Ä‚¢‚éƒfƒBƒŒƒNƒgƒŠ‚ÌƒpƒX
+// ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ ¼ç´ã—ã¦ã„ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã®ãƒ‘ã‚¹
 char po_params_path[1024];
 
-// ƒrƒbƒgƒ}ƒXƒN
+// ãƒ“ãƒƒãƒˆãƒã‚¹ã‚¯
 unsigned int po_tactical_features_mask[F_MASK_MAX] = {
   0x00000001,
   0x00000002,
@@ -81,23 +81,23 @@ unsigned int po_tactical_features_mask[F_MASK_MAX] = {
 };
 
 
-// MD2ƒpƒ^[ƒ“‚ª“Í‚­”ÍˆÍ
+// MD2ãƒ‘ã‚¿ãƒ¼ãƒ³ãŒå±Šãç¯„å›²
 static int neighbor[UPDATE_NUM];
 
-// ƒRƒXƒ~‚ÌˆÊ’u
+// ã‚³ã‚¹ãƒŸã®ä½ç½®
 static int cross[4];
 
-// ’…è‹——£2, 3‚ÌƒÁ’l‚Ì•â³
+// ç€æ‰‹è·é›¢2, 3ã®Î³å€¤ã®è£œæ­£
 double neighbor_bias = NEIGHBOR_BIAS;
-// ’…è‹——£4‚ÌƒÁ’l‚Ì•â³
+// ç€æ‰‹è·é›¢4ã®Î³å€¤ã®è£œæ­£
 double jump_bias = JUMP_BIAS;
 double po_bias = PO_BIAS;
 
 //////////////////
-//  ŠÖ”‚ÌéŒ¾  //
+//  é–¢æ•°ã®å®£è¨€  //
 //////////////////
 
-//  ƒÁ“Ç‚İ‚İ
+//  Î³èª­ã¿è¾¼ã¿
 static void InputPOGamma( void );
 static void InputMD2( const char *filename, float *ap );
 
@@ -105,7 +105,7 @@ static void InputMD2( const char *filename, float *ap );
 
 
 /////////////////
-// ‹ß–T‚Ìİ’è  //
+// è¿‘å‚ã®è¨­å®š  //
 /////////////////
 void
 SetNeighbor( void )
@@ -131,20 +131,20 @@ SetNeighbor( void )
 }
 
 //////////////
-//  ‰Šú‰»  //
+//  åˆæœŸåŒ–  //
 //////////////
 void
 InitializeRating( void )
 {
-  // ƒÁ“Ç‚İ‚İ
+  // Î³èª­ã¿è¾¼ã¿
   InputPOGamma();
-  // íp“I“Á’¥‚ğ‚Ü‚Æ‚ß‚é
+  // æˆ¦è¡“çš„ç‰¹å¾´ã‚’ã¾ã¨ã‚ã‚‹
   InitializePoTacticalFeaturesSet();
 }
 
 
 ////////////////////////////
-//  íp“I“Á’¥‚ğ‚Ü‚Æ‚ß‚é  //
+//  æˆ¦è¡“çš„ç‰¹å¾´ã‚’ã¾ã¨ã‚ã‚‹  //
 ////////////////////////////
 void
 InitializePoTacticalFeaturesSet( void )
@@ -263,7 +263,7 @@ InitializePoTacticalFeaturesSet( void )
 }
 
 //////////////////////
-//  ’…è( rating )  // 
+//  ç€æ‰‹( rating )  // 
 //////////////////////
 int
 RatingMove( game_info_t *game, int color, std::mt19937_64 *mt )
@@ -274,22 +274,22 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 *mt )
   int y, pos;
   long long rand_num;
 
-  // ƒŒ[ƒg‚Ì•”•ªXV
+  // ãƒ¬ãƒ¼ãƒˆã®éƒ¨åˆ†æ›´æ–°
   PartialRating(game, color, sum_rate, sum_rate_row, rate);
 
-  // ‡–@è‚ğ‘I‘ğ‚·‚é‚Ü‚Åƒ‹[ƒv
+  // åˆæ³•æ‰‹ã‚’é¸æŠã™ã‚‹ã¾ã§ãƒ«ãƒ¼ãƒ—
   while (true){
     if (*sum_rate == 0) return PASS;
 
     rand_num = ((*mt)() % (*sum_rate)) + 1;
 
-    // c•ûŒü‚ÌˆÊ’u‚ğ‹‚ß‚é
+    // ç¸¦æ–¹å‘ã®ä½ç½®ã‚’æ±‚ã‚ã‚‹
     y = board_start;
     while (rand_num > sum_rate_row[y]){
       rand_num -= sum_rate_row[y++];
     }
 
-    // ‰¡•ûŒü‚ÌˆÊ’u‚ğ‹‚ß‚é
+    // æ¨ªæ–¹å‘ã®ä½ç½®ã‚’æ±‚ã‚ã‚‹
     pos = POS(board_start, y);
     do{
       rand_num -= rate[pos];
@@ -297,8 +297,8 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 *mt )
       pos++;
     } while (true);
 
-    // ‘I‚Î‚ê‚½è‚ª‡–@è‚È‚çƒ‹[ƒv‚ğ”²‚¯o‚µ
-    // ‚»‚¤‚Å‚È‚¯‚ê‚Î‚»‚Ì‰ÓŠ‚ÌƒŒ[ƒg‚ğ0‚É‚µ, è‚ğ‘I‚Ñ‚È‚¨‚·
+    // é¸ã°ã‚ŒãŸæ‰‹ãŒåˆæ³•æ‰‹ãªã‚‰ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘å‡ºã—
+    // ãã†ã§ãªã‘ã‚Œã°ãã®ç®‡æ‰€ã®ãƒ¬ãƒ¼ãƒˆã‚’0ã«ã—, æ‰‹ã‚’é¸ã³ãªãŠã™
     if (IsLegalNotEye(game, pos, color)) {
       break;
     } else {
@@ -313,24 +313,24 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 *mt )
 
 
 ////////////////////////////
-//  12‹ß–T‚ÌÀ•W‚ğ‹‚ß‚é  //
+//  12è¿‘å‚ã®åº§æ¨™ã‚’æ±‚ã‚ã‚‹  //
 ////////////////////////////
 void
 Neighbor12( int previous_move, int distance_2[], int distance_3[], int distance_4[] )
 {
-  // ’…è‹——£2‚ÌÀ•W
+  // ç€æ‰‹è·é›¢2ã®åº§æ¨™
   distance_2[0] = previous_move + neighbor[ 2];
   distance_2[1] = previous_move + neighbor[ 5];
   distance_2[2] = previous_move + neighbor[ 7];
   distance_2[3] = previous_move + neighbor[10];
 
-  // ’…è‹——£3‚ÌÀ•W
+  // ç€æ‰‹è·é›¢3ã®åº§æ¨™
   distance_3[0] = previous_move + neighbor[ 1];
   distance_3[1] = previous_move + neighbor[ 3];
   distance_3[2] = previous_move + neighbor[ 9];
   distance_3[3] = previous_move + neighbor[11];
 
-  // ’…è‹——£4‚ÌÀ•W
+  // ç€æ‰‹è·é›¢4ã®åº§æ¨™
   distance_4[0] = previous_move + neighbor[ 0];
   distance_4[1] = previous_move + neighbor[ 4];
   distance_4[2] = previous_move + neighbor[ 8];
@@ -339,7 +339,7 @@ Neighbor12( int previous_move, int distance_2[], int distance_3[], int distance_
 
 
 //////////////////////////////
-//  ’¼‘O‚Ì’…è‚Ìü•Ó‚ÌXV  //
+//  ç›´å‰ã®ç€æ‰‹ã®å‘¨è¾ºã®æ›´æ–°  //
 //////////////////////////////
 void
 NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int *update, bool *flag, int index )
@@ -351,7 +351,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
 
   bias[0] = bias[1] = bias[2] = bias[3] = 1.0;
 
-  // ”Õ’[‚Å‚Ì“Áêˆ—
+  // ç›¤ç«¯ã§ã®ç‰¹æ®Šå‡¦ç†
   if (index == 1) {
     pos = game->record[game->moves - 1].pos;
     if ((border_dis_x[pos] == 1 && border_dis_y[pos] == 2) ||
@@ -372,7 +372,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
       if (flag[pos] && bias[i] == 1.0) continue;
       self_atari_flag = PoCheckSelfAtari(game, color, pos);
 
-      // Œ³‚ ‚Á‚½ƒŒ[ƒg‚ğÁ‹
+      // å…ƒã‚ã£ãŸãƒ¬ãƒ¼ãƒˆã‚’æ¶ˆå»
       *sum_rate -= rate[pos];
       sum_rate_row[board_y[pos]] -= rate[pos];
 
@@ -387,7 +387,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
 	gamma *= bias[i];
 	rate[pos] = (long long)(gamma)+1;
 
-	// V‚½‚ÉŒvZ‚µ‚½ƒŒ[ƒg‚ğ‘ã“ü
+	// æ–°ãŸã«è¨ˆç®—ã—ãŸãƒ¬ãƒ¼ãƒˆã‚’ä»£å…¥
 	*sum_rate += rate[pos];
 	sum_rate_row[board_y[pos]] += rate[pos];
       }
@@ -401,7 +401,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
 
 
 //////////////////////////
-//  ƒiƒJƒf‚Ì‹}Š‚ÌXV  //
+//  ãƒŠã‚«ãƒ‡ã®æ€¥æ‰€ã®æ›´æ–°  //
 //////////////////////////
 void
 NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int *nakade_pos, int nakade_num, bool *flag, int pm1 )
@@ -415,7 +415,7 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
     if (pos != NOT_NAKADE && game->candidates[pos]){
       self_atari_flag = PoCheckSelfAtari(game, color, pos);
 
-      // Œ³‚ ‚Á‚½ƒŒ[ƒg‚ğÁ‹
+      // å…ƒã‚ã£ãŸãƒ¬ãƒ¼ãƒˆã‚’æ¶ˆå»
       *sum_rate -= rate[pos];
       sum_rate_row[board_y[pos]] -= rate[pos];
 
@@ -433,7 +433,7 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
 	gamma *= po_tactical_set1[game->tactical_features1[pos]];
 	gamma *= po_tactical_set2[game->tactical_features2[pos]];
 	rate[pos] = (long long)(gamma) + 1;
-	// V‚½‚ÉŒvZ‚µ‚½ƒŒ[ƒg‚ğ‘ã“ü      
+	// æ–°ãŸã«è¨ˆç®—ã—ãŸãƒ¬ãƒ¼ãƒˆã‚’ä»£å…¥      
 	*sum_rate += rate[pos];
 	sum_rate_row[board_y[pos]] += rate[pos];     
       }
@@ -447,7 +447,7 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
 
 
 ////////////////////
-//  ƒŒ[ƒg‚ÌXV  //
+//  ãƒ¬ãƒ¼ãƒˆã®æ›´æ–°  //
 ////////////////////
 void
 OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int update_num, int *update, bool *flag )
@@ -463,11 +463,11 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
     if (game->candidates[pos]) {
       self_atari_flag = PoCheckSelfAtari(game, color, pos);
 
-      // Œ³‚ ‚Á‚½ƒŒ[ƒg‚ğÁ‹
+      // å…ƒã‚ã£ãŸãƒ¬ãƒ¼ãƒˆã‚’æ¶ˆå»
       *sum_rate -= rate[pos];
       sum_rate_row[board_y[pos]] -= rate[pos];
 
-      // ƒpƒ^[ƒ“Aíp“I“Á’¥A‹——£‚ÌƒÁ’l
+      // ãƒ‘ã‚¿ãƒ¼ãƒ³ã€æˆ¦è¡“çš„ç‰¹å¾´ã€è·é›¢ã®Î³å€¤
       if (!self_atari_flag) {
 	rate[pos] = 0;
       } else {
@@ -477,7 +477,7 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
 	gamma *= po_tactical_set2[game->tactical_features2[pos]];
 	rate[pos] = (long long)(gamma) + 1;
 
-	// V‚½‚ÉŒvZ‚µ‚½ƒŒ[ƒg‚ğ‘ã“ü
+	// æ–°ãŸã«è¨ˆç®—ã—ãŸãƒ¬ãƒ¼ãƒˆã‚’ä»£å…¥
 	*sum_rate += rate[pos];
 	sum_rate_row[board_y[pos]] += rate[pos];
       }
@@ -485,14 +485,14 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
       game->tactical_features1[pos] = 0;
       game->tactical_features2[pos] = 0;
     }
-    // XVÏ‚İƒtƒ‰ƒO‚ğ—§‚Ä‚é
+    // æ›´æ–°æ¸ˆã¿ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
     flag[pos] = true;
   }
 }
 
 
 /////////////////////////////////
-//  MD2ƒpƒ^[ƒ“‚Ì”ÍˆÍ“à‚ÌXV  //
+//  MD2ãƒ‘ã‚¿ãƒ¼ãƒ³ã®ç¯„å›²å†…ã®æ›´æ–°  //
 /////////////////////////////////
 void
 Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int update_num, int *update, bool *flag )
@@ -509,11 +509,11 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
       if (game->candidates[pos]) {
 	self_atari_flag = PoCheckSelfAtari(game, color, pos);
 
-	// Œ³‚ ‚Á‚½ƒŒ[ƒg‚ğÁ‹
+	// å…ƒã‚ã£ãŸãƒ¬ãƒ¼ãƒˆã‚’æ¶ˆå»
 	*sum_rate -= rate[pos];
 	sum_rate_row[board_y[pos]] -= rate[pos];
 
-	// ƒpƒ^[ƒ“Aíp“I“Á’¥A‹——£‚ÌƒÁ’l
+	// ãƒ‘ã‚¿ãƒ¼ãƒ³ã€æˆ¦è¡“çš„ç‰¹å¾´ã€è·é›¢ã®Î³å€¤
 	if (!self_atari_flag){
 	  rate[pos] = 0;
 	} else {
@@ -523,7 +523,7 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
 	  gamma *= po_tactical_set2[game->tactical_features2[pos]];
 	  rate[pos] = (long long)(gamma) + 1;
 
-	  // V‚½‚ÉŒvZ‚µ‚½ƒŒ[ƒg‚ğ‘ã“ü
+	  // æ–°ãŸã«è¨ˆç®—ã—ãŸãƒ¬ãƒ¼ãƒˆã‚’ä»£å…¥
 	  *sum_rate += rate[pos];
 	  sum_rate_row[board_y[pos]] += rate[pos];
 	}
@@ -531,7 +531,7 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
 	game->tactical_features1[pos] = 0;
 	game->tactical_features2[pos] = 0;
       }
-      // XVÏ‚İƒtƒ‰ƒO‚ğ—§‚Ä‚é
+      // æ›´æ–°æ¸ˆã¿ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
       flag[pos] = true;
     }
   }
@@ -539,7 +539,7 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
 
 
 ////////////////
-//  •”•ªXV  //
+//  éƒ¨åˆ†æ›´æ–°  //
 ////////////////
 void
 PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate )
@@ -576,36 +576,36 @@ PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum
 
     SearchNakade(game, &nakade_num, nakade_pos);
     NakadeUpdate(game, color, sum_rate, sum_rate_row, rate, nakade_pos, nakade_num, flag, pm1);
-    // ’…è‹——£2‚ÌXV
+    // ç€æ‰‹è·é›¢2ã®æ›´æ–°
     NeighborUpdate(game, color, sum_rate, sum_rate_row, rate, distance_2, flag, 0);
-    // ’…è‹——£3‚ÌXV
+    // ç€æ‰‹è·é›¢3ã®æ›´æ–°
     NeighborUpdate(game, color, sum_rate, sum_rate_row, rate, distance_3, flag, 1);
-    // ’…è‹——£4‚ÌXV
+    // ç€æ‰‹è·é›¢4ã®æ›´æ–°
     NeighborUpdate(game, color, sum_rate, sum_rate_row, rate, distance_4, flag, 2);
 
   }
 
-  // 2è‘O‚Ì’…è‚Ì12‹ß–T‚ÌXV
+  // 2æ‰‹å‰ã®ç€æ‰‹ã®12è¿‘å‚ã®æ›´æ–°
   if (pm2 != PASS) Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, 1, &pm2, flag);
-  // 3è‘O‚Ì’…è‚Ì12‹ß–T‚ÌXV
+  // 3æ‰‹å‰ã®ç€æ‰‹ã®12è¿‘å‚ã®æ›´æ–°
   if (pm3 != PASS) Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, 1, &pm3, flag);
 
-  // ˆÈ‘O‚Ì’…è‚Åíp“I“Á’¥‚ªŒ»‚ê‚½‰ÓŠ‚ÌXV
+  // ä»¥å‰ã®ç€æ‰‹ã§æˆ¦è¡“çš„ç‰¹å¾´ãŒç¾ã‚ŒãŸç®‡æ‰€ã®æ›´æ–°
   OtherUpdate(game, color, sum_rate, sum_rate_row, rate, prev_feature, prev_feature_pos, flag);
-  // Å‹ß‚Ì©•ª‚Ì’…è‚Ì‚Éíp“I“Á’¥‚ªŒ»‚ê‚½‰ÓŠ‚ÌXV
+  // æœ€è¿‘ã®è‡ªåˆ†ã®ç€æ‰‹ã®æ™‚ã«æˆ¦è¡“çš„ç‰¹å¾´ãŒç¾ã‚ŒãŸç®‡æ‰€ã®æ›´æ–°
   OtherUpdate(game, color, sum_rate, sum_rate_row, rate, game->update_num[color], game->update_pos[color], flag);
-  // Å‹ß‚Ì‘Šè‚Ì’…è‚Ì‚Éíp“I“Á’¥‚ªŒ»‚ê‚½‰ÓŠ‚ÌXV
+  // æœ€è¿‘ã®ç›¸æ‰‹ã®ç€æ‰‹ã®æ™‚ã«æˆ¦è¡“çš„ç‰¹å¾´ãŒç¾ã‚ŒãŸç®‡æ‰€ã®æ›´æ–°
   OtherUpdate(game, color, sum_rate, sum_rate_row, rate, game->update_num[other], game->update_pos[other], flag);
-  // ©•ª‚Ì’…è‚ÅÎ‚ğ‘Å‚¿ã‚°‚½‰ÓŠ‚Ì‚Æ‚»‚ÌüˆÍ‚ÌXV
+  // è‡ªåˆ†ã®ç€æ‰‹ã§çŸ³ã‚’æ‰“ã¡ä¸Šã’ãŸç®‡æ‰€ã®ã¨ãã®å‘¨å›²ã®æ›´æ–°
   Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, game->capture_num[color], game->capture_pos[color], flag);
-  // ‘Šè‚Ì’…è‚ÅÎ‚ğ‘Å‚¿ã‚°‚ç‚ê‚½‰ÓŠ‚Æ‚»‚ÌüˆÍ‚ÌXV
+  // ç›¸æ‰‹ã®ç€æ‰‹ã§çŸ³ã‚’æ‰“ã¡ä¸Šã’ã‚‰ã‚ŒãŸç®‡æ‰€ã¨ãã®å‘¨å›²ã®æ›´æ–°
   Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, game->capture_num[other], game->capture_pos[other], flag);
 
 }
 
 
 ////////////////////
-//  ƒŒ[ƒeƒBƒ“ƒO  //
+//  ãƒ¬ãƒ¼ãƒ†ã‚£ãƒ³ã‚°  //
 ////////////////////
 void
 Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate )
@@ -658,7 +658,7 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 
 
 /////////////////////////////////////////
-//  ŒÄ‹z“_‚ª1‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  //
+//  å‘¼å¸ç‚¹ãŒ1ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  //
 /////////////////////////////////////////
 void
 PoCheckFeaturesLib1( game_info_t *game, int color, int id, int *update, int *update_num )
@@ -670,18 +670,18 @@ PoCheckFeaturesLib1( game_info_t *game, int color, int id, int *update, int *upd
   int other = FLIP_COLOR(color);
   bool contact = false;
 
-  // ŒÄ‹z“_‚ª1‚Â‚É‚È‚Á‚½˜A‚ÌŒÄ‹z“_‚ğæ‚èo‚·
+  // å‘¼å¸ç‚¹ãŒ1ã¤ã«ãªã£ãŸé€£ã®å‘¼å¸ç‚¹ã‚’å–ã‚Šå‡ºã™
   lib = string[id].lib[0];
   liberty = lib;
 
-  // ŒÄ‹z“_‚Ìã‰º¶‰E‚ª“GÎ‚ÉÚG‚µ‚Ä‚¢‚é‚©Šm”F
+  // å‘¼å¸ç‚¹ã®ä¸Šä¸‹å·¦å³ãŒæ•µçŸ³ã«æ¥è§¦ã—ã¦ã„ã‚‹ã‹ç¢ºèª
   if (board[NORTH(lib)] == other) contact = true;
   if (board[EAST(lib)] == other) contact = true;
   if (board[WEST(lib)] == other) contact = true;
   if (board[SOUTH(lib)] == other) contact = true;
 
-  // ŒÄ‹z“_‚Ìã‰º¶‰E‚ª“G˜A‚ÉÚ‚µ‚Ä‚¢‚é‚©
-  // ‚Ü‚½“¦‚°o‚·˜A‚Ì‘å‚«‚³‚Å“Á’¥‚ğ”»’è
+  // å‘¼å¸ç‚¹ã®ä¸Šä¸‹å·¦å³ãŒæ•µé€£ã«æ¥ã—ã¦ã„ã‚‹ã‹
+  // ã¾ãŸé€ƒã’å‡ºã™é€£ã®å¤§ãã•ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (contact) {
     if (string[id].size == 1) {
       game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_EXTENSION1];
@@ -700,11 +700,11 @@ PoCheckFeaturesLib1( game_info_t *game, int color, int id, int *update, int *upd
     }
   }
 
-  // ƒŒ[ƒg‚ÌXV‘ÎÛ‚É“ü‚ê‚é
+  // ãƒ¬ãƒ¼ãƒˆã®æ›´æ–°å¯¾è±¡ã«å…¥ã‚Œã‚‹
   update[(*update_num)++] = lib;
 
-  // “G˜A‚ğæ‚é‚±‚Æ‚É‚æ‚Á‚Ä˜A‚ğ•‚¯‚éè‚Ì“Á’¥‚Ì”»’è
-  // ©•ª‚Ì˜A‚Ì‘å‚«‚³‚Æ“G‚Ì˜A‚Ì‘å‚«‚³‚Å“Á’¥‚ğ”»’è
+  // æ•µé€£ã‚’å–ã‚‹ã“ã¨ã«ã‚ˆã£ã¦é€£ã‚’åŠ©ã‘ã‚‹æ‰‹ã®ç‰¹å¾´ã®åˆ¤å®š
+  // è‡ªåˆ†ã®é€£ã®å¤§ãã•ã¨æ•µã®é€£ã®å¤§ãã•ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (string[id].size == 1) {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
@@ -764,7 +764,7 @@ PoCheckFeaturesLib1( game_info_t *game, int color, int id, int *update, int *upd
 
 
 /////////////////////////////////////////
-//  ŒÄ‹z“_‚ª2‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  //
+//  å‘¼å¸ç‚¹ãŒ2ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  //
 /////////////////////////////////////////
 void
 PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *update_num )
@@ -776,11 +776,11 @@ PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *upd
   int lib1, lib2;
   bool capturable1, capturable2;
 
-  // ŒÄ‹z“_‚ª2‚Â‚É‚È‚Á‚½˜A‚ÌŒÄ‹z“_‚ğæ‚èo‚·
+  // å‘¼å¸ç‚¹ãŒ2ã¤ã«ãªã£ãŸé€£ã®å‘¼å¸ç‚¹ã‚’å–ã‚Šå‡ºã™
   lib1 = string[id].lib[0];
   lib2 = string[id].lib[lib1];
 
-  // ŒÄ‹z“_‚ÌüˆÍ‚ª‹ó“_3‚Â, ‚Ü‚½‚ÍŒÄ‹z“_‚ª3‚ÂˆÈã‚Ì©•ª‚Ì˜A‚ÉÚ‘±‚Å‚«‚é‚©‚Å“Á’¥‚ğ”»’è
+  // å‘¼å¸ç‚¹ã®å‘¨å›²ãŒç©ºç‚¹3ã¤, ã¾ãŸã¯å‘¼å¸ç‚¹ãŒ3ã¤ä»¥ä¸Šã®è‡ªåˆ†ã®é€£ã«æ¥ç¶šã§ãã‚‹ã‹ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (nb4_empty[Pat3(game->pat, lib1)] == 3 ||
       (board[NORTH(lib1)] == color && string_id[NORTH(lib1)] != id &&
        string[string_id[NORTH(lib1)]].libs >= 3) ||
@@ -795,7 +795,7 @@ PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *upd
     game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_EXTENSION];
   }
 
-  // ŒÄ‹z“_‚ÌüˆÍ‚ª‹ó“_3‚Â, ‚Ü‚½‚ÍŒÄ‹z“_‚ª3‚ÂˆÈã‚Ì©•ª‚Ì˜A‚ÉÚ‘±‚Å‚«‚é‚©‚Å“Á’¥‚ğ”»’è
+  // å‘¼å¸ç‚¹ã®å‘¨å›²ãŒç©ºç‚¹3ã¤, ã¾ãŸã¯å‘¼å¸ç‚¹ãŒ3ã¤ä»¥ä¸Šã®è‡ªåˆ†ã®é€£ã«æ¥ç¶šã§ãã‚‹ã‹ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (nb4_empty[Pat3(game->pat, lib2)] == 3 ||
       (board[NORTH(lib2)] == color && string_id[NORTH(lib2)] != id &&
        string[string_id[NORTH(lib2)]].libs >= 3) ||
@@ -810,14 +810,14 @@ PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *upd
     game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_EXTENSION];
   }
 
-  // ƒŒ[ƒg‚ÌXV‘ÎÛ‚É“ü‚ê‚é
+  // ãƒ¬ãƒ¼ãƒˆã®æ›´æ–°å¯¾è±¡ã«å…¥ã‚Œã‚‹
   update[(*update_num)++] = lib1;
   update[(*update_num)++] = lib2;
 
-  // ŒÄ‹z“_‚ª2‚Â‚É‚È‚Á‚½˜A‚ÌüˆÍ‚Ì“G˜A‚ğ’²‚×‚é
-  // 1. ŒÄ‹z“_‚ª1‚Â‚Ì“G˜A
-  // 2. ŒÄ‹z“_‚ª2‚Â‚Ì“G˜A
-  // ‚»‚ê‚¼‚ê‚É‘Î‚µ‚Ä, “Á’¥‚ğ”»’è‚·‚é
+  // å‘¼å¸ç‚¹ãŒ2ã¤ã«ãªã£ãŸé€£ã®å‘¨å›²ã®æ•µé€£ã‚’èª¿ã¹ã‚‹
+  // 1. å‘¼å¸ç‚¹ãŒ1ã¤ã®æ•µé€£
+  // 2. å‘¼å¸ç‚¹ãŒ2ã¤ã®æ•µé€£
+  // ãã‚Œãã‚Œã«å¯¾ã—ã¦, ç‰¹å¾´ã‚’åˆ¤å®šã™ã‚‹
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       lib1 = string[neighbor].lib[0];
@@ -864,7 +864,7 @@ PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *upd
 
 
 /////////////////////////////////////////
-//  ŒÄ‹z“_‚ª3‚Â‚Ì˜A‚É‘Î‚·‚é“Á’¥‚Ì”»’è  //
+//  å‘¼å¸ç‚¹ãŒ3ã¤ã®é€£ã«å¯¾ã™ã‚‹ç‰¹å¾´ã®åˆ¤å®š  //
 /////////////////////////////////////////
 void
 PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *update_num )
@@ -876,12 +876,12 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
   int lib1, lib2, lib3;
   bool capturable1, capturable2;
 
-  // ŒÄ‹z“_‚ª3‚Â‚É‚È‚Á‚½˜A‚ÌŒÄ‹z“_‚ğæ‚èo‚·
+  // å‘¼å¸ç‚¹ãŒ3ã¤ã«ãªã£ãŸé€£ã®å‘¼å¸ç‚¹ã‚’å–ã‚Šå‡ºã™
   lib1 = string[id].lib[0];
   lib2 = string[id].lib[lib1];
   lib3 = string[id].lib[lib2];
 
-  // ŒÄ‹z“_‚ÌüˆÍ‚ª‹ó“_3‚Â, ‚Ü‚½‚ÍŒÄ‹z“_‚ª3‚ÂˆÈã‚Ì©•ª‚Ì˜A‚ÉÚ‘±‚Å‚«‚é‚©‚Å“Á’¥‚ğ”»’è
+  // å‘¼å¸ç‚¹ã®å‘¨å›²ãŒç©ºç‚¹3ã¤, ã¾ãŸã¯å‘¼å¸ç‚¹ãŒ3ã¤ä»¥ä¸Šã®è‡ªåˆ†ã®é€£ã«æ¥ç¶šã§ãã‚‹ã‹ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (nb4_empty[Pat3(game->pat, lib1)] == 3 ||
       (board[NORTH(lib1)] == color && string_id[NORTH(lib1)] != id &&
        string[string_id[NORTH(lib1)]].libs >= 3) ||
@@ -896,7 +896,7 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
     game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_EXTENSION];
   }
 
-  // ŒÄ‹z“_‚ÌüˆÍ‚ª‹ó“_3‚Â, ‚Ü‚½‚ÍŒÄ‹z“_‚ª3‚ÂˆÈã‚Ì©•ª‚Ì˜A‚ÉÚ‘±‚Å‚«‚é‚©‚Å“Á’¥‚ğ”»’è
+  // å‘¼å¸ç‚¹ã®å‘¨å›²ãŒç©ºç‚¹3ã¤, ã¾ãŸã¯å‘¼å¸ç‚¹ãŒ3ã¤ä»¥ä¸Šã®è‡ªåˆ†ã®é€£ã«æ¥ç¶šã§ãã‚‹ã‹ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (nb4_empty[Pat3(game->pat, lib2)] == 3 ||
       (board[NORTH(lib2)] == color && string_id[NORTH(lib2)] != id &&
        string[string_id[NORTH(lib2)]].libs >= 3) ||
@@ -911,7 +911,7 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
     game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_EXTENSION];
   }
 
-  // ŒÄ‹z“_‚ÌüˆÍ‚ª‹ó“_3‚Â, ‚Ü‚½‚ÍŒÄ‹z“_‚ª3‚ÂˆÈã‚Ì©•ª‚Ì˜A‚ÉÚ‘±‚Å‚«‚é‚©‚Å“Á’¥‚ğ”»’è
+  // å‘¼å¸ç‚¹ã®å‘¨å›²ãŒç©ºç‚¹3ã¤, ã¾ãŸã¯å‘¼å¸ç‚¹ãŒ3ã¤ä»¥ä¸Šã®è‡ªåˆ†ã®é€£ã«æ¥ç¶šã§ãã‚‹ã‹ã§ç‰¹å¾´ã‚’åˆ¤å®š
   if (nb4_empty[Pat3(game->pat, lib3)] == 3 ||
       (board[NORTH(lib3)] == color && string_id[NORTH(lib3)] != id &&
        string[string_id[NORTH(lib3)]].libs >= 3) ||
@@ -926,16 +926,16 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
     game->tactical_features2[lib3] |= po_tactical_features_mask[F_3POINT_EXTENSION];
   }
 
-  // ƒŒ[ƒg‚ÌXV‘ÎÛ‚É“ü‚ê‚é
+  // ãƒ¬ãƒ¼ãƒˆã®æ›´æ–°å¯¾è±¡ã«å…¥ã‚Œã‚‹
   update[(*update_num)++] = lib1;
   update[(*update_num)++] = lib2;
   update[(*update_num)++] = lib3;
 
-  // ŒÄ‹z“_‚ª3‚Â‚É‚È‚Á‚½˜A‚ÌüˆÍ‚Ì“G˜A‚ğ’²‚×‚é
-  // 1. ŒÄ‹z“_‚ª1‚Â‚Ì“G˜A
-  // 2. ŒÄ‹z“_‚ª2‚Â‚Ì“G˜A
-  // 3. ŒÄ‹z“_‚ª3‚Â‚Ì“G˜A
-  // ‚»‚ê‚¼‚ê‚É‘Î‚µ‚Ä, “Á’¥‚ğ”»’è‚·‚é
+  // å‘¼å¸ç‚¹ãŒ3ã¤ã«ãªã£ãŸé€£ã®å‘¨å›²ã®æ•µé€£ã‚’èª¿ã¹ã‚‹
+  // 1. å‘¼å¸ç‚¹ãŒ1ã¤ã®æ•µé€£
+  // 2. å‘¼å¸ç‚¹ãŒ2ã¤ã®æ•µé€£
+  // 3. å‘¼å¸ç‚¹ãŒ3ã¤ã®æ•µé€£
+  // ãã‚Œãã‚Œã«å¯¾ã—ã¦, ç‰¹å¾´ã‚’åˆ¤å®šã™ã‚‹
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       lib1 = string[neighbor].lib[0];
@@ -998,7 +998,7 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
 
 
 //////////////////
-//  “Á’¥‚Ì”»’è  //
+//  ç‰¹å¾´ã®åˆ¤å®š  //
 //////////////////
 void
 PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
@@ -1016,7 +1016,7 @@ PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
 
   if (previous_move == PASS) return;
 
-  // ’¼‘O‚Ì’…è‚Ìã‚ğŠm”F
+  // ç›´å‰ã®ç€æ‰‹ã®ä¸Šã‚’ç¢ºèª
   if (board[NORTH(previous_move)] == color) {
     id = string_id[NORTH(previous_move)];
     if (string[id].libs == 1) {
@@ -1029,7 +1029,7 @@ PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
     check[checked++] = id;
   }
 
-  // ’¼‘O‚Ì’…è‚Ì¶‚ğŠm”F
+  // ç›´å‰ã®ç€æ‰‹ã®å·¦ã‚’ç¢ºèª
   if (board[WEST(previous_move)] == color) {
     id = string_id[WEST(previous_move)];
     if (id != check[0]) {
@@ -1044,7 +1044,7 @@ PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
     check[checked++] = id;
   }
 
-  // ’¼‘O‚Ì’…è‚Ì‰E‚ğŠm”F
+  // ç›´å‰ã®ç€æ‰‹ã®å³ã‚’ç¢ºèª
   if (board[EAST(previous_move)] == color) {
     id = string_id[EAST(previous_move)];
     if (id != check[0] && id != check[1]) {
@@ -1059,7 +1059,7 @@ PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
     check[checked++] = id;
   }
 
-  // ’¼‘O‚Ì’…è‚Ì‰º‚ÌŠm”F
+  // ç›´å‰ã®ç€æ‰‹ã®ä¸‹ã®ç¢ºèª
   if (board[SOUTH(previous_move)] == color) {
     id = string_id[SOUTH(previous_move)];
     if (id != check[0] && id != check[1] && id != check[2]) {
@@ -1077,7 +1077,7 @@ PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
 
 
 ////////////////////////
-//  …‚ğ‰ğÁ‚·‚éƒgƒŠ  //
+//  åŠ«ã‚’è§£æ¶ˆã™ã‚‹ãƒˆãƒª  //
 ////////////////////////
 void
 PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_num )
@@ -1091,7 +1091,7 @@ PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_nu
   int check[4] = { 0 };
   int checked = 0;
 
-  //  ã
+  //  ä¸Š
   if (board[NORTH(previous_move_2)] == other) {
     id = string_id[NORTH(previous_move_2)];
     if (string[id].libs == 1) {
@@ -1102,7 +1102,7 @@ PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_nu
     check[checked++] = id;
   }
 
-  //  ‰E
+  //  å³
   if (board[EAST(previous_move_2)] == other) {
     id = string_id[EAST(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id) {
@@ -1113,7 +1113,7 @@ PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_nu
     check[checked++] = id;
   }
 
-  //  ‰º
+  //  ä¸‹
   if (board[SOUTH(previous_move_2)] == other) {
     id = string_id[SOUTH(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id && check[1] != id) {
@@ -1124,7 +1124,7 @@ PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_nu
     check[checked++] = id;
   }
 
-  //  ¶
+  //  å·¦
   if (board[WEST(previous_move_2)] == other) {
     id = string_id[WEST(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id && check[1] != id && check[2] != id) {
@@ -1137,7 +1137,7 @@ PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_nu
 
 
 //////////////////
-//  ©ŒÈƒAƒ^ƒŠ  //
+//  è‡ªå·±ã‚¢ã‚¿ãƒª  //
 //////////////////
 bool
 PoCheckSelfAtari( game_info_t *game, int color, int pos )
@@ -1156,16 +1156,16 @@ PoCheckSelfAtari( game_info_t *game, int color, int pos )
   bool flag;
   bool checked;
 
-  // ã‰º¶‰E‚ª‹ó“_‚È‚çŒÄ‹z“_‚ÌŒó•â‚É“ü‚ê‚é
+  // ä¸Šä¸‹å·¦å³ãŒç©ºç‚¹ãªã‚‰å‘¼å¸ç‚¹ã®å€™è£œã«å…¥ã‚Œã‚‹
   if (board[NORTH(pos)] == S_EMPTY) lib_candidate[libs++] = NORTH(pos);
   if (board[ WEST(pos)] == S_EMPTY) lib_candidate[libs++] =  WEST(pos);
   if (board[ EAST(pos)] == S_EMPTY) lib_candidate[libs++] =  EAST(pos);
   if (board[SOUTH(pos)] == S_EMPTY) lib_candidate[libs++] = SOUTH(pos);
 
-  //  ‹ó“_
+  //  ç©ºç‚¹
   if (libs >= 2) return true;
 
-  // ã‚ğ’²‚×‚é
+  // ä¸Šã‚’èª¿ã¹ã‚‹
   if (board[NORTH(pos)] == color) {
     id = string_id[NORTH(pos)];
     if (string[id].libs > 2) return true;
@@ -1196,7 +1196,7 @@ PoCheckSelfAtari( game_info_t *game, int color, int pos )
     return true;
   }
 
-  // ¶‚ğ’²‚×‚é
+  // å·¦ã‚’èª¿ã¹ã‚‹
   if (board[WEST(pos)] == color) {
     id = string_id[WEST(pos)];
     if (already[0] != id) {
@@ -1229,7 +1229,7 @@ PoCheckSelfAtari( game_info_t *game, int color, int pos )
     return true;
   }
 
-  // ‰E‚ğ’²‚×‚é
+  // å³ã‚’èª¿ã¹ã‚‹
   if (board[EAST(pos)] == color) {
     id = string_id[EAST(pos)];
     if (already[0] != id && already[1] != id) {
@@ -1263,7 +1263,7 @@ PoCheckSelfAtari( game_info_t *game, int color, int pos )
   }
 
 
-  // ‰º‚ğ’²‚×‚é
+  // ä¸‹ã‚’èª¿ã¹ã‚‹
   if (board[SOUTH(pos)] == color) {
     id = string_id[SOUTH(pos)];
     if (already[0] != id && already[1] != id && already[2] != id) {
@@ -1296,9 +1296,9 @@ PoCheckSelfAtari( game_info_t *game, int color, int pos )
     return true;
   }
 
-  // ©ŒÈƒAƒ^ƒŠ‚É‚È‚é˜A‚Ì‘å‚«‚³‚ª2ˆÈ‰º,
-  // ‚Ü‚½‚Í‘å‚«‚³‚ª5ˆÈ‰º‚ÅƒiƒJƒf‚ÌŒ`‚É‚È‚éê‡‚Í
-  // ‘Å‚Á‚Ä‚à—Ç‚¢‚à‚Ì‚Æ‚·‚é
+  // è‡ªå·±ã‚¢ã‚¿ãƒªã«ãªã‚‹é€£ã®å¤§ãã•ãŒ2ä»¥ä¸‹,
+  // ã¾ãŸã¯å¤§ãã•ãŒ5ä»¥ä¸‹ã§ãƒŠã‚«ãƒ‡ã®å½¢ã«ãªã‚‹å ´åˆã¯
+  // æ‰“ã£ã¦ã‚‚è‰¯ã„ã‚‚ã®ã¨ã™ã‚‹
   if (size < 2) {
     game->tactical_features2[pos] |= po_tactical_features_mask[F_SELF_ATARI_SMALL];
     flag = true;
@@ -1320,7 +1320,7 @@ PoCheckSelfAtari( game_info_t *game, int color, int pos )
 
 
 //////////////////
-//  ƒgƒŠ‚Ì”»’è  //
+//  ãƒˆãƒªã®åˆ¤å®š  //
 //////////////////
 void
 PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
@@ -1331,9 +1331,9 @@ PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
   int other = FLIP_COLOR(color);
   int libs;
 
-  // ã‚ğ’²‚×‚é
-  // 1. “G‚ÌÎ
-  // 2. ŒÄ‹z“_‚ª1‚Â
+  // ä¸Šã‚’èª¿ã¹ã‚‹
+  // 1. æ•µã®çŸ³
+  // 2. å‘¼å¸ç‚¹ãŒ1ã¤
   if (board[NORTH(pos)] == other) {
     libs = string[string_id[NORTH(pos)]].libs;
     if (libs == 1) {
@@ -1343,9 +1343,9 @@ PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
     }
   }
 
-  //  ¶‚ğ’²‚×‚é
-  // 1. “G‚ÌÎ
-  // 2. ŒÄ‹z“_‚ª1‚Â
+  //  å·¦ã‚’èª¿ã¹ã‚‹
+  // 1. æ•µã®çŸ³
+  // 2. å‘¼å¸ç‚¹ãŒ1ã¤
   if (board[WEST(pos)] == other) {
     libs = string[string_id[WEST(pos)]].libs;
     if (libs == 1) {
@@ -1355,9 +1355,9 @@ PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
     }
   }
 
-  //  ‰E‚ğ’²‚×‚é
-  // 1. “G‚ÌÎ
-  // 2. ŒÄ‹z“_‚ª1‚Â
+  //  å³ã‚’èª¿ã¹ã‚‹
+  // 1. æ•µã®çŸ³
+  // 2. å‘¼å¸ç‚¹ãŒ1ã¤
   if (board[EAST(pos)] == other) {
     libs = string[string_id[EAST(pos)]].libs;
     if (libs == 1) {
@@ -1367,9 +1367,9 @@ PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
     }
   }
 
-  //  ‰º‚ğ’²‚×‚é
-  // 1. “G‚ÌÎ
-  // 2. ŒÄ‹z“_‚ª1‚Â
+  //  ä¸‹ã‚’èª¿ã¹ã‚‹
+  // 1. æ•µã®çŸ³
+  // 2. å‘¼å¸ç‚¹ãŒ1ã¤
   if (board[SOUTH(pos)] == other) {
     libs = string[string_id[SOUTH(pos)]].libs;
     if (libs == 1) {
@@ -1382,7 +1382,7 @@ PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
 
 
 ///////////////////////////////////
-//  2–Ú”²‚©‚ê‚½‚Æ‚«‚ÌƒzƒEƒŠƒRƒ~  //
+//  2ç›®æŠœã‹ã‚ŒãŸã¨ãã®ãƒ›ã‚¦ãƒªã‚³ãƒŸ  //
 ///////////////////////////////////
 void
 PoCheckRemove2Stones( game_info_t *game, int color, int *update, int *update_num )
@@ -1429,7 +1429,7 @@ PoCheckRemove2Stones( game_info_t *game, int color, int *update, int *update_num
 
 
 //////////////////
-//  ƒÁ“Ç‚İ‚İ  //
+//  Î³èª­ã¿è¾¼ã¿  //
 //////////////////
 static void
 InputPOGamma( void )
@@ -1444,29 +1444,29 @@ InputPOGamma( void )
   po_parameters_path += '/';
 #endif
 
-  // íp“I“Á’¥‚Ì“Ç‚İ‚İ
+  // æˆ¦è¡“çš„ç‰¹å¾´ã®èª­ã¿è¾¼ã¿
   path = po_parameters_path + "TacticalFeature.txt";
   InputTxtFLT(path.c_str(), po_tactical_features, TACTICAL_FEATURE_MAX);
 
-  // ’¼‘O‚Ì’…è‚©‚ç‚Ì‹——£‚Ì“Ç‚İ‚İ
+  // ç›´å‰ã®ç€æ‰‹ã‹ã‚‰ã®è·é›¢ã®èª­ã¿è¾¼ã¿
   path = po_parameters_path + "PreviousDistance.txt";
   InputTxtFLT(path.c_str(), po_neighbor_orig, PREVIOUS_DISTANCE_MAX);
 
-  // ’¼‘O‚Ì’…è‚©‚ç‚Ì‹——£‚ÌƒÁ‚ğ•â³‚µ‚Äo—Í
+  // ç›´å‰ã®ç€æ‰‹ã‹ã‚‰ã®è·é›¢ã®Î³ã‚’è£œæ­£ã—ã¦å‡ºåŠ›
   for (i = 0; i < PREVIOUS_DISTANCE_MAX - 1; i++) {
     po_previous_distance[i] = (float)(po_neighbor_orig[i] * neighbor_bias);
   }
   po_previous_distance[2] = (float)(po_neighbor_orig[2] * jump_bias);
 
-  // 3x3‚Ìƒpƒ^[ƒ“‚Ì“Ç‚İ‚İ
+  // 3x3ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®èª­ã¿è¾¼ã¿
   path = po_parameters_path + "Pat3.txt";
   InputTxtFLT(path.c_str(), po_pat3, PAT3_MAX);
 
-  // ƒ}ƒ“ƒnƒbƒ^ƒ“‹——£2‚Ìƒpƒ^[ƒ“‚Ì“Ç‚İ‚İ
+  // ãƒãƒ³ãƒãƒƒã‚¿ãƒ³è·é›¢2ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã®èª­ã¿è¾¼ã¿
   path = po_parameters_path + "MD2.txt";
   InputMD2(path.c_str(), po_md2);
 
-  // 3x3‚ÆMD2‚Ìƒpƒ^[ƒ“‚ğ‚Ü‚Æ‚ß‚é
+  // 3x3ã¨MD2ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’ã¾ã¨ã‚ã‚‹
   for (i = 0; i < MD2_MAX; i++){
     po_pattern[i] = (float)(po_md2[i] * po_pat3[i & 0xFFFF] * 100.0);
   }
@@ -1474,7 +1474,7 @@ InputPOGamma( void )
 
 
 //////////////////////
-//  ƒÁ“Ç‚İ‚İ MD2  //
+//  Î³èª­ã¿è¾¼ã¿ MD2  //
 //////////////////////
 static void
 InputMD2( const char *filename, float *ap )

@@ -20,10 +20,10 @@ enum LARGE_MD {
 };
 
 //////////////
-//  \‘¢‘Ì  //
+//  æ§‹é€ ä½“  //
 //////////////
 
-//  ƒpƒ^[ƒ“
+//  ãƒ‘ã‚¿ãƒ¼ãƒ³
 struct pattern {
   unsigned int list[MD_MAX];
   unsigned long long large_list[MD_LARGE_MAX];
@@ -31,13 +31,13 @@ struct pattern {
 
 
 ////////////
-//  ŠÖ”  //
+//  é–¢æ•°  //
 ////////////
 
-//  ‰Šúİ’è
+//  åˆæœŸè¨­å®š
 void ClearPattern( struct pattern *pat );
 
-//  XV
+//  æ›´æ–°
 void UpdatePat3Empty( struct pattern *pat, int pos );
 void UpdatePat3Stone( struct pattern *pat, int color, int pos );
 void UpdateMD2Empty( struct pattern *pat, int pos );
@@ -45,7 +45,7 @@ void UpdateMD2Stone( struct pattern *pat, int color, int pos );
 void UpdatePatternEmpty( struct pattern *pat, int pos );
 void UpdatePatternStone( struct pattern *pat, int color, int pos );
 
-//  “¯ˆêƒpƒ^[ƒ“
+//  åŒä¸€ãƒ‘ã‚¿ãƒ¼ãƒ³
 void Pat3Transpose8( unsigned int pat3, unsigned int *transp );
 void Pat3Transpose16( unsigned int pat3, unsigned int *transp );
 void MD2Transpose8( unsigned int md2, unsigned int *transp );
@@ -57,42 +57,42 @@ void MD4Transpose16( unsigned int md4, unsigned int *transp );
 void MD5Transpose8( unsigned long long md5, unsigned long long *transp );
 void MD5Transpose16( unsigned long long md5, unsigned long long *transp );
 
-//  F”½“]
+//  è‰²åè»¢
 unsigned int Pat3Reverse( unsigned int pat3 );
 unsigned int MD2Reverse( unsigned int md2 );
 unsigned int MD3Reverse( unsigned int md3 );
 unsigned int MD4Reverse( unsigned int md4 );
 unsigned long long MD5Reverse( unsigned long long md5 );
 
-//  ã‰º‘ÎÌ
+//  ä¸Šä¸‹å¯¾ç§°
 unsigned int Pat3VerticalMirror( unsigned int pat3 );
 unsigned int MD2VerticalMirror( unsigned int md2 );
 unsigned int MD3VerticalMirror( unsigned int md3 );
 unsigned int MD4VerticalMirror( unsigned int md4 );
 unsigned long long MD5VerticalMirror( unsigned long long md5 );
 
-//  ¶‰E‘ÎÌ
+//  å·¦å³å¯¾ç§°
 unsigned int Pat3HorizontalMirror( unsigned int pat3 );
 unsigned int MD2HorizontalMirror( unsigned int md2 );
 unsigned int MD3HorizontalMirror( unsigned int md3 );
 unsigned int MD4HorizontalMirror( unsigned int md4 );
 unsigned long long MD5HorizontalMirror( unsigned long long md5 );
 
-//  90“x‰ñ“]
+//  90åº¦å›è»¢
 unsigned int Pat3Rotate90( unsigned int pat3 );
 unsigned int MD2Rotate90( unsigned int md2 );
 unsigned int MD3Rotate90( unsigned int md3 );
 unsigned int MD4Rotate90( unsigned int md4 );
 unsigned long long MD5Rotate90( unsigned long long md5 );
 
-//  ƒpƒ^[ƒ“‚ğ•Ô‚·
+//  ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’è¿”ã™
 unsigned int Pat3( struct pattern *pat, int pos );
 unsigned int MD2( struct pattern *pat, int pos );
 unsigned int MD3( struct pattern *pat, int pos );
 unsigned int MD4( struct pattern *pat, int pos );
 unsigned long long MD5( struct pattern *pat, int pos );
 
-//  •\¦
+//  è¡¨ç¤º
 void DisplayInputPat3( unsigned int pat3 );
 void DisplayInputMD2( unsigned int md2 );
 void DisplayInputMD3( unsigned int md3 );

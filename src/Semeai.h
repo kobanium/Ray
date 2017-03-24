@@ -10,37 +10,37 @@ enum LIBERTY_STATE {
 };
 
 
-//  1è‚Åæ‚ê‚éƒAƒ^ƒŠ‚Ì”»’è
+//  1æ‰‹ã§å–ã‚Œã‚‹ã‚¢ã‚¿ãƒªã®åˆ¤å®š
 bool IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos );
 
-//  ƒIƒCƒIƒgƒV‚ÌŠm”F
+//  ã‚ªã‚¤ã‚ªãƒˆã‚·ã®ç¢ºèª
 int CheckOiotoshi( game_info_t *game, int pos, int color, int opponent_pos );
 
-//  ƒEƒbƒeƒKƒGƒV—p‚Ì”»’è
+//  ã‚¦ãƒƒãƒ†ã‚¬ã‚¨ã‚·ç”¨ã®åˆ¤å®š
 int CapturableCandidate( game_info_t *game, int id );
 
-//  ‚·‚®‚É•ß‚Ü‚éè‚©‚Ç‚¤‚©‚ğ”»’è  
+//  ã™ãã«æ•ã¾ã‚‹æ‰‹ã‹ã©ã†ã‹ã‚’åˆ¤å®š  
 bool IsDeadlyExtension( game_info_t *game, int color, int id );
 
-//  —×Ú‚·‚é“G˜A‚ªæ‚ê‚é‚©‚ğ”»’è  
+//  éš£æ¥ã™ã‚‹æ•µé€£ãŒå–ã‚Œã‚‹ã‹ã‚’åˆ¤å®š  
 bool IsCapturableNeighborNone( game_info_t *game, int id );
 
-//  ŒÄ‹z“_‚ª‚Ç‚Ì‚æ‚¤‚É•Ï‰»‚·‚é‚©‚ğŠm”F
+//  å‘¼å¸ç‚¹ãŒã©ã®ã‚ˆã†ã«å¤‰åŒ–ã™ã‚‹ã‹ã‚’ç¢ºèª
 int CheckLibertyState( game_info_t *game, int pos, int color, int id );
 
-//  ©ŒÈƒAƒ^ƒŠ‚É‚È‚éƒgƒŠ‚©‚Ç‚¤‚©”»’è
+//  è‡ªå·±ã‚¢ã‚¿ãƒªã«ãªã‚‹ãƒˆãƒªã‹ã©ã†ã‹åˆ¤å®š
 bool IsSelfAtariCapture( game_info_t *game, int pos, int color, int id );
 
-//  1è‚Åæ‚ê‚éƒAƒ^ƒŠ(ƒVƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“—p)
+//  1æ‰‹ã§å–ã‚Œã‚‹ã‚¢ã‚¿ãƒª(ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ç”¨)
 bool IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id );
 
-//  ©ŒÈƒAƒ^ƒŠ‚É‚È‚éƒgƒŠ‚©‚Ç‚¤‚©”»’è
+//  è‡ªå·±ã‚¢ã‚¿ãƒªã«ãªã‚‹ãƒˆãƒªã‹ã©ã†ã‹åˆ¤å®š
 bool IsSelfAtariCaptureForSimulation( game_info_t *game, int pos, int color, int lib );
 
-//  ©ŒÈƒAƒ^ƒŠ‚É‚È‚é‚©‚Ç‚¤‚©‚Ì”»’è
+//  è‡ªå·±ã‚¢ã‚¿ãƒªã«ãªã‚‹ã‹ã©ã†ã‹ã®åˆ¤å®š
 bool IsSelfAtari( game_info_t *game, int color, int pos );
 
-//  Œ‡‚¯Šá‚ğŒp‚®‚©‚Ç‚¤‚©‚Ì”»’è‚Ì€”õ
+//  æ¬ ã‘çœ¼ã‚’ç¶™ãã‹ã©ã†ã‹ã®åˆ¤å®šã®æº–å‚™
 bool IsAlreadyCaptured( game_info_t *game, int color, int id, int player_id[], int player_ids );
 
 #endif

@@ -12,7 +12,7 @@
 using namespace std;
 
 //////////////////////
-//  Á”ïŠÔ‚ÌZo  //
+//  æ¶ˆè²»æ™‚é–“ã®ç®—å‡º  //
 //////////////////////
 double
 GetSpendTime( clock_t start_time )
@@ -24,7 +24,7 @@ GetSpendTime( clock_t start_time )
 
 #if !defined (_WIN32)
 //////////////////////////////
-//  Á”ïŠÔ‚ÌZo(Linux—p)  //
+//  æ¶ˆè²»æ™‚é–“ã®ç®—å‡º(Linuxç”¨)  //
 //////////////////////////////
 double
 GetSpendTimeForLinux( struct timeval *start_time )
@@ -39,7 +39,7 @@ GetSpendTimeForLinux( struct timeval *start_time )
 
 
 ////////////////////////////
-//  ƒeƒLƒXƒg“ü—Í (float)  //
+//  ãƒ†ã‚­ã‚¹ãƒˆå…¥åŠ› (float)  //
 ////////////////////////////
 void
 InputTxtFLT( const char *filename, float *ap, int array_size )
@@ -76,7 +76,7 @@ InputTxtFLT( const char *filename, float *ap, int array_size )
 
 
 /////////////////////////////
-//  ƒeƒLƒXƒg“ü—Í (double)  //
+//  ãƒ†ã‚­ã‚¹ãƒˆå…¥åŠ› (double)  //
 /////////////////////////////
 void
 InputTxtDBL( const char *filename, double *ap, int array_size )

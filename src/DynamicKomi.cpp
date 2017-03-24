@@ -8,16 +8,16 @@
 using namespace std;
 
 
-// �u���΂̐�
+// 置き石の数
 int handicap_num = 0;
-// �e�X�g�΋Ǘp
+// テスト対局用
 int const_handicap_num = 0;
 
 enum DYNAMIC_KOMI_MODE dk_mode = DK_OFF;
 
 
 ////////////////////////
-//  �u���΂̐��̐ݒ�  //
+//  置き石の数の設定  //
 ////////////////////////
 void
 SetConstHandicapNum( int num )
@@ -27,7 +27,7 @@ SetConstHandicapNum( int num )
 
 
 ////////////////////////
-//  �u���΂̐��̐ݒ�  //
+//  置き石の数の設定  //
 ////////////////////////
 void
 SetHandicapNum( int num )
@@ -70,14 +70,14 @@ DynamicKomi( game_info_t *game, uct_node_t *root, int color )
 
 
 //////////////////////////////////////////////////////
-//  �ŏ��ɃR�~�𑽂߂Ɍ��ς����ď��X�Ɍ��炵�Ă���  //
+//  最初にコミを多めに見積もって徐々に減らしていく  //
 //////////////////////////////////////////////////////
 void
 LinearHandicap( game_info_t *game )
 {
   double new_komi;
 
-  // �萔���i�񂾂�R�~��ϓ����Ȃ�
+  // 手数が進んだらコミを変動しない
   if (game->moves > LINEAR_THRESHOLD - 15) {
     dynamic_komi[0] = (double)handicap_num + 0.5;
     dynamic_komi[S_BLACK] = (double)handicap_num + 1.5;
@@ -85,10 +85,10 @@ LinearHandicap( game_info_t *game )
     return;
   }
 
-  // �V�����R�~�̒l�̌v�Z
+  // 新しいコミの値の計算
   new_komi = HANDICAP_WEIGHT * handicap_num * (1.0 - ((double)game->moves / LINEAR_THRESHOLD));
 
-  // �V�����R�~�̒l����
+  // 新しいコミの値を代入
   dynamic_komi[0] = new_komi;
   dynamic_komi[S_BLACK] = new_komi + 1;
   dynamic_komi[S_WHITE] = new_komi - 1;
@@ -99,14 +99,14 @@ LinearHandicap( game_info_t *game )
 
 
 //////////////////////////////////
-//  �����ɉ����ăR�~�̒l��ϓ�  //
+//  勝率に応じてコミの値を変動  //
 //////////////////////////////////
 void
 ValueSituational( uct_node_t *root, int color )
 {
   double win_rate = (double)root->win / root->move_count;
 
-  // ���̒T���̎��̃R�~�����߂�
+  // 次の探索の時のコミを求める
   if (color == S_BLACK) {
     if (win_rate < RED) {
       dynamic_komi[0]--;
