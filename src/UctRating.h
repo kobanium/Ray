@@ -191,17 +191,17 @@ const std::string uct_features_name[UCT_TACTICAL_FEATURE_MAX] = {
 };
 
 
-typedef struct {
+struct uct_features_t {
   unsigned long long tactical_features1[BOARD_MAX]; 
   unsigned long long tactical_features2[BOARD_MAX]; 
   unsigned long long tactical_features3[BOARD_MAX]; 
-} uct_features_t;
+};
 
 
-typedef struct {
+struct latent_factor_t {
   double w;
   double v[LFR_DIMENSION];
-} latent_factor_t;
+};
 
 
 

@@ -29,10 +29,10 @@ const int BUF_SIZE = 256;
 //////////////
 
 //  GTPコマンド処理用の構造体
-typedef struct {
+struct GTP_command_t {
   char command[GTP_COMMAND_SIZE];
   void (*function)();
-} GTP_command_t;
+};
 
 
 ////////////
