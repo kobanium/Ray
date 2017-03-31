@@ -359,8 +359,10 @@ UctSearchGenmove(game_info_t *game, int color)
   // 探索情報をクリア
   if (!pondered) {
     memset(statistic, 0, sizeof(statistic_t) * board_max); 
-    memset(criticality_index, 0, sizeof(int) * board_max); 
-    memset(criticality, 0, sizeof(double) * board_max);    
+    memset(criticality_index, 0, sizeof(int) * board_max);
+    for (i = 0; i < board_max; i++) {
+      criticality[i] = 0.0;
+    }
   }
   po_info.count = 0;
 
@@ -517,7 +519,10 @@ UctSearchPondering(game_info_t *game, int color)
   // 探索情報をクリア
   memset(statistic, 0, sizeof(statistic_t) * board_max);  
   memset(criticality_index, 0, sizeof(int) * board_max);  
-  memset(criticality, 0, sizeof(double) * board_max);     
+  for (i = 0; i < board_max; i++) {
+    criticality[i] = 0.0;    
+  }
+				  
   po_info.count = 0;
 
   for (i = 0; i < pure_board_max; i++) {
@@ -1511,7 +1516,9 @@ UctAnalyze( game_info_t *game, int color )
   // 探索情報をクリア
   memset(statistic, 0, sizeof(statistic_t) * board_max);  
   memset(criticality_index, 0, sizeof(int) * board_max);  
-  memset(criticality, 0, sizeof(double) * board_max);     
+  for (i = 0; i < board_max; i++) {
+    criticality[i] = 0.0;
+  }
   po_info.count = 0;
 
   ClearUctHash();
@@ -1609,7 +1616,9 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
 
   memset(statistic, 0, sizeof(statistic_t)* board_max); 
   memset(criticality_index, 0, sizeof(int)* board_max); 
-  memset(criticality, 0, sizeof(double)* board_max);    
+  for (i = 0; i < board_max; i++) {
+    criticality[i] = 0.0;
+  }
 
 #if defined (_WIN32)
   begin_time = clock();
