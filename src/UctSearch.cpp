@@ -358,8 +358,8 @@ UctSearchGenmove(game_info_t *game, int color)
 
   // 探索情報をクリア
   if (!pondered) {
-    memset(statistic, 0, sizeof(statistic_t) * board_max); 
-    memset(criticality_index, 0, sizeof(int) * board_max);
+    memset(statistic, 0, sizeof(statistic_t) * board_max);
+    fill_n(criticality_index, board_max, 0);
     for (i = 0; i < board_max; i++) {
       criticality[i] = 0.0;
     }
@@ -518,7 +518,7 @@ UctSearchPondering(game_info_t *game, int color)
 
   // 探索情報をクリア
   memset(statistic, 0, sizeof(statistic_t) * board_max);  
-  memset(criticality_index, 0, sizeof(int) * board_max);  
+  fill_n(criticality_index, board_max, 0);  
   for (i = 0; i < board_max; i++) {
     criticality[i] = 0.0;    
   }
@@ -649,7 +649,7 @@ ExpandRoot(game_info_t *game, int color)
     uct_node[index].width = 0;
     uct_node[index].child_num = 0;
     memset(uct_node[index].statistic, 0, sizeof(statistic_t) * BOARD_MAX); 
-    memset(uct_node[index].seki, false, sizeof(bool) * BOARD_MAX);
+    fill_n(uct_node[index].seki, BOARD_MAX, false);
     
     uct_child = uct_node[index].child;
     
@@ -732,8 +732,7 @@ ExpandNode(game_info_t *game, int color, int current)
   uct_node[index].width = 0;
   uct_node[index].child_num = 0;
   memset(uct_node[index].statistic, 0, sizeof(statistic_t) * BOARD_MAX);  
-  memset(uct_node[index].seki, false, sizeof(bool) * BOARD_MAX);
-  
+  fill_n(uct_node[index].seki, BOARD_MAX, false);
   uct_child = uct_node[index].child;
 
   // パスノードの展開
@@ -1515,7 +1514,7 @@ UctAnalyze( game_info_t *game, int color )
 
   // 探索情報をクリア
   memset(statistic, 0, sizeof(statistic_t) * board_max);  
-  memset(criticality_index, 0, sizeof(int) * board_max);  
+  fill_n(criticality_index, board_max, 0);  
   for (i = 0; i < board_max; i++) {
     criticality[i] = 0.0;
   }
@@ -1615,7 +1614,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
   thread *handle[THREAD_MAX];
 
   memset(statistic, 0, sizeof(statistic_t)* board_max); 
-  memset(criticality_index, 0, sizeof(int)* board_max); 
+  fill_n(criticality_index, board_max, 0); 
   for (i = 0; i < board_max; i++) {
     criticality[i] = 0.0;
   }

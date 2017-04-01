@@ -151,7 +151,7 @@ SetBoardSize( int size )
     }
   }
 
-  memset(board_pos_id, 0, sizeof(board_pos_id));
+  fill_n(board_pos_id, BOARD_MAX, 0);
   i = 1;
   for (y = board_start; y <= (board_start + pure_board_size / 2); y++) {
     for (x = board_start; x <= y; x++) {
@@ -250,15 +250,17 @@ InitializeBoard( game_info_t *game )
   int i, x, y, pos;
 
   memset(game->record,             0, sizeof(struct move) * MAX_RECORDS);
-  memset(game->board,              0, sizeof(char) * board_max);            
-  memset(game->pat,                0, sizeof(struct pattern) * board_max);  
-  memset(game->tactical_features1, 0, sizeof(unsigned int) * board_max);    
-  memset(game->tactical_features2, 0, sizeof(unsigned int) * board_max);    
-  memset(game->update_num,         0, sizeof(int) * S_OB);
-  memset(game->capture_num,        0, sizeof(int) * S_OB);
-  memset(game->update_pos,         0, sizeof(int) * S_OB * pure_board_max); 
-  memset(game->capture_pos,        0, sizeof(int) * S_OB * pure_board_max); 
+  memset(game->pat,                0, sizeof(struct pattern) * board_max);
 
+  
+  fill_n(game->board, board_max, 0);              
+  fill_n(game->tactical_features1, board_max, 0);
+  fill_n(game->tactical_features2, board_max, 0);
+  fill_n(game->update_num,  S_OB, 0);
+  fill_n(game->capture_num, S_OB, 0);
+  fill(game->update_pos[0],  game->update_pos[S_OB], 0);
+  fill(game->capture_pos[0], game->capture_pos[S_OB], 0);
+  
   game->current_hash = 0;
   game->previous1_hash = 0;
   game->previous2_hash = 0;
@@ -322,9 +324,8 @@ CopyGame( game_info_t *dst, game_info_t *src )
   memcpy(dst->capture_num,        src->capture_num,        sizeof(int) * S_OB);
   memcpy(dst->update_num,         src->update_num,         sizeof(int) * S_OB);
 
-  memset(dst->tactical_features1, 0, sizeof(unsigned int) * board_max);  
-  memset(dst->tactical_features2, 0, sizeof(unsigned int) * board_max);  
-
+  fill_n(dst->tactical_features1, board_max, 0);
+  fill_n(dst->tactical_features2, board_max, 0);
 
   for (i = 0; i < MAX_STRING; i++) {
     if (src->string[i].flag) {
@@ -385,7 +386,7 @@ InitializeConst( void )
     }
   }
 
-  memset(board_pos_id, 0, sizeof(board_pos_id));
+  fill_n(board_pos_id, BOARD_MAX, 0);
   i = 1;
   for (y = board_start; y <= (board_start + pure_board_size / 2); y++) {
     for (x = board_start; x <= y; x++) {
@@ -1144,8 +1145,8 @@ MakeString( game_info_t *game, int pos, int color )
   new_string = &game->string[id];
 
   // 連のデータの初期化
-  memset(new_string->lib, 0, sizeof(short) * STRING_LIB_MAX);
-  memset(new_string->neighbor, 0, sizeof(short) * MAX_NEIGHBOR);
+  fill_n(new_string->lib, STRING_LIB_MAX, 0);
+  fill_n(new_string->neighbor, MAX_NEIGHBOR, 0);
   new_string->lib[0] = LIBERTY_END;
   new_string->neighbor[0] = NEIGHBOR_END;
   new_string->libs = 0;

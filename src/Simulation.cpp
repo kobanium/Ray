@@ -28,9 +28,9 @@ Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
   }
 
   // レートの初期化  
-  game->sum_rate[0] = game->sum_rate[1] = 0;
-  memset(game->sum_rate_row, 0, sizeof(long long) * 2 * BOARD_SIZE);  
-  memset(game->rate, 0, sizeof(long long) * 2 * BOARD_MAX);           
+  fill_n(game->sum_rate, 2, 0);
+  fill(game->sum_rate_row[0], game->sum_rate_row[2], 0);
+  fill(game->rate[0], game->rate[2], 0);
 
   pass_count = (game->record[game->moves - 1].pos == PASS && game->moves > 1);
 
