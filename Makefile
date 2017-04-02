@@ -1,12 +1,11 @@
 TARGET=ray
 CC = g++
-#CC = x86_64-w64-mingw32-g++
 OPTIMIZE = -O3
 CPP11 = -std=c++11
 WARNING = -Wall
 DEBUG = -g
 CFLAGS = ${OPTIMIZE} ${WARNING} ${CPP11} ${DEBUG}
-LIBS = -lm -pthread #-static-libstdc++ -static-libgcc
+LIBS = -lm -pthread
 RM = rm
 
 SRCS=${shell ls src/*.cpp}
