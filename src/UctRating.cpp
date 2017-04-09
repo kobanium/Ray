@@ -1041,11 +1041,9 @@ UctCheckDoubleKeima( game_info_t *game, int color, int pos, uct_features_t *uct_
 void
 UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_features )
 {
-  string_t *string = snapback_game.string;
-  int *string_id = snapback_game.string_id;
-  char *board = snapback_game.board;
-  int id, capturable_pos, lib;
-  bool put = false;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const char *board = game->board;
   int other = FLIP_COLOR(color);
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
   int i, neighbor4[4];
@@ -1055,20 +1053,24 @@ UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_fea
 
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other) {
-      id = string_id[neighbor4[i]];
-      if ((!put && string[id].libs == 2) ||
-	  (put && string[id].libs == 1)) {
-	if (!put) {
-	  CopyGame(&snapback_game, game);
-	  PutStone(&snapback_game, pos, color);
-	  put = true;
-	}
-	lib = snapback_game.string[id].lib[0];
-	capturable_pos = CapturableCandidate(&snapback_game, id);
-	if (lib == capturable_pos) {
-	  tactical_features1[pos] |= uct_mask[UCT_SNAPBACK];
-	  return;
-	}
+      int id = string_id[neighbor4[i]];
+
+      game_info_t *check_game;
+      if (string[id].libs == 1) {
+        check_game = game;
+      } else if (string[id].libs == 2) {
+        CopyGame(&snapback_game, game);
+        PutStone(&snapback_game, pos, color);
+        check_game = &snapback_game;
+      } else {
+        continue;
+      }
+      int id2 = check_game->string_id[neighbor4[i]];
+      int lib = check_game->string[id2].lib[0];
+      int capturable_pos = CapturableCandidate(check_game, id2);
+      if (lib == capturable_pos) {
+        tactical_features1[pos] |= uct_mask[UCT_SNAPBACK];
+        return;
       }
     }
   }
