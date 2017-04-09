@@ -249,10 +249,9 @@ InitializeBoard( game_info_t *game )
 {
   int i, x, y, pos;
 
-  memset(game->record,             0, sizeof(struct move) * MAX_RECORDS);
-  memset(game->pat,                0, sizeof(struct pattern) * board_max);
+  memset(game->record, 0, sizeof(struct move) * MAX_RECORDS);
+  memset(game->pat,    0, sizeof(struct pattern) * board_max);
 
-  
   fill_n(game->board, board_max, 0);              
   fill_n(game->tactical_features1, board_max, 0);
   fill_n(game->tactical_features2, board_max, 0);
@@ -273,10 +272,7 @@ InitializeBoard( game_info_t *game )
 
   game->pass_count = 0;
 
-  for (i = 0; i < BOARD_MAX; i++) { 
-    game->candidates[i] = false;
-  }
-
+  fill_n(game->candidates, BOARD_MAX, false);
 
   for (y = 0; y < board_size; y++){
     for (x = 0; x < OB_SIZE; x++) {
@@ -419,15 +415,14 @@ InitializeConst( void )
   corner[2] = POS(board_end, board_start);
   corner[3] = POS(board_end, board_end);
 
-  corner_neighbor[0][0] = EAST(POS(board_start, board_start));
+  corner_neighbor[0][0] =  EAST(POS(board_start, board_start));
   corner_neighbor[0][1] = SOUTH(POS(board_start, board_start));
   corner_neighbor[1][0] = NORTH(POS(board_start, board_end));
-  corner_neighbor[1][1] = EAST(POS(board_start, board_end));
-  corner_neighbor[2][0] = WEST(POS(board_end, board_start));
+  corner_neighbor[1][1] =  EAST(POS(board_start, board_end));
+  corner_neighbor[2][0] =  WEST(POS(board_end, board_start));
   corner_neighbor[2][1] = SOUTH(POS(board_end, board_start));
   corner_neighbor[3][0] = NORTH(POS(board_end, board_end));
-  corner_neighbor[3][1] = WEST(POS(board_end, board_end));
-
+  corner_neighbor[3][1] =  WEST(POS(board_end, board_end));
 
   InitializeNeighbor();
   InitializeEye();
@@ -545,11 +540,8 @@ InitializeEye( void )
     0x5555, 0x5554, 0x5556, 0xFD55, 0xFF75,
   };
 
+  fill_n(eye_condition, E_NOT_EYE, 0);
   
-  for (i = 0; i < PAT3_MAX; i++) {
-    eye_condition[i] = E_NOT_EYE;
-  }
-
   for (i = 0; i < 12; i++) {
     Pat3Transpose16(complete_half_eye[i], pat3_transp16);
     for (j = 0; j < 16; j++) {
@@ -584,9 +576,6 @@ InitializeEye( void )
       eye_condition[pat3_transp16[j]] = E_COMPLETE_ONE_EYE;
     }
   }
-
-  
-
 
   // BBB
   // B*B
@@ -658,9 +647,7 @@ InitializeNeighborEmptyPattern( void )
     0x0000, 0x003f, 0xc33f
   };
 
-  for (i = 0; i < PAT3_MAX; i++) {
-    empty_pat[i] = false;
-  }
+  fill_n(empty_pat, PAT3_MAX, 0);
 
   for (i = 0; i < 3; i++) {
     Pat3Transpose8(empty_pattern[i], transp);
@@ -756,7 +743,6 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
       player_id[player_ids++] = string_id[neighbor4[i]];
     }
   }
-
 
   // 斜め方向に取れる, または取れそうな石があったらfalseを返す
   for (i = 0; i < 4; i++) {
@@ -863,9 +849,9 @@ IsLegalNotEye( game_info_t *game, int pos, int color )
   // 眼
   if (eye[Pat3(game->pat, pos)] != color ||
       string[string_id[NORTH(pos)]].libs == 1 ||
-      string[string_id[EAST(pos)]].libs == 1 ||
+      string[string_id[ EAST(pos)]].libs == 1 ||
       string[string_id[SOUTH(pos)]].libs == 1 ||
-      string[string_id[WEST(pos)]].libs == 1){
+      string[string_id[ WEST(pos)]].libs == 1){
 
     // 自殺手かどうか
     if (nb4_empty[Pat3(game->pat, pos)] == 0 &&

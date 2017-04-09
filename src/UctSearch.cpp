@@ -306,9 +306,9 @@ InitializeSearchSetting(void)
 //  終了  //
 ////////////
 void
-FinalizeUctSearch(void)
+FinalizeUctSearch( void )
 {
-
+  
 }
 
 
@@ -888,7 +888,6 @@ RatingNode(game_info_t *game, int color, int index)
     if ((uct_features.tactical_features1[pos] & uct_mask[UCT_OIOTOSHI]) > 0) {
       uct_child[i].open = true;
     }
-
   }
 
   // 最もγが大きい着手を探索できるようにする
@@ -1423,7 +1422,6 @@ CalculateCriticality(int color)
 }
 
 
-
 //////////////////////////////
 //  Ownerの計算をする関数   //
 //////////////////////////////
@@ -1443,8 +1441,6 @@ CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, i
     if (index[i] < 0)   index[pos] = 0;
   }
 }
-
-
 
 
 //////////////////////////////

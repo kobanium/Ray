@@ -9,26 +9,25 @@
 
 using namespace std;
 
+static const int NAKADE_3 = 6;
+static const int NAKADE_4 = 5;
+static const int NAKADE_5 = 9;
+static const int NAKADE_6 = 4;
 
-// 3目中手のパターンのハッシュ値
-unsigned long long nakade3_hash[6];
-// 4目中手のパターンのハッシュ値
-unsigned long long nakade4_hash[5];
-// 5目中手のパターンのハッシュ値
-unsigned long long nakade5_hash[9];
-// 6目中手のパターンのハッシュ値
-unsigned long long nakade6_hash[4];
+static const int NAKADE_PATTERNS[4] = {
+  NAKADE_3, NAKADE_4, NAKADE_5, NAKADE_6
+};
 
-// 3目中手の急所
-int nakade3_pos[6];
-// 4目中手の急所
-int nakade4_pos[5];
-// 5目中手の急所
-int nakade5_pos[9];
-// 6目中手の急所
-int nakade6_pos[4];
+static const int NAKADE_MAX_SIZE = NAKADE_5;
 
-static int start = BOARD_MAX / 2;  
+// 3目, 4目, 5目, 6目のナカデのパターンのハッシュ値
+unsigned long long nakade_hash[4][NAKADE_MAX_SIZE];
+// 3目, 4目, 5目, 6目のナカデの急所
+int nakade_pos[4][NAKADE_MAX_SIZE];
+
+static int start = BOARD_MAX / 2;
+
+unsigned int nakade_pat3_mask[PAT3_MAX];
 
 // ナカデが現れないパターン
 const unsigned int nakade_none[134] = {
@@ -151,7 +150,6 @@ const unsigned int nakade_mask[446][2] = {
 };
 
 
-int nakade_pat3_mask[PAT3_MAX];
 
 //////////////
 //  初期化  //
@@ -217,59 +215,59 @@ InitializeNakadeHash( void )
   nakade6[3][2] = board_size;         nakade6[3][3] = board_size + 1; 
   nakade6[3][4] = 2 * board_size;     nakade6[3][5] = 2 * board_size + 1;
 
-  nakade3_pos[0] = 1;
-  nakade3_pos[1] = board_size;
-  nakade3_pos[2] = 1;
-  nakade3_pos[3] = board_size;
-  nakade3_pos[4] = board_size;
-  nakade3_pos[5] = 0;
+  nakade_pos[0][0] = 1;
+  nakade_pos[0][1] = board_size;
+  nakade_pos[0][2] = 1;
+  nakade_pos[0][3] = board_size;
+  nakade_pos[0][4] = board_size;
+  nakade_pos[0][5] = 0;
 
-  nakade4_pos[0] = board_size;
-  nakade4_pos[1] = board_size;
-  nakade4_pos[2] = board_size;
-  nakade4_pos[3] = 1;
-  nakade4_pos[4] = 0;
+  nakade_pos[1][0] = board_size;
+  nakade_pos[1][1] = board_size;
+  nakade_pos[1][2] = board_size;
+  nakade_pos[1][3] = 1;
+  nakade_pos[1][4] = 0;
 
-  nakade5_pos[0] = board_size;
-  nakade5_pos[1] = board_size;
-  nakade5_pos[2] = board_size + 1;
-  nakade5_pos[3] = board_size;
-  nakade5_pos[4] = 1;
-  nakade5_pos[5] = board_size;
-  nakade5_pos[6] = 1;
-  nakade5_pos[7] = board_size + 1;
-  nakade5_pos[8] = board_size;
+  nakade_pos[2][0] = board_size;
+  nakade_pos[2][1] = board_size;
+  nakade_pos[2][2] = board_size + 1;
+  nakade_pos[2][3] = board_size;
+  nakade_pos[2][4] = 1;
+  nakade_pos[2][5] = board_size;
+  nakade_pos[2][6] = 1;
+  nakade_pos[2][7] = board_size + 1;
+  nakade_pos[2][8] = board_size;
 
-  nakade6_pos[0] = board_size;
-  nakade6_pos[1] = board_size + 1;
-  nakade6_pos[2] = board_size;
-  nakade6_pos[3] = board_size;
+  nakade_pos[3][0] = board_size;
+  nakade_pos[3][1] = board_size + 1;
+  nakade_pos[3][2] = board_size;
+  nakade_pos[3][3] = board_size;
 
-  for (i = 0; i < 6; i++) {
-    nakade3_hash[i] = 0;
+  for (i = 0; i < NAKADE_3; i++) {
+    nakade_hash[0][i] = 0;
     for (j = 0; j < 3; j++) {
-      nakade3_hash[i] ^= shape_bit[start + nakade3[i][j]];
+      nakade_hash[0][i] ^= shape_bit[start + nakade3[i][j]];
     }
   }
 
-  for (i = 0; i < 5; i++) {
-    nakade4_hash[i] = 0;
+  for (i = 0; i < NAKADE_4; i++) {
+    nakade_hash[1][i] = 0;
     for (j = 0; j < 4; j++) {
-      nakade4_hash[i] ^= shape_bit[start + nakade4[i][j]];
+      nakade_hash[1][i] ^= shape_bit[start + nakade4[i][j]];
     }
   }
 
-  for (i = 0; i < 9; i++) {
-    nakade5_hash[i] = 0;
+  for (i = 0; i < NAKADE_5; i++) {
+    nakade_hash[2][i] = 0;
     for (j = 0; j < 5; j++) {
-      nakade5_hash[i] ^= shape_bit[start + nakade5[i][j]];
+      nakade_hash[2][i] ^= shape_bit[start + nakade5[i][j]];
     }
   }
 
-  for (i = 0; i < 4; i++) {
-    nakade6_hash[i] = 0;
+  for (i = 0; i < NAKADE_6; i++) {
+    nakade_hash[3][i] = 0;
     for (j = 0; j < 6; j++) {
-      nakade6_hash[i] ^= shape_bit[start + nakade6[i][j]];
+      nakade_hash[3][i] ^= shape_bit[start + nakade6[i][j]];
     }
   }
 
@@ -312,53 +310,25 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
   int *string_next = game->string_next;
   int stones[10];
   int my_stone;
-  int i, n = 0, reviser;
+  int i, j, n = 0, reviser;
   unsigned long long hash = 0;
   int checked[4] = { 0 };
   int check = 0;
   int id;
+  const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
 
-  // 上が自分の連だったら, それぞれの石の座標を記録
-  if (board[NORTH(pos)] == color) {
-    id = string_id[NORTH(pos)];
-    my_stone = string[id].origin;
-    while (my_stone != STRING_END) {
-      stones[n++] = my_stone;
-      my_stone = string_next[my_stone];
-    }
-    checked[check++] = id;
-  }
-
-  // 左が自分の連だったら, それぞれの石の座標を記録
-  if (board[WEST(pos)] == color) {
-    id = string_id[WEST(pos)];
-    if (checked[0] != id) {
-      my_stone = string[id].origin;
-      while (my_stone != STRING_END) {
-	stones[n++] = my_stone;
-	my_stone = string_next[my_stone];
+  // 上下左右を確認し, 自分の連だったら, それぞれの石の座標を記録
+  for (i = 0 ; i < 4; i++) {
+    if (board[neighbor4[i]] == color) {
+      id = string_id[neighbor4[i]];
+      bool check_flag = false;
+      for (j = 0; j < check; j++) {
+	if (checked[j] == id) {
+	  check_flag = true;
+	  break;
+	}
       }
-      checked[check++] = id;
-    }
-  }
-
-  // 右が自分の連だったら, それぞれの石の座標を記録
-  if (board[EAST(pos)] == color) {
-    id = string_id[EAST(pos)];
-    if (checked[0] != id && checked[1] != id) {
-      my_stone = string[id].origin;
-      while (my_stone != STRING_END) {
-	stones[n++] = my_stone;
-	my_stone = string_next[my_stone];
-      }
-      checked[check++] = id;
-    }
-  }
-
-  // 下が自分の連だったら, それぞれの石の座標を記録
-  if (board[SOUTH(pos)] == color) {
-    id = string_id[SOUTH(pos)];
-    if (checked[0] != id && checked[1] != id && checked[2] != id) {
+      if (check_flag) continue;
       my_stone = string[id].origin;
       while (my_stone != STRING_END) {
 	stones[n++] = my_stone;
@@ -393,22 +363,10 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
   // そうでなければfalseを返す
   switch (n) {
   case 3:
-    for (i = 0; i < 6; i++) {
-      if (nakade3_hash[i] == hash) {
-	return true;
-      }
-    }
-    break;
   case 4:
-    for (i = 0; i < 5; i++) {
-      if (nakade4_hash[i] == hash) {
-	return true;
-      }
-    }
-    break;
   case 5:
-    for (i = 0; i < 9; i++) {
-      if (nakade5_hash[i] == hash) {
+    for (i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
+      if (nakade_hash[n - 3][i] == hash) {
 	return true;
       }
     }
@@ -431,53 +389,25 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
   int *string_next = game->string_next;
   int stones[10];
   int my_stone;
-  int i, n = 0, reviser;
+  int i, j, n = 0, reviser;
   unsigned long long hash = 0;
   int checked[4] = { 0 };
   int check = 0;
   int id;
+  const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
 
-  // 上が自分の連だったら, それぞれの石の座標を記録
-  if (board[NORTH(pos)] == color) {
-    id = string_id[NORTH(pos)];
-    my_stone = string[id].origin;
-    while (my_stone != STRING_END) {
-      stones[n++] = my_stone;
-      my_stone = string_next[my_stone];
-    }
-    checked[check++] = id;
-  }
-
-  // 左が自分の連だったら, それぞれの石の座標を記録
-  if (board[WEST(pos)] == color) {
-    id = string_id[WEST(pos)];
-    if (checked[0] != id) {
-      my_stone = string[id].origin;
-      while (my_stone != STRING_END) {
-	stones[n++] = my_stone;
-	my_stone = string_next[my_stone];
+  // 上下左右を確認し, 自分の連だったら, それぞれの石の座標を記録
+  for (i = 0 ; i < 4; i++) {
+    if (board[neighbor4[i]] == color) {
+      id = string_id[neighbor4[i]];
+      bool check_flag = false;
+      for (j = 0; j < check; j++) {
+	if (checked[j] == id) {
+	  check_flag = true;
+	  break;
+	}
       }
-      checked[check++] = id;
-    }
-  }
-
-  // 右が自分の連だったら, それぞれの石の座標を記録
-  if (board[EAST(pos)] == color) {
-    id = string_id[EAST(pos)];
-    if (checked[0] != id && checked[1] != id) {
-      my_stone = string[id].origin;
-      while (my_stone != STRING_END) {
-	stones[n++] = my_stone;
-	my_stone = string_next[my_stone];
-      }
-      checked[check++] = id;
-    }
-  }
-
-  // 下が自分の連だったら, それぞれの石の座標を記録
-  if (board[SOUTH(pos)] == color) {
-    id = string_id[SOUTH(pos)];
-    if (checked[0] != id && checked[1] != id && checked[2] != id) {
+      if (check_flag) continue;
       my_stone = string[id].origin;
       while (my_stone != STRING_END) {
 	stones[n++] = my_stone;
@@ -506,29 +436,11 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
   // そうでなければfalseを返す
   switch (n) {
   case 3:
-    for (i = 0; i < 6; i++) {
-      if (nakade3_hash[i] == hash) {
-	return true;
-      }
-    }
-    break;
   case 4:
-    for (i = 0; i < 5; i++) {
-      if (nakade4_hash[i] == hash) {
-	return true;
-      }
-    }
-    break;
   case 5:
-    for (i = 0; i < 9; i++) {
-      if (nakade5_hash[i] == hash) {
-	return true;
-      }
-    }
-    break;
   case 6:
-    for (i = 0; i < 4; i++) {
-      if (nakade6_hash[i] == hash) {
+    for (i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
+      if (nakade_hash[n - 3][i] == hash) {
 	return true;
       }
     }
@@ -554,6 +466,7 @@ FindNakadePos( game_info_t *game, int pos, int color )
   int nakade_num = 0;
   unsigned long long hash = 0;
   int i, reviser;
+  int neighbor4[4];
 
   // キューの初期化
   InitializeNakadeQueue(&nakade_queue);
@@ -573,36 +486,16 @@ FindNakadePos( game_info_t *game, int pos, int color )
     // ナカデではないと判定
     if (size > 5) return NOT_NAKADE;
 
-    // 上が未確認で, 自分の石か空点なら追加
-    if (!flag[NORTH(current_pos)] &&
-	(board[NORTH(current_pos)] & color) == 0) {
-      Enqueue(&nakade_queue, NORTH(current_pos));
-      flag[NORTH(current_pos)] = true;
-      size++;
-    }
+    GetNeighbor4(neighbor4, current_pos);
 
-    // 左が未確認で, 自分の石か空点なら追加
-    if (!flag[WEST(current_pos)] &&
-	(board[WEST(current_pos)] & color) == 0) {
-      Enqueue(&nakade_queue, WEST(current_pos));
-      flag[WEST(current_pos)] = true;
-      size++;
-    }
-
-    // 右が未確認で, 自分の石か空点なら追加
-    if (!flag[EAST(current_pos)] &&
-	(board[EAST(current_pos)] & color) == 0) {
-      Enqueue(&nakade_queue, EAST(current_pos));
-      flag[SOUTH(current_pos)] = true;
-      size++;
-    }
-
-    // 下が未確認で, 自分の石か空点なら追加
-    if (!flag[SOUTH(current_pos)] &&
-	(board[SOUTH(current_pos)] & color) == 0) {
-      Enqueue(&nakade_queue, SOUTH(current_pos));
-      flag[SOUTH(current_pos)] = true;
-      size++;
+    // 上下左右について, 未確認で, 自分の石か空点なら追加
+    for (i = 0; i < 4; i++) {
+      if (!flag[neighbor4[i]] &&
+	  (board[neighbor4[i]] & color) == 0) {
+	Enqueue(&nakade_queue, neighbor4[i]);
+	flag[neighbor4[i]] = true;
+	size++;
+      }
     }
   }
 
@@ -623,23 +516,11 @@ FindNakadePos( game_info_t *game, int pos, int color )
   // ナカデの形になっていれば, その座標を返す
   switch (nakade_num) {
   case 3:
-    for (i = 0; i < 6; i++) {
-      if (nakade3_hash[i] == hash) {
-	return nakade[0] + nakade3_pos[i];
-      }
-    }
-    break;
   case 4:
-    for (i = 0; i < 4; i++) {
-      if (nakade4_hash[i] == hash) {
-	return nakade[0] + nakade4_pos[i];
-      }
-    }
-    break;
   case 5:
-    for (i = 0; i < 9; i++) {
-      if (nakade5_hash[i] == hash) {
-	return nakade[0] + nakade5_pos[i];
+    for (i = 0; i < NAKADE_PATTERNS[nakade_num - 3]; i++) {
+      if (nakade_hash[nakade_num - 3][i] == hash) {
+	return nakade[0] + nakade_pos[nakade_num - 3][i];
       }
     }
     break;
@@ -708,23 +589,11 @@ CheckRemovedStoneNakade( game_info_t *game, int color )
   // ナカデになっていれば, その座標を返す
   switch (capture_num) {
   case 3:
-    for (i = 0; i < 6; i++) {
-      if (nakade3_hash[i] == hash) {
-	return capture_pos[0] + nakade3_pos[i];
-      }
-    }
-    break;
   case 4:
-    for (i = 0; i < 4; i++) {
-      if (nakade4_hash[i] == hash) {
-	return capture_pos[0] + nakade4_pos[i];
-      }
-    }
-    break;
   case 5:
-    for (i = 0; i < 9; i++) {
-      if (nakade5_hash[i] == hash) {
-	return capture_pos[0] + nakade5_pos[i];
+    for (i = 0; i < NAKADE_PATTERNS[capture_num - 3]; i++) {
+      if (nakade_hash[capture_num - 3][i] == hash) {
+	return capture_pos[0] + nakade_pos[capture_num - 3][i];
       }
     }
     break;
@@ -756,8 +625,7 @@ Dequeue( nakade_queue_t *nq )
   if (nq->head == nq->tail) {
     cerr << "queue underflow" << endl;
     exit(1);
-  }
-  else {
+  } else {
     pos = nq->pos[nq->head++];
     if (nq->head >= NAKADE_QUEUE_SIZE) {
       nq->head = 0;
