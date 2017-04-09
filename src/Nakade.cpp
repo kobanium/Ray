@@ -664,31 +664,17 @@ SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos )
   const unsigned int all_mask[2] = {
     0x1144, 0x2288
   };
+  const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
   unsigned int pat3 = Pat3(game->pat, pos);
 
   // ナカデが出現し得ないパターンなら戻る
   if ((nakade_pat3_mask[pat3] & all_mask[last_color - 1]) == 0) return;
 
-  // 上の確認
-  if ((nakade_pat3_mask[pat3] & mask[last_color - 1][0]) != 0) {
-    nakade_pos[(*nakade_num)++] = FindNakadePos(game, NORTH(pos), last_color);
+  for (int i = 0; i < 4; i++) {
+    if ((nakade_pat3_mask[pat3] & mask[last_color - 1][i]) != 0) {
+      nakade_pos[(*nakade_num)++] = FindNakadePos(game, neighbor4[i], last_color);
+    }
   }
-  
-  // 左の確認
-  if ((nakade_pat3_mask[pat3] & mask[last_color - 1][1]) != 0) {
-    nakade_pos[(*nakade_num)++] = FindNakadePos(game, WEST(pos), last_color);
-  }
-  
-  // 右の確認
-  if ((nakade_pat3_mask[pat3] & mask[last_color - 1][2]) != 0) {
-    nakade_pos[(*nakade_num)++] = FindNakadePos(game, EAST(pos), last_color);
-  }
-
-  // 下の確認
-  if ((nakade_pat3_mask[pat3] & mask[last_color - 1][3]) != 0) {
-    nakade_pos[(*nakade_num)++] = FindNakadePos(game, SOUTH(pos), last_color);
-  }
-  
   
 }
 

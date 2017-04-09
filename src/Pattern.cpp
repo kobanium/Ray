@@ -225,12 +225,12 @@ void
 UpdatePat3Empty( struct pattern *pat, int pos )
 {
   pat[pos + NW].list[MD_2] &= 0xFF3FFF;
-  pat[pos + N].list[MD_2] &= 0xFFCFFF;
+  pat[pos +  N].list[MD_2] &= 0xFFCFFF;
   pat[pos + NE].list[MD_2] &= 0xFFF3FF;
-  pat[pos + W].list[MD_2] &= 0xFFFCFF;
-  pat[pos + E].list[MD_2] &= 0xFFFF3F;
+  pat[pos +  W].list[MD_2] &= 0xFFFCFF;
+  pat[pos +  E].list[MD_2] &= 0xFFFF3F;
   pat[pos + SW].list[MD_2] &= 0xFFFFCF;
-  pat[pos + S].list[MD_2] &= 0xFFFFF3;
+  pat[pos +  S].list[MD_2] &= 0xFFFFF3;
   pat[pos + SE].list[MD_2] &= 0xFFFFFC;
 }
 
@@ -238,12 +238,12 @@ void
 UpdatePat3Stone( struct pattern *pat, int color, int pos )
 {
   pat[pos + NW].list[MD_2] |= update_mask[0][color];
-  pat[pos + N].list[MD_2] |= update_mask[1][color];
+  pat[pos +  N].list[MD_2] |= update_mask[1][color];
   pat[pos + NE].list[MD_2] |= update_mask[2][color];
-  pat[pos + W].list[MD_2] |= update_mask[3][color];
-  pat[pos + E].list[MD_2] |= update_mask[4][color];
+  pat[pos +  W].list[MD_2] |= update_mask[3][color];
+  pat[pos +  E].list[MD_2] |= update_mask[4][color];
   pat[pos + SW].list[MD_2] |= update_mask[5][color];
-  pat[pos + S].list[MD_2] |= update_mask[6][color];
+  pat[pos +  S].list[MD_2] |= update_mask[6][color];
   pat[pos + SE].list[MD_2] |= update_mask[7][color];
 }
 
@@ -252,12 +252,12 @@ void
 UpdateMD2Empty( struct pattern *pat, int pos )
 {
   pat[pos + NW].list[MD_2] &= 0xFF3FFF;
-  pat[pos + N].list[MD_2] &= 0xFFCFFF;
+  pat[pos +  N].list[MD_2] &= 0xFFCFFF;
   pat[pos + NE].list[MD_2] &= 0xFFF3FF;
-  pat[pos + W].list[MD_2] &= 0xFFFCFF;
-  pat[pos + E].list[MD_2] &= 0xFFFF3F;
+  pat[pos +  W].list[MD_2] &= 0xFFFCFF;
+  pat[pos +  E].list[MD_2] &= 0xFFFF3F;
   pat[pos + SW].list[MD_2] &= 0xFFFFCF;
-  pat[pos + S].list[MD_2] &= 0xFFFFF3;
+  pat[pos +  S].list[MD_2] &= 0xFFFFF3;
   pat[pos + SE].list[MD_2] &= 0xFFFFFC;
   pat[pos + NN].list[MD_2] &= 0xCFFFFF;
   pat[pos + EE].list[MD_2] &= 0x3FFFFF;
@@ -269,12 +269,12 @@ void
 UpdateMD2Stone( struct pattern *pat, int color, int pos )
 {
   pat[pos + NW].list[MD_2] |= update_mask[0][color];
-  pat[pos + N].list[MD_2] |= update_mask[1][color];
+  pat[pos +  N].list[MD_2] |= update_mask[1][color];
   pat[pos + NE].list[MD_2] |= update_mask[2][color];
-  pat[pos + W].list[MD_2] |= update_mask[3][color];
-  pat[pos + E].list[MD_2] |= update_mask[4][color];
+  pat[pos +  W].list[MD_2] |= update_mask[3][color];
+  pat[pos +  E].list[MD_2] |= update_mask[4][color];
   pat[pos + SW].list[MD_2] |= update_mask[5][color];
-  pat[pos + S].list[MD_2] |= update_mask[6][color];
+  pat[pos +  S].list[MD_2] |= update_mask[6][color];
   pat[pos + SE].list[MD_2] |= update_mask[7][color];
   pat[pos + NN].list[MD_2] |= update_mask[8][color];
   pat[pos + EE].list[MD_2] |= update_mask[9][color];
@@ -288,12 +288,12 @@ UpdatePatternEmpty( struct pattern *pat, int pos )
 {
   //  3x3 
   pat[pos + NW].list[MD_2] &= 0xFF3FFF;
-  pat[pos + N].list[MD_2] &= 0xFFCFFF;
+  pat[pos +  N].list[MD_2] &= 0xFFCFFF;
   pat[pos + NE].list[MD_2] &= 0xFFF3FF;
-  pat[pos + W].list[MD_2] &= 0xFFFCFF;
-  pat[pos + E].list[MD_2] &= 0xFFFF3F;
+  pat[pos +  W].list[MD_2] &= 0xFFFCFF;
+  pat[pos +  E].list[MD_2] &= 0xFFFF3F;
   pat[pos + SW].list[MD_2] &= 0xFFFFCF;
-  pat[pos + S].list[MD_2] &= 0xFFFFF3;
+  pat[pos +  S].list[MD_2] &= 0xFFFFF3;
   pat[pos + SE].list[MD_2] &= 0xFFFFFC;
 
   //  md2
@@ -362,12 +362,12 @@ UpdatePatternStone( struct pattern *pat, int color, int pos )
 {
   //  3x3 
   pat[pos + NW].list[MD_2] |= update_mask[0][color];
-  pat[pos + N].list[MD_2] |= update_mask[1][color];
+  pat[pos +  N].list[MD_2] |= update_mask[1][color];
   pat[pos + NE].list[MD_2] |= update_mask[2][color];
-  pat[pos + W].list[MD_2] |= update_mask[3][color];
-  pat[pos + E].list[MD_2] |= update_mask[4][color];
+  pat[pos +  W].list[MD_2] |= update_mask[3][color];
+  pat[pos +  E].list[MD_2] |= update_mask[4][color];
   pat[pos + SW].list[MD_2] |= update_mask[5][color];
-  pat[pos + S].list[MD_2] |= update_mask[6][color];
+  pat[pos +  S].list[MD_2] |= update_mask[6][color];
   pat[pos + SE].list[MD_2] |= update_mask[7][color];
 
   //  md2
