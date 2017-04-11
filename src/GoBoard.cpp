@@ -38,7 +38,6 @@ unsigned char eye[PAT3_MAX];        // 目のパターン
 unsigned char false_eye[PAT3_MAX];
 unsigned char territory[PAT3_MAX];  // 領地のパターン
 unsigned char nb4_empty[PAT3_MAX];  // 上下左右の空点の数
-bool empty_pat[PAT3_MAX];           //  8近傍に石がないパターン
 unsigned char eye_condition[PAT3_MAX];
 
 int border_dis_x[BOARD_MAX];                     // x方向の距離   
@@ -66,9 +65,6 @@ static void InitializeEye( void );
 
 // 地のパターンの設定
 static void InitializeTerritory( void );
-
-// 8近傍に石がないパターンを設定 
-static void InitializeNeighborEmptyPattern( void );
 
 // ダメ(pos)を連(string)に加える
 // 加えたダメ(pos)を返す
@@ -196,12 +192,9 @@ void
 SetKomi( double new_komi )
 {
   default_komi = new_komi;
-  komi[0] = default_komi;
-  komi[S_BLACK] = default_komi + 1;
-  komi[S_WHITE] = default_komi - 1;
-  dynamic_komi[0] = default_komi;
-  dynamic_komi[S_BLACK] = default_komi + 1;
-  dynamic_komi[S_WHITE] = default_komi - 1;
+  komi[0] = dynamic_komi[0] = default_komi;
+  komi[S_BLACK] = dynamic_komi[S_BLACK] = default_komi + 1;
+  komi[S_WHITE] = dynamic_komi[S_WHITE] = default_komi - 1;
 }
 
 
@@ -264,9 +257,7 @@ InitializeBoard( game_info_t *game )
   game->previous1_hash = 0;
   game->previous2_hash = 0;
 
-  dynamic_komi[0] = default_komi;
-  dynamic_komi[S_BLACK] = default_komi + 1.0;
-  dynamic_komi[S_WHITE] = default_komi - 1.0;
+  SetKomi(default_komi);
 
   game->moves = 1;
 
@@ -297,7 +288,6 @@ InitializeBoard( game_info_t *game )
   ClearPattern(game->pat);
 
   InitializeNeighbor();
-  InitializeNeighborEmptyPattern();
   InitializeEye();
 }
 
@@ -630,29 +620,6 @@ InitializeTerritory( void )
       territory[i] = S_BLACK;
     } else if ((i & 0x2288) == 0x2288) {
       territory[i] = S_WHITE;
-    }
-  }
-}
-
-
-/////////////////////////////////////
-//  8近傍に石がないパターンを設定  //
-/////////////////////////////////////
-static void
-InitializeNeighborEmptyPattern( void )
-{
-  int i, j;
-  unsigned int transp[8];
-  unsigned int empty_pattern[3] = {
-    0x0000, 0x003f, 0xc33f
-  };
-
-  fill_n(empty_pat, PAT3_MAX, 0);
-
-  for (i = 0; i < 3; i++) {
-    Pat3Transpose8(empty_pattern[i], transp);
-    for (j = 0; j < 8; j++) {
-      empty_pat[transp[j]] = true;
     }
   }
 }
