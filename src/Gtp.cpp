@@ -181,7 +181,7 @@ GTP_boardsize( void )
   sprintf_s(buf, 1024, " ");
 #else
   sscanf(command, "%d", &size);
-  sprintf(buf, " ");
+  snprintf(buf, 1024, " ");
 #endif
 
   if (pure_board_size != size &&
@@ -435,7 +435,7 @@ GTP_getkomi( void )
 #if defined(_WIN32)
   sprintf_s(buf, 4, "%lf", komi[0]);
 #else
-  sprintf(buf, "%lf", komi[0]);
+  snprintf(buf, 4, "%lf", komi[0]);
 #endif
   GTP_response(buf, true);
 }
@@ -460,9 +460,9 @@ GTP_finalscore( void )
   }
 #else
   if (score > 0) {
-    sprintf(buf, "B+%.1lf", score);
+    snprintf(buf, 10, "B+%.1lf", score);
   } else {
-    sprintf(buf, "W+%.1lf", abs(score));
+    snprintf(buf, 10, "W+%.1lf", abs(score));
   }
 #endif
 
@@ -543,7 +543,7 @@ GTP_fixed_handicap( void )
   sprintf_s(buf, 1024, " ");
 #else
   sscanf(command, "%d", &num);
-  sprintf(buf, " ");
+  snprintf(buf, 1024, " ");
 #endif
 
   handi[0] = POS(board_start + 3, board_start + 3);
@@ -564,7 +564,7 @@ GTP_fixed_handicap( void )
       sprintf_s(buf, 1024, "%c%d %c%d",
 		GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
 #else
-      sprintf(buf, "%c%d %c%d",
+      snprintf(buf, 1024, "%c%d %c%d",
 	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
 #endif
       break;
@@ -577,7 +577,7 @@ GTP_fixed_handicap( void )
 		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
 		GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
 #else
-      sprintf(buf, "%c%d %c%d %c%d",
+      snprintf(buf, 1024, "%c%d %c%d %c%d",
 	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
 	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
 #endif
@@ -592,7 +592,7 @@ GTP_fixed_handicap( void )
 		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
 		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #else
-      sprintf(buf, "%c%d %c%d %c%d %c%d",
+      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d",
 	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
 	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #endif
@@ -608,7 +608,7 @@ GTP_fixed_handicap( void )
 		GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[4]), GOGUI_Y(handi[4]),
 		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #else
-      sprintf(buf, "%c%d %c%d %c%d %c%d %c%d", GOGUI_X(handi[0]), GOGUI_Y(handi[0]),
+      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d", GOGUI_X(handi[0]), GOGUI_Y(handi[0]),
 	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[4]), GOGUI_Y(handi[4]),
 	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #endif
@@ -626,7 +626,7 @@ GTP_fixed_handicap( void )
 		GOGUI_X(handi[3]), GOGUI_Y(handi[3]), GOGUI_X(handi[5]), GOGUI_Y(handi[5]),
 		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #else
-      sprintf(buf, "%c%d %c%d %c%d %c%d %c%d %c%d",
+      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d",
 	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
 	      GOGUI_X(handi[3]), GOGUI_Y(handi[3]), GOGUI_X(handi[5]), GOGUI_Y(handi[5]),
 	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
@@ -647,7 +647,7 @@ GTP_fixed_handicap( void )
 		GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
 		GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #else
-      sprintf(buf, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d",
+      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d",
 	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
 	      GOGUI_X(handi[3]), GOGUI_Y(handi[3]), GOGUI_X(handi[4]), GOGUI_Y(handi[4]),
 	      GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
@@ -670,7 +670,7 @@ GTP_fixed_handicap( void )
 		GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
 		GOGUI_X(handi[7]), GOGUI_Y(handi[7]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #else
-      sprintf(buf, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
+      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
 	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[1]), GOGUI_Y(handi[2]),
 	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[3]), GOGUI_Y(handi[3]),
 	      GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
@@ -695,7 +695,7 @@ GTP_fixed_handicap( void )
 		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[7]), GOGUI_Y(handi[7]),
 		GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
 #else
-      sprintf(buf, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
+      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
 	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[1]), GOGUI_Y(handi[1]),
 	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[3]), GOGUI_Y(handi[3]),
 	      GOGUI_X(handi[4]), GOGUI_Y(handi[4]), GOGUI_X(handi[5]), GOGUI_Y(handi[5]),
@@ -766,7 +766,7 @@ GTP_final_status_list( void )
 	  sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
 	  strcat_s(dead, 2048, pos);
 #else
-	  sprintf(pos, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
 	  strcat(dead, pos);
 #endif
 	}
@@ -781,7 +781,7 @@ GTP_final_status_list( void )
 	  sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
 	  strcat_s(dead, 2048, pos);
 #else
-	  sprintf(pos, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
 	  strcat(dead, pos);
 #endif
 	}
