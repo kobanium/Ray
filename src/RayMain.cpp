@@ -48,8 +48,8 @@ main( int argc, char **argv )
   sprintf_s(uct_params_path, 1024, "%s\\uct_params", program_path);
   sprintf_s(po_params_path, 1024, "%s\\sim_params", program_path);
 #else
-  sprintf(uct_params_path, "%s/uct_params", program_path);
-  sprintf(po_params_path, "%s/sim_params", program_path);
+  snprintf(uct_params_path, 1024, "%s/uct_params", program_path);
+  snprintf(po_params_path, 1024, "%s/sim_params", program_path);
 #endif
   // コマンドライン引数の解析  
   AnalyzeCommand(argc, argv);

@@ -60,13 +60,13 @@ IntegerToString( int pos, char *cpos )
 #if defined (_WIN32)
     sprintf_s(cpos, 5, "%s", pass);
 #else
-    sprintf(cpos, "%s", pass);
+    snprintf(cpos, 5, "%s", pass);
 #endif	
   } else if (pos == RESIGN) {
 #if defined (_WIN32)
     sprintf_s(cpos, 7, "%s", resign);
 #else
-    sprintf(cpos, "%s", resign);
+    snprintf(cpos, 7, "%s", resign);
 #endif	
   } else {
     x = X(pos) - (OB_SIZE - 1);
