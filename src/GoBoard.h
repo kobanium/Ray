@@ -185,9 +185,6 @@ extern unsigned char territory[PAT3_MAX];
 // 上下左右4近傍の空点の数
 extern unsigned char nb4_empty[PAT3_MAX];
 
-// 周囲に石のないパターン
-extern bool empty_pat[PAT3_MAX];
-
 // 眼の状態
 extern unsigned char eye_condition[PAT3_MAX];
 
