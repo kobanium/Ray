@@ -110,24 +110,19 @@ ValueSituational( uct_node_t *root, int color )
   if (color == S_BLACK) {
     if (win_rate < RED) {
       dynamic_komi[0]--;
-      dynamic_komi[S_BLACK]--;
-      dynamic_komi[S_WHITE]--;
     } else if (win_rate > GREEN) {
       dynamic_komi[0]++;
-      dynamic_komi[S_BLACK]++;
-      dynamic_komi[S_WHITE]++;
     }
   } else if (color == S_WHITE) {
     if (win_rate < RED) {
       dynamic_komi[0]++;
-      dynamic_komi[S_BLACK]++;
-      dynamic_komi[S_WHITE]++;
     } else if (win_rate > GREEN) {
       dynamic_komi[0]--;
-      dynamic_komi[S_BLACK]--;
-      dynamic_komi[S_WHITE]--;
     }
   }
+
+  dynamic_komi[S_BLACK] = dynamic_komi[0] + 1.0;
+  dynamic_komi[S_WHITE] = dynamic_komi[0] - 1.0;
 
   PrintKomiValue();
 }

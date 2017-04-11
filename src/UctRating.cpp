@@ -78,7 +78,6 @@ const unsigned long long uct_mask[UCT_MASK_MAX] = {
 };
 
 
-
 double criticality_init = CRITICALITY_INIT;
 double criticality_bias = CRITICALITY_BIAS;
 double owner_bias = OWNER_BIAS;
