@@ -767,7 +767,7 @@ GTP_final_status_list( void )
 	  strcat_s(dead, 2048, pos);
 #else
 	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strcat(dead, pos);
+	  strncat(dead, pos, 5);
 #endif
 	}
       }
@@ -782,7 +782,7 @@ GTP_final_status_list( void )
 	  strcat_s(dead, 2048, pos);
 #else
 	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strcat(dead, pos);
+	  strncat(dead, pos, 5);
 #endif
 	}
       }
