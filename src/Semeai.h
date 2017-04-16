@@ -11,36 +11,36 @@ enum LIBERTY_STATE {
 
 
 //  1手で取れるアタリの判定
-bool IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos );
+bool IsCapturableAtari( const game_info_t *game, const int pos, const int color, const int opponent_pos );
 
 //  オイオトシの確認
-int CheckOiotoshi( game_info_t *game, int pos, int color, int opponent_pos );
+int CheckOiotoshi( const game_info_t *game, const int pos, const int color, const int opponent_pos );
 
 //  ウッテガエシ用の判定
-int CapturableCandidate( game_info_t *game, int id );
+int CapturableCandidate( const game_info_t *game, const int id );
 
 //  すぐに捕まる手かどうかを判定  
-bool IsDeadlyExtension( game_info_t *game, int color, int id );
+bool IsDeadlyExtension( const game_info_t *game, const int color, const int id );
 
 //  隣接する敵連が取れるかを判定  
-bool IsCapturableNeighborNone( game_info_t *game, int id );
+bool IsCapturableNeighborNone( const game_info_t *game, const int id );
 
 //  呼吸点がどのように変化するかを確認
-int CheckLibertyState( game_info_t *game, int pos, int color, int id );
+int CheckLibertyState( const game_info_t *game, const int pos, const int color, const int id );
 
 //  自己アタリになるトリかどうか判定
-bool IsSelfAtariCapture( game_info_t *game, int pos, int color, int id );
+bool IsSelfAtariCapture( const game_info_t *game, const int pos, const int color, const int id );
 
 //  1手で取れるアタリ(シミュレーション用)
-bool IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id );
+bool IsCapturableAtariForSimulation( const game_info_t *game, const int pos, const int color, const int id );
 
 //  自己アタリになるトリかどうか判定
-bool IsSelfAtariCaptureForSimulation( game_info_t *game, int pos, int color, int lib );
+bool IsSelfAtariCaptureForSimulation( const game_info_t *game, const int pos, const int color, const int lib );
 
 //  自己アタリになるかどうかの判定
-bool IsSelfAtari( game_info_t *game, int color, int pos );
+bool IsSelfAtari( const game_info_t *game, const int color, const int pos );
 
 //  欠け眼を継ぐかどうかの判定の準備
-bool IsAlreadyCaptured( game_info_t *game, int color, int id, int player_id[], int player_ids );
+bool IsAlreadyCaptured( const game_info_t *game, const int color, const int id, int player_id[], int player_ids );
 
 #endif

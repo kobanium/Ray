@@ -4,8 +4,6 @@
 #include "GoBoard.h"
 
 // セキの判定
-void CheckSeki( game_info_t *game, bool seki[] );
-
-void PrintSeki( game_info_t *game );
+void CheckSeki( const game_info_t *game, bool seki[] );
 
 #endif

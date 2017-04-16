@@ -41,6 +41,4 @@ void SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos );
 // なければ, -1を返す
 int CheckRemovedStoneNakade( game_info_t *game, int color );
 
-
-
 #endif
