@@ -20,8 +20,6 @@
 
 using namespace std;
 
-// gtpの出力
-static void GTP_message( void );
 // gtpの出力用関数
 static void GTP_response( const char *res, bool success );
 // boardsizeコマンドを処理
@@ -97,7 +95,11 @@ const GTP_command_t gtpcmd[GTP_COMMAND_NUM] = {
 char input[BUF_SIZE], input_copy[BUF_SIZE];
 char *next_token;
 
-char *brank, *err_command, *err_genmove, *err_play, *err_komi;
+char brank[] = "";
+char err_command[] = "? unknown command";
+char err_genmove[] = "gemmove color";
+char err_play[] = "play color point";
+char err_komi[] = "komi float";
 
 int player_color = 0;
 
@@ -114,8 +116,6 @@ GTP_main( void )
 
   game = AllocateGame();
   InitializeBoard(game);
-
-  GTP_message();
 
   while (fgets(input, sizeof(input), stdin) != NULL) {
     char *command;
@@ -141,20 +141,6 @@ GTP_main( void )
     fflush(stdin);
     fflush(stdout);
   }
-}
-
-
-///////////////////////
-//  GTPの出力の設定  //
-///////////////////////
-static void
-GTP_message( void )
-{
-  brank = STRDUP("");
-  err_command = STRDUP("? unknown command");
-  err_genmove = STRDUP("genmove color");
-  err_play = STRDUP("play color point");
-  err_komi = STRDUP("komi float");
 }
 
 
@@ -703,7 +689,7 @@ GTP_kgs_genmove_cleanup( void )
   } else {
     command = STRTOK(NULL, DELIM, &next_token);
     if (command == NULL){
-      GTP_response(err_genmove, true);
+      GTP_response(err_genmove, false);
       return;
     }
     CHOMP(command);
@@ -713,7 +699,7 @@ GTP_kgs_genmove_cleanup( void )
     } else if (c == 'b') {
       color = S_BLACK;
     } else {
-      GTP_response(err_genmove, true);
+      GTP_response(err_genmove, false);
       return;
     }
   }

@@ -11,11 +11,9 @@ const int BUF_SIZE = 256;
 #define PROTOCOL_VERSION  "2"
 
 #if defined (_WIN32)
-#define STRDUP(var) _strdup((var))
 #define STRCPY(dst, size, src) strcpy_s((dst), (size), (src))
 #define STRTOK(src, token, next) strtok_s((src), (token), (next))
 #else
-#define STRDUP(var) strdup((var))
 #define STRCPY(dst, size, src) strcpy((dst), (src))
 #define STRTOK(src, token, next) strtok((src), (token))
 #endif
