@@ -15,7 +15,7 @@ using namespace std;
 //  消費時間の算出  //
 //////////////////////
 double
-GetSpendTime( clock_t start_time )
+GetSpendTime( const clock_t start_time )
 {
   return (double)(clock() - start_time) * (1.0 / CLOCKS_PER_SEC);
 }
@@ -27,7 +27,7 @@ GetSpendTime( clock_t start_time )
 //  消費時間の算出(Linux用)  //
 //////////////////////////////
 double
-GetSpendTimeForLinux( struct timeval *start_time )
+GetSpendTimeForLinux( const struct timeval *start_time )
 {
   struct timeval end_time;
 
@@ -42,7 +42,7 @@ GetSpendTimeForLinux( struct timeval *start_time )
 //  テキスト入力 (float)  //
 ////////////////////////////
 void
-InputTxtFLT( const char *filename, float *ap, int array_size )
+InputTxtFLT( const char *filename, float *ap, const int array_size )
 {
   FILE *fp;
   int i;
@@ -79,7 +79,7 @@ InputTxtFLT( const char *filename, float *ap, int array_size )
 //  テキスト入力 (double)  //
 /////////////////////////////
 void
-InputTxtDBL( const char *filename, double *ap, int array_size )
+InputTxtDBL( const char *filename, double *ap, const int array_size )
 {
   FILE *fp;
   int i;

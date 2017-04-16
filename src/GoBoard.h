@@ -1,4 +1,3 @@
-
 #ifndef _GO_BOARD_H_
 #define _GO_BOARD_H_
 
@@ -118,7 +117,7 @@ typedef struct {
 
   int pass_count;                   // パスした回数
 
-  struct pattern pat[BOARD_MAX];    // 周囲の石の配置 
+  pattern_t pat[BOARD_MAX];    // 周囲の石の配置 
 
   string_t string[MAX_STRING];        // 連のデータ(19x19 : 573,845bytes)
   int string_id[STRING_POS_MAX];    // 各座標の連のID
@@ -217,7 +216,7 @@ game_info_t *AllocateGame( void );
 void FreeGame( game_info_t *game );
 
 // 盤面情報のコピー
-void CopyGame( game_info_t *dst, game_info_t *src );
+void CopyGame( game_info_t *dst, const game_info_t *src );
 
 // 定数の初期化
 void InitializeConst( void );
@@ -227,15 +226,15 @@ void InitializeBoard( game_info_t *game );
 
 // 合法手判定
 // 合法手ならばtrueを返す
-bool IsLegal( game_info_t *game, int pos, int color );
+bool IsLegal( const game_info_t *game, const int pos, const int color );
 
 // 合法手かつ眼でないか判定
 // 合法手かつ眼でなければtrueを返す
-bool IsLegalNotEye( game_info_t *game, int pos, int color );
+bool IsLegalNotEye( game_info_t *game, const int pos, const int color );
 
 // 自殺手判定
 // 自殺手ならばtrueを返す
-bool IsSuicide( game_info_t *game, string_t *string, int color, int pos );
+bool IsSuicide( const game_info_t *game, const string_t *string, const int color, const int pos );
 
 // 石を置く
 void PutStone( game_info_t *game, int pos, int color );
@@ -243,16 +242,13 @@ void PutStone( game_info_t *game, int pos, int color );
 // 石を置く(プレイアウト用)
 void PoPutStone( game_info_t *game, int pos, int color );
 
-// 隅のマガリ四目の確認
-void CheckBentFourInTheCorner( game_info_t *game );
-
 // スコアの判定
 int CalculateScore( game_info_t *game );
 
 // コミの値の設定
-void SetKomi( double new_komi );
+void SetKomi( const double new_komi );
 
 // 上下左右の座標の計算
-void GetNeighbor4( int neighbor4[4], int pos );
+void GetNeighbor4( int neighbor4[4], const int pos );
 
 #endif

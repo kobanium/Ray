@@ -806,7 +806,6 @@ UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_feature
     tactical_features1[rm1] |= uct_mask[UCT_THROW_IN_2];
   }
 
-
   for (i = 0, connect = 0; i < 4; i++) {
     if ((game->board[rm2 + cross[i]] & color) == color) {
       connect++;
@@ -875,7 +874,6 @@ UctCheckKeimaTsukekoshi(game_info_t *game, int color, int pos, uct_features_t *u
   opponent_pos[5] = board_size - 1;
   opponent_pos[6] = board_size;
   opponent_pos[7] = board_size + 1;
-
 
   // Pattern No.1
   // ?O+?
@@ -1049,7 +1047,6 @@ UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_fea
 
   GetNeighbor4(neighbor4, pos);
 
-
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other) {
       int id = string_id[neighbor4[i]];
@@ -1079,7 +1076,7 @@ UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_fea
 double
 CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct_features )
 {
-  struct pattern *pat = game->pat;
+  pattern_t *pat = game->pat;
   int pm1 = PASS, pm2 = PASS;
   int moves = game->moves;
   int i, j, f, dis1 = -1, dis2 = -1;

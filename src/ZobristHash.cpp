@@ -14,7 +14,6 @@ unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];
 
 unsigned long long shape_bit[BOARD_MAX];  
 
-
 node_hash_t *node_hash;
 static unsigned int used;
 static int oldest_move;
@@ -24,8 +23,9 @@ unsigned int uct_hash_limit = UCT_HASH_SIZE * 9 / 10;
 
 bool enough_size;
 
+
 void
-SetHashSize(unsigned int new_size)
+SetHashSize( const unsigned int new_size )
 {
   if (!(new_size & (new_size - 1))) {
     uct_hash_size = new_size;
@@ -41,8 +41,9 @@ SetHashSize(unsigned int new_size)
 
 }
 
+
 unsigned int
-TransHash(unsigned long long hash)
+TransHash( const unsigned long long hash )
 {
   return ((hash & 0xffffffff) ^ ((hash >> 32) & 0xffffffff)) & (uct_hash_size - 1);
 }
@@ -52,7 +53,7 @@ TransHash(unsigned long long hash)
 //  bit列の初期化  //
 /////////////////////
 void
-InitializeHash(void)
+InitializeHash( void )
 {
   std::random_device rnd;
   std::mt19937_64 mt(rnd());
@@ -83,7 +84,7 @@ InitializeHash(void)
 //  UCTノードのハッシュの初期化  //
 //////////////////////////////////
 void
-InitializeUctHash(void)
+InitializeUctHash( void )
 {
   unsigned int i;
 
@@ -102,7 +103,7 @@ InitializeUctHash(void)
 //  UCTノードのハッシュ情報のクリア  //
 /////////////////////////////////////
 void
-ClearUctHash(void)
+ClearUctHash( void )
 {
   unsigned int i;
 
@@ -122,7 +123,7 @@ ClearUctHash(void)
 //  古いデータの削除  //
 ///////////////////////
 void
-DeleteOldHash(game_info_t *game)
+DeleteOldHash( const game_info_t *game )
 {
   unsigned int i;
 
@@ -142,13 +143,14 @@ DeleteOldHash(game_info_t *game)
   enough_size = true;
 }
 
+
 //////////////////////////////////////
 //  未使用のインデックスを探して返す  //
 //////////////////////////////////////
 unsigned int
-SearchEmptyIndex(unsigned long long hash, int color, int moves)
+SearchEmptyIndex( const unsigned long long hash, const int color, const int moves )
 {
-  unsigned int key = TransHash(hash);
+  const unsigned int key = TransHash(hash);
   unsigned int i = key;
 
   do {
@@ -168,13 +170,14 @@ SearchEmptyIndex(unsigned long long hash, int color, int moves)
   return uct_hash_size;
 }
 
+
 ////////////////////////////////////////////
 //  ハッシュ値に対応するインデックスを返す  //
 ////////////////////////////////////////////
 unsigned int
-FindSameHashIndex(unsigned long long hash, int color, int moves)
+FindSameHashIndex( const unsigned long long hash, const int color, const int moves)
 {
-  unsigned int key = TransHash(hash);
+  const unsigned int key = TransHash(hash);
   unsigned int i = key;
 
   do {

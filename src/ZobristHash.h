@@ -11,7 +11,6 @@ enum hash{
   HASH_KO,
 };
 
-
 const unsigned int UCT_HASH_SIZE = 16384;
 
 typedef struct {
@@ -20,7 +19,6 @@ typedef struct {
   int moves;
   bool flag;
 } node_hash_t;
-
 
 //  bit列
 extern unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];  
@@ -31,7 +29,7 @@ extern node_hash_t *node_hash;
 extern unsigned int uct_hash_size; 
 
 //  ハッシュテーブルのサイズの設定
-void SetHashSize( unsigned int new_size );
+void SetHashSize( const unsigned int new_size );
 
 //  bit列の初期化
 void InitializeHash( void );
@@ -43,13 +41,13 @@ void InitializeUctHash( void );
 void ClearUctHash( void );
 
 //  古いデータの削除
-void DeleteOldHash( game_info_t *game );
+void DeleteOldHash( const game_info_t *game );
 
 //  未使用のインデックスを探す
-unsigned int SearchEmptyIndex( unsigned long long hash, int color, int moves );
+unsigned int SearchEmptyIndex( const unsigned long long hash, const int color, const int moves );
 
 //  ハッシュ値に対応するインデックスを返す
-unsigned int FindSameHashIndex( unsigned long long hash, int color, int moves );
+unsigned int FindSameHashIndex( const unsigned long long hash, const int color, const int moves );
 
 //  ハッシュ表が埋まっていないか確認
 bool CheckRemainingHashSize( void );

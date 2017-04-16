@@ -78,7 +78,7 @@ const unsigned long long random_bitstrings[BIT_MAX][S_MAX] = {
 //  パターンのハッシュ関数  //
 /////////////////////////////
 void
-PatternHash( struct pattern *pat, pattern_hash_t *hash_pat )
+PatternHash( pattern_t *pat, pattern_hash_t *hash_pat )
 {
   int i;
   unsigned int md2_transp[16];

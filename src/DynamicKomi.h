@@ -18,7 +18,6 @@ const int LINEAR_THRESHOLD = 200;
 // 置き石1子あたりの重み
 const int HANDICAP_WEIGHT = 8;
 
-
 enum DYNAMIC_KOMI_MODE {
   DK_OFF,
   DK_LINEAR,
@@ -30,18 +29,12 @@ enum DYNAMIC_KOMI_MODE {
 ////////////////
 
 // 置き石の個数の設定
-void SetHandicapNum( int num );
+void SetHandicapNum( const int num );
 
 // 置き石の個数の設定(テスト対局用)
-void SetConstHandicapNum( int num );
+void SetConstHandicapNum( const int num );
 
 // Dynamic Komi
-void DynamicKomi( game_info_t *game, uct_node_t *root, int color );
-
-// コミの値を直線的に減らすDynamic Komi
-void LinearHandicap( game_info_t *game );
-
-// 勝率に基づいてコミの値を変更するDynamic Komi
-void ValueSituational( uct_node_t *root, int color );
+void DynamicKomi( const game_info_t *game, const uct_node_t *root, const int color );
 
 #endif
