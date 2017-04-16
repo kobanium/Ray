@@ -7,18 +7,16 @@
 
 using namespace std;
 
-
-
 //////////////////
 //  セキの判定  //
 //////////////////
 void
-CheckSeki( game_info_t *game, bool seki[] )
+CheckSeki( const game_info_t *game, bool seki[] )
 {
   int i, j, k, pos, id;
-  char *board = game->board;
-  int *string_id = game->string_id;
-  string_t *string = game->string;
+  const char *board = game->board;
+  const int *string_id = game->string_id;
+  const string_t *string = game->string;
   bool seki_candidate[BOARD_MAX] = {false};
   int lib1, lib2;
   int lib1_id[4], lib2_id[4], lib1_ids, lib2_ids;

@@ -6,6 +6,7 @@
 #include "Nakade.h"
 #include "Pattern.h"
 #include "Point.h"
+#include "ZobristHash.h"
 
 using namespace std;
 
@@ -150,6 +151,18 @@ const unsigned int nakade_mask[446][2] = {
 };
 
 
+////////////
+//  関数  //
+////////////
+
+// ナカデになっている座標を返す
+static int FindNakadePos( const game_info_t *game, const int pos, const int color );
+
+// キューの操作
+static void InitializeNakadeQueue( nakade_queue_t *nq );
+static void Enqueue( nakade_queue_t *nq, int pos );
+static int Dequeue( nakade_queue_t *nq );
+static bool IsQueueEmpty( const nakade_queue_t *nq );
 
 //////////////
 //  初期化  //
@@ -454,11 +467,11 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
 ////////////////////////////////////////////////
 //  直前の着手でナカデの形が現れているか確認  //
 ////////////////////////////////////////////////
-int
-FindNakadePos( game_info_t *game, int pos, int color )
+static int
+FindNakadePos( const game_info_t *game, const int pos, const int color )
 {
   nakade_queue_t nakade_queue;
-  char *board = game->board;
+  const char *board = game->board;
   int size = 0;
   bool flag[BOARD_MAX] = { false };  
   int current_pos;
@@ -603,7 +616,7 @@ CheckRemovedStoneNakade( game_info_t *game, int color )
 }
 
 
-void
+static void
 Enqueue( nakade_queue_t *nq, int pos )
 {
   nq->pos[nq->tail++] = pos;
@@ -617,7 +630,7 @@ Enqueue( nakade_queue_t *nq, int pos )
 }
 
 
-int
+static int
 Dequeue( nakade_queue_t *nq )
 {
   int pos;
@@ -635,15 +648,15 @@ Dequeue( nakade_queue_t *nq )
 }
 
 
-void
+static void
 InitializeNakadeQueue( nakade_queue_t *nq )
 {
   nq->head = nq->tail = 0;
 }
 
 
-bool
-IsQueueEmpty( nakade_queue_t *nq )
+static bool
+IsQueueEmpty( const nakade_queue_t *nq )
 {
   return nq->head == nq->tail;
 }

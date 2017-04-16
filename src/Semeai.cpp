@@ -18,10 +18,10 @@ game_info_t capture_game;
 //  1手で取れるか確認  //
 /////////////////////////
 bool
-IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos )
+IsCapturableAtari( const game_info_t *game, const int pos, const int color, const int opponent_pos )
 {
   string_t *string;
-  int *string_id;
+  const int *string_id;
   int other = FLIP_COLOR(color);
   int neighbor;
   int id;
@@ -71,11 +71,11 @@ IsCapturableAtari( game_info_t *game, int pos, int color, int opponent_pos )
 ////////////////////////////////
 // 返り値がintとboolの違いだけでIsCapturableAtari関数と同じ
 int
-CheckOiotoshi( game_info_t *game, int pos, int color, int opponent_pos )
+CheckOiotoshi( const game_info_t *game, const int pos, const int color, const int opponent_pos )
 {
   string_t *string;
   int *string_id;
-  int other = FLIP_COLOR(color);
+  const int other = FLIP_COLOR(color);
   int neighbor;
   int id, num = -1;
 
@@ -114,9 +114,9 @@ CheckOiotoshi( game_info_t *game, int pos, int color, int opponent_pos )
 //  石をすぐに捕獲できそうな候補手を求める  //
 //////////////////////////////////////////////
 int
-CapturableCandidate( game_info_t *game, int id )
+CapturableCandidate( const game_info_t *game, const int id )
 {
-  string_t *string = game->string;
+  const string_t *string = game->string;
   int neighbor = string[id].neighbor[0];
   bool flag = false;
   int capturable_pos = -1;
@@ -145,12 +145,11 @@ CapturableCandidate( game_info_t *game, int id )
 //  すぐに捕まる手かどうかを判定  //
 ////////////////////////////////////
 bool
-IsDeadlyExtension( game_info_t *game, int color, int id )
+IsDeadlyExtension( const game_info_t *game, const int color, const int id )
 {
   game_info_t search_game;
-  int other = FLIP_COLOR(color);
+  const int other = FLIP_COLOR(color);
   int pos = game->string[id].lib[0];
-  bool flag = false;
 
   if (nb4_empty[Pat3(game->pat, pos)] == 0 &&
       IsSuicide(game, game->string, other, pos)) {
@@ -161,11 +160,10 @@ IsDeadlyExtension( game_info_t *game, int color, int id )
   PutStone(&search_game, pos, other);
 
   if (search_game.string[search_game.string_id[pos]].libs == 1) {
-    flag = true;
+    return true;
+  } else {
+    return false;
   }
-
-
-  return flag;
 }
 
 
@@ -173,9 +171,9 @@ IsDeadlyExtension( game_info_t *game, int color, int id )
 //  隣接する敵連が取れるかを判定  //
 ////////////////////////////////////
 bool
-IsCapturableNeighborNone(game_info_t *game, int id)
+IsCapturableNeighborNone( const game_info_t *game, const int id )
 {
-  string_t *string = game->string;
+  const string_t *string = game->string;
   int neighbor = string[id].neighbor[0];
 
   while (neighbor != NEIGHBOR_END) {
@@ -193,10 +191,10 @@ IsCapturableNeighborNone(game_info_t *game, int id)
 //  自己アタリになるトリか判定  //
 /////////////////////////////////
 bool
-IsSelfAtariCapture( game_info_t *game, int pos, int color, int id )
+IsSelfAtariCapture( const game_info_t *game, const int pos, const int color, const int id )
 {
   string_t *string;
-  int string_pos = game->string[id].origin;
+  const int string_pos = game->string[id].origin;
   int *string_id;
 
   if (!IsLegal(game, pos, color)) {
@@ -220,12 +218,12 @@ IsSelfAtariCapture( game_info_t *game, int pos, int color, int id )
 //  呼吸点がどのように変化するかを確認  //
 ////////////////////////////////////////
 int
-CheckLibertyState( game_info_t *game, int pos, int color, int id )
+CheckLibertyState( const game_info_t *game, const int pos, const int color, const int id )
 {
   string_t *string;
-  int string_pos = game->string[id].origin;
+  const int string_pos = game->string[id].origin;
   int *string_id;
-  int libs = game->string[id].libs;
+  const int libs = game->string[id].libs;
   int new_libs;
 
   if (!IsLegal(game, pos, color)) {
@@ -254,12 +252,12 @@ CheckLibertyState( game_info_t *game, int pos, int color, int id )
 //  1手で取れるかを判定(シミュレーション用)  //
 ///////////////////////////////////////////////
 bool
-IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
+IsCapturableAtariForSimulation( const game_info_t *game, const int pos, const int color, const int id )
 {
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int other = FLIP_COLOR(color);
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
   int lib;
   bool neighbor = false;
   int index_distance;
@@ -356,12 +354,12 @@ IsCapturableAtariForSimulation( game_info_t *game, int pos, int color, int id )
 
 
 bool
-IsSelfAtariCaptureForSimulation( game_info_t *game, int pos, int color, int lib )
+IsSelfAtariCaptureForSimulation( const game_info_t *game, const int pos, const int color, const int lib )
 {
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int other = FLIP_COLOR(color);
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
   int id;
   int size = 0;
 
@@ -426,12 +424,12 @@ IsSelfAtariCaptureForSimulation( game_info_t *game, int pos, int color, int lib 
 }
 
 bool
-IsSelfAtari( game_info_t *game, int color, int pos )
+IsSelfAtari( const game_info_t *game, const int color, const int pos )
 {
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int other = FLIP_COLOR(color);
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
   int already[4] = { 0 };
   int already_num = 0;
   int lib, count = 0, libs = 0;
@@ -442,8 +440,8 @@ IsSelfAtari( game_info_t *game, int color, int pos )
 
   // 上下左右が空点なら呼吸点の候補に入れる
   if (board[NORTH(pos)] == S_EMPTY) lib_candidate[libs++] = NORTH(pos);
-  if (board[WEST(pos)] == S_EMPTY) lib_candidate[libs++] = WEST(pos);
-  if (board[EAST(pos)] == S_EMPTY) lib_candidate[libs++] = EAST(pos);
+  if (board[ WEST(pos)] == S_EMPTY) lib_candidate[libs++] =  WEST(pos);
+  if (board[ EAST(pos)] == S_EMPTY) lib_candidate[libs++] =  EAST(pos);
   if (board[SOUTH(pos)] == S_EMPTY) lib_candidate[libs++] = SOUTH(pos);
 
   //  空点
@@ -581,10 +579,10 @@ IsSelfAtari( game_info_t *game, int color, int pos )
 
 
 bool 
-IsAlreadyCaptured( game_info_t *game, int color, int id, int player_id[], int player_ids )
+IsAlreadyCaptured( const game_info_t *game, const int color, const int id, int player_id[], int player_ids )
 {
-  string_t *string = game->string;
-  int *string_id = game->string_id;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
   int lib1, lib2;
   bool checked;
   int neighbor4[4];
