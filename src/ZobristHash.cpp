@@ -14,7 +14,6 @@ unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];
 
 unsigned long long shape_bit[BOARD_MAX];  
 
-
 node_hash_t *node_hash;
 static unsigned int used;
 static int oldest_move;
@@ -23,6 +22,7 @@ unsigned int uct_hash_size = UCT_HASH_SIZE;
 unsigned int uct_hash_limit = UCT_HASH_SIZE * 9 / 10;
 
 bool enough_size;
+
 
 void
 SetHashSize(unsigned int new_size)
@@ -40,6 +40,7 @@ SetHashSize(unsigned int new_size)
   }
 
 }
+
 
 unsigned int
 TransHash(unsigned long long hash)
@@ -142,6 +143,7 @@ DeleteOldHash(game_info_t *game)
   enough_size = true;
 }
 
+
 //////////////////////////////////////
 //  未使用のインデックスを探して返す  //
 //////////////////////////////////////
@@ -167,6 +169,7 @@ SearchEmptyIndex(unsigned long long hash, int color, int moves)
 
   return uct_hash_size;
 }
+
 
 ////////////////////////////////////////////
 //  ハッシュ値に対応するインデックスを返す  //
