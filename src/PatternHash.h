@@ -25,15 +25,9 @@ typedef struct _index_hash {
 ////////////
 
 //  パターンのハッシュ関数
-void PatternHash( pattern_t *pat, pattern_hash_t *hash_pat );
-
-//  パターンのハッシュ関数
-unsigned long long MD2Hash( unsigned int md2 );
-unsigned long long MD3Hash( unsigned int md3 );
-unsigned long long MD4Hash( unsigned int md4 );
-unsigned long long MD5Hash( unsigned long long int md5 );
+void PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat );
 
 //  インデックスを探索
-int SearchIndex( index_hash_t *index, unsigned long long hash );
+int SearchIndex( const index_hash_t *index, const unsigned long long hash );
 
 #endif	// _PATTTERNHASH_H_ 

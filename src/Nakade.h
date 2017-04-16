@@ -1,8 +1,7 @@
 #ifndef _NAKADE_H_
 #define _NAKADE_H_
 
-#include "ZobristHash.h"
-
+#include "GoBoard.h"
 
 ////////////
 //  定数  //
@@ -20,7 +19,9 @@ typedef struct {
   int head, tail;
 } nakade_queue_t;
 
-
+////////////
+//  関数  //
+////////////
 // ナカデのハッシュの初期設定
 void InitializeNakadeHash( void );
 
@@ -40,16 +41,6 @@ void SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos );
 // なければ, -1を返す
 int CheckRemovedStoneNakade( game_info_t *game, int color );
 
-// ナカデになっている座標を返す
-int FindNakadePos( game_info_t *game, int pos, int color );
 
-// キューの操作
-void InitializeNakadeQueue( nakade_queue_t *nq );
-void Enqueue( nakade_queue_t *nq, int pos );
-int Dequeue( nakade_queue_t *nq );
-bool IsQueueEmpty( nakade_queue_t *nq );
-
-// DEBUG用
-void PrintNotNakadePat( void );
 
 #endif
