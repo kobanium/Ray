@@ -534,8 +534,19 @@ GTP_fixed_handicap( void )
   char *command;
   int num;
   char buf[1024];
-  int handi[9];
-
+  char pos[5];
+  int handicap[9];
+  const int place_index[8][9] = {
+    {2, 6},
+    {0, 2, 6},
+    {0, 2, 6, 8},
+    {0, 2, 4, 6, 8},
+    {0, 2, 3, 5, 6, 8},
+    {0, 2, 3, 4, 5, 6, 8},
+    {0, 1, 2, 3, 5, 6, 7, 8},
+    {0, 1, 2, 3, 4, 5, 6, 7, 8},
+  };
+  
   command = STRTOK(NULL, DELIM, &next_token);
   
 #if defined (_WIN32)
@@ -546,164 +557,32 @@ GTP_fixed_handicap( void )
   snprintf(buf, 1024, " ");
 #endif
 
-  handi[0] = POS(board_start + 3, board_start + 3);
-  handi[1] = POS(board_start + 9, board_start + 3);
-  handi[2] = POS(board_start + 15, board_start + 3);
-  handi[3] = POS(board_start + 3, board_start + 9);
-  handi[4] = POS(board_start + 9, board_start + 9);
-  handi[5] = POS(board_start + 15, board_start + 9);
-  handi[6] = POS(board_start + 3, board_start + 15);
-  handi[7] = POS(board_start + 9, board_start + 15);
-  handi[8] = POS(board_start + 15, board_start + 15);
-  
-  switch (num) {
-    case 2:
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d",
-		GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d",
-	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
-#endif
-      break;
-    case 3:
-      PutStone(game, handi[0], S_BLACK);
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d %c%d",
-		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-		GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d %c%d",
-	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]));
-#endif
-      break;
-    case 4:
-      PutStone(game, handi[0], S_BLACK);
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-      PutStone(game, handi[8], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d %c%d %c%d",
-		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d",
-	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#endif
-      break;
-    case 5:
-      PutStone(game, handi[0], S_BLACK);
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[4], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-      PutStone(game, handi[8], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d %c%d %c%d %c%d", GOGUI_X(handi[0]), GOGUI_Y(handi[0]),
-		GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[4]), GOGUI_Y(handi[4]),
-		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d", GOGUI_X(handi[0]), GOGUI_Y(handi[0]),
-	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[4]), GOGUI_Y(handi[4]),
-	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#endif
-      break;
-    case 6:
-      PutStone(game, handi[0], S_BLACK);
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[3], S_BLACK);
-      PutStone(game, handi[5], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-      PutStone(game, handi[8], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d",
-		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-		GOGUI_X(handi[3]), GOGUI_Y(handi[3]), GOGUI_X(handi[5]), GOGUI_Y(handi[5]),
-		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d",
-	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-	      GOGUI_X(handi[3]), GOGUI_Y(handi[3]), GOGUI_X(handi[5]), GOGUI_Y(handi[5]),
-	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#endif
-      break;
-    case 7:
-      PutStone(game, handi[0], S_BLACK);
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[3], S_BLACK);
-      PutStone(game, handi[4], S_BLACK);
-      PutStone(game, handi[5], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-      PutStone(game, handi[8], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d",
-		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-		GOGUI_X(handi[3]), GOGUI_Y(handi[3]), GOGUI_X(handi[4]), GOGUI_Y(handi[4]),
-		GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
-		GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d",
-	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[2]), GOGUI_Y(handi[2]),
-	      GOGUI_X(handi[3]), GOGUI_Y(handi[3]), GOGUI_X(handi[4]), GOGUI_Y(handi[4]),
-	      GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
-	      GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#endif
-      break;
-    case 8:
-      PutStone(game, handi[0], S_BLACK);
-      PutStone(game, handi[1], S_BLACK);
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[3], S_BLACK);
-      PutStone(game, handi[5], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-      PutStone(game, handi[7], S_BLACK);
-      PutStone(game, handi[8], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
-		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[1]), GOGUI_Y(handi[2]),
-		GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[3]), GOGUI_Y(handi[3]),
-		GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
-		GOGUI_X(handi[7]), GOGUI_Y(handi[7]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
-	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[1]), GOGUI_Y(handi[2]),
-	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[3]), GOGUI_Y(handi[3]),
-	      GOGUI_X(handi[5]), GOGUI_Y(handi[5]), GOGUI_X(handi[6]), GOGUI_Y(handi[6]),
-	      GOGUI_X(handi[7]), GOGUI_Y(handi[7]), GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#endif
-      break;
-    case 9:
-      PutStone(game, handi[0], S_BLACK);
-      PutStone(game, handi[1], S_BLACK);
-      PutStone(game, handi[2], S_BLACK);
-      PutStone(game, handi[3], S_BLACK);
-      PutStone(game, handi[4], S_BLACK);
-      PutStone(game, handi[5], S_BLACK);
-      PutStone(game, handi[6], S_BLACK);
-      PutStone(game, handi[7], S_BLACK);
-      PutStone(game, handi[8], S_BLACK);
-#if defined (_WIN32)
-      sprintf_s(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
-		GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[1]), GOGUI_Y(handi[1]),
-		GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[3]), GOGUI_Y(handi[3]),
-		GOGUI_X(handi[4]), GOGUI_Y(handi[4]), GOGUI_X(handi[5]), GOGUI_Y(handi[5]),
-		GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[7]), GOGUI_Y(handi[7]),
-		GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#else
-      snprintf(buf, 1024, "%c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d %c%d",
-	      GOGUI_X(handi[0]), GOGUI_Y(handi[0]), GOGUI_X(handi[1]), GOGUI_Y(handi[1]),
-	      GOGUI_X(handi[2]), GOGUI_Y(handi[2]), GOGUI_X(handi[3]), GOGUI_Y(handi[3]),
-	      GOGUI_X(handi[4]), GOGUI_Y(handi[4]), GOGUI_X(handi[5]), GOGUI_Y(handi[5]),
-	      GOGUI_X(handi[6]), GOGUI_Y(handi[6]), GOGUI_X(handi[7]), GOGUI_Y(handi[7]),
-	      GOGUI_X(handi[8]), GOGUI_Y(handi[8]));
-#endif
-      break;
+  if (num < 2 || 9 < num) {
+    GTP_response(brank, false);
+    return ;
   }
+
+  handicap[0] = POS(board_start +  3, board_start +  3);
+  handicap[1] = POS(board_start +  9, board_start +  3);
+  handicap[2] = POS(board_start + 15, board_start +  3);
+  handicap[3] = POS(board_start +  3, board_start +  9);
+  handicap[4] = POS(board_start +  9, board_start +  9);
+  handicap[5] = POS(board_start + 15, board_start +  9);
+  handicap[6] = POS(board_start +  3, board_start + 15);
+  handicap[7] = POS(board_start +  9, board_start + 15);
+  handicap[8] = POS(board_start + 15, board_start + 15);
+
+  for (int i = 0; i < num; i++) {
+    PutStone(game, handicap[place_index[num - 2][i]], S_BLACK);
+#if defined (_WIN32)
+    sprintf_s(pos, 5, "%c%d ", GOGUI_X(handicap[place_index[num - 2][i]]), GOGUI_Y(handicap[place_index[num - 2][i]]));
+    strncat(buf, 1024, pos);
+#else
+    snprintf(pos, 5, "%c%d ", GOGUI_X(handicap[place_index[num - 2][i]]), GOGUI_Y(handicap[place_index[num - 2][i]]));
+    strncat(buf, pos, 5);
+#endif
+  }
+  
   SetKomi(0.5);
   SetHandicapNum(num);
   GTP_response(buf, true);

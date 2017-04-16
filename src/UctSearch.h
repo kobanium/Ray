@@ -14,7 +14,6 @@ const int CONST_PLAYOUT = 10000;        // 1手あたりのプレイアウト回
 const double CONST_TIME = 10.0;         // 1手あたりの思考時間(デフォルト)
 const int PLAYOUT_SPEED = 1000;         // 初期盤面におけるプレイアウト速度
 
-
 // 思考時間の割り振り
 const int TIME_RATE_9 = 20;
 const int TIME_C_13 = 30;

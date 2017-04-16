@@ -806,7 +806,6 @@ UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_feature
     tactical_features1[rm1] |= uct_mask[UCT_THROW_IN_2];
   }
 
-
   for (i = 0, connect = 0; i < 4; i++) {
     if ((game->board[rm2 + cross[i]] & color) == color) {
       connect++;
@@ -875,7 +874,6 @@ UctCheckKeimaTsukekoshi(game_info_t *game, int color, int pos, uct_features_t *u
   opponent_pos[5] = board_size - 1;
   opponent_pos[6] = board_size;
   opponent_pos[7] = board_size + 1;
-
 
   // Pattern No.1
   // ?O+?
@@ -1048,7 +1046,6 @@ UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_fea
   int i, neighbor4[4];
 
   GetNeighbor4(neighbor4, pos);
-
 
   for (i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other) {
