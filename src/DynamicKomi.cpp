@@ -8,9 +8,9 @@
 using namespace std;
 
 // コミの値を直線的に減らすDynamic Komi
-static void LinearHandicap( game_info_t *game );
+static void LinearHandicap( const game_info_t *game );
 // 勝率に基づいてコミの値を変更するDynamic Komi
-static void ValueSituational( uct_node_t *root, int color );
+static void ValueSituational( const uct_node_t *root, const int color );
 
 
 // 置き石の数
@@ -25,7 +25,7 @@ enum DYNAMIC_KOMI_MODE dk_mode = DK_OFF;
 //  置き石の数の設定  //
 ////////////////////////
 void
-SetConstHandicapNum( int num )
+SetConstHandicapNum( const int num )
 {
   const_handicap_num = num;
 }
@@ -35,7 +35,7 @@ SetConstHandicapNum( int num )
 //  置き石の数の設定  //
 ////////////////////////
 void
-SetHandicapNum( int num )
+SetHandicapNum( const int num )
 {
   if (const_handicap_num == 0) {
     handicap_num = num;
@@ -57,7 +57,7 @@ SetHandicapNum( int num )
 //  Dynamic Komi  //
 ////////////////////
 void
-DynamicKomi( game_info_t *game, uct_node_t *root, int color )
+DynamicKomi( const game_info_t *game, const uct_node_t *root, const int color )
 {
   if (handicap_num != 0) {
     switch(dk_mode) {
@@ -78,7 +78,7 @@ DynamicKomi( game_info_t *game, uct_node_t *root, int color )
 //  最初にコミを多めに見積もって徐々に減らしていく  //
 ////////////////////////////////////////////////////
 static void
-LinearHandicap( game_info_t *game )
+LinearHandicap( const game_info_t *game )
 {
   double new_komi;
 
@@ -102,7 +102,7 @@ LinearHandicap( game_info_t *game )
 //  勝率に応じてコミの値を変動  //
 //////////////////////////////////
 static void
-ValueSituational( uct_node_t *root, int color )
+ValueSituational( const uct_node_t *root, const int color )
 {
   double win_rate = (double)root->win / root->move_count;
 

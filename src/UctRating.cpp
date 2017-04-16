@@ -1076,7 +1076,7 @@ UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_fea
 double
 CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct_features )
 {
-  struct pattern *pat = game->pat;
+  pattern_t *pat = game->pat;
   int pm1 = PASS, pm2 = PASS;
   int moves = game->moves;
   int i, j, f, dis1 = -1, dis2 = -1;

@@ -120,11 +120,11 @@ static unsigned long long large_mask[][3] = {
 //  初期設定  //
 ////////////////
 void
-ClearPattern( struct pattern *pat )
+ClearPattern( pattern_t *pat )
 {
   int y;
 
-  memset(pat, 0, sizeof(struct pattern) * board_max); 
+  memset(pat, 0, sizeof(pattern_t) * board_max); 
 
   for (y = board_start; y <= board_end; y++){
     // 1線
@@ -222,7 +222,7 @@ ClearPattern( struct pattern *pat )
 
 //  3x3
 void
-UpdatePat3Empty( struct pattern *pat, int pos )
+UpdatePat3Empty( pattern_t *pat, int pos )
 {
   pat[pos + NW].list[MD_2] &= 0xFF3FFF;
   pat[pos +  N].list[MD_2] &= 0xFFCFFF;
@@ -235,7 +235,7 @@ UpdatePat3Empty( struct pattern *pat, int pos )
 }
 
 void
-UpdatePat3Stone( struct pattern *pat, int color, int pos )
+UpdatePat3Stone( pattern_t *pat, int color, int pos )
 {
   pat[pos + NW].list[MD_2] |= update_mask[0][color];
   pat[pos +  N].list[MD_2] |= update_mask[1][color];
@@ -249,7 +249,7 @@ UpdatePat3Stone( struct pattern *pat, int color, int pos )
 
 //  md2
 void
-UpdateMD2Empty( struct pattern *pat, int pos )
+UpdateMD2Empty( pattern_t *pat, int pos )
 {
   pat[pos + NW].list[MD_2] &= 0xFF3FFF;
   pat[pos +  N].list[MD_2] &= 0xFFCFFF;
@@ -266,7 +266,7 @@ UpdateMD2Empty( struct pattern *pat, int pos )
 }
 
 void
-UpdateMD2Stone( struct pattern *pat, int color, int pos )
+UpdateMD2Stone( pattern_t *pat, int color, int pos )
 {
   pat[pos + NW].list[MD_2] |= update_mask[0][color];
   pat[pos +  N].list[MD_2] |= update_mask[1][color];
@@ -284,7 +284,7 @@ UpdateMD2Stone( struct pattern *pat, int color, int pos )
 
 //  全部
 void
-UpdatePatternEmpty( struct pattern *pat, int pos )
+UpdatePatternEmpty( pattern_t *pat, int pos )
 {
   //  3x3 
   pat[pos + NW].list[MD_2] &= 0xFF3FFF;
@@ -358,7 +358,7 @@ UpdatePatternEmpty( struct pattern *pat, int pos )
 }
 
 void
-UpdatePatternStone( struct pattern *pat, int color, int pos )
+UpdatePatternStone( pattern_t *pat, int color, int pos )
 {
   //  3x3 
   pat[pos + NW].list[MD_2] |= update_mask[0][color];
@@ -620,35 +620,35 @@ MD5Transpose16( unsigned long long md5, unsigned long long *transp )
 
 //  3x3
 unsigned int
-Pat3Reverse( unsigned int pat3 )
+Pat3Reverse( const unsigned int pat3 )
 {
   return ((pat3 >> 1) & 0x5555) | ((pat3 & 0x5555) << 1);
 }
 
 //  md2
 unsigned int
-MD2Reverse( unsigned int md2 )
+MD2Reverse( const unsigned int md2 )
 {
   return ((md2 >> 1) & 0x555555) | ((md2 & 0x555555) << 1);
 }
 
 //  md3
 unsigned int
-MD3Reverse( unsigned int md3 )
+MD3Reverse( const unsigned int md3 )
 {
   return ((md3 >> 1) & 0x555555) | ((md3 & 0x555555) << 1);
 }
 
 //  md4
 unsigned int
-MD4Reverse( unsigned int md4 )
+MD4Reverse( const unsigned int md4 )
 {
   return ((md4 >> 1) & 0x55555555) | ((md4 & 0x55555555) << 1);
 }
 
 //  md5
 unsigned long long
-MD5Reverse( unsigned long long md5 )
+MD5Reverse( const unsigned long long md5 )
 {
   return ((md5 >> 1) & 0x5555555555) | ((md5 & 0x5555555555) << 1);
 }
@@ -660,14 +660,14 @@ MD5Reverse( unsigned long long md5 )
 
 //  3x3
 unsigned int
-Pat3VerticalMirror( unsigned int pat3 )
+Pat3VerticalMirror( const unsigned int pat3 )
 {
   return ((pat3 & 0xFC00) >> 10) | (pat3 & 0x03C0) | ((pat3 & 0x003F) << 10);
 }
 
 //  md2
 unsigned int
-MD2VerticalMirror( unsigned int md2 )
+MD2VerticalMirror( const unsigned int md2 )
 {
   return ((md2 & 0x00FC00) >> 10) | (md2 & 0x0003C0) | ((md2 & 0x00003F) << 10)
     | (REV2((md2 & 0x330000) >> 16) << 16)	// 9<->11
@@ -676,7 +676,7 @@ MD2VerticalMirror( unsigned int md2 )
 
 //  md3
 unsigned int
-MD3VerticalMirror( unsigned int md3 )
+MD3VerticalMirror( const unsigned int md3 )
 {
   return (REV6(md3 & 0x003003))				// 13<->19
     | (REV4((md3 & 0x000C0C) >> 2) << 2)	// 14<->18
@@ -689,7 +689,7 @@ MD3VerticalMirror( unsigned int md3 )
 
 //  md4
 unsigned int
-MD4VerticalMirror( unsigned int md4 )
+MD4VerticalMirror( const unsigned int md4 )
 {
   return (REV8(md4 & 0x00030003))					// 25<->33
     | (REV6((md4 & 0x0000C00C) >> 2) << 2)		// 26<->32
@@ -703,7 +703,7 @@ MD4VerticalMirror( unsigned int md4 )
 
 //  md5
 unsigned long long
-MD5VerticalMirror( unsigned long long md5 )
+MD5VerticalMirror( const unsigned long long md5 )
 {
   return (REV10(md5 & 0x0000300003))
     | (REV8((md5 & 0x00000C000C) >> 2) << 2)
@@ -723,7 +723,7 @@ MD5VerticalMirror( unsigned long long md5 )
 
 //  3x3
 unsigned int
-Pat3HorizontalMirror( unsigned int pat3 )
+Pat3HorizontalMirror( const unsigned int pat3 )
 {
   return (REV3((pat3 & 0xFC00) >> 10) << 10)
     | (REV((pat3 & 0x03C0) >> 6) << 6)
@@ -732,7 +732,7 @@ Pat3HorizontalMirror( unsigned int pat3 )
 
 //  md2
 unsigned int
-MD2HorizontalMirror( unsigned int md2 )
+MD2HorizontalMirror( const unsigned int md2 )
 {
   return (REV3((md2 & 0x00FC00) >> 10) << 10)
     | (REV((md2 & 0x0003C0) >> 6) << 6)
@@ -743,7 +743,7 @@ MD2HorizontalMirror( unsigned int md2 )
 
 //  md3
 unsigned int
-MD3HorizontalMirror( unsigned int md3 )
+MD3HorizontalMirror( const unsigned int md3 )
 {
   return (md3 & 0x003003)
     | (REV10((md3 & 0xC0000C) >> 2) << 2)	// 14<->24
@@ -755,7 +755,7 @@ MD3HorizontalMirror( unsigned int md3 )
 
 //  md4 
 unsigned int
-MD4HorizontalMirror( unsigned int md4 )
+MD4HorizontalMirror( const unsigned int md4 )
 {
   return (md4 & 0x00030003)
     | (REV14((md4 & 0xC000000C) >> 2) << 2)		// 26<->40
@@ -769,7 +769,7 @@ MD4HorizontalMirror( unsigned int md4 )
 
 //  md5 
 unsigned long long
-MD5HorizontalMirror( unsigned long long md5 )
+MD5HorizontalMirror( const unsigned long long md5 )
 {
   return (md5 & 0x0000300003)
     | (REV18((md5 & 0xC00000000C) >> 2) << 2)
@@ -790,7 +790,7 @@ MD5HorizontalMirror( unsigned long long md5 )
 
 // 　3x3
 unsigned int
-Pat3Rotate90( unsigned int pat3 )
+Pat3Rotate90( const unsigned int pat3 )
 {
   // 1 2 3    3 5 8
   // 4   5 -> 2   7
@@ -806,7 +806,7 @@ Pat3Rotate90( unsigned int pat3 )
 
 //  md2 
 unsigned int
-MD2Rotate90( unsigned int md2 )
+MD2Rotate90( const unsigned int md2 )
 {
   return ((md2 & 0x000003) << 10)
     | ((md2 & 0x000C0C) << 4)
@@ -819,7 +819,7 @@ MD2Rotate90( unsigned int md2 )
 
 //  md3
 unsigned int
-MD3Rotate90( unsigned int md3 )
+MD3Rotate90( const unsigned int md3 )
 {
   return ((md3 & 0x00003F) << 18)
     | ((md3 & 0xFFFFC0) >> 6);
@@ -827,7 +827,7 @@ MD3Rotate90( unsigned int md3 )
 
 //  md4
 unsigned int
-MD4Rotate90( unsigned int md4 )
+MD4Rotate90( const unsigned int md4 )
 {
   return ((md4 & 0x000000FF) << 24)
     | ((md4 & 0xFFFFFF00) >> 8);
@@ -835,7 +835,7 @@ MD4Rotate90( unsigned int md4 )
 
 //  md5
 unsigned long long
-MD5Rotate90( unsigned long long md5 )
+MD5Rotate90( const unsigned long long md5 )
 {
   return ((md5 & 0x00000003FF) << 30)
     | ((md5 & 0xFFFFFFFC00) >> 10);
@@ -847,21 +847,21 @@ MD5Rotate90( unsigned long long md5 )
 
 //  3x3 
 unsigned int
-Pat3( struct pattern *pat, int pos )
+Pat3( const pattern_t *pat, const int pos )
 {
   return (pat[pos].list[MD_2] & 0xFFFF);
 }
 
 //  md2
 unsigned int
-MD2( struct pattern *pat, int pos )
+MD2( const pattern_t *pat, const int pos )
 {
   return (pat[pos].list[MD_2]);
 }
 
 //  md3
 unsigned int
-MD3( struct pattern *pat, int pos )
+MD3( const pattern_t *pat, const int pos )
 {
   return (pat[pos].list[MD_3]);
 }
@@ -869,14 +869,14 @@ MD3( struct pattern *pat, int pos )
 
 //  md4
 unsigned int
-MD4( struct pattern *pat, int pos )
+MD4( const pattern_t *pat, const int pos )
 {
   return (pat[pos].list[MD_4]);
 }
 
 //  md5
 unsigned long long
-MD5( struct pattern *pat, int pos )
+MD5( const pattern_t *pat, const int pos )
 {
   return (pat[pos].large_list[MD_5]);
 }
@@ -887,7 +887,7 @@ MD5( struct pattern *pat, int pos )
 
 //  3x3
 void
-DisplayInputPat3( unsigned int pat3 )
+DisplayInputPat3( const unsigned int pat3 )
 {
   static char stone[] = { '+', '@', 'O', '#' };
 
@@ -899,7 +899,7 @@ DisplayInputPat3( unsigned int pat3 )
 
 //  md2
 void
-DisplayInputMD2( unsigned int md2 )
+DisplayInputMD2( const unsigned int md2 )
 {
   static char stone[] = { '+', '@', 'O', '#' };
 
@@ -913,7 +913,7 @@ DisplayInputMD2( unsigned int md2 )
 
 //  md3
 void
-DisplayInputMD3( unsigned int md3 )
+DisplayInputMD3( const unsigned int md3 )
 {
   static char stone[] = { '+', '@', 'O', '#' };
 
@@ -929,7 +929,7 @@ DisplayInputMD3( unsigned int md3 )
 
 //  md4
 void
-DisplayInputMD4( unsigned int md4 )
+DisplayInputMD4( const unsigned int md4 )
 {
   static char stone[] = { '+', '@', 'O', '#' };
 
@@ -947,7 +947,7 @@ DisplayInputMD4( unsigned int md4 )
 
 //  md5
 void
-DisplayInputMD5( unsigned long long md5 )
+DisplayInputMD5( const unsigned long long md5 )
 {
   static char stone[] = { '+', '@', 'O', '#' };
 
@@ -968,7 +968,7 @@ DisplayInputMD5( unsigned long long md5 )
 
 //  Pattern
 void
-DisplayInputPattern( struct pattern *pattern, int size )
+DisplayInputPattern( pattern_t *pattern, int size )
 {
   static char stone[] = { '+', '@', 'O', '#' };
   unsigned int md2, md3, md4;

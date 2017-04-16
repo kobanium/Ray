@@ -105,12 +105,14 @@ static void AddNeighbor( string_t *string, int id, int head );
 // 隣接する連IDの削除
 static void RemoveNeighborString( string_t *string, int id );
 
+// 隅のマガリ四目の確認
+static void CheckBentFourInTheCorner( game_info_t *game );
 
 ///////////////////////
 //  盤の大きさの設定  //
 ///////////////////////
 void
-SetBoardSize( int size )
+SetBoardSize( const int size )
 {
   int i, x, y;
 
@@ -189,7 +191,7 @@ SetBoardSize( int size )
 //  コミの値の設定  //
 //////////////////////
 void
-SetKomi( double new_komi )
+SetKomi( const double new_komi )
 {
   default_komi = new_komi;
   komi[0] = dynamic_komi[0] = default_komi;
@@ -202,7 +204,7 @@ SetKomi( double new_komi )
 //  上下左右の座標の導出  //
 ////////////////////////////
 void
-GetNeighbor4( int neighbor4[4], int pos )
+GetNeighbor4( int neighbor4[4], const int pos )
 {
   neighbor4[0] = NORTH(pos);
   neighbor4[1] =  WEST(pos);
@@ -243,7 +245,7 @@ InitializeBoard( game_info_t *game )
   int i, x, y, pos;
 
   memset(game->record, 0, sizeof(struct move) * MAX_RECORDS);
-  memset(game->pat,    0, sizeof(struct pattern) * board_max);
+  memset(game->pat,    0, sizeof(pattern_t) * board_max);
 
   fill_n(game->board, board_max, 0);              
   fill_n(game->tactical_features1, board_max, 0);
@@ -296,14 +298,14 @@ InitializeBoard( game_info_t *game )
 //  コピー  //
 //////////////
 void
-CopyGame( game_info_t *dst, game_info_t *src )
+CopyGame( game_info_t *dst, const game_info_t *src )
 {
   int i;
 
   memcpy(dst->record,             src->record,             sizeof(struct move) * MAX_RECORDS);
   memcpy(dst->prisoner,           src->prisoner,           sizeof(int) * S_MAX);
   memcpy(dst->board,              src->board,              sizeof(char) * board_max);  
-  memcpy(dst->pat,                src->pat,                sizeof(struct pattern) * board_max); 
+  memcpy(dst->pat,                src->pat,                sizeof(pattern_t) * board_max); 
   memcpy(dst->string_id,          src->string_id,          sizeof(int) * STRING_POS_MAX);
   memcpy(dst->string_next,        src->string_next,        sizeof(int) * STRING_POS_MAX);
   memcpy(dst->candidates,         src->candidates,         sizeof(bool) * board_max); 
@@ -629,7 +631,7 @@ InitializeTerritory( void )
 //  合法手判定  //
 //////////////////
 bool
-IsLegal( game_info_t *game, int pos, int color )
+IsLegal( const game_info_t *game, const int pos, const int color )
 {
   // 既に石がある
   if (game->board[pos] != S_EMPTY) {
@@ -656,7 +658,7 @@ IsLegal( game_info_t *game, int pos, int color )
 //  盤端での処理  //
 ////////////////////
 bool
-IsFalseEyeConnection( game_info_t *game, int pos, int color )
+IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
 {
   // +++++XOO#
   // +++++XO+#
@@ -796,10 +798,10 @@ IsFalseEyeConnection( game_info_t *game, int pos, int color )
 //  合法手でかつ目でないかを判定  //
 ////////////////////////////////////
 bool
-IsLegalNotEye( game_info_t *game, int pos, int color )
+IsLegalNotEye( game_info_t *game, const int pos, const int color )
 {
-  int *string_id = game->string_id;
-  string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const string_t *string = game->string;
 
   // 既に石がある
   if (game->board[pos] != S_EMPTY) {
@@ -856,11 +858,11 @@ IsLegalNotEye( game_info_t *game, int pos, int color )
 //  自殺手の判定  //
 ////////////////////
 bool
-IsSuicide( game_info_t *game, string_t *string, int color, int pos )
+IsSuicide( const game_info_t *game, const string_t *string, const int color, const int pos )
 {
-  char *board = game->board;
-  int *string_id = game->string_id;
-  int other = FLIP_COLOR(color);
+  const char *board = game->board;
+  const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
   int neighbor4[4], i;
 
   GetNeighbor4(neighbor4, pos);
@@ -1626,13 +1628,13 @@ RemoveNeighborString( string_t *string, int id )
 ///////////////////////////
 //  隅のマガリ四目の確認  //
 ///////////////////////////
-void
+static void
 CheckBentFourInTheCorner( game_info_t *game )
 {
   char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int *string_next = game->string_next;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int *string_next = game->string_next;
   int pos;
   int i;
   int id;
@@ -1687,7 +1689,7 @@ int
 CalculateScore( game_info_t *game )
 // game_info_t *game : 盤面の情報を示すポインタ
 {
-  char *board = game->board;
+  const char *board = game->board;
   int i;
   int pos;
   int color;

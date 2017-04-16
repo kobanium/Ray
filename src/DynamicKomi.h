@@ -29,12 +29,12 @@ enum DYNAMIC_KOMI_MODE {
 ////////////////
 
 // 置き石の個数の設定
-void SetHandicapNum( int num );
+void SetHandicapNum( const int num );
 
 // 置き石の個数の設定(テスト対局用)
-void SetConstHandicapNum( int num );
+void SetConstHandicapNum( const int num );
 
 // Dynamic Komi
-void DynamicKomi( game_info_t *game, uct_node_t *root, int color );
+void DynamicKomi( const game_info_t *game, const uct_node_t *root, const int color );
 
 #endif

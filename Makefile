@@ -1,5 +1,5 @@
 TARGET=ray
-CC = g++
+CXX = g++
 OPTIMIZE = -O3
 CPP11 = -std=c++11
 WARNING = -Wall
@@ -18,10 +18,10 @@ OBJS=${SRCS:.cpp=.o}
 all : ${TARGET}
 
 ${TARGET} : ${OBJS}
-	${CC} ${CFLAGS} -o $@ ${OBJS} ${LIBS}
+	${CXX} ${CFLAGS} -o $@ ${OBJS} ${LIBS}
 
 .cpp.o:
-	${CC} ${CFLAGS} -c $< -o $@
+	${CXX} ${CFLAGS} -c $< -o $@
 
 .PHONY: clean
 
