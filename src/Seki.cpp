@@ -24,7 +24,7 @@ CheckSeki( const game_info_t *game, bool seki[] )
   int neighbor4[4];
   bool already_checked;
 
-  // 双方が自己あたりになっている座標を抽出
+  // 双方が自己アタリになっている座標を抽出
   for (i = 0; i < pure_board_max; i++) {
     pos = onboard_pos[i];
     if (IsSelfAtari(game, S_BLACK, pos) &&

@@ -124,9 +124,6 @@ extern int current_root;
 extern double criticality[BOARD_MAX]; 
 
 
-// 予測読みの有無を確認
-bool IsPondered( void );
-
 // 予測読みを止める
 void StopPondering( void );
 
@@ -166,60 +163,6 @@ int UctSearchGenmove( game_info_t *game, int color );
 // 予測よみ
 void UctSearchPondering( game_info_t *game, int color );
 
-// ルートの展開
-int ExpandRoot( game_info_t *game, int color );
-
-// ノードの展開
-int ExpandNode( game_info_t *game, int color, int current );
-
-// ノードのレーティング
-void RatingNode( game_info_t *game, int color, int index );
-
-// UCT探索
-void ParallelUctSearch( thread_arg_t *arg );
-
-// UCT探索(予測読み)
-void ParallelUctSearchPondering( thread_arg_t *arg );
-
-// UCT探索(1回の呼び出しにつき, 1回の探索)
-int UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *winner );
-
-// UCB値が最大の子ノードを返す
-int SelectMaxUcbChild( int current, int color );
-
-// 各ノードの統計情報の更新
-void UpdateNodeStatistic( game_info_t *game, int winner, statistic_t *node_statistic );
-
-// 各座標の統計処理
-void Statistic( game_info_t *game, int winner );
-
-// Virtual Lossを加算
-void AddVirtualLoss( child_node_t *child, int current );
-
-// 結果の更新
-void UpdateResult( child_node_t *child, int result, int current );
-
-// 探索打ち切りの確認
-bool InterruptionCheck( void );
-
-// 思考時間を延長する処理
-bool ExtendTime( void );
-
-// Criticaliityの計算
-void CalculateCriticality( int color );
-
-// Criticality
-void CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index );
-
-// Ownershipの計算
-void CalculateOwner( int color, int count );
-
-// Ownership
-void CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistc, int color, int *index );
-
-// 次のプレイアウト回数の設定
-void CalculateNextPlayouts( game_info_t *game, int color, double best_wp, double finish_time );
-
 // UCT探索による着手生成
 int UctAnalyze( game_info_t *game, int color );
 
@@ -237,6 +180,5 @@ int UctSearchGenmoveCleanUp( game_info_t *game, int color );
 // 探索の再利用の設定
 void SetReuseSubtree( bool flag );
 
-int RateComp( const void *a, const void *b );
 
 #endif
