@@ -129,29 +129,96 @@ struct timeval begin_time;
 #endif
 
 
-///////////////////
-//
-//
+////////////
+//  関数  //
+////////////
+
+// Virtual Lossを加算
+static void AddVirtualLoss( child_node_t *child, int current );
+
+// 次のプレイアウト回数の設定
+static void CalculateNextPlayouts( game_info_t *game, int color, double best_wp, double finish_time );
+
+// Criticaliityの計算
+static void CalculateCriticality( int color );
+
+// Criticality
+static void CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index );
+
+// Ownershipの計算
+static void CalculateOwner( int color, int count );
+
+// Ownership
+static void CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistc, int color, int *index );
+
+// ノードの展開
+static int ExpandNode( game_info_t *game, int color, int current );
+
+// ルートの展開
+static int ExpandRoot( game_info_t *game, int color );
+
+// 思考時間を延長する処理
+static bool ExtendTime( void );
+
+// 候補手の初期化
+static void InitializeCandidate( child_node_t *uct_child, int pos, bool ladder );
+
+// 探索打ち切りの確認
+static bool InterruptionCheck( void );
+
+// UCT探索
+static void ParallelUctSearch( thread_arg_t *arg );
+
+// UCT探索(予測読み)
+static void ParallelUctSearchPondering( thread_arg_t *arg );
+
+// ノードのレーティング
+static void RatingNode( game_info_t *game, int color, int index );
+
+static int RateComp( const void *a, const void *b );
+
+// UCB値が最大の子ノードを返す
+static int SelectMaxUcbChild( int current, int color );
+
+// 各座標の統計処理
+static void Statistic( game_info_t *game, int winner );
+
+// UCT探索(1回の呼び出しにつき, 1回の探索)
+static int UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *winner );
+
+// 各ノードの統計情報の更新
+static void UpdateNodeStatistic( game_info_t *game, int winner, statistic_t *node_statistic );
+
+// 結果の更新
+static void UpdateResult( child_node_t *child, int result, int current );
+
+
+
+/////////////////////
+//  予測読みの設定  //
+/////////////////////
 void
-SetPonderingMode(bool flag)
+SetPonderingMode( bool flag )
 {
   pondering_mode = flag;
 }
+
 
 ////////////////////////
 //  探索モードの指定  //
 ////////////////////////
 void
-SetMode(enum SEARCH_MODE new_mode)
+SetMode( enum SEARCH_MODE new_mode )
 {
   mode = new_mode;
 }
+
 
 ///////////////////////////////////////
 //  1手あたりのプレイアウト数の指定  //
 ///////////////////////////////////////
 void
-SetPlayout(int po)
+SetPlayout( int po )
 {
   playout = po;
 }
@@ -161,7 +228,7 @@ SetPlayout(int po)
 //  1手にかける試行時間の設定  //
 /////////////////////////////////
 void
-SetConstTime(double time)
+SetConstTime( double time )
 {
   const_thinking_time = time;
 }
@@ -171,7 +238,7 @@ SetConstTime(double time)
 //  使用するスレッド数の指定  //
 ////////////////////////////////
 void
-SetThread(int new_thread)
+SetThread( int new_thread )
 {
   threads = new_thread;
 }
@@ -181,7 +248,7 @@ SetThread(int new_thread)
 //  持ち時間の設定  //
 //////////////////////
 void
-SetTime(double time)
+SetTime( double time )
 {
   default_remaining_time = time;
 }
@@ -191,7 +258,7 @@ SetTime(double time)
 //  ノード再利用の設定  //
 //////////////////////////
 void
-SetReuseSubtree(bool flag)
+SetReuseSubtree( bool flag )
 {
   reuse_subtree = flag;
 }
@@ -201,7 +268,7 @@ SetReuseSubtree(bool flag)
 //  盤の大きさに合わせたパラメータの設定  //
 ////////////////////////////////////////////
 void
-SetParameter(void)
+SetParameter( void )
 {
   if (pure_board_size < 11) {
     expand_threshold = EXPAND_THRESHOLD_9;
@@ -217,7 +284,7 @@ SetParameter(void)
 //  UCT探索の初期設定  //
 /////////////////////////
 void
-InitializeUctSearch(void)
+InitializeUctSearch( void )
 {
   int i;
 
@@ -247,7 +314,7 @@ InitializeUctSearch(void)
 //  探索設定の初期化  //
 ////////////////////////
 void
-InitializeSearchSetting(void)
+InitializeSearchSetting( void )
 {
   int i;
 
@@ -312,14 +379,9 @@ FinalizeUctSearch( void )
 }
 
 
-bool
-IsPondered()
-{
-  return pondered;
-}
 
 void
-StopPondering()
+StopPondering( void )
 {
   int i;
 
@@ -344,7 +406,7 @@ StopPondering()
 //  UCTアルゴリズムによる着手生成  //
 /////////////////////////////////////
 int
-UctSearchGenmove(game_info_t *game, int color)
+UctSearchGenmove( game_info_t *game, int color )
 {
   int i, pos;
   double finish_time;
@@ -508,7 +570,7 @@ UctSearchGenmove(game_info_t *game, int color)
 //  予測読み  //
 ///////////////
 void
-UctSearchPondering(game_info_t *game, int color)
+UctSearchPondering( game_info_t *game, int color )
 {
   int i, pos;
 
@@ -565,8 +627,8 @@ UctSearchPondering(game_info_t *game, int color)
 /////////////////////
 //  候補手の初期化  //
 /////////////////////
-void
-InitializeCandidate(child_node_t *uct_child, int pos, bool ladder)
+static void
+InitializeCandidate( child_node_t *uct_child, int pos, bool ladder )
 {
   uct_child->pos = pos;
   uct_child->move_count = 0;
@@ -582,8 +644,8 @@ InitializeCandidate(child_node_t *uct_child, int pos, bool ladder)
 /////////////////////////
 //  ルートノードの展開  //
 /////////////////////////
-int
-ExpandRoot(game_info_t *game, int color)
+static int
+ExpandRoot( game_info_t *game, int color )
 {
   unsigned int index = FindSameHashIndex(game->current_hash, color, game->moves);
   child_node_t *uct_child;
@@ -698,8 +760,8 @@ ExpandRoot(game_info_t *game, int color)
 ///////////////////
 //  ノードの展開  //
 ///////////////////
-int
-ExpandNode(game_info_t *game, int color, int current)
+static int
+ExpandNode( game_info_t *game, int color, int current )
 {
   unsigned int index = FindSameHashIndex(game->current_hash, color, game->moves);
   child_node_t *uct_child, *uct_sibling;
@@ -791,8 +853,8 @@ ExpandNode(game_info_t *game, int color, int current)
 //  ノードのレーティング             //
 //  (Progressive Wideningのために)  //
 //////////////////////////////////////
-void
-RatingNode(game_info_t *game, int color, int index)
+static void
+RatingNode( game_info_t *game, int color, int index )
 {
   int i;
   int child_num = uct_node[index].child_num;
@@ -878,16 +940,6 @@ RatingNode(game_info_t *game, int color, int index)
       max_index = i;
       max_score = score + dynamic_parameter;
     }
-
-    // ウッテガエシだったら強制的に探索候補に入れる
-    if ((uct_features.tactical_features1[pos] & uct_mask[UCT_SNAPBACK]) > 0) {
-      uct_child[i].open = true;
-    }
-
-    // オイオトシだったら強制的に探索候補に入れる
-    if ((uct_features.tactical_features1[pos] & uct_mask[UCT_OIOTOSHI]) > 0) {
-      uct_child[i].open = true;
-    }
   }
 
   // 最もγが大きい着手を探索できるようにする
@@ -900,8 +952,8 @@ RatingNode(game_info_t *game, int color, int index)
 //////////////////////////
 //  探索打ち止めの確認  //
 //////////////////////////
-bool
-InterruptionCheck(void)
+static bool
+InterruptionCheck( void )
 {
   int i;
   int max = 0, second = 0;
@@ -944,8 +996,8 @@ InterruptionCheck(void)
 ///////////////////////////
 //  思考時間延長の確認   //
 ///////////////////////////
-bool
-ExtendTime(void)
+static bool
+ExtendTime( void )
 {
   int i;
   int max = 0, second = 0;
@@ -977,8 +1029,8 @@ ExtendTime(void)
 //  並列処理で呼び出す関数     //
 //  UCTアルゴリズムを反復する  //
 /////////////////////////////////
-void
-ParallelUctSearch(thread_arg_t *arg)
+static void
+ParallelUctSearch( thread_arg_t *arg )
 {
   thread_arg_t *targ = (thread_arg_t *)arg;
   game_info_t *game;
@@ -1051,8 +1103,8 @@ ParallelUctSearch(thread_arg_t *arg)
 //  並列処理で呼び出す関数     //
 //  UCTアルゴリズムを反復する  //
 /////////////////////////////////
-void
-ParallelUctSearchPondering(thread_arg_t *arg)
+static void
+ParallelUctSearchPondering( thread_arg_t *arg )
 {
   thread_arg_t *targ = (thread_arg_t *)arg;
   game_info_t *game;
@@ -1105,8 +1157,8 @@ ParallelUctSearchPondering(thread_arg_t *arg)
 //  UCT探索を行う関数                        //
 //  1回の呼び出しにつき, 1プレイアウトする    //
 //////////////////////////////////////////////
-int 
-UctSearch(game_info_t *game, int color, mt19937_64 *mt, int current, int *winner)
+static int 
+UctSearch( game_info_t *game, int color, mt19937_64 *mt, int current, int *winner )
 {
   int result = 0, next_index;
   double score;
@@ -1178,7 +1230,7 @@ UctSearch(game_info_t *game, int color, mt19937_64 *mt, int current, int *winner
 //////////////////////////
 //  Virtual Lossの加算  //
 //////////////////////////
-void
+static void
 AddVirtualLoss(child_node_t *child, int current)
 {
 #if defined CPP11
@@ -1194,8 +1246,8 @@ AddVirtualLoss(child_node_t *child, int current)
 //////////////////////
 //  探索結果の更新  //
 /////////////////////
-void
-UpdateResult(child_node_t *child, int result, int current)
+static void
+UpdateResult( child_node_t *child, int result, int current )
 {
   atomic_fetch_add(&uct_node[current].win, result);
   atomic_fetch_add(&uct_node[current].move_count, 1 - VIRTUAL_LOSS);
@@ -1207,8 +1259,8 @@ UpdateResult(child_node_t *child, int result, int current)
 //////////////////////////
 //  ノードの並び替え用  //
 //////////////////////////
-int
-RateComp(const void *a, const void *b)
+static int
+RateComp( const void *a, const void *b )
 {
   rate_order_t *ro1 = (rate_order_t *)a;
   rate_order_t *ro2 = (rate_order_t *)b;
@@ -1222,11 +1274,11 @@ RateComp(const void *a, const void *b)
 }
 
 
-///////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 //  UCBが最大となる子ノードのインデックスを返す関数  //
-///////////////////////////////////////////////////////
-int
-SelectMaxUcbChild(int current, int color)
+/////////////////////////////////////////////////////
+static int
+SelectMaxUcbChild( int current, int color )
 {
   int i;
   child_node_t *uct_child = uct_node[current].child;
@@ -1324,8 +1376,8 @@ SelectMaxUcbChild(int current, int color)
 ///////////////////////////////////////////////////////////
 //  OwnerやCriiticalityを計算するための情報を記録する関数  //
 ///////////////////////////////////////////////////////////
-void
-Statistic(game_info_t *game, int winner)
+static void
+Statistic( game_info_t *game, int winner )
 {
   char *board = game->board;
   int i, pos, color;
@@ -1346,8 +1398,8 @@ Statistic(game_info_t *game, int winner)
 ///////////////////////////////
 //  各ノードの統計情報の更新  //
 ///////////////////////////////
-void
-UpdateNodeStatistic(game_info_t *game, int winner, statistic_t *node_statistic)
+static void
+UpdateNodeStatistic( game_info_t *game, int winner, statistic_t *node_statistic )
 {
   char *board = game->board;
   int i, pos, color;
@@ -1367,8 +1419,8 @@ UpdateNodeStatistic(game_info_t *game, int winner, statistic_t *node_statistic)
 //////////////////////////////////
 //  各ノードのCriticalityの計算  //
 //////////////////////////////////
-void
-CalculateCriticalityIndex(uct_node_t *node, statistic_t *node_statistic, int color, int *index)
+static void
+CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index )
 {
   double win, lose;
   int other = FLIP_COLOR(color);
@@ -1397,8 +1449,8 @@ CalculateCriticalityIndex(uct_node_t *node, statistic_t *node_statistic, int col
 ////////////////////////////////////
 //  Criticalityの計算をする関数   // 
 ////////////////////////////////////
-void
-CalculateCriticality(int color)
+static void
+CalculateCriticality( int color )
 {
   int i, pos;
   double tmp;
@@ -1425,7 +1477,7 @@ CalculateCriticality(int color)
 //////////////////////////////
 //  Ownerの計算をする関数   //
 //////////////////////////////
-void
+static void
 CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index )
 {
   int i, pos;
@@ -1446,7 +1498,7 @@ CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, i
 //////////////////////////////
 //  Ownerの計算をする関数   //
 //////////////////////////////
-void
+static void
 CalculateOwner( int color, int count )
 {
   int i, pos;
@@ -1463,7 +1515,7 @@ CalculateOwner( int color, int count )
 /////////////////////////////////
 //  次のプレイアウト回数の設定  //
 /////////////////////////////////
-void
+static void
 CalculateNextPlayouts( game_info_t *game, int color, double best_wp, double finish_time )
 {
   double po_per_sec;
