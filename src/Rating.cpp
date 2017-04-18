@@ -627,7 +627,6 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 }
 
 
-
 /////////////////////////////////////////
 //  呼吸点が1つの連に対する特徴の判定  //
 /////////////////////////////////////////
@@ -647,8 +646,8 @@ PoCheckFeaturesLib1( game_info_t *game, int color, int id, int *update, int *upd
 
   // 呼吸点の上下左右が敵石に接触しているか確認
   if (board[NORTH(lib)] == other) contact = true;
-  if (board[EAST(lib)] == other) contact = true;
-  if (board[WEST(lib)] == other) contact = true;
+  if (board[ EAST(lib)] == other) contact = true;
+  if (board[ WEST(lib)] == other) contact = true;
   if (board[SOUTH(lib)] == other) contact = true;
 
   // 呼吸点の上下左右が敵連に接しているか
@@ -755,9 +754,9 @@ PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *upd
   if (nb4_empty[Pat3(game->pat, lib1)] == 3 ||
       (board[NORTH(lib1)] == color && string_id[NORTH(lib1)] != id &&
        string[string_id[NORTH(lib1)]].libs >= 3) ||
-      (board[WEST(lib1)] == color && string_id[WEST(lib1)] != id &&
+      (board[ WEST(lib1)] == color && string_id[ WEST(lib1)] != id &&
        string[string_id[WEST(lib1)]].libs >= 3) ||
-      (board[EAST(lib1)] == color && string_id[EAST(lib1)] != id &&
+      (board[ EAST(lib1)] == color && string_id[ EAST(lib1)] != id &&
        string[string_id[EAST(lib1)]].libs >= 3) ||
       (board[SOUTH(lib1)] == color && string_id[SOUTH(lib1)] != id &&
        string[string_id[SOUTH(lib1)]].libs >= 3)) {
@@ -770,9 +769,9 @@ PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *upd
   if (nb4_empty[Pat3(game->pat, lib2)] == 3 ||
       (board[NORTH(lib2)] == color && string_id[NORTH(lib2)] != id &&
        string[string_id[NORTH(lib2)]].libs >= 3) ||
-      (board[WEST(lib2)] == color && string_id[WEST(lib2)] != id &&
+      (board[ WEST(lib2)] == color && string_id[ WEST(lib2)] != id &&
        string[string_id[WEST(lib2)]].libs >= 3) ||
-      (board[EAST(lib2)] == color && string_id[EAST(lib2)] != id &&
+      (board[ EAST(lib2)] == color && string_id[ EAST(lib2)] != id &&
        string[string_id[EAST(lib2)]].libs >= 3) ||
       (board[SOUTH(lib2)] == color && string_id[SOUTH(lib2)] != id &&
        string[string_id[SOUTH(lib2)]].libs >= 3)) {
@@ -856,9 +855,9 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
   if (nb4_empty[Pat3(game->pat, lib1)] == 3 ||
       (board[NORTH(lib1)] == color && string_id[NORTH(lib1)] != id &&
        string[string_id[NORTH(lib1)]].libs >= 3) ||
-      (board[WEST(lib1)] == color && string_id[WEST(lib1)] != id &&
+      (board[ WEST(lib1)] == color && string_id[ WEST(lib1)] != id &&
        string[string_id[WEST(lib1)]].libs >= 3) ||
-      (board[EAST(lib1)] == color && string_id[EAST(lib1)] != id &&
+      (board[ EAST(lib1)] == color && string_id[ EAST(lib1)] != id &&
        string[string_id[EAST(lib1)]].libs >= 3) ||
       (board[SOUTH(lib1)] == color && string_id[SOUTH(lib1)] != id &&
        string[string_id[SOUTH(lib1)]].libs >= 3)) {
@@ -871,9 +870,9 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
   if (nb4_empty[Pat3(game->pat, lib2)] == 3 ||
       (board[NORTH(lib2)] == color && string_id[NORTH(lib2)] != id &&
        string[string_id[NORTH(lib2)]].libs >= 3) ||
-      (board[WEST(lib2)] == color && string_id[WEST(lib2)] != id &&
+      (board[ WEST(lib2)] == color && string_id[ WEST(lib2)] != id &&
        string[string_id[WEST(lib2)]].libs >= 3) ||
-      (board[EAST(lib2)] == color && string_id[EAST(lib2)] != id &&
+      (board[ EAST(lib2)] == color && string_id[ EAST(lib2)] != id &&
        string[string_id[EAST(lib2)]].libs >= 3) ||
       (board[SOUTH(lib2)] == color && string_id[SOUTH(lib2)] != id &&
        string[string_id[SOUTH(lib2)]].libs >= 3)) {
@@ -886,10 +885,10 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
   if (nb4_empty[Pat3(game->pat, lib3)] == 3 ||
       (board[NORTH(lib3)] == color && string_id[NORTH(lib3)] != id &&
        string[string_id[NORTH(lib3)]].libs >= 3) ||
-      (board[WEST(lib3)] == color && string_id[WEST(lib3)] != id &&
-       string[string_id[WEST(lib3)]].libs >= 3) ||
-      (board[EAST(lib3)] == color && string_id[EAST(lib3)] != id &&
-       string[string_id[EAST(lib3)]].libs >= 3) ||
+      (board[ WEST(lib3)] == color && string_id[ WEST(lib3)] != id &&
+       string[string_id[ WEST(lib3)]].libs >= 3) ||
+      (board[ EAST(lib3)] == color && string_id[ EAST(lib3)] != id &&
+       string[string_id[ EAST(lib3)]].libs >= 3) ||
       (board[SOUTH(lib3)] == color && string_id[SOUTH(lib3)] != id &&
        string[string_id[SOUTH(lib3)]].libs >= 3)) {
     game->tactical_features2[lib3] |= po_tactical_features_mask[F_3POINT_EXTENSION_SAFELY];

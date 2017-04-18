@@ -148,7 +148,7 @@ void InitializeRating( void );
 void InitializePoTacticalFeaturesSet( void );
 
 //  着手(Elo Rating)
-int RatingMove( game_info_t *game, int color, std::mt19937_64 *mt);
+int RatingMove( game_info_t *game, int color, std::mt19937_64 *mt );
 
 //  レーティング 
 void Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate );
