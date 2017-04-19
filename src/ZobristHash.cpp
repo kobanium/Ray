@@ -31,9 +31,8 @@ SetHashSize( const unsigned int new_size )
     uct_hash_size = new_size;
     uct_hash_limit = new_size * 9 / 10;
   } else {
-    int i;
     cerr << "Hash size must be 2 ^ n" << endl;
-    for (i = 1; i <= 20; i++) {
+    for (int i = 1; i <= 20; i++) {
       cerr << "2^" << i << ":" << (1 << i) << endl;
     }
     exit(1);
@@ -57,9 +56,8 @@ InitializeHash( void )
 {
   std::random_device rnd;
   std::mt19937_64 mt(rnd());
-  int i;
 
-  for (i = 0; i < BOARD_MAX; i++) {  
+  for (int i = 0; i < BOARD_MAX; i++) {  
     hash_bit[i][HASH_PASS]  = mt();
     hash_bit[i][HASH_BLACK] = mt();
     hash_bit[i][HASH_WHITE] = mt();
@@ -86,12 +84,10 @@ InitializeHash( void )
 void
 InitializeUctHash( void )
 {
-  unsigned int i;
-
   oldest_move = 1;
   used = 0;
 
-  for (i = 0; i < uct_hash_size; i++) {
+  for (unsigned int i = 0; i < uct_hash_size; i++) {
     node_hash[i].flag = false;
     node_hash[i].hash = 0;
     node_hash[i].color = 0;
@@ -105,12 +101,10 @@ InitializeUctHash( void )
 void
 ClearUctHash( void )
 {
-  unsigned int i;
-
   used = 0;
   enough_size = true;
 
-  for (i = 0; i < uct_hash_size; i++) {
+  for (unsigned int i = 0; i < uct_hash_size; i++) {
     node_hash[i].flag = false;
     node_hash[i].hash = 0;
     node_hash[i].color = 0;
@@ -125,10 +119,8 @@ ClearUctHash( void )
 void
 DeleteOldHash( const game_info_t *game )
 {
-  unsigned int i;
-
   while (oldest_move < game->moves) {
-    for (i = 0; i < uct_hash_size; i++) {
+    for (unsigned int i = 0; i < uct_hash_size; i++) {
       if (node_hash[i].flag && node_hash[i].moves == oldest_move) {
 	node_hash[i].flag = false;
 	node_hash[i].hash = 0;
@@ -197,7 +189,7 @@ FindSameHashIndex( const unsigned long long hash, const int color, const int mov
 
 
 bool
-CheckRemainingHashSize(void)
+CheckRemainingHashSize( void )
 {
   return enough_size;
 }

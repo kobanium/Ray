@@ -89,15 +89,10 @@ static unsigned long long MD5Hash( const unsigned long long int md5 );
 void
 PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat )
 {
-  int i;
-  unsigned int md2_transp[16];
-  unsigned int md3_transp[16];
-  unsigned int md4_transp[16];
+  unsigned int md2_transp[16], md3_transp[16], md4_transp[16];
   unsigned long long md5_transp[16];
-  unsigned int tmp2, min2;
-  unsigned int tmp3, min3;
-  unsigned long long tmp4, min4;
-  unsigned long long tmp5, min5;
+  unsigned int tmp2, min2, tmp3, min3;
+  unsigned long long tmp4, min4, tmp5, min5;
   int index2, index3, index4, index5;
 
   MD2Transpose16(pat->list[MD_2], md2_transp);
@@ -112,7 +107,7 @@ PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat )
   min4 = (unsigned long long)md4_transp[0] + md3_transp[0] + md2_transp[0];
   min5 = md5_transp[0] + md4_transp[0] + md3_transp[0] + md2_transp[0];
 
-  for (i = 1; i < 16; i++) {
+  for (int i = 1; i < 16; i++) {
     tmp2 = md2_transp[i];
     if (min2 > tmp2){
       index2 = i;

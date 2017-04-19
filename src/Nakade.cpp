@@ -171,7 +171,6 @@ void
 InitializeNakadeHash( void )
 {
   int nakade3[6][3], nakade4[5][4], nakade5[9][5], nakade6[4][6];
-  int i, j;
 
   start = board_max / 2;
 
@@ -256,54 +255,54 @@ InitializeNakadeHash( void )
   nakade_pos[3][2] = board_size;
   nakade_pos[3][3] = board_size;
 
-  for (i = 0; i < NAKADE_3; i++) {
+  for (int i = 0; i < NAKADE_3; i++) {
     nakade_hash[0][i] = 0;
-    for (j = 0; j < 3; j++) {
+    for (int j = 0; j < 3; j++) {
       nakade_hash[0][i] ^= shape_bit[start + nakade3[i][j]];
     }
   }
 
-  for (i = 0; i < NAKADE_4; i++) {
+  for (int i = 0; i < NAKADE_4; i++) {
     nakade_hash[1][i] = 0;
-    for (j = 0; j < 4; j++) {
+    for (int j = 0; j < 4; j++) {
       nakade_hash[1][i] ^= shape_bit[start + nakade4[i][j]];
     }
   }
 
-  for (i = 0; i < NAKADE_5; i++) {
+  for (int i = 0; i < NAKADE_5; i++) {
     nakade_hash[2][i] = 0;
-    for (j = 0; j < 5; j++) {
+    for (int j = 0; j < 5; j++) {
       nakade_hash[2][i] ^= shape_bit[start + nakade5[i][j]];
     }
   }
 
-  for (i = 0; i < NAKADE_6; i++) {
+  for (int i = 0; i < NAKADE_6; i++) {
     nakade_hash[3][i] = 0;
-    for (j = 0; j < 6; j++) {
+    for (int j = 0; j < 6; j++) {
       nakade_hash[3][i] ^= shape_bit[start + nakade6[i][j]];
     }
   }
 
   // 初期化
-  for (i = 0; i < PAT3_MAX; i++) {
+  for (int i = 0; i < PAT3_MAX; i++) {
     nakade_pat3_mask[i] = 0xffff;
   }
 
   // ナカデが出現しないパターンの初期化
-  for (i = 0; i < 134; i++) {
+  for (int i = 0; i < 134; i++) {
     unsigned int tmp_pat3[16];
     Pat3Transpose16(nakade_none[i], tmp_pat3);
-    for (j = 0; j < 16; j++) {
+    for (int j = 0; j < 16; j++) {
       nakade_pat3_mask[tmp_pat3[j]] = 0;
     }
   }
 
   // ナカデが出現しうるパターンの初期化
-  for (i = 0; i < 446; i++) {
+  for (int i = 0; i < 446; i++) {
     unsigned int tmp_pat3[16], tmp_mask[16];
     Pat3Transpose16(nakade_mask[i][0], tmp_pat3);
     Pat3Transpose16(nakade_mask[i][1], tmp_mask);
-    for (j = 0; j < 16; j++) {
+    for (int j = 0; j < 16; j++) {
       nakade_pat3_mask[tmp_pat3[j]] = tmp_mask[j];
     }
   }
@@ -315,15 +314,15 @@ InitializeNakadeHash( void )
 //  3目, 4目, 5目ナカデのみ確認する           //
 ////////////////////////////////////////////////
 bool
-IsNakadeSelfAtari( game_info_t *game, int pos, int color )
+IsNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
 {
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int *string_next = game->string_next;
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int *string_next = game->string_next;
   int stones[10];
   int my_stone;
-  int i, j, n = 0, reviser;
+  int n = 0, reviser;
   unsigned long long hash = 0;
   int checked[4] = { 0 };
   int check = 0;
@@ -331,11 +330,11 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
   const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
 
   // 上下左右を確認し, 自分の連だったら, それぞれの石の座標を記録
-  for (i = 0 ; i < 4; i++) {
+  for (int i = 0 ; i < 4; i++) {
     if (board[neighbor4[i]] == color) {
       id = string_id[neighbor4[i]];
       bool check_flag = false;
-      for (j = 0; j < check; j++) {
+      for (int j = 0; j < check; j++) {
 	if (checked[j] == id) {
 	  check_flag = true;
 	  break;
@@ -367,7 +366,7 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
   reviser = start - stones[0];
 
   // ハッシュ値を計算
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     hash ^= shape_bit[stones[i] + reviser];
   }
 
@@ -378,7 +377,7 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
   case 3:
   case 4:
   case 5:
-    for (i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
+    for (int i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
       if (nakade_hash[n - 3][i] == hash) {
 	return true;
       }
@@ -394,15 +393,15 @@ IsNakadeSelfAtari( game_info_t *game, int pos, int color )
 //  自己アタリがナカデの形になっているかを確認  //
 //////////////////////////////////////////////////
 bool
-IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
+IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
 {
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int *string_next = game->string_next;
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int *string_next = game->string_next;
   int stones[10];
   int my_stone;
-  int i, j, n = 0, reviser;
+  int n = 0, reviser;
   unsigned long long hash = 0;
   int checked[4] = { 0 };
   int check = 0;
@@ -410,11 +409,11 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
   const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
 
   // 上下左右を確認し, 自分の連だったら, それぞれの石の座標を記録
-  for (i = 0 ; i < 4; i++) {
+  for (int i = 0 ; i < 4; i++) {
     if (board[neighbor4[i]] == color) {
       id = string_id[neighbor4[i]];
       bool check_flag = false;
-      for (j = 0; j < check; j++) {
+      for (int j = 0; j < check; j++) {
 	if (checked[j] == id) {
 	  check_flag = true;
 	  break;
@@ -440,7 +439,7 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
   reviser = start - stones[0];
 
   // ハッシュ値の計算
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     hash ^= shape_bit[stones[i] + reviser];
   }
 
@@ -452,7 +451,7 @@ IsUctNakadeSelfAtari( game_info_t *game, int pos, int color )
   case 4:
   case 5:
   case 6:
-    for (i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
+    for (int i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
       if (nakade_hash[n - 3][i] == hash) {
 	return true;
       }
@@ -478,7 +477,7 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
   int nakade[10];
   int nakade_num = 0;
   unsigned long long hash = 0;
-  int i, reviser;
+  int reviser;
   int neighbor4[4];
 
   // キューの初期化
@@ -502,7 +501,7 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
     GetNeighbor4(neighbor4, current_pos);
 
     // 上下左右について, 未確認で, 自分の石か空点なら追加
-    for (i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       if (!flag[neighbor4[i]] &&
 	  (board[neighbor4[i]] & color) == 0) {
 	Enqueue(&nakade_queue, neighbor4[i]);
@@ -522,7 +521,7 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
   reviser = start - nakade[0];
 
   // ハッシュ値の計算
-  for (i = 0; i < nakade_num; i++) {
+  for (int i = 0; i < nakade_num; i++) {
     hash ^= shape_bit[nakade[i] + reviser];
   }
 
@@ -531,7 +530,7 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
   case 3:
   case 4:
   case 5:
-    for (i = 0; i < NAKADE_PATTERNS[nakade_num - 3]; i++) {
+    for (int i = 0; i < NAKADE_PATTERNS[nakade_num - 3]; i++) {
       if (nakade_hash[nakade_num - 3][i] == hash) {
 	return nakade[0] + nakade_pos[nakade_num - 3][i];
       }
@@ -548,10 +547,10 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
 //  直前の着手でナカデがあるか確認  //
 //////////////////////////////////////
 void
-SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos )
+SearchNakade( const game_info_t *game, int *nakade_num, int *nakade_pos )
 {
-  int last_color = game->record[game->moves - 1].color;
-  int pos = game->record[game->moves - 1].pos;
+  const int last_color = game->record[game->moves - 1].color;
+  const int pos = game->record[game->moves - 1].pos;
   const unsigned int mask[2][4] = {
     {0x0004, 0x0040, 0x0100, 0x1000}, {0x0008, 0x0080, 0x0200, 0x2000},
   };
@@ -559,7 +558,7 @@ SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos )
     0x1144, 0x2288
   };
   const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
-  unsigned int pat3 = Pat3(game->pat, pos);
+  const unsigned int pat3 = Pat3(game->pat, pos);
 
   // ナカデが出現し得ないパターンなら戻る
   if ((nakade_pat3_mask[pat3] & all_mask[last_color - 1]) == 0) return;
@@ -577,11 +576,11 @@ SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos )
 //  石を取り除いた箇所がナカデになっているか確認  //
 ////////////////////////////////////////////////////
 int
-CheckRemovedStoneNakade( game_info_t *game, int color )
+CheckRemovedStoneNakade( const game_info_t *game, const int color )
 {
-  int capture_num = game->capture_num[FLIP_COLOR(color)];
-  int *capture_pos = game->capture_pos[FLIP_COLOR(color)];
-  int reviser, i;
+  const int capture_num = game->capture_num[FLIP_COLOR(color)];
+  const int *capture_pos = game->capture_pos[FLIP_COLOR(color)];
+  int reviser;
   unsigned long long hash = 0;
 
   // 捕獲した石の数が3個以上6個以下なら確認し
@@ -595,7 +594,7 @@ CheckRemovedStoneNakade( game_info_t *game, int color )
   reviser = start - capture_pos[0];
 
   // ハッシュ値の計算
-  for (i = 0; i < capture_num; i++) {
+  for (int i = 0; i < capture_num; i++) {
     hash ^= shape_bit[capture_pos[i] + reviser];
   }
 
@@ -604,7 +603,7 @@ CheckRemovedStoneNakade( game_info_t *game, int color )
   case 3:
   case 4:
   case 5:
-    for (i = 0; i < NAKADE_PATTERNS[capture_num - 3]; i++) {
+    for (int i = 0; i < NAKADE_PATTERNS[capture_num - 3]; i++) {
       if (nakade_hash[capture_num - 3][i] == hash) {
 	return capture_pos[0] + nakade_pos[capture_num - 3][i];
       }
