@@ -237,10 +237,10 @@ bool IsLegalNotEye( game_info_t *game, const int pos, const int color );
 bool IsSuicide( const game_info_t *game, const string_t *string, const int color, const int pos );
 
 // 石を置く
-void PutStone( game_info_t *game, int pos, int color );
+void PutStone( game_info_t *game, const int pos, const int color );
 
 // 石を置く(プレイアウト用)
-void PoPutStone( game_info_t *game, int pos, int color );
+void PoPutStone( game_info_t *game, const int pos, const int color );
 
 // スコアの判定
 int CalculateScore( game_info_t *game );
