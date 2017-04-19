@@ -26,19 +26,19 @@ typedef struct {
 void InitializeNakadeHash( void );
 
 // 自己アタリがナカデの形になっているか(シミュレーション用)
-bool IsNakadeSelfAtari( game_info_t *game, int pos, int color );
+bool IsNakadeSelfAtari( const game_info_t *game, const int pos, const int color );
 
 // 自己アタリがナカデの形になっているか(UCT用)
-bool IsUctNakadeSelfAtari( game_info_t *game, int pos, int color );
+bool IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color );
 
 // 直前の手で囲ったエリアにナカデの急所があるかを確認
 // ナカデの急所があれば, その座標を
 // なければ, -1を返す
-void SearchNakade( game_info_t *game, int *nakade_num, int *nakade_pos );
+void SearchNakade( const game_info_t *game, int *nakade_num, int *nakade_pos );
 
 // 直前の手で取られた石がナカデの形になっているかを確認
 // ナカデの急所があれば, その座標を返す
 // なければ, -1を返す
-int CheckRemovedStoneNakade( game_info_t *game, int color );
+int CheckRemovedStoneNakade( const game_info_t *game, const int color );
 
 #endif

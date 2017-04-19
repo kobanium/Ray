@@ -1,7 +1,6 @@
 #ifndef _ZOBRISTHASH_H_
 #define _ZOBRISTHASH_H_
 
-
 #include "GoBoard.h"
 
 enum hash{
@@ -24,8 +23,10 @@ typedef struct {
 extern unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];  
 extern unsigned long long shape_bit[BOARD_MAX];              
 
+//  UCT用ハッシュテーブル
 extern node_hash_t *node_hash;
 
+//  UCT用ハッシュテーブルのザイズ
 extern unsigned int uct_hash_size; 
 
 //  ハッシュテーブルのサイズの設定

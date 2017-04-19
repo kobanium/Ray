@@ -21,7 +21,6 @@ GetSpendTime( const clock_t start_time )
 }
 
 
-
 #if !defined (_WIN32)
 //////////////////////////////
 //  消費時間の算出(Linux用)  //

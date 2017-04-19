@@ -20,7 +20,7 @@ int
 StringToInteger( const char *cpos )
 {
   char alphabet;
-  int i, x, y, pos;
+  int x, y, pos;
 
   if (strcmp(cpos, "pass") == 0 || 
       strcmp(cpos, "PASS") == 0){
@@ -28,7 +28,7 @@ StringToInteger( const char *cpos )
   } else {
     alphabet = (char)toupper(cpos[0]);
     x = 0;
-    for (i = 1; i <= pure_board_size; i++) {
+    for (int i = 1; i <= pure_board_size; i++) {
       if (gogui_x[i] == alphabet) {
 	x = i;
       }
