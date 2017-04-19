@@ -112,8 +112,6 @@ game_info_t *game;
 void
 GTP_main( void )
 {
-  int i;
-
   game = AllocateGame();
   InitializeBoard(game);
 
@@ -125,7 +123,7 @@ GTP_main( void )
     command = STRTOK(input, DELIM, &next_token);
     CHOMP(command);
 
-    for (i = 0; i < GTP_COMMAND_NUM; i++) {
+    for (int i = 0; i < GTP_COMMAND_NUM; i++) {
       if (!strcmp(command, gtpcmd[i].command)) {
 	StopPondering();
 	(*gtpcmd[i].function)();
@@ -344,7 +342,6 @@ GTP_play( void )
 static void
 GTP_knowncommand( void )
 {
-  int i;
   char *command;
   
   command = STRTOK(NULL, DELIM, &next_token);
@@ -354,7 +351,7 @@ GTP_knowncommand( void )
     return;
   }
   CHOMP(command);
-  for (i = 0; i < GTP_COMMAND_NUM; i++){
+  for (int i = 0; i < GTP_COMMAND_NUM; i++){
     if (!strcmp(command, gtpcmd[i].command)) {
       GTP_response("true", true);
       return;
@@ -371,13 +368,12 @@ static void
 GTP_listcommands( void )
 {
   char list[2048];
-  int i, j;
-  unsigned int k;
+  int i;
 
   i = 0;
   list[i++] = '\n';
-  for (j = 0; j < GTP_COMMAND_NUM; j++) {
-    for (k = 0; k < strlen(gtpcmd[j].command); k++){
+  for (int j = 0; j < GTP_COMMAND_NUM; j++) {
+    for (unsigned int k = 0; k < strlen(gtpcmd[j].command); k++){
       list[i++] = gtpcmd[j].command[k];
     }
     list[i++] = '\n';
@@ -622,7 +618,6 @@ GTP_final_status_list( void )
   char dead[2048] = { 0 };
   char pos[5];
   int owner[BOARD_MAX]; 
-  int x, y;
   char *command;
   
   OwnerCopy(owner);
@@ -632,8 +627,8 @@ GTP_final_status_list( void )
   CHOMP(command);
   
   if (!strcmp(command, "dead")){
-    for (y = board_start; y <= board_end; y++) {
-      for (x = board_start; x <= board_end; x++) {
+    for (int y = board_start; y <= board_end; y++) {
+      for (int x = board_start; x <= board_end; x++) {
 	if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] <= 30) ||
 	    (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] >= 70)) {
 #if defined (_WIN32)
@@ -647,8 +642,8 @@ GTP_final_status_list( void )
       }
     }
   } else if (!strcmp(command, "alive")){
-    for (y = board_start; y <= board_end; y++) {
-      for (x = board_start; x <= board_end; x++) {
+    for (int y = board_start; y <= board_end; y++) {
+      for (int x = board_start; x <= board_end; x++) {
 	if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] >= 70) ||
 	    (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] <= 30)) {
 #if defined (_WIN32)

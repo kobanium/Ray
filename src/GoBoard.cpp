@@ -23,7 +23,7 @@ int board_size = BOARD_SIZE;            // 盤外を含む盤の辺の大きさ
 int board_start = BOARD_START;  // 盤の左(上)端
 int board_end = BOARD_END;      //  盤の右(下)端
 
-int first_move_candidates;
+int first_move_candidates;  // 初手の候補手の個数
 
 double komi[S_WHITE + 1];          // コミの値
 double dynamic_komi[S_WHITE + 1];  // ダイナミックコミの値
@@ -68,28 +68,28 @@ static void InitializeTerritory( void );
 
 // ダメ(pos)を連(string)に加える
 // 加えたダメ(pos)を返す
-static int AddLiberty( string_t *string, int pos, int head );
+static int AddLiberty( string_t *string, const int pos, const int head );
 
 // ダメ(pos)を連(string)から取り除く
-static void RemoveLiberty( game_info_t *game, string_t *string, int pos );
+static void RemoveLiberty( game_info_t *game, string_t *string, const int pos );
 
 // ダメ(pos)を連(string)から取り除く
-static void PoRemoveLiberty( game_info_t *game, string_t *string, int pos, int color );
+static void PoRemoveLiberty( game_info_t *game, string_t *string, const int pos, const int color );
 
 // 石1つの連を作る
-static void MakeString( game_info_t *game, int pos, int color );
+static void MakeString( game_info_t *game, const int pos, const int color );
 
 // 連と1つの石の接続
 static void AddStone( game_info_t *game, int pos, int color, int id );
 
 /// 2つ以上の連の接続
-static void ConnectString( game_info_t *game, int pos, int color, int connection, int id[] );
+static void ConnectString( game_info_t *game, const int pos, const int color, const int connection, const int id[] );
 
 // 2つ以上の連のマージ
-static void MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n );
+static void MergeString( game_info_t *game, string_t *dst, string_t *src[3], const int n );
 
 // 連に1つ石を加える
-static void AddStoneToString( game_info_t *game, string_t *string, int pos, int head );
+static void AddStoneToString( game_info_t *game, string_t *string, const int pos, const int head );
 
 // 連を盤上から除去
 // 取り除いた石の数を返す
@@ -97,16 +97,20 @@ static int RemoveString( game_info_t *game, string_t *string );
 
 // 連を盤上から除去
 // 取り除いた石の数を返す
-static int PoRemoveString( game_info_t *game, string_t *string, int color );
+static int PoRemoveString( game_info_t *game, string_t *string, const int color );
 
 // 隣接する連IDの追加
-static void AddNeighbor( string_t *string, int id, int head );
+static void AddNeighbor( string_t *string, const int id, const int head );
 
 // 隣接する連IDの削除
-static void RemoveNeighborString( string_t *string, int id );
+static void RemoveNeighborString( string_t *string, const int id );
 
 // 隅のマガリ四目の確認
 static void CheckBentFourInTheCorner( game_info_t *game );
+
+//  盤端での処理
+static bool IsFalseEyeConnection( const game_info_t *game, const int pos, const int color );
+
 
 ///////////////////////
 //  盤の大きさの設定  //
@@ -242,8 +246,6 @@ FreeGame( game_info_t *game )
 void
 InitializeBoard( game_info_t *game )
 {
-  int i, x, y, pos;
-
   memset(game->record, 0, sizeof(struct move) * MAX_RECORDS);
   memset(game->pat,    0, sizeof(pattern_t) * board_max);
 
@@ -267,8 +269,8 @@ InitializeBoard( game_info_t *game )
 
   fill_n(game->candidates, BOARD_MAX, false);
 
-  for (y = 0; y < board_size; y++){
-    for (x = 0; x < OB_SIZE; x++) {
+  for (int y = 0; y < board_size; y++){
+    for (int x = 0; x < OB_SIZE; x++) {
       game->board[POS(x, y)] = S_OB;
       game->board[POS(y, x)] = S_OB;
       game->board[POS(y, board_size - 1 - x)] = S_OB;
@@ -276,14 +278,14 @@ InitializeBoard( game_info_t *game )
     }
   }
 
-  for (y = board_start; y <= board_end; y++) {
-    for (x = board_start; x <= board_end; x++) {
-      pos = POS(x, y);
+  for (int y = board_start; y <= board_end; y++) {
+    for (int x = board_start; x <= board_end; x++) {
+      int pos = POS(x, y);
       game->candidates[pos] = true;
     }
   }
 
-  for (i = 0; i < MAX_STRING; i++) {
+  for (int i = 0; i < MAX_STRING; i++) {
     game->string[i].flag = false;
   }
 
@@ -300,8 +302,6 @@ InitializeBoard( game_info_t *game )
 void
 CopyGame( game_info_t *dst, const game_info_t *src )
 {
-  int i;
-
   memcpy(dst->record,             src->record,             sizeof(struct move) * MAX_RECORDS);
   memcpy(dst->prisoner,           src->prisoner,           sizeof(int) * S_MAX);
   memcpy(dst->board,              src->board,              sizeof(char) * board_max);  
@@ -315,7 +315,7 @@ CopyGame( game_info_t *dst, const game_info_t *src )
   fill_n(dst->tactical_features1, board_max, 0);
   fill_n(dst->tactical_features2, board_max, 0);
 
-  for (i = 0; i < MAX_STRING; i++) {
+  for (int i = 0; i < MAX_STRING; i++) {
     if (src->string[i].flag) {
       memcpy(&dst->string[i], &src->string[i], sizeof(string_t));
     } else {
@@ -342,7 +342,6 @@ CopyGame( game_info_t *dst, const game_info_t *src )
 void
 InitializeConst( void )
 {
-  int x, y;
   int i;
 
   komi[0] = default_komi;
@@ -350,16 +349,16 @@ InitializeConst( void )
   komi[S_WHITE] = default_komi - 1.0;
 
   i = 0;
-  for (y = board_start; y <= board_end; y++) {
-    for (x = board_start; x <= board_end; x++) {
+  for (int y = board_start; y <= board_end; y++) {
+    for (int x = board_start; x <= board_end; x++) {
       onboard_pos[i++] = POS(x, y);
       board_x[POS(x, y)] = x;
       board_y[POS(x, y)] = y;
     }
   }
 
-  for (y = board_start; y <= board_end; y++) {
-    for (x = board_start; x <= (board_start + pure_board_size / 2); x++) {
+  for (int y = board_start; y <= board_end; y++) {
+    for (int x = board_start; x <= (board_start + pure_board_size / 2); x++) {
       border_dis_x[POS(x, y)] = x - (OB_SIZE - 1);
       border_dis_x[POS(board_end + OB_SIZE - x, y)] = x - (OB_SIZE - 1);
       border_dis_y[POS(y, x)] = x - (OB_SIZE - 1);
@@ -367,17 +366,17 @@ InitializeConst( void )
     }
   }
 
-  for (y = 0; y < pure_board_size; y++) {
-    for (x = 0; x < pure_board_size; x++) {
-      move_dis[x][y] = x + y + ((x>y) ? x : y);
+  for (int y = 0; y < pure_board_size; y++) {
+    for (int x = 0; x < pure_board_size; x++) {
+      move_dis[x][y] = x + y + ((x > y) ? x : y);
       if (move_dis[x][y] >= MOVE_DISTANCE_MAX) move_dis[x][y] = MOVE_DISTANCE_MAX - 1;
     }
   }
 
   fill_n(board_pos_id, BOARD_MAX, 0);
   i = 1;
-  for (y = board_start; y <= (board_start + pure_board_size / 2); y++) {
-    for (x = board_start; x <= y; x++) {
+  for (int y = board_start; y <= (board_start + pure_board_size / 2); y++) {
+    for (int x = board_start; x <= y; x++) {
       board_pos_id[POS(x, y)] = i;
       board_pos_id[POS(board_end + OB_SIZE - x, y)] = i;
       board_pos_id[POS(y, x)] = i;
@@ -391,8 +390,8 @@ InitializeConst( void )
   }
 
   first_move_candidates = 0;
-  for (y = board_start; y <= (board_start + board_end) / 2; y++) {
-    for (x = board_end + board_start - y; x <= board_end; x++) {
+  for (int y = board_start; y <= (board_start + board_end) / 2; y++) {
+    for (int x = board_end + board_start - y; x <= board_end; x++) {
       first_move_candidate[first_move_candidates++] = POS(x, y);
     }
   }
@@ -428,15 +427,12 @@ InitializeConst( void )
 static void
 InitializeNeighbor( void )
 {
-  int i;
-  char empty;
+  for (int i = 0; i < PAT3_MAX; i++) {
+    char empty = 0;
 
-  for (i = 0; i < PAT3_MAX; i++) {
-    empty = 0;
-
-    if (((i >> 2) & 0x3) == S_EMPTY) empty++;
-    if (((i >> 6) & 0x3) == S_EMPTY) empty++;
-    if (((i >> 8) & 0x3) == S_EMPTY) empty++;
+    if (((i >>  2) & 0x3) == S_EMPTY) empty++;
+    if (((i >>  6) & 0x3) == S_EMPTY) empty++;
+    if (((i >>  8) & 0x3) == S_EMPTY) empty++;
     if (((i >> 12) & 0x3) == S_EMPTY) empty++;
 
     nb4_empty[i] = empty;
@@ -450,7 +446,6 @@ InitializeNeighbor( void )
 static void
 InitializeEye( void )
 {
-  int i, j;
   unsigned int transp[8], pat3_transp16[16];
   //  眼のパターンはそれぞれ1か所あたり2ビットで表現
   //	123
@@ -534,37 +529,37 @@ InitializeEye( void )
 
   fill_n(eye_condition, E_NOT_EYE, 0);
   
-  for (i = 0; i < 12; i++) {
+  for (int i = 0; i < 12; i++) {
     Pat3Transpose16(complete_half_eye[i], pat3_transp16);
-    for (j = 0; j < 16; j++) {
+    for (int j = 0; j < 16; j++) {
       eye_condition[pat3_transp16[j]] = E_COMPLETE_HALF_EYE;
     }
   }
 
-  for (i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     Pat3Transpose16(half_3_eye[i], pat3_transp16);
-    for (j = 0; j < 16; j++) {
+    for (int j = 0; j < 16; j++) {
       eye_condition[pat3_transp16[j]] = E_HALF_3_EYE;
     }
   }
 
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     Pat3Transpose16(half_2_eye[i], pat3_transp16);
-    for (j = 0; j < 16; j++) {
+    for (int j = 0; j < 16; j++) {
       eye_condition[pat3_transp16[j]] = E_HALF_2_EYE;
     }
   }
 
-  for (i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; i++) {
     Pat3Transpose16(half_1_eye[i], pat3_transp16);
-    for (j = 0; j < 16; j++) {
+    for (int j = 0; j < 16; j++) {
       eye_condition[pat3_transp16[j]] = E_HALF_1_EYE;
     }
   }
 
-  for (i = 0; i < 5; i++) {
+  for (int i = 0; i < 5; i++) {
     Pat3Transpose16(complete_one_eye[i], pat3_transp16);
-    for (j = 0; j < 16; j++) {
+    for (int j = 0; j < 16; j++) {
       eye_condition[pat3_transp16[j]] = E_COMPLETE_ONE_EYE;
     }
   }
@@ -589,22 +584,21 @@ InitializeEye( void )
   // +W+
   eye[Pat3Reverse(0x1144)] = S_WHITE;
 
-  for (i = 0; i < 14; i++) {
+  for (int i = 0; i < 14; i++) {
     Pat3Transpose8(eye_pat3[i], transp);
-    for (j = 0; j < 8; j++) {
+    for (int j = 0; j < 8; j++) {
       eye[transp[j]] = S_BLACK;
       eye[Pat3Reverse(transp[j])] = S_WHITE;
     }
   }
 
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     Pat3Transpose8(false_eye_pat3[i], transp);
-    for (j = 0; j < 8; j++) {
+    for (int j = 0; j < 8; j++) {
       false_eye[transp[j]] = S_BLACK;
       false_eye[Pat3Reverse(transp[j])] = S_WHITE;
     }
   }
-
 
 }
 
@@ -615,9 +609,7 @@ InitializeEye( void )
 static void
 InitializeTerritory( void )
 {
-  int i;
-
-  for (i = 0; i < PAT3_MAX; i++) {
+  for (int i = 0; i < PAT3_MAX; i++) {
     if ((i & 0x1144) == 0x1144) {
       territory[i] = S_BLACK;
     } else if ((i & 0x2288) == 0x2288) {
@@ -657,8 +649,8 @@ IsLegal( const game_info_t *game, const int pos, const int color )
 ////////////////////
 //  盤端での処理  //
 ////////////////////
-bool
-IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
+static bool
+IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
 {
   // +++++XOO#
   // +++++XO+#
@@ -683,15 +675,15 @@ IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
   // +++XO+XO#
   // +++XOOO*#
   // #########
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const char *board = game->board;
   int checked_string[4] = { 0 };
   int string_liberties[4] = { 0 };
   int strings = 0;
-  int id, lib, libs = 0, lib_sum;
+  int id, lib, libs = 0, lib_sum = 0;
   int liberty[STRING_LIB_MAX];
-  int i, j, count;
+  int count;
   bool checked;
   int neighbor4[4], neighbor;
   bool already_checked;
@@ -701,9 +693,9 @@ IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
 
   // 欠け眼を構成する連のIDを取り出す
   GetNeighbor4(neighbor4, pos);
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     checked = false;
-    for (j = 0; j < player_ids; j++) {
+    for (int j = 0; j < player_ids; j++) {
       if (player_id[j] == string_id[neighbor4[i]]) {
 	checked = true;
       }
@@ -714,7 +706,7 @@ IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
   }
 
   // 斜め方向に取れる, または取れそうな石があったらfalseを返す
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[pos + cross[i]] == other) {
       id = string_id[pos + cross[i]];
       if (IsAlreadyCaptured(game, other, id, player_id, player_ids)) {
@@ -725,7 +717,7 @@ IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
 
   // 隣接する座標が自分の連なら
   // その連の呼吸点を取り出す
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == color) {
       id = string_id[neighbor4[i]];
       if (string[id].libs == 2) {
@@ -734,7 +726,7 @@ IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
 	if (IsSelfAtari(game, color, lib)) return true;
       }
       already_checked = false;
-      for (j = 0; j < strings; j++) {
+      for (int j = 0; j < strings; j++) {
 	if (checked_string[j] == id) {
 	  already_checked = true;
 	  break;
@@ -766,7 +758,7 @@ IsFalseEyeConnection( game_info_t *game, const int pos, const int color )
   }
 
   // その連が持っている呼吸点を求める
-  for (i = 0, lib_sum = 0; i < strings; i++) {
+  for (int i = 0; i < strings; i++) {
     lib_sum += string_liberties[i] - 1;
   }
 
@@ -888,17 +880,16 @@ IsSuicide( const game_info_t *game, const string_t *string, const int color, con
 //  石を置く  //
 ////////////////
 void
-PutStone( game_info_t *game, int pos, int color )
+PutStone( game_info_t *game, const int pos, const int color )
 {
-  int *string_id = game->string_id;
+  const int *string_id = game->string_id;
   char *board = game->board;
   string_t *string = game->string;
-  int other = FLIP_COLOR(color);
+  const int other = FLIP_COLOR(color);
   int connection = 0;
   int connect[4] = { 0 };
   int prisoner = 0;
   int neighbor[4];
-  int i;
 
   // この手番の着手で打ち上げた石の数を0にする
   game->capture_num[color] = 0;
@@ -947,7 +938,7 @@ PutStone( game_info_t *game, int pos, int color )
   // 着手箇所の上下左右の確認
   // 自分の連があれば, その連の呼吸点を1つ減らし, 接続候補に入れる
   // 敵の連であれば, その連の呼吸点を1つ減らし, 呼吸点が0になったら取り除く
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor[i]] == color) {
       RemoveLiberty(game, &string[string_id[neighbor[i]]], pos);
       connect[connection++] = string_id[neighbor[i]];
@@ -988,17 +979,16 @@ PutStone( game_info_t *game, int pos, int color )
 //  石を置く  //
 ////////////////
 void
-PoPutStone( game_info_t *game, int pos, int color )
+PoPutStone( game_info_t *game, const int pos, const int color )
 {
-  int *string_id = game->string_id;
+  const int *string_id = game->string_id;
   char *board = game->board;
   string_t *string = game->string;
-  int other = FLIP_COLOR(color);
+  const int other = FLIP_COLOR(color);
   int connection = 0;
   int connect[4] = { 0 };
   int prisoner = 0;
   int neighbor[4];
-  int i;
 
   // この手番で取った石の個数を0に
   game->capture_num[color] = 0;
@@ -1042,7 +1032,7 @@ PoPutStone( game_info_t *game, int pos, int color )
   // 着手箇所の上下左右の確認
   // 自分の連があれば, その連の呼吸点を1つ減らし, 接続候補に入れる
   // 敵の連であれば, その連の呼吸点を1つ減らし, 呼吸点が0になったら取り除く  
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor[i]] == color) {
       PoRemoveLiberty(game, &string[string_id[neighbor[i]]], pos, color);
       connect[connection++] = string_id[neighbor[i]];
@@ -1082,11 +1072,11 @@ PoPutStone( game_info_t *game, int pos, int color )
 //  新しい連の作成  //
 //////////////////////
 static void
-MakeString( game_info_t *game, int pos, int color )
+MakeString( game_info_t *game, const int pos, const int color )
 {
   string_t *string = game->string;
   string_t *new_string;
-  char *board = game->board;
+  const char *board = game->board;
   int *string_id = game->string_id;
   int id = 1;
   int lib_add = 0;
@@ -1137,7 +1127,7 @@ MakeString( game_info_t *game, int pos, int color )
 //  連に石を1つ追加する  //
 ///////////////////////////
 static void
-AddStoneToString( game_info_t *game, string_t *string, int pos, int head )
+AddStoneToString( game_info_t *game, string_t *string, const int pos, const int head )
 // game_info_t *game : 盤面の情報を示すポインタ 
 // string_t *string  : 石の追加先の連
 // int pos         : 追加する石の座標
@@ -1173,7 +1163,7 @@ AddStoneToString( game_info_t *game, string_t *string, int pos, int head )
 //  連に石を追加する  //
 ////////////////////////
 static void
-AddStone( game_info_t *game, int pos, int color, int id )
+AddStone( game_info_t *game, const int pos, const int color, const int id )
 // game_info_t *game : 盤面の情報を示すポインタ
 // int pos           : 置いた石の座標
 // int color         : 置いた石の色
@@ -1217,23 +1207,23 @@ AddStone( game_info_t *game, int pos, int color, int id )
 //  連同士の結合の判定  //
 //////////////////////////
 static void
-ConnectString( game_info_t *game, int pos, int color, int connection, int id[] )
+ConnectString( game_info_t *game, const int pos, const int color, const int connection, const int id[] )
 // game_info_t *game : 盤面の情報を示すポインタ
 // int pos           : 置いた石の座標
 // int color         : 置いた石の色
 // int connection    : 接続する連の候補の個数
 // int id[]          : 接続する連の候補のID
 {
-  int i, j, min = id[0];
+  int min = id[0];
   string_t *string = game->string;
   string_t *str[3];
   int connections = 0;
   bool flag = true;
 
   // 接続する連の個数を厳密に確認
-  for (i = 1; i < connection; i++) {
+  for (int i = 1; i < connection; i++) {
     flag = true;
-    for (j = 0; j < i; j++) {
+    for (int j = 0; j < i; j++) {
       if (id[j] == id[i]) {
 	flag = false;
 	break;
@@ -1264,19 +1254,19 @@ ConnectString( game_info_t *game, int pos, int color, int connection, int id[] )
 //  連の結合  //
 ////////////////
 static void
-MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n )
+MergeString( game_info_t *game, string_t *dst, string_t *src[3], const int n )
 // game_info_t *game : 盤面の情報を示すポインタ
 // string_t *dst     : マージ先の連
 // string_t *src[3]  : マージ元の連(最大3つ)
 // int n             : マージする連の個数
 {
-  int i, tmp, pos, prev, neighbor;
+  int tmp, pos, prev, neighbor;
   int *string_next = game->string_next;
   int *string_id = game->string_id;
   int id = string_id[dst->origin], rm_id;
   string_t *string = game->string;
 
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     // 接続で消える連のID
     rm_id = string_id[src[i]->origin];
 
@@ -1320,7 +1310,7 @@ MergeString( game_info_t *game, string_t *dst, string_t *src[3], int n )
 //  呼吸点の追加  //
 ////////////////////
 static int
-AddLiberty( string_t *string, int pos, int head )
+AddLiberty( string_t *string, const int pos, const int head )
 // string_t *string : 呼吸点を追加する対象の連
 // int pos        : 追加する呼吸点の座標
 // int head       : 探索対象の先頭のインデックス
@@ -1354,7 +1344,7 @@ AddLiberty( string_t *string, int pos, int head )
 //  呼吸点の除去  //
 ////////////////////
 static void
-RemoveLiberty( game_info_t *game, string_t *string, int pos )
+RemoveLiberty( game_info_t *game, string_t *string, const int pos )
 // game_info_t *game : 盤面の情報を示すポインタ
 // string_t *string  : 呼吸点を取り除く対象の連
 // int pos         : 取り除かれる呼吸点
@@ -1388,7 +1378,7 @@ RemoveLiberty( game_info_t *game, string_t *string, int pos )
 // (プレイアウト用) //
 //////////////////////
 static void
-PoRemoveLiberty( game_info_t *game, string_t *string, int pos, int color )
+PoRemoveLiberty( game_info_t *game, string_t *string, const int pos, const int color )
 // game_info_t *game : 盤面の情報を示すポインタ
 // string_t *string  : 呼吸点を取り除く対象の連
 // int pos         : 取り除かれる呼吸点
@@ -1489,7 +1479,7 @@ RemoveString( game_info_t *game, string_t *string )
 //  連の除去  //
 ////////////////
 static int
-PoRemoveString( game_info_t *game, string_t *string, int color )
+PoRemoveString( game_info_t *game, string_t *string, const int color )
 // game_info_t *game : 盤面の情報を示すポインタ
 // string_t *string  : 取り除く対象の連
 // int color       : 手番の色(連を構成する色とは違う色)
@@ -1571,7 +1561,7 @@ PoRemoveString( game_info_t *game, string_t *string, int color )
 //  隣接する連IDの追加(重複確認)  //
 ////////////////////////////////////
 static void
-AddNeighbor( string_t *string, int id, int head )
+AddNeighbor( string_t *string, const int id, const int head )
 // string_t *string : 隣接情報を追加する連
 // int id         : 追加される連ID
 // int head       : 探索対象の先頭のインデックス
@@ -1602,7 +1592,7 @@ AddNeighbor( string_t *string, int id, int head )
 //  隣接する連IDの除去  //
 //////////////////////////
 static void
-RemoveNeighborString( string_t *string, int id )
+RemoveNeighborString( string_t *string, const int id )
 // string_t *string : 隣接する連のIDを取り除く対象の連
 // int id         : 取り除く連のID
 {
