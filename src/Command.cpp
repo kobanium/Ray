@@ -47,11 +47,11 @@ const string errmessage[COMMAND_MAX] = {
 void
 AnalyzeCommand( int argc, char **argv )
 {
-  int i, j, n, size;
+  int n, size;
   
-  for (i = 1; i < argc; i++){
+  for (int i = 1; i < argc; i++){
     n = COMMAND_MAX + 1;
-    for (j = 0; j < COMMAND_MAX; j++){
+    for (int j = 0; j < COMMAND_MAX; j++){
       if (!strcmp(argv[i], command[j].c_str())){
 	n = j;
       }
@@ -103,7 +103,7 @@ AnalyzeCommand( int argc, char **argv )
       SetDebugMessageMode(false);
       break;
       default:
-	for (j = 0; j < COMMAND_MAX; j++){
+	for (int j = 0; j < COMMAND_MAX; j++){
 	  fprintf(stderr, "%-22s : %s\n", command[j].c_str(), errmessage[j].c_str());
 	}
 	exit(1);
