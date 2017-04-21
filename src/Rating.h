@@ -156,30 +156,6 @@ void Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_r
 //  レーティング 
 void PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate );
 
-//  呼吸点が1つの連に対する特徴の判定  
-void PoCheckFeaturesLib1( game_info_t *game, int color, int *update, int *update_num, int pos );
-
-//  呼吸点が2つの連に対する特徴の判定  
-void PoCheckFeaturesLib2( game_info_t *game, int color, int *update, int *update_num, int pos );
-
-//  呼吸点が3つの連に対する特徴の判定  
-void PoCheckFeaturesLib3( game_info_t *game, int color, int *update, int *update_num, int pos );
-
-//  特徴の判定
-void PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num );
-
-//  劫を解消するトリの判定
-void PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_num );
-
-//  自己アタリの判定
-bool PoCheckSelfAtari( game_info_t *game, int color, int pos );
-
-//  トリとアタリの判定
-void PoCheckCaptureAndAtari( game_info_t *game, int color, int pos );
-
-//  2目の抜き後に対するホウリコミ   
-void PoCheckRemove2Stones( game_info_t *game, int color, int *update, int *update_num );
-
 //  現局面の評価値
 void AnalyzePoRating( game_info_t *game, int color, double rate[] );
 

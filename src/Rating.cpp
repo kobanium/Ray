@@ -70,6 +70,30 @@ double po_bias = PO_BIAS;
 //  関数の宣言  //
 //////////////////
 
+//  呼吸点が1つの連に対する特徴の判定  
+static void PoCheckFeaturesLib1( game_info_t *game, const int color, const int id, int *update, int *update_num );
+
+//  呼吸点が2つの連に対する特徴の判定
+static void PoCheckFeaturesLib2( game_info_t *game, const int color, const int id, int *update, int *update_num );
+
+//  呼吸点が3つの連に対する特徴の判定
+static void PoCheckFeaturesLib3( game_info_t *game, const int color, const int id, int *update, int *update_num );
+
+//  特徴の判定
+static void PoCheckFeatures( game_info_t *game, const int color, int *update, int *update_num );
+
+//  劫を解消するトリの判定
+static void PoCheckCaptureAfterKo( game_info_t *game, const int color, int *update, int *update_num );
+
+//  自己アタリの判定
+static bool PoCheckSelfAtari( game_info_t *game, const int color, const int pos );
+
+//  トリとアタリの判定
+static void PoCheckCaptureAndAtari( game_info_t *game, const int color, const int pos );
+
+//  2目の抜き後に対するホウリコミ   
+static void PoCheckRemove2Stones( game_info_t *game, const int color, int *update, int *update_num );
+
 //  γ読み込み
 static void InputPOGamma( void );
 static void InputMD2( const char *filename, float *ap );
@@ -630,8 +654,8 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 /////////////////////////////////////////
 //  呼吸点が1つの連に対する特徴の判定  //
 /////////////////////////////////////////
-void
-PoCheckFeaturesLib1( game_info_t *game, int color, int id, int *update, int *update_num )
+static void
+PoCheckFeaturesLib1( game_info_t *game, const int color, const int id, int *update, int *update_num )
 {
   char *board = game->board;
   string_t *string = game->string;
@@ -736,8 +760,8 @@ PoCheckFeaturesLib1( game_info_t *game, int color, int id, int *update, int *upd
 /////////////////////////////////////////
 //  呼吸点が2つの連に対する特徴の判定  //
 /////////////////////////////////////////
-void
-PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *update_num )
+static void
+PoCheckFeaturesLib2( game_info_t *game, const int color, const int id, int *update, int *update_num )
 {
   int *string_id = game->string_id;
   string_t *string = game->string;
@@ -836,8 +860,8 @@ PoCheckFeaturesLib2( game_info_t *game, int color, int id, int *update, int *upd
 /////////////////////////////////////////
 //  呼吸点が3つの連に対する特徴の判定  //
 /////////////////////////////////////////
-void
-PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *update_num )
+static void
+PoCheckFeaturesLib3( game_info_t *game, const int color, const int id, int *update, int *update_num )
 {
   int *string_id = game->string_id;
   string_t *string = game->string;
@@ -970,8 +994,8 @@ PoCheckFeaturesLib3( game_info_t *game, int color, int id, int *update, int *upd
 //////////////////
 //  特徴の判定  //
 //////////////////
-void
-PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
+static void
+PoCheckFeatures( game_info_t *game, const int color, int *update, int *update_num )
 {
   string_t *string = game->string;
   char *board = game->board;
@@ -1049,8 +1073,8 @@ PoCheckFeatures( game_info_t *game, int color, int *update, int *update_num )
 ////////////////////////
 //  劫を解消するトリ  //
 ////////////////////////
-void
-PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_num )
+static void
+PoCheckCaptureAfterKo( game_info_t *game, const int color, int *update, int *update_num )
 {
   string_t *string = game->string;
   char *board = game->board;
@@ -1109,8 +1133,8 @@ PoCheckCaptureAfterKo( game_info_t *game, int color, int *update, int *update_nu
 //////////////////
 //  自己アタリ  //
 //////////////////
-bool
-PoCheckSelfAtari( game_info_t *game, int color, int pos )
+static bool
+PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
 {
   char *board = game->board;
   string_t *string = game->string;
@@ -1292,8 +1316,8 @@ PoCheckSelfAtari( game_info_t *game, int color, int pos )
 //////////////////
 //  トリの判定  //
 //////////////////
-void
-PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
+static void
+PoCheckCaptureAndAtari( game_info_t *game, const int color, const int pos )
 {
   char *board = game->board;
   string_t *string = game->string;
@@ -1354,8 +1378,8 @@ PoCheckCaptureAndAtari( game_info_t *game, int color, int pos )
 ///////////////////////////////////
 //  2目抜かれたときのホウリコミ  //
 ///////////////////////////////////
-void
-PoCheckRemove2Stones( game_info_t *game, int color, int *update, int *update_num )
+static void
+PoCheckRemove2Stones( game_info_t *game, const int color, int *update, int *update_num )
 {
   int i, rm1, rm2, check;
   int other = FLIP_COLOR(color);
