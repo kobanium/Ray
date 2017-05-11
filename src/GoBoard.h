@@ -84,8 +84,9 @@ enum eye_condition {
 
 // 着手を記録する構造体
 struct move {
-  int color;  // 着手した石の色
-  int pos;    // 着手箇所の座標
+  int color;                // 着手した石の色
+  int pos;                  // 着手箇所の座標
+  unsigned long long hash;  //
 };
 
 // 連を表す構造体 (19x19 : 1987bytes)
@@ -112,6 +113,7 @@ typedef struct {
   unsigned long long current_hash;     // 現在の局面のハッシュ値
   unsigned long long previous1_hash;   // 1手前の局面のハッシュ値
   unsigned long long previous2_hash;   // 2手前の局面のハッシュ値
+  unsigned long long positional_hash;  // 局面のハッシュ値(石の位置のみ)
 
   char board[BOARD_MAX];            // 盤面 
 
@@ -206,8 +208,11 @@ extern int first_move_candidate[PURE_BOARD_MAX];
 //   関数   //
 //////////////
 
+// 超劫の設定
+void SetSuperKo( const bool flag );
+
 // 盤の大きさの設定
-void SetBoardSize( int size );
+void SetBoardSize( const int size );
 
 // メモリ領域の確保
 game_info_t *AllocateGame( void );
