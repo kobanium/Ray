@@ -42,6 +42,8 @@ Ray has some options :
 
 --no-debug        Ray never print Ray's log.
 
+--superko         Ray avoids positional-superko move.
+
 
 e.g.
 
