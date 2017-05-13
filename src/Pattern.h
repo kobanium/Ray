@@ -38,24 +38,24 @@ typedef struct pattern {
 void ClearPattern( pattern_t *pat );
 
 //  更新
-void UpdatePat3Empty( pattern_t *pat, int pos );
-void UpdatePat3Stone( pattern_t *pat, int color, int pos );
-void UpdateMD2Empty( pattern_t *pat, int pos );
-void UpdateMD2Stone( pattern_t *pat, int color, int pos );
-void UpdatePatternEmpty( pattern_t *pat, int pos );
-void UpdatePatternStone( pattern_t *pat, int color, int pos );
+void UpdatePat3Empty( pattern_t *pat, const int pos );
+void UpdatePat3Stone( pattern_t *pat, const int color, const int pos );
+void UpdateMD2Empty( pattern_t *pat, const int pos );
+void UpdateMD2Stone( pattern_t *pat, const int color, const int pos );
+void UpdatePatternEmpty( pattern_t *pat, const int pos );
+void UpdatePatternStone( pattern_t *pat, const int color, const int pos );
 
 //  同一パターン
-void Pat3Transpose8( unsigned int pat3, unsigned int *transp );
-void Pat3Transpose16( unsigned int pat3, unsigned int *transp );
-void MD2Transpose8( unsigned int md2, unsigned int *transp );
-void MD2Transpose16( unsigned int md2, unsigned int *transp );
-void MD3Transpose8( unsigned int md3, unsigned int *transp );
-void MD3Transpose16( unsigned int md3, unsigned int *transp );
-void MD4Transpose8( unsigned int md4, unsigned int *transp );
-void MD4Transpose16( unsigned int md4, unsigned int *transp );
-void MD5Transpose8( unsigned long long md5, unsigned long long *transp );
-void MD5Transpose16( unsigned long long md5, unsigned long long *transp );
+void Pat3Transpose8( const unsigned int pat3, unsigned int *transp );
+void Pat3Transpose16( const unsigned int pat3, unsigned int *transp );
+void MD2Transpose8( const unsigned int md2, unsigned int *transp );
+void MD2Transpose16( const unsigned int md2, unsigned int *transp );
+void MD3Transpose8( const unsigned int md3, unsigned int *transp );
+void MD3Transpose16( const unsigned int md3, unsigned int *transp );
+void MD4Transpose8( const unsigned int md4, unsigned int *transp );
+void MD4Transpose16( const unsigned int md4, unsigned int *transp );
+void MD5Transpose8( const unsigned long long md5, unsigned long long *transp );
+void MD5Transpose16( const unsigned long long md5, unsigned long long *transp );
 
 //  色反転
 unsigned int Pat3Reverse( const unsigned int pat3 );
