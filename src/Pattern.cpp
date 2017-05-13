@@ -453,22 +453,10 @@ Pat3Transpose8( const unsigned int pat3, unsigned int *transp )
 void
 Pat3Transpose16( const unsigned int pat3, unsigned int *transp )
 {
-  transp[0] = pat3;
-  transp[1] = Pat3VerticalMirror(pat3);
-  transp[2] = Pat3HorizontalMirror(pat3);
-  transp[3] = Pat3VerticalMirror(transp[2]);
-  transp[4] = Pat3Rotate90(pat3);
-  transp[5] = Pat3Rotate90(transp[1]);
-  transp[6] = Pat3Rotate90(transp[2]);
-  transp[7] = Pat3Rotate90(transp[3]);
-  transp[8] = Pat3Reverse(transp[0]);
-  transp[9] = Pat3Reverse(transp[1]);
-  transp[10] = Pat3Reverse(transp[2]);
-  transp[11] = Pat3Reverse(transp[3]);
-  transp[12] = Pat3Reverse(transp[4]);
-  transp[13] = Pat3Reverse(transp[5]);
-  transp[14] = Pat3Reverse(transp[6]);
-  transp[15] = Pat3Reverse(transp[7]);
+  Pat3Transpose8(pat3, transp);
+  for (int i = 0; i < 8; i++) {
+    transp[i + 8] = Pat3Reverse(transp[i]);
+  }
 }
 
 //  md2
@@ -488,22 +476,10 @@ MD2Transpose8( const unsigned int md2, unsigned int *transp )
 void
 MD2Transpose16( const unsigned int md2, unsigned int *transp )
 {
-  transp[0] = md2;
-  transp[1] = MD2VerticalMirror(md2);
-  transp[2] = MD2HorizontalMirror(md2);
-  transp[3] = MD2VerticalMirror(transp[2]);
-  transp[4] = MD2Rotate90(md2);
-  transp[5] = MD2Rotate90(transp[1]);
-  transp[6] = MD2Rotate90(transp[2]);
-  transp[7] = MD2Rotate90(transp[3]);
-  transp[8] = MD2Reverse(transp[0]);
-  transp[9] = MD2Reverse(transp[1]);
-  transp[10] = MD2Reverse(transp[2]);
-  transp[11] = MD2Reverse(transp[3]);
-  transp[12] = MD2Reverse(transp[4]);
-  transp[13] = MD2Reverse(transp[5]);
-  transp[14] = MD2Reverse(transp[6]);
-  transp[15] = MD2Reverse(transp[7]);
+  MD2Transpose8(md2, transp);
+  for (int i = 0; i < 8; i++) {
+    transp[i + 8] = MD2Reverse(transp[i]);
+  }
 }
 
 //  md3
@@ -523,22 +499,10 @@ MD3Transpose8( const unsigned int md3, unsigned int *transp )
 void
 MD3Transpose16( const unsigned int md3, unsigned int *transp )
 {
-  transp[0] = md3;
-  transp[1] = MD3VerticalMirror(md3);
-  transp[2] = MD3HorizontalMirror(md3);
-  transp[3] = MD3VerticalMirror(transp[2]);
-  transp[4] = MD3Rotate90(md3);
-  transp[5] = MD3Rotate90(transp[1]);
-  transp[6] = MD3Rotate90(transp[2]);
-  transp[7] = MD3Rotate90(transp[3]);
-  transp[8] = MD3Reverse(transp[0]);
-  transp[9] = MD3Reverse(transp[1]);
-  transp[10] = MD3Reverse(transp[2]);
-  transp[11] = MD3Reverse(transp[3]);
-  transp[12] = MD3Reverse(transp[4]);
-  transp[13] = MD3Reverse(transp[5]);
-  transp[14] = MD3Reverse(transp[6]);
-  transp[15] = MD3Reverse(transp[7]);
+  MD3Transpose8(md3, transp);
+  for (int i = 0; i < 8; i++) {
+    transp[i + 8] = MD3Reverse(transp[i]);
+  }
 }
 
 
@@ -559,22 +523,10 @@ MD4Transpose8( const unsigned int md4, unsigned int *transp )
 void
 MD4Transpose16( const unsigned int md4, unsigned int *transp )
 {
-  transp[0] = md4;
-  transp[1] = MD4VerticalMirror(md4);
-  transp[2] = MD4HorizontalMirror(md4);
-  transp[3] = MD4VerticalMirror(transp[2]);
-  transp[4] = MD4Rotate90(md4);
-  transp[5] = MD4Rotate90(transp[1]);
-  transp[6] = MD4Rotate90(transp[2]);
-  transp[7] = MD4Rotate90(transp[3]);
-  transp[8] = MD4Reverse(transp[0]);
-  transp[9] = MD4Reverse(transp[1]);
-  transp[10] = MD4Reverse(transp[2]);
-  transp[11] = MD4Reverse(transp[3]);
-  transp[12] = MD4Reverse(transp[4]);
-  transp[13] = MD4Reverse(transp[5]);
-  transp[14] = MD4Reverse(transp[6]);
-  transp[15] = MD4Reverse(transp[7]);
+  MD4Transpose8(md4, transp);
+  for (int i = 0; i < 8; i++) {
+    transp[i + 8] = MD4Reverse(transp[i]);
+  }
 }
 
 
@@ -595,22 +547,10 @@ MD5Transpose8( const unsigned long long md5, unsigned long long *transp )
 void
 MD5Transpose16( const unsigned long long md5, unsigned long long *transp )
 {
-  transp[0] = md5;
-  transp[1] = MD5VerticalMirror(md5);
-  transp[2] = MD5HorizontalMirror(md5);
-  transp[3] = MD5VerticalMirror(transp[2]);
-  transp[4] = MD5Rotate90(md5);
-  transp[5] = MD5Rotate90(transp[1]);
-  transp[6] = MD5Rotate90(transp[2]);
-  transp[7] = MD5Rotate90(transp[3]);
-  transp[8] = MD5Reverse(transp[0]);
-  transp[9] = MD5Reverse(transp[1]);
-  transp[10] = MD5Reverse(transp[2]);
-  transp[11] = MD5Reverse(transp[3]);
-  transp[12] = MD5Reverse(transp[4]);
-  transp[13] = MD5Reverse(transp[5]);
-  transp[14] = MD5Reverse(transp[6]);
-  transp[15] = MD5Reverse(transp[7]);
+  MD5Transpose8(md5, transp);
+  for (int i = 0; i < 8; i++) {
+    transp[i + 8] = MD5Reverse(transp[i]);
+  }
 }
 
 
