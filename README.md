@@ -12,7 +12,7 @@ and require 800MB of memory.
 
 Ray has some options :
 
---playout 3000    Setting the total number of playouts per move. Default is 10000.
+--playout 3000    Setting the total number of playouts per move (3000 PO/move). Default is 10000.
 
 --time 1800       Ray plays with time settings 30:00 (1800 seconds).
 
