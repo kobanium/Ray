@@ -12,37 +12,60 @@ and require 800MB of memory.
 
 Ray has some options :
 
---playout 3000    Setting the total number of playouts per move (3000 PO/move). Default is 10000.
+Setting the total number of playouts per move (3000 PO/move). Default is 10000.
 
---time 1800       Ray plays with time settings 30:00 (1800 seconds).
+    ./ray --playout 3000
 
---size 13         Ray runs on 13x13. Default is 19x19 (Maximum is also 19x19).
-                  You can ignore it if GTP sends 'boardsize' command.
+Ray plays with time settings 30:00 (1800 seconds).
 
---const-time 5    Ray considers 5 seconds each move. 
+    ./ray --time 1800       
 
---thread 4        Setting the number of threads. Default is 1 (Maximun is 32).
+Ray runs on 13x13. Default is 19x19 (Maximum is also 19x19).
+You can ignore it if GTP sends 'boardsize' command.
 
---komi 7.5        Setting komi value. Default is 6.5.
-                  You can ignore this command if GTP sends 'komi' command.
+    ./ray --size 13         
+                  
+Ray considers 5 seconds each move. 
 
---handicap 4      Setting the number of handicap stones for test.
-                  This makes Ray ignore komi command from GTP.
+    ./ray --const-time 5
+    
+Setting the number of threads. Default is 1 (Maximun is 32).
 
---reuse-subtree   This makes Ray use subtree if it exist. Default is off.
-                  This command saves Ray's remaining time.
+    ./ray --thread 4
 
---pondering       This makes Ray think during the opponent's turn.
-                  (Automatically, this command turns 'reuse-subtree mode' on)
+Setting komi value. Default is 6.5.
+You can ignore this command if GTP sends 'komi' command.
 
---tree-size       Setting the number of uct nodes. Default is 16384. If you 
-                  want to run Ray with many threads and a long time setting,
-                  I recommend you to use this command. The number of nodes
-                  must be 2^n.
+    ./ray --komi 7.5        
+                  
+Setting the number of handicap stones for test.
+This makes Ray ignore komi command from GTP.
 
---no-debug        Ray never print Ray's log.
+    ./ray --handicap 4      
+                  
+This makes Ray use subtree if it exist. Default is off.
+This command saves Ray's remaining time.
 
---superko         Ray avoids positional-superko move.
+    ./ray --reuse-subtree   
+                  
+This makes Ray think during the opponent's turn.
+(Automatically, this command turns 'reuse-subtree mode' on)
+
+    ./ray --pondering
+
+Setting the number of uct nodes. Default is 16384. If you
+want to run Ray with many threads and a long time setting,
+I recommend you to use this command. The number of nodes must be 2^n.
+
+    ./ray --tree-size
+
+Ray never print Ray's log.
+
+    ./ray --no-debug        
+
+Ray avoids positional-superko move.
+
+    ./ray --superko         
 
 
 e.g.
