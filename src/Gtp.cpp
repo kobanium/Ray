@@ -567,7 +567,7 @@ GTP_fixed_handicap( void )
     PutStone(game, handicap[place_index[num - 2][i]], S_BLACK);
 #if defined (_WIN32)
     sprintf_s(pos, 5, "%c%d ", GOGUI_X(handicap[place_index[num - 2][i]]), GOGUI_Y(handicap[place_index[num - 2][i]]));
-    strncat(buf, 1024, pos);
+    strcat_s(buf, 1024, pos);
 #else
     snprintf(pos, 5, "%c%d ", GOGUI_X(handicap[place_index[num - 2][i]]), GOGUI_Y(handicap[place_index[num - 2][i]]));
     strncat(buf, pos, 5);
