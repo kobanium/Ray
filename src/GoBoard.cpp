@@ -657,17 +657,48 @@ IsLegal( const game_info_t *game, const int pos, const int color )
   // 超劫である
   if (check_superko &&
       pos != PASS) {
-    game_info_t *tmp_game = AllocateGame();
-    CopyGame(tmp_game, game);
-    PutStone(tmp_game, pos, color);
-    unsigned long long hash = tmp_game->positional_hash;
+    const int other = FLIP_COLOR(color);
+    const string_t *string = game->string;
+    const int *string_id = game->string_id;
+    const int *string_next = game->string_next;
+    unsigned long long hash = game->positional_hash;
+    int neighbor4[4], check[4], checked = 0, id, str_pos;
+    bool flag;
+
+    GetNeighbor4(neighbor4, pos);
+
+    // この1手で石を取れる時の処理
+    for (int i = 0; i < 4; i++) {
+      if (game->board[neighbor4[i]] == other) {
+	id = string_id[neighbor4[i]];
+	if (string[id].libs == 1) {
+	  flag = false;	
+	  for (int j = 0; j < checked; j++) {
+	    if (check[j] == id) {
+	      flag = true;
+	    }
+	  }
+	  if (flag) {
+	    continue;
+	  }
+	  str_pos = string[id].origin;
+	  do {
+	    hash ^= hash_bit[str_pos][other];
+	    str_pos = string_next[str_pos];
+	  } while (str_pos != STRING_END);
+	}
+	check[checked++] = id;
+      }
+    }
+
+    // posにcolorを置いたと仮定
+    hash ^= hash_bit[pos][color];
+    
     for (int i = 0; i < game->moves; i++) {
       if (game->record[i].hash == hash) {
-	FreeGame(tmp_game);
 	return false;
       }
     }
-    FreeGame(tmp_game);
   }
   
   return true;
