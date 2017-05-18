@@ -279,6 +279,29 @@ SetParameter( void )
   }
 }
 
+//////////////////////////////////////
+//  time_settingsコマンドによる設定  //
+//////////////////////////////////////
+void
+SetTimeSettings( int main_time, int byoyomi, int stone )
+{
+  if (main_time == 0) {
+    const_thinking_time = (double)byoyomi * 0.85;
+    mode = CONST_TIME_MODE;
+    cerr << "Const Thinking Time Mode" << endl;
+  } else {
+    if (byoyomi == 0) {
+      default_remaining_time = main_time;
+      mode = TIME_SETTING_MODE;
+      cerr << "Time Setting Mode" << endl;
+    } else {
+      default_remaining_time = main_time;
+      const_thinking_time = ((double)byoyomi) / stone;
+      mode = TIME_SETTING_WITH_BYOYOMI_MODE;
+      cerr << "Time Setting Mode (byoyomi)" << endl;
+    }
+  }
+}
 
 /////////////////////////
 //  UCT探索の初期設定  //
@@ -346,7 +369,8 @@ InitializeSearchSetting( void )
     time_limit = const_thinking_time;
     po_info.num = 100000000;
     extend_time = false;
-  } else if (mode == TIME_SETTING_MODE) {
+  } else if (mode == TIME_SETTING_MODE ||
+	     mode == TIME_SETTING_WITH_BYOYOMI_MODE) {
     if (pure_board_size < 11) {
       time_limit = remaining_time[0] / TIME_RATE_9;
       po_info.num = (int)(PLAYOUT_SPEED * time_limit);
@@ -1520,21 +1544,22 @@ CalculateNextPlayouts( game_info_t *game, int color, double best_wp, double fini
     } else {
       po_info.num = (int)(po_info.count / finish_time * const_thinking_time);
     }
-  } else if (mode == TIME_SETTING_MODE) {
+  } else if (mode == TIME_SETTING_MODE ||
+	     mode == TIME_SETTING_WITH_BYOYOMI_MODE) {
+    remaining_time[color] -= finish_time;
     if (pure_board_size < 11) {
-      remaining_time[color] -= finish_time;
       time_limit = remaining_time[color] / TIME_RATE_9;
-      po_info.num = (int)(po_per_sec * time_limit);
     } else if (pure_board_size < 16) {
-      remaining_time[color] -= finish_time;
       time_limit = remaining_time[color] / (TIME_C_13 + ((TIME_MAXPLY_13 - (game->moves + 1) > 0) ? TIME_MAXPLY_13 - (game->moves + 1) : 0));
-      po_info.num = po_per_sec * time_limit;
     } else {
-      remaining_time[color] -= finish_time;
       time_limit = remaining_time[color] / (TIME_C_19 + ((TIME_MAXPLY_19 - (game->moves + 1) > 0) ? TIME_MAXPLY_19 - (game->moves + 1) : 0));
-      po_info.num = po_per_sec * time_limit;
     }
-  }
+    if (mode == TIME_SETTING_WITH_BYOYOMI_MODE &&
+	time_limit < (const_thinking_time * 0.5)) {
+      time_limit = const_thinking_time * 0.5;
+    }
+    po_info.num = (int)(po_per_sec * time_limit);	
+  } 
 }
 
 

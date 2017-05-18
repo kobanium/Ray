@@ -468,6 +468,22 @@ GTP_finalscore( void )
 static void
 GTP_timesettings( void )
 {
+  char *str1, *str2, *str3;
+  double main_time, byoyomi, stone;
+
+  str1 = STRTOK(NULL, DELIM, &next_token);
+  str2 = STRTOK(NULL, DELIM, &next_token);
+  str3 = STRTOK(NULL, DELIM, &next_token);
+
+  main_time = atoi(str1);
+  byoyomi = atoi(str2);
+  stone = atoi(str3);
+
+  cerr << main_time << "," << byoyomi << "," << stone << endl;
+
+  SetTimeSettings(main_time, byoyomi, stone);
+  InitializeSearchSetting();
+  
   GTP_response(brank, true);
 }
 
