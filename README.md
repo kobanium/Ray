@@ -84,7 +84,7 @@ Ray thinks during the opponent's turn.
     ./ray --time 1800 --thread 16 --tree-size 65536 --pondering
 
 
-Licence
+License
 -------
 Ray is distributed under the BSD License.
 Please see the "COPYING" file.
