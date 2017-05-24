@@ -246,26 +246,21 @@ GTP_genmove( void )
   command = STRTOK(input_copy, DELIM, &next_token);
   
   CHOMP(command);
-  if (!strcmp("genmove_black", command)) {
-    color = S_BLACK;
-  } else if (!strcmp("genmove_white", command)) {
+
+  command = STRTOK(NULL, DELIM, &next_token);
+  if (command == NULL){
+    GTP_response(err_genmove, true);
+    return;
+  }
+  CHOMP(command);
+  c = (char)tolower((int)command[0]);
+  if (c == 'w') {
     color = S_WHITE;
+  } else if (c == 'b') {
+    color = S_BLACK;
   } else {
-    command = STRTOK(NULL, DELIM, &next_token);
-    if (command == NULL){
-      GTP_response(err_genmove, true);
-      return;
-    }
-    CHOMP(command);
-    c = (char)tolower((int)command[0]);
-    if (c == 'w') {
-      color = S_WHITE;
-    } else if (c == 'b') {
-      color = S_BLACK;
-    } else {
-      GTP_response(err_genmove, true);
-      return;
-    }
+    GTP_response(err_genmove, true);
+    return;
   }
 
   player_color = color;
@@ -295,23 +290,17 @@ GTP_play( void )
   
   command = STRTOK(input_copy, DELIM, &next_token);
 
-  if (!strcmp("black", command)){
-    color = S_BLACK;
-  } else if (!strcmp("white", command)){
+  command = STRTOK(NULL, DELIM, &next_token);
+  if (command == NULL){
+    GTP_response(err_play, false);
+    return;
+  }
+  CHOMP(command);
+  c = (char)tolower((int)command[0]);
+  if (c == 'w') {
     color = S_WHITE;
   } else{
-    command = STRTOK(NULL, DELIM, &next_token);
-    if (command == NULL){
-      GTP_response(err_play, false);
-      return;
-    }
-    CHOMP(command);
-    c = (char)tolower((int)command[0]);
-    if (c == 'w') {
-      color = S_WHITE;
-    } else{
-      color = S_BLACK;
-    }
+    color = S_BLACK;
   }
 
   command = STRTOK(NULL, DELIM, &next_token);
