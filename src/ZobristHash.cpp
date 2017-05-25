@@ -1,6 +1,4 @@
 #include <cstdlib>
-#include <cmath>
-#include <ctime>
 #include <iostream>
 #include <random>
 
