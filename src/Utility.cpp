@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <cstdio>
 #include <cstdlib>
 
@@ -45,8 +44,6 @@ void
 InputTxtFLT( const char *filename, float *ap, const int array_size )
 {
   FILE *fp;
-  int i;
-
 #if defined (_WIN32)
   errno_t err;
 
@@ -55,7 +52,7 @@ InputTxtFLT( const char *filename, float *ap, const int array_size )
     cerr << "can not open -" << filename << "-" << endl;
     exit(1);
   }
-  for (i = 0; i < array_size; i++) {
+  for (int i = 0; i < array_size; i++) {
     if (fscanf_s(fp, "%f", &ap[i]) == EOF) {
       cerr << "Read Error : " << filename << endl;
     }
@@ -65,7 +62,7 @@ InputTxtFLT( const char *filename, float *ap, const int array_size )
   if (fp == NULL) {
     cerr << "can not open -" << filename << "-" << endl;
   }
-  for (i = 0; i < array_size; i++) {
+  for (int i = 0; i < array_size; i++) {
     if (fscanf(fp, "%f", &ap[i]) == EOF) {
       cerr << "Read Error : " << filename << endl;
       exit(1);
@@ -82,8 +79,6 @@ void
 InputTxtDBL( const char *filename, double *ap, const int array_size )
 {
   FILE *fp;
-  int i;
-
 #if defined (_WIN32)
   errno_t err;
 
@@ -91,7 +86,7 @@ InputTxtDBL( const char *filename, double *ap, const int array_size )
   if (err != 0) {
     cerr << "can not open -" << filename << "-" << endl;
   }
-  for (i = 0; i < array_size; i++) {
+  for (int i = 0; i < array_size; i++) {
     if (fscanf_s(fp, "%lf", &ap[i]) == EOF) {
       cerr << "Read Error : " << filename << endl;
     }
@@ -101,7 +96,7 @@ InputTxtDBL( const char *filename, double *ap, const int array_size )
   if (fp == NULL) {
     cerr << "can not open -" << filename << "-" << endl;
   }
-  for (i = 0; i < array_size; i++) {
+  for (int i = 0; i < array_size; i++) {
     if (fscanf(fp, "%lf", &ap[i]) == EOF) {
       cerr << "Read Error : " << filename << endl;
     }
