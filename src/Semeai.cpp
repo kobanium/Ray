@@ -167,26 +167,6 @@ IsDeadlyExtension( const game_info_t *game, const int color, const int id )
 }
 
 
-////////////////////////////////////
-//  隣接する敵連が取れるかを判定  //
-////////////////////////////////////
-bool
-IsCapturableNeighborNone( const game_info_t *game, const int id )
-{
-  const string_t *string = game->string;
-  int neighbor = string[id].neighbor[0];
-
-  while (neighbor != NEIGHBOR_END) {
-    if (string[neighbor].libs == 1) {
-      return false;
-    }
-    neighbor = string[id].neighbor[neighbor];
-  }
-
-  return true;
-}
-
-
 /////////////////////////////////
 //  自己アタリになるトリか判定  //
 /////////////////////////////////
