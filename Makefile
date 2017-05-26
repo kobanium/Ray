@@ -1,4 +1,4 @@
-TARGET=ray
+TARGET = ray
 CXX = g++
 OPTIMIZE = -O3
 CPP11 = -std=c++11
@@ -69,6 +69,9 @@ src/Rating.o: src/Rating.h src/GoBoard.h src/Pattern.h src/UctRating.h \
 src/RayMain.o: src/RayMain.cpp src/Command.h src/GoBoard.h src/Pattern.h \
  src/Gtp.h src/PatternHash.h src/Rating.h src/UctRating.h src/Semeai.h \
  src/UctSearch.h src/ZobristHash.h
+src/Seki.o: src/Seki.cpp src/GoBoard.h src/Pattern.h src/Point.h src/Seki.h \
+ src/Semeai.h
+src/Seki.o: src/Seki.h src/GoBoard.h src/Pattern.h
 src/Semeai.o: src/Semeai.cpp src/GoBoard.h src/Pattern.h src/Message.h \
  src/UctSearch.h src/ZobristHash.h src/Point.h src/Semeai.h \
  src/UctRating.h src/PatternHash.h

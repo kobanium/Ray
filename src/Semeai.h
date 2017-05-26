@@ -22,9 +22,6 @@ int CapturableCandidate( const game_info_t *game, const int id );
 //  すぐに捕まる手かどうかを判定  
 bool IsDeadlyExtension( const game_info_t *game, const int color, const int id );
 
-//  隣接する敵連が取れるかを判定  
-bool IsCapturableNeighborNone( const game_info_t *game, const int id );
-
 //  呼吸点がどのように変化するかを確認
 int CheckLibertyState( const game_info_t *game, const int pos, const int color, const int id );
 
