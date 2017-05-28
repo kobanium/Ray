@@ -391,17 +391,6 @@ InitializeSearchSetting( void )
 }
 
 
-////////////
-//  終了  //
-////////////
-void
-FinalizeUctSearch( void )
-{
-  
-}
-
-
-
 void
 StopPondering( void )
 {
