@@ -15,17 +15,19 @@ using namespace std;
 game_info_t search_game[100];
 
 
+////////////////////////////////
+//  現在の局面のシチョウ探索  //
+////////////////////////////////
 void
 LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 {
   string_t *string = game->string;
-  int i, ladder = PASS;
   game_info_t *shicho_game = AllocateGame();
   bool checked[BOARD_MAX] = { false };  
-  int neighbor;
+  int neighbor, ladder = PASS;
   bool flag;
 
-  for (i = 0; i < MAX_STRING; i++) {
+  for (int i = 0; i < MAX_STRING; i++) {
     if (!string[i].flag ||
 	string[i].color != color) {
       continue;
@@ -74,6 +76,9 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 }
 
 
+////////////////////
+//  シチョウ探索  //
+////////////////////
 bool
 IsLadderCaptured( int depth, game_info_t *game, int ren_xy, int turn_color )
 {
