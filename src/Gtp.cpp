@@ -375,7 +375,6 @@ GTP_listcommands( void )
 static void
 GTP_quit( void )
 {
-  FinalizeUctSearch();
   GTP_response(brank, true);
   exit(0);
 }

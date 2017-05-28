@@ -158,9 +158,6 @@ void InitializeUctSearch( void );
 // 探索設定の初期化
 void InitializeSearchSetting( void );
 
-// UCT探索の終了処理
-void FinalizeUctSearch( void );
-
 // UCT探索による着手生成
 int UctSearchGenmove( game_info_t *game, int color );
 
