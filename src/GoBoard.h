@@ -51,13 +51,7 @@ const double KOMI = 6.5; // デフォルトのコミの値
 #define  EAST(pos) ((pos) + 1)           // posの右の座標
 #define SOUTH(pos) ((pos) + board_size)  // posの下の座標
 
-#define NORTH_WEST(pos) ((pos) - board_size - 1)
-#define NORTH_EAST(pos) ((pos) - board_size + 1)
-#define SOUTH_WEST(pos) ((pos) + board_size - 1)
-#define SOUTH_EAST(pos) ((pos) + board_size + 1)
-
 #define FLIP_COLOR(col) ((col) ^ 0x3) // 色の反転
-
 
 #define DX(pos1, pos2)  (abs(board_x[(pos1)] - board_x[(pos2)]))     // x方向の距離
 #define DY(pos1, pos2)  (abs(board_y[(pos1)] - board_y[(pos2)]))     // y方向の距離
@@ -86,7 +80,7 @@ enum eye_condition {
 struct move {
   int color;                // 着手した石の色
   int pos;                  // 着手箇所の座標
-  unsigned long long hash;  //
+  unsigned long long hash;  // 局面のハッシュ値
 };
 
 // 連を表す構造体 (19x19 : 1987bytes)
@@ -147,19 +141,25 @@ typedef struct {
 //    変数    //
 ////////////////
 
-
+// 碁盤の大きさ
 extern int pure_board_size;
 
+// 碁盤の交点の個数
 extern int pure_board_max;
 
+// 碁盤の大きさ(盤外込み)
 extern int board_size;
 
+// 碁盤の交点の個数(盤外込み)
 extern int board_max;
 
+// 碁盤の右端(上端)
 extern int board_start;
 
+// 碁盤の左端(下端)
 extern int board_end;
 
+// 初手の候補手の個数
 extern int first_move_candidates;
 
 // コミ

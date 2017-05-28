@@ -61,14 +61,17 @@ AnalyzeCommand( int argc, char **argv )
 
     switch (n) {
       case COMMAND_PLAYOUT:
+	// プレイアウト数固定の探索の設定
 	SetPlayout(atoi(argv[++i]));
 	SetMode(CONST_PLAYOUT_MODE);
 	break;
       case COMMAND_TIME:
+	// 持ち時間の設定
 	SetTime(atof(argv[++i]));
 	SetMode(TIME_SETTING_MODE);
 	break;
       case COMMAND_SIZE:
+	// 碁盤の大きさの設定
 	i++;
 	size = atoi(argv[i]);
 	if (pure_board_size != size &&
@@ -78,33 +81,42 @@ AnalyzeCommand( int argc, char **argv )
 	}
 	break;
       case COMMAND_CONST_TIME:
-	SetMode(CONST_TIME_MODE);
+	// 1手あたりの思考時間を固定した探索の設定
 	SetConstTime(atof(argv[++i]));
+	SetMode(CONST_TIME_MODE);
 	break;
       case COMMAND_THREAD:
+	// 探索スレッド数の設定
 	SetThread(atoi(argv[++i]));
 	break;
       case COMMAND_KOMI:
+	// コミの設定
 	SetKomi(atof(argv[++i]));
 	break;
       case COMMAND_HANDICAP:
+	// 置き石の個数の設定
 	SetConstHandicapNum(atoi(argv[++i]));
 	SetHandicapNum(0);
 	break;
       case COMMAND_REUSE_SUBTREE:
+	// 探索結果の再利用の設定
         SetReuseSubtree(true);
         break;
       case COMMAND_PONDERING :
+	// 予測読みの設定
 	SetReuseSubtree(true);
 	SetPonderingMode(true);
 	break;
       case COMMAND_TREE_SIZE:
+	// UCTのノードの個数の設定
 	SetHashSize((unsigned int)atoi(argv[++i]));
 	break;
       case COMMAND_SUPERKO:
+	// 超劫のh判定の設定
 	SetSuperKo(true);
 	break;
       case COMMAND_NO_DEBUG:
+	// デバッグメッセージを出力しない設定
 	SetDebugMessageMode(false);
 	break;
       default:
