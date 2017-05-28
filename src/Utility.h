@@ -3,6 +3,10 @@
 
 #include <ctime>
 
+////////////
+//  関数  //
+////////////
+
 // 消費時間の算出
 double GetSpendTime( const clock_t start_time );
 

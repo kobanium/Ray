@@ -3,6 +3,9 @@
 
 #include "GoBoard.h"
 
+////////////
+//  定数  //
+////////////
 enum hash{
   HASH_PASS,
   HASH_BLACK,
@@ -12,12 +15,21 @@ enum hash{
 
 const unsigned int UCT_HASH_SIZE = 16384;
 
+//////////////
+//  構造体  //
+//////////////
+
 typedef struct {
   unsigned long long hash;
   int color;
   int moves;
   bool flag;
 } node_hash_t;
+
+
+////////////
+//  変数  //
+////////////
 
 //  bit列
 extern unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];  
@@ -28,6 +40,10 @@ extern node_hash_t *node_hash;
 
 //  UCT用ハッシュテーブルのザイズ
 extern unsigned int uct_hash_size; 
+
+////////////
+//  関数  //
+////////////
 
 //  ハッシュテーブルのサイズの設定
 void SetHashSize( const unsigned int new_size );

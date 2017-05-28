@@ -7,6 +7,10 @@
 #include "GoBoard.h"
 #include "ZobristHash.h"
 
+////////////
+//  定数  //
+////////////
+
 const int THREAD_MAX = 32;              // 使用するスレッド数の最大値
 const int MAX_NODES = 1000000;          // UCTのノードの配列のサイズ
 const double ALL_THINKING_TIME = 90.0;  // 持ち時間(デフォルト)
@@ -65,6 +69,9 @@ enum SEARCH_MODE {
 };
 
 
+//////////////
+//  構造体  //
+//////////////
 typedef struct {
   game_info_t *game; // 探索対象の局面
   int thread_id;   // スレッド識別番号
@@ -113,6 +120,10 @@ typedef struct {
 } rate_order_t;
 
 
+//////////////////////
+//  グローバル変数  //
+//////////////////////
+
 // 残り時間
 extern double remaining_time[S_MAX];
 // UCTのノード
@@ -124,6 +135,10 @@ extern int current_root;
 // 各座標のCriticality
 extern double criticality[BOARD_MAX]; 
 
+
+////////////
+//  関数  //
+////////////
 
 // 予測読みを止める
 void StopPondering( void );
