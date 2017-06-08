@@ -1,6 +1,9 @@
 #ifndef _COMMAND_H_
 #define _COMMAND_H_
 
+////////////
+//  定数  //
+////////////
 enum COMMAND {
   COMMAND_PLAYOUT,
   COMMAND_TIME,
@@ -17,6 +20,10 @@ enum COMMAND {
   COMMAND_MAX,
 };
 
+
+////////////
+//  関数  //
+////////////
 
 // コマンドライン引数のコマンドの解析
 void AnalyzeCommand( int argc, char **argv );
