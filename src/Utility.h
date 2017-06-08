@@ -7,17 +7,18 @@
 //  関数  //
 ////////////
 
-// 消費時間の算出
+//  消費時間の算出
 double GetSpendTime( const clock_t start_time );
 
 #if !defined (_WIN32)
+//  消費時間の算出(Linux用)
 double GetSpendTimeForLinux( const struct timeval *start_time );
 #endif
 
-// データ読み込み(float)
+//  データ読み込み(float)
 void InputTxtFLT( const char *filename, float *ap, const int array_size );
 
-// データ読み込み(double)
+//  データ読み込み(double)
 void InputTxtDBL( const char *filename, double *ap, const int array_size );
 
 #endif

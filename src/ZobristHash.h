@@ -6,6 +6,7 @@
 ////////////
 //  定数  //
 ////////////
+
 enum hash{
   HASH_PASS,
   HASH_BLACK,
@@ -13,6 +14,7 @@ enum hash{
   HASH_KO,
 };
 
+//  ハッシュ表のサイズのデフォルト値
 const unsigned int UCT_HASH_SIZE = 16384;
 
 //////////////
@@ -31,8 +33,10 @@ typedef struct {
 //  変数  //
 ////////////
 
-//  bit列
-extern unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];  
+//  局面を表現するためのビット列
+extern unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];
+
+//  ナカデの形を表現するためのビット列
 extern unsigned long long shape_bit[BOARD_MAX];              
 
 //  UCT用ハッシュテーブル

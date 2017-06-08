@@ -12,6 +12,12 @@
 
 using namespace std;
 
+
+////////////
+//  定数  //
+////////////
+
+//  コマンド
 const string command[COMMAND_MAX] = {
   "--playout",
   "--time",
@@ -27,6 +33,7 @@ const string command[COMMAND_MAX] = {
   "--superko",
 };
 
+//  コマンドの説明
 const string errmessage[COMMAND_MAX] = {
   "Set playouts",
   "Set all thinking time",
