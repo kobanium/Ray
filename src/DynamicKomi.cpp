@@ -7,18 +7,29 @@
 
 using namespace std;
 
-// コミの値を直線的に減らすDynamic Komi
-static void LinearHandicap( const game_info_t *game );
-// 勝率に基づいてコミの値を変更するDynamic Komi
-static void ValueSituational( const uct_node_t *root, const int color );
-
+////////////
+//  変数  //
+////////////
 
 // 置き石の数
 static int handicap_num = 0;
+
 // テスト対局用
 static int const_handicap_num = 0;
+
 // Dynamic Komiのモード
 enum DYNAMIC_KOMI_MODE dk_mode = DK_OFF;
+
+
+////////////
+//  関数  //
+////////////
+
+// コミの値を直線的に減らすDynamic Komi
+static void LinearHandicap( const game_info_t *game );
+
+// 勝率に基づいてコミの値を変更するDynamic Komi
+static void ValueSituational( const uct_node_t *root, const int color );
 
 
 ////////////////////////
