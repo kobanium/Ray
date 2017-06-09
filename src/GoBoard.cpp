@@ -38,7 +38,7 @@ unsigned char eye[PAT3_MAX];        // 目のパターン
 unsigned char false_eye[PAT3_MAX];
 unsigned char territory[PAT3_MAX];  // 領地のパターン
 unsigned char nb4_empty[PAT3_MAX];  // 上下左右の空点の数
-unsigned char eye_condition[PAT3_MAX];
+eye_condition_t eye_condition[PAT3_MAX];
 
 int border_dis_x[BOARD_MAX];                     // x方向の距離   
 int border_dis_y[BOARD_MAX];                     // y方向の距離   
@@ -262,8 +262,8 @@ InitializeBoard( game_info_t *game )
   fill_n(game->board, board_max, 0);              
   fill_n(game->tactical_features1, board_max, 0);
   fill_n(game->tactical_features2, board_max, 0);
-  fill_n(game->update_num,  S_OB, 0);
-  fill_n(game->capture_num, S_OB, 0);
+  fill_n(game->update_num,  (int)S_OB, 0);
+  fill_n(game->capture_num, (int)S_OB, 0);
   fill(game->update_pos[0],  game->update_pos[S_OB], 0);
   fill(game->capture_pos[0], game->capture_pos[S_OB], 0);
   
@@ -539,7 +539,7 @@ InitializeEye( void )
     0x5555, 0x5554, 0x5556, 0xFD55, 0xFF75,
   };
 
-  fill_n(eye_condition, E_NOT_EYE, 0);
+  fill_n(eye_condition, PAT3_MAX, E_NOT_EYE);
   
   for (int i = 0; i < 12; i++) {
     Pat3Transpose16(complete_half_eye[i], pat3_transp16);

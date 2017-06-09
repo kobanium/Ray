@@ -66,7 +66,7 @@ enum stone {
   S_MAX     // 番兵
 };
 
-enum eye_condition {
+enum eye_condition_t : unsigned char {
   E_NOT_EYE,           // 眼でない
   E_COMPLETE_HALF_EYE, // 完全に欠け眼(8近傍に打って1眼にできない)
   E_HALF_3_EYE,        // 欠け眼であるが, 3手で1眼にできる
@@ -187,7 +187,7 @@ extern unsigned char territory[PAT3_MAX];
 extern unsigned char nb4_empty[PAT3_MAX];
 
 // 眼の状態
-extern unsigned char eye_condition[PAT3_MAX];
+extern eye_condition_t eye_condition[PAT3_MAX];
 
 // x方向の距離
 extern int border_dis_x[BOARD_MAX]; 
