@@ -1,14 +1,46 @@
 #ifndef _GTP_H_
 #define _GTP_H_
 
+/////////////
+//  定数  //
+/////////////
+
+//  GTPコマンドの個数
 const int GTP_COMMAND_NUM = 21;
+
+//  GTPコマンドの文字数の上限
 const int GTP_COMMAND_SIZE = 64;
+
+//  GTPコマンド入力文字列の上限
 const int BUF_SIZE = 256;
 
+//  コマンドの区切り文字(空白文字)
 #define DELIM  " "
+
+//  プログラム名
 #define PROGRAM_NAME  "Ray"
+
+//  プログラムのバージョン
 #define PROGRAM_VERSION  "8.0.1"
+
+//  GTPのバージョン
 #define PROTOCOL_VERSION  "2"
+
+
+//////////////
+//  構造体  //
+//////////////
+
+//  GTPコマンド処理用の構造体
+typedef struct {
+  char command[GTP_COMMAND_SIZE];
+  void (*function)();
+} GTP_command_t;
+
+
+////////////
+//  関数  //
+////////////
 
 #if defined (_WIN32)
 #define STRCPY(dst, size, src) strcpy_s((dst), (size), (src))
@@ -17,11 +49,6 @@ const int BUF_SIZE = 256;
 #define STRCPY(dst, size, src) strcpy((dst), (src))
 #define STRTOK(src, token, next) strtok((src), (token))
 #endif
-
-typedef struct {
-  char command[GTP_COMMAND_SIZE];
-  void (*function)();
-} GTP_command_t;
 
 #define CHOMP(command) if(command[strlen(command)-1] == '\n') command[strlen(command)-1] = '\0'
 
