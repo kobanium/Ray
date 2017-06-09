@@ -20,50 +20,11 @@
 
 using namespace std;
 
-// gtpの出力用関数
-static void GTP_response( const char *res, bool success );
-// boardsizeコマンドを処理
-static void GTP_boardsize( void );
-// clearboardコマンドを処理
-static void GTP_clearboard( void );
-// nameコマンドを処理
-static void GTP_name( void );
-// protocolversionコマンドを処理
-static void GTP_protocolversion( void );
-// genmoveコマンドを処理
-static void GTP_genmove( void );
-// playコマンドを処理
-static void GTP_play( void );
-// knowncommandコマンドを処理
-static void GTP_knowncommand( void );
-// listcommandsコマンドを処理
-static void GTP_listcommands( void );
-// quitコマンドを処理
-static void GTP_quit( void );
-// komiコマンドを処理
-static void GTP_komi( void );
-// getkomiコマンドを処理
-static void GTP_getkomi( void );
-// finalscoreコマンドを処理
-static void GTP_finalscore( void );
-// timesettingsコマンドを処理
-static void GTP_timesettings( void );
-// timeleftコマンドを処理
-static void GTP_timeleft( void );
-// versionコマンドを処理
-static void GTP_version( void );
-// showboardコマンドを処理
-static void GTP_showboard( void );
-// kgs-genmove_cleanupコマンドを処理
-static void GTP_kgs_genmove_cleanup( void );
-// final_status_listコマンドを処理
-static void GTP_final_status_list( void );
-// set_free_handicapコマンドを処理
-static void GTP_set_free_handicap( void );
-// fixed_handicapコマンドを処理
-static void GTP_fixed_handicap( void );
+////////////
+//  定数  //
+////////////
 
-
+//  GTPコマンド
 const GTP_command_t gtpcmd[GTP_COMMAND_NUM] = {
   { "quit",                GTP_quit                },
   { "protocol_version",    GTP_protocolversion     },
@@ -88,18 +49,75 @@ const GTP_command_t gtpcmd[GTP_COMMAND_NUM] = {
   { "kgs-genmove_cleanup", GTP_kgs_genmove_cleanup },
 };
 
+
+////////////
+//  変数  //
+////////////
+
+//  コマンドの処理用のバッファ
 char input[BUF_SIZE], input_copy[BUF_SIZE];
 char *next_token;
 
+//  応答用の文字列
 char brank[] = "";
 char err_command[] = "? unknown command";
 char err_genmove[] = "gemmove color";
 char err_play[] = "play color point";
 char err_komi[] = "komi float";
 
+//  自分の石の色
 int player_color = 0;
 
+//  盤面の情報
 game_info_t *game;
+
+
+////////////
+//  関数  //
+////////////
+
+//  gtpの出力用関数
+static void GTP_response( const char *res, bool success );
+//  boardsizeコマンドを処理
+static void GTP_boardsize( void );
+//  clearboardコマンドを処理
+static void GTP_clearboard( void );
+//  nameコマンドを処理
+static void GTP_name( void );
+//  protocolversionコマンドを処理
+static void GTP_protocolversion( void );
+//  genmoveコマンドを処理
+static void GTP_genmove( void );
+//  playコマンドを処理
+static void GTP_play( void );
+//  knowncommandコマンドを処理
+static void GTP_knowncommand( void );
+//  listcommandsコマンドを処理
+static void GTP_listcommands( void );
+//  quitコマンドを処理
+static void GTP_quit( void );
+//  komiコマンドを処理
+static void GTP_komi( void );
+//  getkomiコマンドを処理
+static void GTP_getkomi( void );
+//  finalscoreコマンドを処理
+static void GTP_finalscore( void );
+//  timesettingsコマンドを処理
+static void GTP_timesettings( void );
+//  timeleftコマンドを処理
+static void GTP_timeleft( void );
+//  versionコマンドを処理
+static void GTP_version( void );
+//  showboardコマンドを処理
+static void GTP_showboard( void );
+//  kgs-genmove_cleanupコマンドを処理
+static void GTP_kgs_genmove_cleanup( void );
+//  final_status_listコマンドを処理
+static void GTP_final_status_list( void );
+//  set_free_handicapコマンドを処理
+static void GTP_set_free_handicap( void );
+//  fixed_handicapコマンドを処理
+static void GTP_fixed_handicap( void );
 
 
 ///////////////////////
