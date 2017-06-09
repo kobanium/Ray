@@ -20,35 +20,6 @@
 
 using namespace std;
 
-////////////
-//  定数  //
-////////////
-
-//  GTPコマンド
-const GTP_command_t gtpcmd[GTP_COMMAND_NUM] = {
-  { "quit",                GTP_quit                },
-  { "protocol_version",    GTP_protocolversion     },
-  { "name",                GTP_name                },
-  { "version",             GTP_version             },
-  { "boardsize",           GTP_boardsize           },
-  { "clear_board",         GTP_clearboard          },
-  { "komi",                GTP_komi                },
-  { "get_komi",            GTP_getkomi             },
-  { "play",                GTP_play                },
-  { "fixed_handicap",      GTP_fixed_handicap      },
-  { "place_free_handicap", GTP_fixed_handicap      },
-  { "set_free_handicap",   GTP_set_free_handicap   },
-  { "genmove",             GTP_genmove             }, 
-  { "time_settings",       GTP_timesettings        },
-  { "time_left",           GTP_timeleft            },
-  { "final_score",         GTP_finalscore          },
-  { "final_status_list",   GTP_final_status_list   },
-  { "showboard",           GTP_showboard           },
-  { "list_commands",       GTP_listcommands        },
-  { "known_command",       GTP_knowncommand        },
-  { "kgs-genmove_cleanup", GTP_kgs_genmove_cleanup },
-};
-
 
 ////////////
 //  変数  //
@@ -120,6 +91,36 @@ static void GTP_set_free_handicap( void );
 static void GTP_fixed_handicap( void );
 
 
+////////////
+//  定数  //
+////////////
+
+//  GTPコマンド
+const std::vector<GTP_command_t> gtpcmd = {
+  { "quit",                GTP_quit },
+  { "protocol_version",    GTP_protocolversion },
+  { "name",                GTP_name },
+  { "version",             GTP_version },
+  { "boardsize",           GTP_boardsize },
+  { "clear_board",         GTP_clearboard },
+  { "komi",                GTP_komi },
+  { "get_komi",            GTP_getkomi },
+  { "play",                GTP_play },
+  { "fixed_handicap",      GTP_fixed_handicap },
+  { "place_free_handicap", GTP_fixed_handicap },
+  { "set_free_handicap",   GTP_set_free_handicap },
+  { "genmove",             GTP_genmove },
+  { "time_settings",       GTP_timesettings },
+  { "time_left",           GTP_timeleft },
+  { "final_score",         GTP_finalscore },
+  { "final_status_list",   GTP_final_status_list },
+  { "showboard",           GTP_showboard },
+  { "list_commands",       GTP_listcommands },
+  { "known_command",       GTP_knowncommand },
+  { "kgs-genmove_cleanup", GTP_kgs_genmove_cleanup },
+};
+
+
 ///////////////////////
 //  void GTP_main()  //
 ///////////////////////
@@ -137,10 +138,10 @@ GTP_main( void )
     command = STRTOK(input, DELIM, &next_token);
     CHOMP(command);
 
-    for (int i = 0; i < GTP_COMMAND_NUM; i++) {
-      if (!strcmp(command, gtpcmd[i].command)) {
+    for (const auto& cmd : gtpcmd) {
+      if (!strcmp(command, cmd.command)) {
 	StopPondering();
-	(*gtpcmd[i].function)();
+	(*cmd.function)();
 	nocommand = false;
 	break;
       }
@@ -354,8 +355,8 @@ GTP_knowncommand( void )
     return;
   }
   CHOMP(command);
-  for (int i = 0; i < GTP_COMMAND_NUM; i++){
-    if (!strcmp(command, gtpcmd[i].command)) {
+  for (const auto& cmd : gtpcmd) {
+    if (!strcmp(command, cmd.command)) {
       GTP_response("true", true);
       return;
     }
@@ -375,9 +376,9 @@ GTP_listcommands( void )
 
   i = 0;
   list[i++] = '\n';
-  for (int j = 0; j < GTP_COMMAND_NUM; j++) {
-    for (unsigned int k = 0; k < strlen(gtpcmd[j].command); k++){
-      list[i++] = gtpcmd[j].command[k];
+  for (const auto& cmd : gtpcmd) {
+    for (unsigned int k = 0; k < strlen(cmd.command); k++){
+      list[i++] = cmd.command[k];
     }
     list[i++] = '\n';
   }

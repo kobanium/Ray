@@ -5,9 +5,6 @@
 //  定数  //
 /////////////
 
-//  GTPコマンドの個数
-const int GTP_COMMAND_NUM = 21;
-
 //  GTPコマンドの文字数の上限
 const int GTP_COMMAND_SIZE = 64;
 
