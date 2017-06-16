@@ -5,9 +5,6 @@
 //  定数  //
 /////////////
 
-//  GTPコマンドの個数
-const int GTP_COMMAND_NUM = 21;
-
 //  GTPコマンドの文字数の上限
 const int GTP_COMMAND_SIZE = 64;
 
@@ -32,10 +29,10 @@ const int BUF_SIZE = 256;
 //////////////
 
 //  GTPコマンド処理用の構造体
-typedef struct {
+struct GTP_command_t {
   char command[GTP_COMMAND_SIZE];
   void (*function)();
-} GTP_command_t;
+};
 
 
 ////////////

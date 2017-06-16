@@ -21,12 +21,12 @@ const unsigned int UCT_HASH_SIZE = 16384;
 //  構造体  //
 //////////////
 
-typedef struct {
+struct node_hash_t {
   unsigned long long hash;
   int color;
   int moves;
   bool flag;
-} node_hash_t;
+};
 
 
 ////////////

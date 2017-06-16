@@ -24,10 +24,10 @@ enum LARGE_MD {
 //////////////
 
 //  パターン
-typedef struct pattern {
+struct pattern_t {
   unsigned int list[MD_MAX];
   unsigned long long large_list[MD_LARGE_MAX];
-} pattern_t;
+};
 
 
 ////////////

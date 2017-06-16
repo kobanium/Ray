@@ -14,10 +14,10 @@ const int NAKADE_QUEUE_SIZE = 30;
 //////////////
 //  構造体  //
 //////////////
-typedef struct {
+struct nakade_queue_t {
   int pos[NAKADE_QUEUE_SIZE];
   int head, tail;
-} nakade_queue_t;
+};
 
 ////////////
 //  関数  //

@@ -66,7 +66,7 @@ enum stone {
   S_MAX     // 番兵
 };
 
-enum eye_condition {
+enum eye_condition_t : unsigned char {
   E_NOT_EYE,           // 眼でない
   E_COMPLETE_HALF_EYE, // 完全に欠け眼(8近傍に打って1眼にできない)
   E_HALF_3_EYE,        // 欠け眼であるが, 3手で1眼にできる
@@ -84,7 +84,7 @@ struct move {
 };
 
 // 連を表す構造体 (19x19 : 1987bytes)
-typedef struct {
+struct string_t {
   char color;                    // 連の色
   int libs;                      // 連の持つ呼吸点数
   short lib[STRING_LIB_MAX];     // 連の持つ呼吸点の座標
@@ -93,12 +93,12 @@ typedef struct {
   int origin;                    // 連の始点の座標
   int size;                      // 連を構成する石の数
   bool flag;                     // 連の存在フラグ
-} string_t;
+};
 
 
 // 局面を表す構造体
-typedef struct {
-  struct move record[MAX_RECORDS];  // 着手箇所と色の記録
+struct game_info_t {
+  move record[MAX_RECORDS];  // 着手箇所と色の記録
   int moves;                        // 着手数の記録
   int prisoner[S_MAX];              // アゲハマ
   int ko_pos;                       // 劫となっている箇所
@@ -134,7 +134,7 @@ typedef struct {
   long long rate[2][BOARD_MAX];           // シミュレーション時の各座標のレート 
   long long sum_rate_row[2][BOARD_SIZE];  // シミュレーション時の各列のレートの合計値  
   long long sum_rate[2];                  // シミュレーション時の全体のレートの合計値
-} game_info_t;
+};
 
 
 ////////////////
@@ -187,7 +187,7 @@ extern unsigned char territory[PAT3_MAX];
 extern unsigned char nb4_empty[PAT3_MAX];
 
 // 眼の状態
-extern unsigned char eye_condition[PAT3_MAX];
+extern eye_condition_t eye_condition[PAT3_MAX];
 
 // x方向の距離
 extern int border_dis_x[BOARD_MAX]; 

@@ -2,39 +2,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#if !defined (_WIN32)
-#include <sys/time.h>
-#endif
-
 #include "Utility.h"
 
 using namespace std;
-
-
-//////////////////////
-//  消費時間の算出  //
-//////////////////////
-double
-GetSpendTime( const clock_t start_time )
-{
-  return (double)(clock() - start_time) * (1.0 / CLOCKS_PER_SEC);
-}
-
-
-#if !defined (_WIN32)
-//////////////////////////////
-//  消費時間の算出(Linux用)  //
-//////////////////////////////
-double
-GetSpendTimeForLinux( const struct timeval *start_time )
-{
-  struct timeval end_time;
-
-  gettimeofday(&end_time, NULL);
-
-  return (end_time.tv_sec - start_time->tv_sec) + (end_time.tv_usec - start_time->tv_usec) / 1000000.0;
-}
-#endif
 
 
 ////////////////////////////

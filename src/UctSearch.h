@@ -72,17 +72,17 @@ enum SEARCH_MODE {
 //////////////
 //  構造体  //
 //////////////
-typedef struct {
+struct thread_arg_t {
   game_info_t *game; // 探索対象の局面
   int thread_id;   // スレッド識別番号
   int color;       // 探索する手番
-}thread_arg_t;
+};
 
-typedef struct{
+struct statistic_t {
   std::atomic<int> colors[3];  // その箇所を領地にした回数
-} statistic_t;
+};
 
-typedef struct {
+struct child_node_t {
   int pos;  // 着手する座標
   std::atomic<int> move_count;  // 探索回数
   std::atomic<int> win;         // 勝った回数
@@ -91,12 +91,12 @@ typedef struct {
   bool flag;   // Progressive Wideningのフラグ
   bool open;   // 常に探索候補に入れるかどうかのフラグ
   bool ladder; // シチョウのフラグ
-} child_node_t;
+};
 
 //  9x9  : 1828bytes
 // 13x13 : 3764bytes
 // 19x19 : 7988bytes
-typedef struct {
+struct uct_node_t {
   int previous_move1;                 // 1手前の着手
   int previous_move2;                 // 2手前の着手
   std::atomic<int> move_count;
@@ -106,18 +106,18 @@ typedef struct {
   child_node_t child[UCT_CHILD_MAX];  // 子ノードの情報
   statistic_t statistic[BOARD_MAX];   // 統計情報 
   bool seki[BOARD_MAX];
-} uct_node_t;
+};
 
-typedef struct {
+struct po_info_t {
   int num;   // 次の手の探索回数
   int halt;  // 探索を打ち切る回数
   std::atomic<int> count;       // 現在の探索回数
-} po_info_t;
+};
 
-typedef struct {
+struct rate_order_t {
   int index;    // ノードのインデックス
   double rate;  // その手のレート
-} rate_order_t;
+};
 
 
 //////////////////////
