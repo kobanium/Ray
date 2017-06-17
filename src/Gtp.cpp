@@ -95,7 +95,7 @@ static void GTP_fixed_handicap( void );
 ////////////
 
 //  GTPコマンド
-const std::vector<GTP_command_t> gtpcmd = {
+const GTP_command_t gtpcmd[GTP_COMMANDS] = {
   { "quit",                GTP_quit },
   { "protocol_version",    GTP_protocolversion },
   { "name",                GTP_name },
@@ -137,10 +137,10 @@ GTP_main( void )
     command = STRTOK(input, DELIM, &next_token);
     CHOMP(command);
 
-    for (const auto& cmd : gtpcmd) {
-      if (!strcmp(command, cmd.command)) {
+    for (int i = 0; i < GTP_COMMANDS; i++) {
+      if (!strcmp(command, gtpcmd[i].command)) {
 	StopPondering();
-	(*cmd.function)();
+	(*gtpcmd[i].function)();
 	nocommand = false;
 	break;
       }
