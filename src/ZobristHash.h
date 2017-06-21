@@ -8,10 +8,10 @@
 ////////////
 
 enum hash{
-  HASH_PASS,
-  HASH_BLACK,
-  HASH_WHITE,
-  HASH_KO,
+  HASH_PASS,  // パス
+  HASH_BLACK, // 黒石
+  HASH_WHITE, // 白石
+  HASH_KO,    // 劫
 };
 
 //  ハッシュ表のサイズのデフォルト値
@@ -22,10 +22,10 @@ const unsigned int UCT_HASH_SIZE = 16384;
 //////////////
 
 struct node_hash_t {
-  unsigned long long hash;
-  int color;
-  int moves;
-  bool flag;
+  unsigned long long hash;  // ハッシュ値
+  int color;                // 手番
+  int moves;                // 手数
+  bool flag;                // 使用済みフラグ
 };
 
 
