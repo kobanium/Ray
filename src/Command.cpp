@@ -79,8 +79,7 @@ AnalyzeCommand( int argc, char **argv )
 	break;
       case COMMAND_SIZE:
 	// 碁盤の大きさの設定
-	i++;
-	size = atoi(argv[i]);
+	size = atoi(argv[++i]);
 	if (pure_board_size != size &&
 	    size > 0 && size <= PURE_BOARD_SIZE) {
 	  SetBoardSize(size);
