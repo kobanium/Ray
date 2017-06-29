@@ -22,9 +22,9 @@ const int HANDICAP_WEIGHT = 8;
 
 //  Dynamic Komiの設定
 enum DYNAMIC_KOMI_MODE {
-  DK_OFF,
-  DK_LINEAR,
-  DK_VALUE,
+  DK_OFF,     // Dynamic Komiなし
+  DK_LINEAR,  // Linear Handicap
+  DK_VALUE,   // Value Situational
 };
 
 
