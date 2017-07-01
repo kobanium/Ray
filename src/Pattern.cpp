@@ -39,7 +39,7 @@
 //////////////////////
 
 //  更新用ビットマスク
-static unsigned int update_mask[40][3] = {
+static const unsigned int update_mask[40][3] = {
   //  3x3
   { 0, 0x00004000, 0x00008000 }, //  1->8
   { 0, 0x00001000, 0x00002000 }, //  2->7
@@ -91,7 +91,7 @@ static unsigned int update_mask[40][3] = {
 
 
 
-static unsigned long long large_mask[][3] = {
+static const unsigned long long large_mask[][3] = {
   // md5 
   { 0, 0x0000000000100000, 0x0000000000200000 },
   { 0, 0x0000000000400000, 0x0000000000800000 },
