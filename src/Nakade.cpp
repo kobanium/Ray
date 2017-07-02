@@ -10,9 +10,13 @@
 
 using namespace std;
 
+// 3目のナカデの形の個数
 static const int NAKADE_3 = 6;
+// 4目のナカデの形の個数
 static const int NAKADE_4 = 5;
+// 5目のナカデの形の個数
 static const int NAKADE_5 = 9;
+// 6目のナカデの形の個数
 static const int NAKADE_6 = 4;
 
 static const int NAKADE_PATTERNS[4] = {
@@ -28,6 +32,7 @@ int nakade_pos[4][NAKADE_MAX_SIZE];
 
 static int start = BOARD_MAX / 2;
 
+// ナカデの存在可否を判定するためのビットマスク
 unsigned int nakade_pat3_mask[PAT3_MAX];
 
 // ナカデが現れないパターン
@@ -320,14 +325,10 @@ IsNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   const int *string_next = game->string_next;
-  int stones[10];
-  int my_stone;
-  int n = 0, reviser;
-  unsigned long long hash = 0;
-  int checked[4] = { 0 };
-  int check = 0;
-  int id;
   const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
+  unsigned long long hash = 0;
+  int stones[10], checked[4] = { 0 };
+  int check = 0, n = 0, my_stone, reviser, id;
 
   // 上下左右を確認し, 自分の連だったら, それぞれの石の座標を記録
   for (int i = 0 ; i < 4; i++) {
@@ -399,14 +400,11 @@ IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   const int *string_next = game->string_next;
-  int stones[10];
-  int my_stone;
-  int n = 0, reviser;
-  unsigned long long hash = 0;
-  int checked[4] = { 0 };
-  int check = 0;
-  int id;
   const int neighbor4[4] = { NORTH(pos), WEST(pos), EAST(pos), SOUTH(pos) };
+  unsigned long long hash = 0;
+  int stones[10], checked[4] = { 0 };
+  int n = 0, check = 0, my_stone, reviser, id;
+
 
   // 上下左右を確認し, 自分の連だったら, それぞれの石の座標を記録
   for (int i = 0 ; i < 4; i++) {
@@ -469,16 +467,12 @@ IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
 static int
 FindNakadePos( const game_info_t *game, const int pos, const int color )
 {
-  nakade_queue_t nakade_queue;
   const char *board = game->board;
-  int size = 0;
   bool flag[BOARD_MAX] = { false };  
-  int current_pos;
-  int nakade[10];
-  int nakade_num = 0;
+  nakade_queue_t nakade_queue;
   unsigned long long hash = 0;
-  int reviser;
-  int neighbor4[4];
+  int nakade[10], neighbor4[4];
+  int size = 0, nakade_num = 0, current_pos, reviser;
 
   // キューの初期化
   InitializeNakadeQueue(&nakade_queue);
@@ -580,8 +574,8 @@ CheckRemovedStoneNakade( const game_info_t *game, const int color )
 {
   const int capture_num = game->capture_num[FLIP_COLOR(color)];
   const int *capture_pos = game->capture_pos[FLIP_COLOR(color)];
-  int reviser;
   unsigned long long hash = 0;
+  int reviser;
 
   // 捕獲した石の数が3個以上6個以下なら確認し
   // それ以外なら何もしないで終了
