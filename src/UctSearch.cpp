@@ -1163,22 +1163,23 @@ UctSearch( game_info_t *game, int color, mt19937_64 *mt, int current, int *winne
     score = (double)CalculateScore(game);
     
     // コミを考慮した勝敗
-    if (score - dynamic_komi[my_color] > 0) {
-      result = (color == S_BLACK ? 0 : 1);
-      *winner = S_BLACK;
-    } else if (score - dynamic_komi[my_color] < 0){
-      result = (color == S_WHITE ? 0 : 1);
-      *winner = S_WHITE;
-    } else {
-      if ((*mt)() & 0x1) {
-	result = 1;
-	*winner = my_color;
+    if (my_color == S_BLACK) {
+      if (score - dynamic_komi[my_color] >= 0) {
+	result = (color == S_BLACK ? 0 : 1);
+	*winner = S_BLACK;
       } else {
-	result = 0;
-	*winner = FLIP_COLOR(my_color);
+	result = (color == S_WHITE ? 0 : 1);
+	*winner = S_WHITE;
+      }
+    } else {
+      if (score - dynamic_komi[my_color] > 0) {
+	result = (color == S_BLACK ? 0 : 1);
+	*winner = S_BLACK;
+      } else {
+	result = (color == S_WHITE ? 0 : 1);
+	*winner = S_WHITE;
       }
     }
-    
     // 統計情報の記録
     Statistic(game, *winner);
   } else {
