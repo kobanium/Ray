@@ -7,7 +7,6 @@
 
 using namespace std;
 
-
 #define ALIVE true
 #define DEAD  false
 
@@ -88,7 +87,8 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
   int escape_color, capture_color;
   int escape_xy, capture_xy;
   int neighbor;
-
+  bool result;
+  
   if (depth >= 100) {
     return ALIVE;
   }
@@ -110,11 +110,11 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
       if (string[neighbor].libs == 1) {
 	if (IsLegalForSearch(game, string[neighbor].lib[0], escape_color)) {
 	  PutStoneForSearch(game, string[neighbor].lib[0], escape_color);
-	  if (IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color)) == ALIVE) {
-	    Undo(game);
+	  result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+	  Undo(game);
+	  if (result == ALIVE) {
 	    return ALIVE;
 	  }
-	  Undo(game);
 	}
       }
       neighbor = string[str].neighbor[neighbor];
@@ -125,11 +125,11 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
     while (escape_xy != LIBERTY_END) {
       if (IsLegalForSearch(game, escape_xy, escape_color)) {
 	PutStoneForSearch(game, escape_xy, escape_color);
-	if (IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color)) == ALIVE) {
-	  Undo(game);
+	result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+	Undo(game);
+	if (result == ALIVE) {
 	  return ALIVE;
 	}
-	Undo(game);
       }
       escape_xy = string[str].lib[escape_xy];
     }
@@ -143,11 +143,11 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
     while (capture_xy != LIBERTY_END) {
       if (IsLegalForSearch(game, capture_xy, capture_color)) {
 	PutStoneForSearch(game, capture_xy, capture_color);
-	if (IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color)) == DEAD) {
-	  Undo(game);
+	result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+	Undo(game);
+	if (result == DEAD) {
 	  return DEAD;
 	}
-	Undo(game);
       }
       capture_xy = string[str].lib[capture_xy];
     }
