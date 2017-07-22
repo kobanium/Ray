@@ -77,7 +77,7 @@ enum eye_condition_t : unsigned char {
 };
 
 // 着手を記録する構造体
-struct move {
+struct record_t {
   int color;                // 着手した石の色
   int pos;                  // 着手箇所の座標
   unsigned long long hash;  // 局面のハッシュ値
@@ -98,7 +98,7 @@ struct string_t {
 
 // 局面を表す構造体
 struct game_info_t {
-  move record[MAX_RECORDS];  // 着手箇所と色の記録
+  record_t record[MAX_RECORDS];  // 着手箇所と色の記録
   int moves;                        // 着手数の記録
   int prisoner[S_MAX];              // アゲハマ
   int ko_pos;                       // 劫となっている箇所
