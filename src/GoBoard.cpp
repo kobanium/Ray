@@ -255,7 +255,7 @@ FreeGame( game_info_t *game )
 void
 InitializeBoard( game_info_t *game )
 {
-  memset(game->record, 0, sizeof(struct move) * MAX_RECORDS);
+  memset(game->record, 0, sizeof(record_t) * MAX_RECORDS);
   memset(game->pat,    0, sizeof(pattern_t) * board_max);
 
   fill_n(game->board, board_max, 0);              
@@ -312,7 +312,7 @@ InitializeBoard( game_info_t *game )
 void
 CopyGame( game_info_t *dst, const game_info_t *src )
 {
-  memcpy(dst->record,             src->record,             sizeof(struct move) * MAX_RECORDS);
+  memcpy(dst->record,             src->record,             sizeof(record_t) * MAX_RECORDS);
   memcpy(dst->prisoner,           src->prisoner,           sizeof(int) * S_MAX);
   memcpy(dst->board,              src->board,              sizeof(char) * board_max);  
   memcpy(dst->pat,                src->pat,                sizeof(pattern_t) * board_max); 
