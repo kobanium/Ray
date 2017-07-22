@@ -3,6 +3,9 @@
 
 #include "GoBoard.h"
 
+//////////////
+//  構造体  //
+//////////////
 struct search_game_info_t{
   record_t record[MAX_RECORDS];               // 着手箇所と色の記録
   int moves;                                  // 着手数の記録
@@ -29,7 +32,7 @@ struct search_game_info_t{
 ////////////
 
 // メモリの確保
-search_game_info_t* AllocateSearchGame(void);
+search_game_info_t* AllocateSearchGame( void );
 
 // メモリの開放
 void FreeSearchGame( search_game_info_t *game );
