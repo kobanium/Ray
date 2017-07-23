@@ -357,7 +357,7 @@ AddStone( search_game_info_t *game, const int pos, const int color, const int id
   int *string_id = game->string_id;
   int lib_add = 0;
   int other = FLIP_COLOR(color);
-  int neighbor, neighbor4[4], i;
+  int neighbor, neighbor4[4];
 
   // IDを更新
   string_id[pos] = id;
@@ -373,7 +373,7 @@ AddStone( search_game_info_t *game, const int pos, const int color, const int id
 
   // 空点なら呼吸点を追加し
   // 敵の石があれば隣接する敵連の情報を更新
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == S_EMPTY) {
       lib_add = AddLiberty(add_str, neighbor4[i], lib_add);
     } else if (board[neighbor4[i]] == other) {
@@ -478,7 +478,7 @@ MakeString( search_game_info_t *game, const int pos, const int color )
   int id = 1;
   int lib_add = 0;
   int other = FLIP_COLOR(color);
-  int neighbor, neighbor4[4], i;
+  int neighbor, neighbor4[4];
 
   // 未使用の連のインデックスを見つける
   while (string[id].flag) { id++; }
@@ -505,7 +505,7 @@ MakeString( search_game_info_t *game, const int pos, const int color )
   // 新しく作成した連の上下左右の座標を確認
   // 空点ならば, 作成した連に呼吸点を追加する
   // 敵の連ならば, 隣接する連をお互いに追加する
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == S_EMPTY) {
       lib_add = AddLiberty(new_string, neighbor4[i], lib_add);
     } else if (board[neighbor4[i]] == other) {
@@ -844,8 +844,10 @@ Undo( search_game_info_t *game )
   string_t *string = game->string;
   int *string_id = game->string_id;
 
+  // 連を取り除く
   RemoveString(game, &string[string_id[previous_move]]);
 
+  // 連を1手前の状態に戻す
   for (int i = 0; i < game->strings[pm_count]; i++) {
     if (game->string_color[pm_count][i] == opponent_color) {
       game->prisoner[played_color] -= game->stones[pm_count][i];
