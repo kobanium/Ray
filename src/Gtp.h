@@ -21,7 +21,7 @@ const int GTP_COMMANDS = 21;
 #define PROGRAM_NAME  "Ray"
 
 //  プログラムのバージョン
-#define PROGRAM_VERSION  "8.0.1"
+#define PROGRAM_VERSION  "9.0.1"
 
 //  GTPのバージョン
 #define PROTOCOL_VERSION  "2"
