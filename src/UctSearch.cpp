@@ -1026,7 +1026,6 @@ ParallelUctSearch( thread_arg_t *arg )
   bool enough_size = true;
   int winner = 0;
   int interval = CRITICALITY_INTERVAL;
-  bool seki[BOARD_MAX] = {false};
   
   game = AllocateGame();
 
@@ -1040,7 +1039,6 @@ ParallelUctSearch( thread_arg_t *arg )
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
-      memcpy(game->seki, seki, sizeof(bool) * BOARD_MAX);
       // 1回プレイアウトする
       UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
       // 探索を打ち切るか確認
@@ -1061,7 +1059,6 @@ ParallelUctSearch( thread_arg_t *arg )
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
-      memcpy(game->seki, seki, sizeof(bool) * BOARD_MAX);
       // 1回プレイアウトする
       UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
       // 探索を打ち切るか確認
