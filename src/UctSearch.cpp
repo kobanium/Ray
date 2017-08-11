@@ -282,6 +282,11 @@ SetParameter( void )
 void
 SetTimeSettings( int main_time, int byoyomi, int stone )
 {
+  if (mode == CONST_PLAYOUT_MODE ||
+      mode == CONST_TIME_MODE) {
+    return ;
+  }
+  
   if (main_time == 0) {
     const_thinking_time = (double)byoyomi * 0.85;
     mode = CONST_TIME_MODE;
@@ -392,7 +397,7 @@ void
 StopPondering( void )
 {
   if (!pondering_mode) {
-    return;
+    return ;
   }
 
   if (ponder) {
