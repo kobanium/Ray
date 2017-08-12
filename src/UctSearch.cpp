@@ -324,7 +324,7 @@ InitializeUctSearch( void )
   }
 
   // UCTのノードのメモリを確保
-  uct_node = (uct_node_t *)malloc(sizeof(uct_node_t) * uct_hash_size);
+  uct_node = new uct_node_t[uct_hash_size];
   
   if (uct_node == NULL) {
     cerr << "Cannot allocate memory !!" << endl;
@@ -1029,8 +1029,6 @@ ParallelUctSearch( thread_arg_t *arg )
   
   game = AllocateGame();
 
-  CheckSeki(targ->game, seki);
-  
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {

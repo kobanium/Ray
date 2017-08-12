@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "Message.h"
 #include "Ladder.h"
@@ -20,12 +21,13 @@ void
 LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 {
   const string_t *string = game->string;
-  search_game_info_t ladder_game;
+  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t());
+  search_game_info_t *ladder_game = search_game.get();
   bool checked[BOARD_MAX] = { false };  
   int neighbor, ladder = PASS;
   bool flag;
 
-  CopyGameForSearch(&ladder_game, game);
+  CopyGameForSearch(ladder_game, game);
   
   for (int i = 0; i < MAX_STRING; i++) {
     if (!string[i].flag ||
@@ -44,15 +46,15 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
       while (neighbor != NEIGHBOR_END && !flag) {
 	if (string[neighbor].libs == 1) {
 	  if (IsLegal(game, string[neighbor].lib[0], color)) {
-	      PutStoneForSearch(&ladder_game, string[neighbor].lib[0], color);
-	      if (IsLadderCaptured(0, &ladder_game, string[i].origin, FLIP_COLOR(color)) == DEAD) {
-		if (string[i].size >= 2) {
+	    PutStoneForSearch(ladder_game, string[neighbor].lib[0], color);
+	    if (IsLadderCaptured(0, ladder_game, string[i].origin, FLIP_COLOR(color)) == DEAD) {
+	      if (string[i].size >= 2) {
 		  ladder_pos[string[neighbor].lib[0]] = true;
 		}
 	      } else {
 		flag = true;
 	      }
-	      Undo(&ladder_game);
+	      Undo(ladder_game);
 	    }
 	}
 	neighbor = string[i].neighbor[neighbor];
@@ -61,12 +63,12 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
       // 取って助からない時は逃げてみる
       if (!flag) {
 	if (IsLegal(game, ladder, color)) {
-	  PutStoneForSearch(&ladder_game, ladder, color);
+	  PutStoneForSearch(ladder_game, ladder, color);
 	  if (string[i].size >= 2 &&
-	      IsLadderCaptured(0, &ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
+	      IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
 	    ladder_pos[ladder] = true;
 	  }
-	  Undo(&ladder_game);
+	  Undo(ladder_game);
 	}
       }
       checked[ladder] = true;
@@ -167,7 +169,8 @@ CheckLadderExtension( game_info_t *game, int color, int pos )
   string_t *string = game->string;
   int *string_id = game->string_id;
   int ladder = PASS;
-  search_game_info_t ladder_game;
+  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t());
+  search_game_info_t *ladder_game = search_game.get();
   bool flag = false;
   int id;
 
@@ -181,9 +184,9 @@ CheckLadderExtension( game_info_t *game, int color, int pos )
 
   if (string[id].libs == 1 &&
       IsLegal(game, ladder, color)) {
-    CopyGameForSearch(&ladder_game, game);
-    PutStoneForSearch(&ladder_game, ladder, color);
-    if (IsLadderCaptured(0, &ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
+    CopyGameForSearch(ladder_game, game);
+    PutStoneForSearch(ladder_game, ladder, color);
+    if (IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
       flag = true;
     } else {
       flag = false;

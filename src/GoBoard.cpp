@@ -232,7 +232,7 @@ game_info_t *
 AllocateGame( void )
 {
   game_info_t *game;
-  game = (game_info_t*)malloc(sizeof(game_info_t));
+  game = new game_info_t();
   memset(game, 0, sizeof(game_info_t));
 
   return game;
@@ -245,7 +245,7 @@ AllocateGame( void )
 void
 FreeGame( game_info_t *game )
 {
-  if (game) free(game);
+  if (game) delete game;
 }
 
 

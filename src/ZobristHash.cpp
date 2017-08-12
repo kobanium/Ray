@@ -84,7 +84,7 @@ InitializeHash( void )
     shape_bit[i] = mt();
   }
 
-  node_hash = (node_hash_t *)malloc(sizeof(node_hash_t) * uct_hash_size);
+  node_hash = new node_hash_t[uct_hash_size];
 
   if (node_hash == NULL) {
     cerr << "Cannot allocate memory" << endl;
