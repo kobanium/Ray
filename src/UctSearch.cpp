@@ -282,6 +282,11 @@ SetParameter( void )
 void
 SetTimeSettings( int main_time, int byoyomi, int stone )
 {
+  if (mode == CONST_PLAYOUT_MODE ||
+      mode == CONST_TIME_MODE) {
+    return ;
+  }
+  
   if (main_time == 0) {
     const_thinking_time = (double)byoyomi * 0.85;
     mode = CONST_TIME_MODE;
@@ -319,7 +324,7 @@ InitializeUctSearch( void )
   }
 
   // UCTのノードのメモリを確保
-  uct_node = (uct_node_t *)malloc(sizeof(uct_node_t) * uct_hash_size);
+  uct_node = new uct_node_t[uct_hash_size];
   
   if (uct_node == NULL) {
     cerr << "Cannot allocate memory !!" << endl;
@@ -392,7 +397,7 @@ void
 StopPondering( void )
 {
   if (!pondering_mode) {
-    return;
+    return ;
   }
 
   if (ponder) {
@@ -1021,12 +1026,9 @@ ParallelUctSearch( thread_arg_t *arg )
   bool enough_size = true;
   int winner = 0;
   int interval = CRITICALITY_INTERVAL;
-  bool seki[BOARD_MAX] = {false};
   
   game = AllocateGame();
 
-  CheckSeki(targ->game, seki);
-  
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
@@ -1035,7 +1037,6 @@ ParallelUctSearch( thread_arg_t *arg )
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
-      memcpy(game->seki, seki, sizeof(bool) * BOARD_MAX);
       // 1回プレイアウトする
       UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
       // 探索を打ち切るか確認
@@ -1056,7 +1057,6 @@ ParallelUctSearch( thread_arg_t *arg )
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
-      memcpy(game->seki, seki, sizeof(bool) * BOARD_MAX);
       // 1回プレイアウトする
       UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
       // 探索を打ち切るか確認
