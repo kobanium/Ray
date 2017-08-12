@@ -68,7 +68,7 @@ AllocateSearchGame( void )
 {
   search_game_info_t *game;
 
-  game = (search_game_info_t*)malloc(sizeof(search_game_info_t));
+  game = new search_game_info_t();
   memset(game, 0, sizeof(search_game_info_t));
 
   return game;
@@ -81,7 +81,7 @@ AllocateSearchGame( void )
 void
 FreeSearchGame( search_game_info_t *game )
 {
-  if (game) free(game);
+  if (game) delete game;
 }
 
 
