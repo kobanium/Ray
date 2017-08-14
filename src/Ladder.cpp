@@ -165,9 +165,9 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
 bool
 CheckLadderExtension( game_info_t *game, int color, int pos )
 {
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
   int ladder = PASS;
   std::unique_ptr<search_game_info_t> search_game(new search_game_info_t());
   search_game_info_t *ladder_game = search_game.get();
