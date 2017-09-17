@@ -21,28 +21,24 @@ void
 LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 {
   const string_t *string = game->string;
-  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t());
+  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
   search_game_info_t *ladder_game = search_game.get();
-  bool checked[BOARD_MAX] = { false };  
-  int neighbor, ladder = PASS;
-  bool flag;
+  bool checked[BOARD_MAX] = { false };
 
-  CopyGameForSearch(ladder_game, game);
-  
   for (int i = 0; i < MAX_STRING; i++) {
     if (!string[i].flag ||
 	string[i].color != color) {
       continue;
     }
     // アタリから逃げる着手箇所
-    ladder = string[i].lib[0];
+    int ladder = string[i].lib[0];
 
-    flag = false;
+    bool flag = false;
 
     // アタリを逃げる手で未探索のものを確認
     if (!checked[ladder] && string[i].libs == 1) {
       // 隣接する敵連を取って助かるかを確認
-      neighbor = string[i].neighbor[0];
+      int neighbor = string[i].neighbor[0];
       while (neighbor != NEIGHBOR_END && !flag) {
 	if (string[neighbor].libs == 1) {
 	  if (IsLegal(game, string[neighbor].lib[0], color)) {
@@ -168,23 +164,20 @@ CheckLadderExtension( game_info_t *game, int color, int pos )
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  int ladder = PASS;
-  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t());
-  search_game_info_t *ladder_game = search_game.get();
   bool flag = false;
-  int id;
 
   if (board[pos] != color){
     return false;
   }
 
-  id = string_id[pos];
+  int id = string_id[pos];
 
-  ladder = string[id].lib[0];
+  int ladder = string[id].lib[0];
 
   if (string[id].libs == 1 &&
       IsLegal(game, ladder, color)) {
-    CopyGameForSearch(ladder_game, game);
+    std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
+    search_game_info_t *ladder_game = search_game.get();
     PutStoneForSearch(ladder_game, ladder, color);
     if (IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
       flag = true;
