@@ -73,8 +73,6 @@ search_game_info_t::search_game_info_t( const game_info_t *src )
   memcpy(string_next, src->string_next, sizeof(int) * STRING_POS_MAX);
   memcpy(candidates,  src->candidates, sizeof(bool) * BOARD_MAX);
 
-  memset(undo, 0, sizeof(undo_record_t) * MAX_RECORDS);
-
   for (int i = 0; i < MAX_STRING; i++) {
     if (src->string[i].flag) {
       memcpy(&string[i], &src->string[i], sizeof(string_t));
@@ -87,6 +85,7 @@ search_game_info_t::search_game_info_t( const game_info_t *src )
   ko_move = src->ko_move;
   ko_pos = src->ko_pos;
 
+  memset(&undo[moves], 0, sizeof(undo_record_t));
   undo[moves].ko_move_record = ko_move;
   undo[moves].ko_pos_record = ko_pos;
 }
@@ -223,6 +222,7 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
 
   // 手数を1つだけ進める
   game->moves++;
+  memset(&game->undo[game->moves], 0, sizeof(undo_record_t));
   game->undo[game->moves].ko_move_record = game->ko_move;
   game->undo[game->moves].ko_pos_record = game->ko_pos;
 

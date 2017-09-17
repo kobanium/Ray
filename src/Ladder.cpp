@@ -21,8 +21,7 @@ void
 LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 {
   const string_t *string = game->string;
-  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
-  search_game_info_t *ladder_game = search_game.get();
+  std::unique_ptr<search_game_info_t> search_game;
   bool checked[BOARD_MAX] = { false };
 
   for (int i = 0; i < MAX_STRING; i++) {
@@ -37,6 +36,9 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 
     // アタリを逃げる手で未探索のものを確認
     if (!checked[ladder] && string[i].libs == 1) {
+      if (!search_game)
+        search_game.reset(new search_game_info_t(game));
+      search_game_info_t *ladder_game = search_game.get();
       // 隣接する敵連を取って助かるかを確認
       int neighbor = string[i].neighbor[0];
       while (neighbor != NEIGHBOR_END && !flag) {
