@@ -270,6 +270,7 @@ InitializeBoard( game_info_t *game )
   game->previous1_hash = 0;
   game->previous2_hash = 0;
   game->positional_hash = 0;
+  game->move_hash = 0;
 
   SetKomi(default_komi);
 
@@ -337,6 +338,7 @@ CopyGame( game_info_t *dst, const game_info_t *src )
   dst->previous1_hash = src->previous1_hash;
   dst->previous2_hash = src->previous2_hash;
   dst->positional_hash = src->positional_hash;
+  dst->move_hash = src->move_hash;
 
   dst->pass_count = src->pass_count;
 
@@ -967,6 +969,7 @@ PutStone( game_info_t *game, const int pos, const int color )
   if (game->moves < MAX_RECORDS) {
     game->record[game->moves].color = color;
     game->record[game->moves].pos = pos;
+    game->move_hash ^= move_bit[game->moves][pos][color];
   }
 
   // 着手がパスなら手数を進めて終了
