@@ -1,6 +1,8 @@
 #ifndef _ZOBRISTHASH_H_
 #define _ZOBRISTHASH_H_
 
+#include <vector>
+
 #include "GoBoard.h"
 
 ////////////
@@ -32,6 +34,9 @@ struct node_hash_t {
 ////////////
 //  変数  //
 ////////////
+
+//  UCTのノード用のビット列 (局面の合流なし)
+extern unsigned long long move_bit[MAX_RECORDS][BOARD_MAX][HASH_KO + 1];
 
 //  局面を表現するためのビット列
 extern unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];
@@ -72,5 +77,8 @@ unsigned int FindSameHashIndex( const unsigned long long hash, const int color, 
 
 //  ハッシュ表が埋まっていないか確認
 bool CheckRemainingHashSize( void );
+
+//  現局面から到達しないノードを削除
+void ClearNotDescendentNodes( std::vector<int> &indexes );
 
 #endif

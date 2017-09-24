@@ -108,7 +108,8 @@ struct game_info_t {
   unsigned long long previous1_hash;   // 1手前の局面のハッシュ値
   unsigned long long previous2_hash;   // 2手前の局面のハッシュ値
   unsigned long long positional_hash;  // 局面のハッシュ値(石の位置のみ)
-
+  unsigned long long move_hash;        // 着手列のハッシュ値(合流なし)
+  
   char board[BOARD_MAX];            // 盤面 
 
   int pass_count;                   // パスした回数

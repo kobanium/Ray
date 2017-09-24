@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <iostream>
+#include <iterator>
 #include <random>
+#include <vector>
 
 #include "Nakade.h"
 #include "ZobristHash.h"
@@ -11,6 +13,9 @@ using namespace std;
 ////////////
 //  変数  //
 ////////////
+
+//  UCTのノード用のビット列 (局面の合流なし)
+unsigned long long move_bit[MAX_RECORDS][BOARD_MAX][HASH_KO + 1]; 
 
 // 局面を表すためのビット列
 unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];
@@ -76,6 +81,15 @@ InitializeHash( void )
   std::random_device rnd;
   std::mt19937_64 mt(rnd());
 
+  for (int i = 0; i < MAX_RECORDS; i++) {
+    for (int j = 0; j < BOARD_MAX; j++) {
+      move_bit[i][j][HASH_PASS] = mt();
+      move_bit[i][j][HASH_BLACK] = mt();
+      move_bit[i][j][HASH_WHITE] = mt();
+      move_bit[i][j][HASH_KO] = mt();
+    }
+  }
+    
   for (int i = 0; i < BOARD_MAX; i++) {  
     hash_bit[i][HASH_PASS]  = mt();
     hash_bit[i][HASH_BLACK] = mt();
@@ -129,6 +143,30 @@ ClearUctHash( void )
     node_hash[i].color = 0;
     node_hash[i].moves = 0;
   }
+}
+
+
+////////////////////////////////////////
+//  現局面から到達し得ないノードの削除  //
+////////////////////////////////////////
+void
+ClearNotDescendentNodes( vector<int> &indexes )
+{
+  auto iter = indexes.begin();
+
+  for (int i = 0; i < (int)uct_hash_size; i++) {
+    if (*iter == i) {
+      iter++;
+    } else if (node_hash[i].flag) {
+      node_hash[i].flag = false;
+      node_hash[i].hash = 0;
+      node_hash[i].color = 0;
+      node_hash[i].moves = 0;
+      used--;
+    }
+  }
+
+  enough_size = true;
 }
 
 
