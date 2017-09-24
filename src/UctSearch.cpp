@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <climits>
@@ -147,6 +148,9 @@ static void CalculateOwner( int color, int count );
 
 // Ownership
 static void CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistc, int color, int *index );
+
+// 現局面の子ノードのインデックスの導出
+static void CorrectDescendentNodes( vector<int> &indexes, int index );
 
 // ノードの展開
 static int ExpandNode( game_info_t *game, int color, int current );
@@ -440,12 +444,6 @@ UctSearchGenmove( game_info_t *game, int color )
     candidates[pos] = true;
   }
 
-  if (reuse_subtree) {
-    DeleteOldHash(game);
-  } else {
-    ClearUctHash();
-  }
-
   // 探索開始時刻の記録
   begin_time = ray_clock::now();
   
@@ -591,8 +589,6 @@ UctSearchPondering( game_info_t *game, int color )
     candidates[pos] = true;
   }
 
-  DeleteOldHash(game);
-
   // UCTの初期化
   current_root = ExpandRoot(game, color);
 
@@ -644,7 +640,8 @@ InitializeCandidate( child_node_t *uct_child, int pos, bool ladder )
 static int
 ExpandRoot( game_info_t *game, int color )
 {
-  unsigned int index = FindSameHashIndex(game->current_hash, color, game->moves);
+  unsigned long long hash = game->move_hash;
+  unsigned int index = FindSameHashIndex(hash, color, game->moves);
   child_node_t *uct_child;
   int i, pos, child_num = 0;
   bool ladder[BOARD_MAX] = { false };  
@@ -663,6 +660,13 @@ ExpandRoot( game_info_t *game, int color )
 
   // 既に展開されていた時は, 探索結果を再利用する
   if (index != uct_hash_size) {
+    vector<int> indexes;
+
+    // 現局面の子ノード以外を削除する
+    CorrectDescendentNodes(indexes, index);
+    std::sort(indexes.begin(), indexes.end());
+    ClearNotDescendentNodes(indexes);
+    
     // 直前と2手前の着手を更新
     uct_node[index].previous_move1 = pm1;
     uct_node[index].previous_move2 = pm2;
@@ -695,8 +699,11 @@ ExpandRoot( game_info_t *game, int color )
 
     return index;
   } else {
+    // 全ノードのクリア
+    ClearUctHash();
+    
     // 空のインデックスを探す
-    index = SearchEmptyIndex(game->current_hash, color, game->moves);
+    index = SearchEmptyIndex(hash, color, game->moves);
 
     assert(index != uct_hash_size);    
     
@@ -760,7 +767,8 @@ ExpandRoot( game_info_t *game, int color )
 static int
 ExpandNode( game_info_t *game, int color, int current )
 {
-  unsigned int index = FindSameHashIndex(game->current_hash, color, game->moves);
+  unsigned long long hash = game->move_hash;
+  unsigned int index = FindSameHashIndex(hash, color, game->moves);
   child_node_t *uct_child, *uct_sibling;
   int i, pos, child_num = 0;
   double max_rate = 0.0;
@@ -774,7 +782,7 @@ ExpandNode( game_info_t *game, int color, int current )
   }
 
   // 空のインデックスを探す
-  index = SearchEmptyIndex(game->current_hash, color, game->moves);
+  index = SearchEmptyIndex(hash, color, game->moves);
 
   assert(index != uct_hash_size);    
 
@@ -1732,3 +1740,20 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
 }
 
 
+///////////////////////////////////
+//  子ノードのインデックスの収集  //
+///////////////////////////////////
+static void
+CorrectDescendentNodes(vector<int> &indexes, int index)
+{
+  child_node_t *uct_child = uct_node[index].child;
+  const int child_num = uct_node[index].child_num;
+
+  indexes.push_back(index);
+
+  for (int i = 0; i < child_num; i++) {
+    if (uct_child[i].index != NOT_EXPANDED) {
+      CorrectDescendentNodes(indexes, uct_child[i].index);
+    }
+  }   
+}
