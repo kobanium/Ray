@@ -63,64 +63,31 @@ static void RestoreChain( search_game_info_t *game, const int id, const int ston
 ///////////////////
 //  メモリの確保  //
 ///////////////////
-search_game_info_t *
-AllocateSearchGame( void )
+search_game_info_t::search_game_info_t( const game_info_t *src )
 {
-  search_game_info_t *game;
+  memcpy(record,      src->record,      sizeof(record_t) * MAX_RECORDS);
+  memcpy(prisoner,    src->prisoner,    sizeof(int) * S_MAX);
+  memcpy(board,       src->board,       sizeof(char) * BOARD_MAX);
+  memcpy(pat,         src->pat,         sizeof(pattern_t) * BOARD_MAX);
+  memcpy(string_id,   src->string_id,   sizeof(int) * STRING_POS_MAX);
+  memcpy(string_next, src->string_next, sizeof(int) * STRING_POS_MAX);
+  memcpy(candidates,  src->candidates, sizeof(bool) * BOARD_MAX);
 
-  game = new search_game_info_t();
-  memset(game, 0, sizeof(search_game_info_t));
-
-  return game;
-}
-
-
-////////////////////
-// 　メモリの開放  //
-////////////////////
-void
-FreeSearchGame( search_game_info_t *game )
-{
-  if (game) delete game;
-}
-
-
-///////////////////////////////
-//  局面のコピー(データ削減)  //
-///////////////////////////////
-void
-CopyGameForSearch( search_game_info_t *dst, const game_info_t *src )
-{
-  memcpy(dst->record,      src->record,      sizeof(record_t) * MAX_RECORDS);
-  memcpy(dst->prisoner,    src->prisoner,    sizeof(int) * S_MAX);
-  memcpy(dst->board,       src->board,       sizeof(char) * BOARD_MAX);
-  memcpy(dst->pat,         src->pat,         sizeof(pattern_t) * BOARD_MAX);
-  memcpy(dst->string_id,   src->string_id,   sizeof(int) * STRING_POS_MAX);
-  memcpy(dst->string_next, src->string_next, sizeof(int) * STRING_POS_MAX);
-  memcpy(dst->candidates,  src->candidates,  sizeof(bool) * BOARD_MAX);
-
-  memset(dst->stone,          0, sizeof(int) * MAX_RECORDS * 4 * PURE_BOARD_MAX);
-  memset(dst->stones,         0, sizeof(int) * MAX_RECORDS * 4);
-  memset(dst->strings,        0, sizeof(int) * MAX_RECORDS);
-  memset(dst->strings_id,     0, sizeof(int) * MAX_RECORDS * 4);
-  memset(dst->string_color,   0, sizeof(char) * MAX_RECORDS * 4);
-  memset(dst->ko_move_record, 0, sizeof(int) * MAX_RECORDS);
-  memset(dst->ko_pos_record,  0, sizeof(int) * MAX_RECORDS);
-  
   for (int i = 0; i < MAX_STRING; i++) {
     if (src->string[i].flag) {
-      memcpy(&dst->string[i], &src->string[i], sizeof(string_t));
+      memcpy(&string[i], &src->string[i], sizeof(string_t));
     } else {
-      dst->string[i].flag = false;
+      string[i].flag = false;
     }
   }
 
-  dst->moves = src->moves;
-  dst->ko_move = src->ko_move;
-  dst->ko_pos = src->ko_pos;
+  moves = src->moves;
+  ko_move = src->ko_move;
+  ko_pos = src->ko_pos;
 
-  dst->ko_move_record[dst->moves] = dst->ko_move;
-  dst->ko_pos_record[dst->moves] = dst->ko_pos;
+  memset(&undo[moves], 0, sizeof(undo_record_t));
+  undo[moves].ko_move_record = ko_move;
+  undo[moves].ko_pos_record = ko_pos;
 }
 
 
@@ -160,19 +127,19 @@ RecordString( search_game_info_t *game, int id )
   const int moves = game->moves;  
   const string_t *string = game->string;
   const int *string_next = game->string_next;
-  const int strings = game->strings[moves];
+  undo_record_t* rec = &game->undo[moves];
   int pos, i = 0;
 
   pos = string[id].origin;
   while (pos != STRING_END) {
-    game->stone[moves][game->strings[moves]][i++] = pos;
+    rec->stone[rec->strings][i++] = pos;
     pos = string_next[pos];
   }
 
-  game->string_color[moves][strings] = string[id].color;
-  game->stones[moves][strings] = string[id].size;
-  game->strings_id[moves][strings] = id;
-  game->strings[moves]++;
+  rec->string_color[rec->strings] = string[id].color;
+  rec->stones[rec->strings] = string[id].size;
+  rec->strings_id[rec->strings] = id;
+  rec->strings++;
 }
 
 
@@ -195,7 +162,7 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
   if (game->moves < MAX_RECORDS) {
     game->record[game->moves].color = color;
     game->record[game->moves].pos = pos;
-    game->strings[game->moves] = 0;
+    game->undo[game->moves].strings = 0;
   }
 
   // 着手がパスなら手数を進めて終了
@@ -255,8 +222,9 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
 
   // 手数を1つだけ進める
   game->moves++;
-  game->ko_move_record[game->moves] = game->ko_move;
-  game->ko_pos_record[game->moves] = game->ko_pos;
+  memset(&game->undo[game->moves], 0, sizeof(undo_record_t));
+  game->undo[game->moves].ko_move_record = game->ko_move;
+  game->undo[game->moves].ko_pos_record = game->ko_pos;
 
 }
 
@@ -843,23 +811,24 @@ Undo( search_game_info_t *game )
   const int opponent_color = FLIP_COLOR(played_color);
   string_t *string = game->string;
   int *string_id = game->string_id;
+  undo_record_t* rec = &game->undo[pm_count];
 
   // 連を取り除く
   RemoveString(game, &string[string_id[previous_move]]);
 
   // 連を1手前の状態に戻す
-  for (int i = 0; i < game->strings[pm_count]; i++) {
-    if (game->string_color[pm_count][i] == opponent_color) {
-      game->prisoner[played_color] -= game->stones[pm_count][i];
+  for (int i = 0; i < rec->strings; i++) {
+    if (rec->string_color[i] == opponent_color) {
+      game->prisoner[played_color] -= rec->stones[i];
     }
-    RestoreChain(game, game->strings_id[pm_count][i], game->stone[pm_count][i], game->stones[pm_count][i], game->string_color[pm_count][i]);
-    game->stones[pm_count][i] = 0;
+    RestoreChain(game, rec->strings_id[i], rec->stone[i], rec->stones[i], rec->string_color[i]);
+    rec->stones[i] = 0;
   }
 
-  game->strings[pm_count] = 0;
+  rec->strings = 0;
 
-  game->ko_move = game->ko_move_record[pm_count];
-  game->ko_pos = game->ko_pos_record[pm_count];
+  game->ko_move = rec->ko_move_record;
+  game->ko_pos = rec->ko_pos_record;
 
   game->moves--;
 }
