@@ -444,6 +444,10 @@ UctSearchGenmove( game_info_t *game, int color )
     candidates[pos] = true;
   }
 
+  if (!reuse_subtree) {
+    ClearUctHash();
+  }
+  
   // 探索開始時刻の記録
   begin_time = ray_clock::now();
   
