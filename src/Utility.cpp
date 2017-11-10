@@ -39,6 +39,7 @@ InputTxtFLT( const char *filename, float *ap, const int array_size )
     }
   }
 #endif
+  fclose(fp);
 }
 
 
@@ -72,4 +73,5 @@ InputTxtDBL( const char *filename, double *ap, const int array_size )
     }
   }
 #endif
+  fclose(fp);
 }
