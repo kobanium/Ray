@@ -16,13 +16,10 @@ using namespace std;
 void
 Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
 {
-  int color = starting_color;
-  int pos = -1;
-  int length;
-  int pass_count;
+  int color = starting_color, pos = -1, pass_count;
 
   // シミュレーション打ち切り手数を設定
-  length = MAX_MOVES - game->moves;
+  int length = MAX_MOVES - game->moves;
   if (length < 0) {
     return;
   }
@@ -50,5 +47,4 @@ Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
     // 手番の入れ替え
     color = FLIP_COLOR(color);
   }
-
 }

@@ -571,8 +571,6 @@ UctSearchGenmove( game_info_t *game, int color )
 void
 UctSearchPondering( game_info_t *game, int color )
 {
-  int pos;
-
   if (!pondering_mode) {
     return ;
   }
@@ -587,7 +585,7 @@ UctSearchPondering( game_info_t *game, int color )
   po_info.count = 0;
 
   for (int i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+    const int pos = onboard_pos[i];
     owner[pos] = 50;
     owner_index[pos] = 5;
     candidates[pos] = true;
@@ -644,13 +642,12 @@ InitializeCandidate( child_node_t *uct_child, int pos, bool ladder )
 static int
 ExpandRoot( game_info_t *game, int color )
 {
+  const int moves = game->moves;
   unsigned long long hash = game->move_hash;
-  unsigned int index = FindSameHashIndex(hash, color, game->moves);
+  unsigned int index = FindSameHashIndex(hash, color, moves);
+  int pos, child_num = 0, pm1 = PASS, pm2 = PASS;
+  bool ladder[BOARD_MAX] = { false };
   child_node_t *uct_child;
-  int i, pos, child_num = 0;
-  bool ladder[BOARD_MAX] = { false };  
-  int pm1 = PASS, pm2 = PASS;
-  int moves = game->moves;
 
   // 直前の着手の座標を取り出す
   pm1 = game->record[moves - 1].pos;
@@ -679,7 +676,7 @@ ExpandRoot( game_info_t *game, int color )
 
     child_num = uct_node[index].child_num;
 
-    for (i = 0; i < child_num; i++) {
+    for (int i = 0; i < child_num; i++) {
       pos = uct_child[i].pos;
       uct_child[i].rate = 0.0;
       uct_child[i].flag = false;
@@ -707,7 +704,7 @@ ExpandRoot( game_info_t *game, int color )
     ClearUctHash();
     
     // 空のインデックスを探す
-    index = SearchEmptyIndex(hash, color, game->moves);
+    index = SearchEmptyIndex(hash, color, moves);
 
     assert(index != uct_hash_size);    
     
@@ -728,8 +725,8 @@ ExpandRoot( game_info_t *game, int color )
     child_num++;
     
     // 候補手の展開
-    if (game->moves == 1) {
-      for (i = 0; i < first_move_candidates; i++) {
+    if (moves == 1) {
+      for (int i = 0; i < first_move_candidates; i++) {
 	pos = first_move_candidate[i];
 	// 探索候補かつ合法手であれば探索対象にする
 	if (candidates[pos] && IsLegal(game, pos, color)) {
@@ -738,7 +735,7 @@ ExpandRoot( game_info_t *game, int color )
 	}	
       }
     } else {
-      for (i = 0; i < pure_board_max; i++) {
+      for (int i = 0; i < pure_board_max; i++) {
 	pos = onboard_pos[i];
 	// 探索候補かつ合法手であれば探索対象にする
 	if (candidates[pos] && IsLegal(game, pos, color)) {
@@ -771,22 +768,20 @@ ExpandRoot( game_info_t *game, int color )
 static int
 ExpandNode( game_info_t *game, int color, int current )
 {
+  const int moves = game->moves;
   unsigned long long hash = game->move_hash;
-  unsigned int index = FindSameHashIndex(hash, color, game->moves);
-  child_node_t *uct_child, *uct_sibling;
-  int i, pos, child_num = 0;
+  unsigned int index = FindSameHashIndex(hash, color, moves);
+  int child_num = 0, max_pos = PASS, sibling_num, pm1 = PASS, pm2 = PASS;
   double max_rate = 0.0;
-  int max_pos = PASS, sibling_num;
-  int pm1 = PASS, pm2 = PASS;
-  int moves = game->moves;
-
+  child_node_t *uct_child, *uct_sibling;
+  
   // 合流先が検知できれば, それを返す
   if (index != uct_hash_size) {
     return index;
   }
 
   // 空のインデックスを探す
-  index = SearchEmptyIndex(hash, color, game->moves);
+  index = SearchEmptyIndex(hash, color, moves);
 
   assert(index != uct_hash_size);    
 
@@ -811,8 +806,8 @@ ExpandNode( game_info_t *game, int color, int current )
   child_num++;
 
   // 候補手の展開
-  for (i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+  for (int i = 0; i < pure_board_max; i++) {
+    const int pos = onboard_pos[i];
     // 探索候補でなければ除外
     if (candidates[pos] && IsLegal(game, pos, color)) {
       InitializeCandidate(&uct_child[child_num], pos, false);
@@ -835,7 +830,7 @@ ExpandNode( game_info_t *game, int color, int current )
   // 兄弟ノードで一番レートの高い手を求める
   uct_sibling = uct_node[current].child;
   sibling_num = uct_node[current].child_num;
-  for (i = 0; i < sibling_num; i++) {
+  for (int i = 0; i < sibling_num; i++) {
     if (uct_sibling[i].pos != pm1) {
       if (uct_sibling[i].rate > max_rate) {
 	max_rate = uct_sibling[i].rate;
@@ -845,7 +840,7 @@ ExpandNode( game_info_t *game, int color, int current )
   }
 
   // 兄弟ノードで一番レートの高い手を展開する
-  for (i = 0; i < child_num; i++) {
+  for (int i = 0; i < child_num; i++) {
     if (uct_child[i].pos == max_pos) {
       if (!uct_child[i].flag) {
 	uct_child[i].open = true;
@@ -865,16 +860,13 @@ ExpandNode( game_info_t *game, int color, int current )
 static void
 RatingNode( game_info_t *game, int color, int index )
 {
-  int child_num = uct_node[index].child_num;
-  int pos;
-  int moves = game->moves;
-  double score = 0.0;
-  int max_index;
-  double max_score;
-  pattern_hash_t hash_pat;
+  const int child_num = uct_node[index].child_num;
+  const int moves = game->moves;
+  int pos, max_index;
   int pat_index[3] = {0};
-  double dynamic_parameter;
+  double score = 0.0, max_score, dynamic_parameter;
   bool self_atari_flag;
+  pattern_hash_t hash_pat;
   child_node_t *uct_child = uct_node[index].child;
   uct_features_t uct_features;
 
@@ -963,9 +955,9 @@ RatingNode( game_info_t *game, int color, int index )
 static bool
 InterruptionCheck( void )
 {
-  int max = 0, second = 0;
   const int child_num = uct_node[current_root].child_num;
   const int rest = po_info.halt - po_info.count;
+  int max = 0, second = 0;
   child_node_t *uct_child = uct_node[current_root].child;
 
   if (mode != CONST_PLAYOUT_MODE && 
@@ -1625,12 +1617,8 @@ CopyStatistic( statistic_t *dest )
 int
 UctSearchGenmoveCleanUp( game_info_t *game, int color )
 {
-  int pos;
-  double finish_time;
-  int select_index;
-  int max_count;
-  double wp;
-  int count;
+  int pos, select_index, max_count, count;
+  double finish_time, wp;
   child_node_t *uct_child;
   thread *handle[THREAD_MAX];
 

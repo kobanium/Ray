@@ -122,11 +122,9 @@ static const unsigned long long large_mask[][3] = {
 void
 ClearPattern( pattern_t *pat )
 {
-  int y;
-
   memset(pat, 0, sizeof(pattern_t) * board_max); 
 
-  for (y = board_start; y <= board_end; y++){
+  for (int y = board_start; y <= board_end; y++){
     // 1線
     // 上
     pat[POS(y, board_start)].list[MD_2] |= 0x0003003F;	// 1 2 3 9
