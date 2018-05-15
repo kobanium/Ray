@@ -220,7 +220,7 @@ PrintOwner( const uct_node_t *root, const int color, double *own )
   cerr << "+" << endl;
   for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(2) << (pure_board_size + 1 - i) << ":|";
-    for (x = board_start; x <= board_end; x++) {
+    for (int x = board_start; x <= board_end; x++) {
       pos = POS(x, y);
       owner = (double)statistic[pos].colors[color] / root->move_count;
       if (owner > 0.5) {
@@ -235,7 +235,7 @@ PrintOwner( const uct_node_t *root, const int color, double *own )
   }
 
   cerr << "   +";
-  for (i = 0; i < pure_board_size * 4; i++) {
+  for (int i = 0; i < pure_board_size * 4; i++) {
     cerr << "-";
   }
   cerr << "+" << endl;
