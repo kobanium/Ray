@@ -31,7 +31,6 @@ void
 PrintBoard( const game_info_t *game )
 {
   const char stone[S_MAX] = { '+', 'B', 'W', '#' };
-  int i, x, y, pos;
 
   if (!debug_message) return ;
 
@@ -40,28 +39,27 @@ PrintBoard( const game_info_t *game )
   cerr << "Move : " << game->moves << endl;
 
   cerr << "    ";
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << " " << gogui_x[i];
   }
   cerr << endl;
 
   cerr << "   +";
-  for (i = 0; i < pure_board_size * 2 + 1; i++) {
+  for (int i = 0; i < pure_board_size * 2 + 1; i++) {
     cerr << "-";
   }
   cerr << "+" << endl;
 
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(2) << (pure_board_size + 1 - i) << ":|";
-    for (x = board_start; x <= board_end; x++) {
-      pos = POS(x, y);
-      cerr << " " << stone[(int)game->board[pos]];
+    for (int x = board_start; x <= board_end; x++) {
+      cerr << " " << stone[(int)game->board[POS(x, y)]];
     }
     cerr << " |" << endl;
   }
 
   cerr << "   +";
-  for (i = 1; i <= pure_board_size * 2 + 1; i++) {
+  for (int i = 1; i <= pure_board_size * 2 + 1; i++) {
     cerr << "-";
   }
   cerr << "+" << endl;
@@ -77,13 +75,13 @@ void
 PrintString( const game_info_t *game )
 {
   const string_t *string = game->string;
-  int i, pos, neighbor;
+  int pos, neighbor;
 
   if (!debug_message) return ;
 
   cerr << "  :: :: String :: ::" << endl;
 
-  for (i = 0; i < MAX_STRING; i++){
+  for (int i = 0; i < MAX_STRING; i++){
     if (string[i].flag) {
       if (game->board[string[i].origin] == S_BLACK) {
 	cerr << "Black String   ";
@@ -133,19 +131,19 @@ PrintString( const game_info_t *game )
 void
 PrintStringID( const game_info_t *game )
 {
-  int i, x, y, pos;
+  int pos;
 
   if (!debug_message) return ;
 
   cerr << "    ";
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << "   " << gogui_x[i];
   }
   cerr << endl;
 
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(3) << (pure_board_size + 1 - i) << ":";
-    for (x = board_start; x <= board_end; x++) {
+    for (int x = board_start; x <= board_end; x++) {
       pos = x + y * board_size;
       if (game->string[game->string_id[pos]].flag) {
 	cerr << " " << setw(3) << game->string_id[pos];
@@ -166,19 +164,19 @@ PrintStringID( const game_info_t *game )
 void
 PrintStringNext( const game_info_t *game )
 {
-  int i, x, y, pos;
+  int pos;
 
   if (!debug_message) return ;
 
   cerr << "    ";
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << "   " << gogui_x[i];
   }
   cerr << endl;
 
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(3) << (pure_board_size + 1 - i);
-    for (x = board_start; x <= board_end; x++) {
+    for (int x = board_start; x <= board_end; x++) {
       pos = x + y * board_size;
       if (game->string[game->string_id[pos]].flag) {
 	if (game->string_next[pos] != STRING_END) {
@@ -203,28 +201,26 @@ PrintStringNext( const game_info_t *game )
 void
 PrintOwner( const uct_node_t *root, const int color, double *own )
 {
-  int i, pos, x, y;
-  double owner;
-  int player = 0, opponent = 0;
-  double score;
   const statistic_t *statistic = root->statistic;
+  int pos, player = 0, opponent = 0;
+  double owner, score;
 
   if (!debug_message) return ;
 
   cerr << "   ";
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << "   " << gogui_x[i];
   }
   cerr << endl;
 
   cerr << "   +";
-  for (i = 0; i < pure_board_size * 4; i++) {
+  for (int i = 0; i < pure_board_size * 4; i++) {
     cerr << "-";
   }
   cerr << "+" << endl;
-  for (i = 1, y = board_start; y <= board_end; y++, i++) {
+  for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(2) << (pure_board_size + 1 - i) << ":|";
-    for (x = board_start; x <= board_end; x++) {
+    for (int x = board_start; x <= board_end; x++) {
       pos = POS(x, y);
       owner = (double)statistic[pos].colors[color] / root->move_count;
       if (owner > 0.5) {
@@ -239,7 +235,7 @@ PrintOwner( const uct_node_t *root, const int color, double *own )
   }
 
   cerr << "   +";
-  for (i = 0; i < pure_board_size * 4; i++) {
+  for (int i = 0; i < pure_board_size * 4; i++) {
     cerr << "-";
   }
   cerr << "+" << endl;
@@ -275,7 +271,6 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
   int index = -1;
   int max = 0;
   int color = start_color;
-  int i;
   int child_num;
   const child_node_t *uct_child;
 
@@ -289,7 +284,7 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
   uct_child = uct_node[current].child;
   child_num = uct_node[current].child_num;
 
-  for (i = 0; i < child_num; i++) {
+  for (int i = 0; i < child_num; i++) {
     if (uct_child[i].move_count > max) {
       max = uct_child[i].move_count;
       index = i;
@@ -316,7 +311,7 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
     max = 50;
     index = -1;
 
-    for (i = 0; i < child_num; i++) {
+    for (int i = 0; i < child_num; i++) {
       if (uct_child[i].move_count > max) {
 	max = uct_child[i].move_count;
 	index = i;
@@ -356,7 +351,7 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
 void
 PrintPlayoutInformation( const uct_node_t *root, const po_info_t *po_info, const double finish_time, const int pre_simulated )
 {
-  double winning_percentage = (double)root->win / root->move_count;
+  const double winning_percentage = (double)root->win / root->move_count;
 
   if (!debug_message) return ;
 
