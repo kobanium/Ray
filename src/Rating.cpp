@@ -42,7 +42,7 @@ float po_tactical_set2[PO_TACTICALS_MAX2];
 char po_params_path[1024];
 
 // ビットマスク
-unsigned int po_tactical_features_mask[F_MASK_MAX] = {
+const unsigned int po_tactical_features_mask[F_MASK_MAX] = {
   0x00000001,  0x00000002,  0x00000004,  0x00000008,
   0x00000010,  0x00000020,  0x00000040,  0x00000080,
   0x00000100,  0x00000200,  0x00000400,  0x00000800,
@@ -61,10 +61,10 @@ static int neighbor[UPDATE_NUM];
 static int cross[4];
 
 // 着手距離2, 3のγ値の補正
-double neighbor_bias = NEIGHBOR_BIAS;
+static double neighbor_bias = NEIGHBOR_BIAS;
 // 着手距離4のγ値の補正
-double jump_bias = JUMP_BIAS;
-double po_bias = PO_BIAS;
+static double jump_bias = JUMP_BIAS;
+
 
 //////////////////
 //  関数の宣言  //
