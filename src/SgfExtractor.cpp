@@ -27,6 +27,9 @@ static int GetPlayerName( SGF_record_t *kifu, char *sgf_text, int cursor, int co
 static int SkipData( SGF_record_t *kifu, char *sgf_text, int cursor );
 
 
+//////////////////
+//  着手の抽出  //
+//////////////////
 int
 GetKifuMove( const SGF_record_t *kifu, int n )
 {
@@ -41,6 +44,9 @@ GetKifuMove( const SGF_record_t *kifu, int n )
 }
 
 
+////////////////////////////
+//  SGFファイルの読み込み  //
+////////////////////////////
 void
 ExtractKifu( const char *file_name, SGF_record_t *kifu )
 {
