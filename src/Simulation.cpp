@@ -16,7 +16,7 @@ using namespace std;
 void
 Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
 {
-  int color = starting_color, pos = -1, pass_count;
+  int color = starting_color, pos = -1, pass_count = (game->record[game->moves - 1].pos == PASS && game->moves > 1);
 
   // シミュレーション打ち切り手数を設定
   int length = MAX_MOVES - game->moves;
@@ -28,8 +28,6 @@ Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
   fill_n(game->sum_rate, 2, 0);
   fill(game->sum_rate_row[0], game->sum_rate_row[2], 0);
   fill(game->rate[0], game->rate[2], 0);
-
-  pass_count = (game->record[game->moves - 1].pos == PASS && game->moves > 1);
 
   // 黒番のレートの計算
   Rating(game, S_BLACK, &game->sum_rate[0], game->sum_rate_row[0], game->rate[0]);
