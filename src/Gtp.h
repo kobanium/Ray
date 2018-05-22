@@ -12,7 +12,7 @@ const int GTP_COMMAND_SIZE = 64;
 const int BUF_SIZE = 256;
 
 //  GTPコマンドの個数
-const int GTP_COMMANDS = 21;
+const int GTP_COMMANDS = 22;
 
 //  コマンドの区切り文字(空白文字)
 #define DELIM  " "
