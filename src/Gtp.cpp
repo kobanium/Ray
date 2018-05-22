@@ -88,7 +88,8 @@ static void GTP_final_status_list( void );
 static void GTP_set_free_handicap( void );
 //  fixed_handicapコマンドを処理
 static void GTP_fixed_handicap( void );
-
+//  loadsgfコマンドを処理
+static void GTP_loadsgf( void );
 
 ////////////
 //  定数  //
@@ -107,6 +108,7 @@ const GTP_command_t gtpcmd[GTP_COMMANDS] = {
   { "known_command",       GTP_knowncommand        },
   { "komi",                GTP_komi                },
   { "list_commands",       GTP_listcommands        },
+  { "loadsgf",             GTP_loadsgf             },
   { "name",                GTP_name                },
   { "place_free_handicap", GTP_fixed_handicap      },
   { "play",                GTP_play                },
@@ -730,3 +732,11 @@ GTP_kgs_genmove_cleanup( void )
 }
  
 
+//////////////////////////
+//  void GTP_loadsgf()  //
+//////////////////////////
+static void
+GTP_loadsgf( void )
+{
+  GTP_response(brank, true);
+}
