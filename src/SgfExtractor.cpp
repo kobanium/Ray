@@ -18,7 +18,7 @@ static int GetMove( SGF_record_t *kifu, char *sgf_text, int cursor );
 // 置き石の数の抽出
 static int GetHandicaps( SGF_record_t *kifu, char *sgf_text, int cursor );
 // 置き石の座標の抽出
-static int GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor );
+static int GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor, int color );
 // コミの抽出
 static int GetKomi( SGF_record_t *kifu, char *sgf_text, int cursor );
 // 対局者の名前を抽出
@@ -44,10 +44,26 @@ GetKifuMove( const SGF_record_t *kifu, int n )
 }
 
 
+////////////////////
+//  置き石の抽出  //
+////////////////////
+int GetHandicapStone( const SGF_record_t *kifu, int n )
+{
+  int pos;
+
+  if (kifu->handicap_x[n] == 0) {
+    pos = PASS;
+  } else {
+    pos = POS(kifu->handicap_x[n] + (OB_SIZE - 1), kifu->handicap_y[n] + (OB_SIZE - 1));
+  }
+  return pos;
+}
+
+
 ////////////////////////////
 //  SGFファイルの読み込み  //
 ////////////////////////////
-void
+int
 ExtractKifu( const char *file_name, SGF_record_t *kifu )
 {
   FILE *fp;
@@ -58,13 +74,11 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
   errno_t err;
 
   if((err = fopen_s(&fp, file_name, "r")) != 0) {
-    printf("Can't open this file!!\n");
-    exit(1);
+    return -1;
   } 
 #else
   if((fp = fopen(file_name, "r")) == NULL) {
-    printf("Can't open this file!!\n");
-    exit(1);
+    return -1;
   }
 #endif  
 
@@ -83,11 +97,15 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
   kifu->result = R_UNKNOWN;
   kifu->moves = 0;
   kifu->handicaps = 0;
+  kifu->handicap_stones = 0;
   kifu->komi = 0.0;
   memset(kifu->move_x, 0, sizeof(kifu->move_x));
   memset(kifu->move_y, 0, sizeof(kifu->move_y));
   memset(kifu->black_name, 0, sizeof(kifu->black_name));
   memset(kifu->white_name, 0, sizeof(kifu->white_name));
+  memset(kifu->handicap_x, 0, sizeof(kifu->handicap_x));
+  memset(kifu->handicap_y, 0, sizeof(kifu->handicap_y));
+  memset(kifu->handicap_color, 0, sizeof(kifu->handicap_color));
 
   
   while ((cursor < 100000) && (sgf_text[cursor] != '\0')) {
@@ -122,7 +140,8 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
     if (strncmp(&sgf_text[cursor], "SZ[", 3) == 0) cursor = GetSize(kifu, sgf_text, cursor);
     if (strncmp(&sgf_text[cursor], "RE[", 3) == 0) cursor = GetResult(kifu, sgf_text, cursor);
     if (strncmp(&sgf_text[cursor], "HA[", 3) == 0) cursor = GetHandicaps(kifu, sgf_text, cursor);
-    if (strncmp(&sgf_text[cursor], "AB[", 3) == 0) cursor = GetHandicapPosition(kifu, sgf_text, cursor);
+    if (strncmp(&sgf_text[cursor], "AB[", 3) == 0) cursor = GetHandicapPosition(kifu, sgf_text, cursor, S_BLACK);
+    if (strncmp(&sgf_text[cursor], "AW[", 3) == 0) cursor = GetHandicapPosition(kifu, sgf_text, cursor, S_WHITE);
     if (strncmp(&sgf_text[cursor],  "B[", 2) == 0) cursor = GetMove(kifu, sgf_text, cursor);
     if (strncmp(&sgf_text[cursor],  "W[", 2) == 0) cursor = GetMove(kifu, sgf_text, cursor);
     if (strncmp(&sgf_text[cursor], "KM[", 3) == 0) cursor = GetKomi(kifu, sgf_text, cursor);
@@ -147,8 +166,7 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
     cursor++;   // 文字を一つ進める
   }
   
-  //PrintSgfInformation(kifu);
-  //getchar();
+  return 0;
 }
 
 
@@ -264,7 +282,7 @@ GetHandicaps( SGF_record_t *kifu, char *sgf_text, int cursor )
 //  置き石の座標の抽出  //
 /////////////////////////
 static int
-GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor )
+GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
 {
   int tmp_cursor = 3;
   int handicaps = 0;
@@ -273,15 +291,18 @@ GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor )
   if (sgf_text[cursor + tmp_cursor] != ']'){
     tmp_cursor--;
   }
-  
+
   handicaps = (tmp_cursor - 4) / 4;
 
   for (int i = 0; i < handicaps; i++) {
     if (cursor + 3 + i * 4 < 100000){
-      kifu->handicap_x[i] = ParsePosition(sgf_text[cursor + 3 + i * 4]);
-      kifu->handicap_y[i] = ParsePosition(sgf_text[cursor + 4 + i * 4]);
+      kifu->handicap_x[i + kifu->handicap_stones] = ParsePosition(sgf_text[cursor + 3 + i * 4]);
+      kifu->handicap_y[i + kifu->handicap_stones] = ParsePosition(sgf_text[cursor + 4 + i * 4]);
+      kifu->handicap_color[i + kifu->handicap_stones] = color;
     }
   }
+
+  kifu->handicap_stones += handicaps;
   
   return cursor + tmp_cursor;
 }
