@@ -287,12 +287,17 @@ GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
   int tmp_cursor = 3;
   int handicaps = 0;
 
-  while ((cursor+tmp_cursor < 100000) && ((sgf_text[cursor + tmp_cursor] == '[') || (sgf_text[cursor + tmp_cursor] == ']') || (('a' <= sgf_text[cursor + tmp_cursor]) && (sgf_text[cursor + tmp_cursor] <= 's')))) tmp_cursor++;
+  while ((cursor + tmp_cursor < 100000) &&
+	 ((sgf_text[cursor + tmp_cursor] == '[') ||
+	  (sgf_text[cursor + tmp_cursor] == ']') ||
+	  (('a' <= sgf_text[cursor + tmp_cursor]) &&
+	   (sgf_text[cursor + tmp_cursor] <= 's')))) tmp_cursor++;
+
   if (sgf_text[cursor + tmp_cursor] != ']'){
     tmp_cursor--;
   }
-
-  handicaps = (tmp_cursor - 4) / 4;
+  
+  handicaps = (tmp_cursor - 1) / 4;
 
   for (int i = 0; i < handicaps; i++) {
     if (cursor + 3 + i * 4 < 100000){
