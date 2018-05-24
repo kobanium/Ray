@@ -1312,6 +1312,7 @@ InputLatentFactor( const char *filename, latent_factor_t *lf, int n )
     }
   }
 #endif
+  fclose(fp);
 }
 
 
@@ -1383,6 +1384,7 @@ InputPat3( const char *filename, latent_factor_t *lf )
     }
   }
 #endif
+  fclose(fp);
 }
 
 //////////////////////
@@ -1443,6 +1445,7 @@ InputMD2( const char *filename, latent_factor_t *lf )
     }
   }
 #endif
+  fclose(fp);
 }
 
 
@@ -1499,4 +1502,5 @@ InputLargePattern( const char *filename, latent_factor_t *lf, index_hash_t *pat_
     idx++;
   }
 #endif
+  fclose(fp);
 }
