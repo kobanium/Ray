@@ -8,7 +8,7 @@
 #include "SgfExtractor.h"
 
 // SGFの座標を数値に変換
-static int ParsePosition( char c );
+static int ParsePosition( const char c );
 // 盤の大きさの抽出
 static int GetSize( SGF_record_t *kifu, char *sgf_text, int cursor );
 // 結果の抽出
@@ -31,32 +31,26 @@ static int SkipData( SGF_record_t *kifu, char *sgf_text, int cursor );
 //  着手の抽出  //
 //////////////////
 int
-GetKifuMove( const SGF_record_t *kifu, int n )
+GetKifuMove( const SGF_record_t *kifu, const int n )
 {
-  int pos;
-
   if (kifu->move_x[n] == 0) {
-    pos = PASS;
+    return PASS;
   } else {
-    pos = POS(kifu->move_x[n] + (OB_SIZE - 1), kifu->move_y[n] + (OB_SIZE - 1));
+    return POS(kifu->move_x[n] + (OB_SIZE - 1), kifu->move_y[n] + (OB_SIZE - 1));
   }
-  return pos;
 }
 
 
 ////////////////////
 //  置き石の抽出  //
 ////////////////////
-int GetHandicapStone( const SGF_record_t *kifu, int n )
+int GetHandicapStone( const SGF_record_t *kifu, const int n )
 {
-  int pos;
-
   if (kifu->handicap_x[n] == 0) {
-    pos = PASS;
+    return PASS;
   } else {
-    pos = POS(kifu->handicap_x[n] + (OB_SIZE - 1), kifu->handicap_y[n] + (OB_SIZE - 1));
+    return POS(kifu->handicap_x[n] + (OB_SIZE - 1), kifu->handicap_y[n] + (OB_SIZE - 1));
   }
-  return pos;
 }
 
 
@@ -343,8 +337,7 @@ static int
 GetPlayerName( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
 {
   int tmp_cursor = 0;
-  char size[10];
-  memset(size, 0, sizeof(char)*10);
+  char size[10] = {0};
 
   while ((cursor + tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;
 
@@ -387,7 +380,7 @@ SkipData( SGF_record_t *kifu, char *sgf_text, int cursor )
 //  SGFの座標を数値に変換  //
 ////////////////////////////
 static int
-ParsePosition( char c )
+ParsePosition( const char c )
 {
   switch (c) {
     case 'a': return 1;

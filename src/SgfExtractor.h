@@ -31,9 +31,9 @@ enum KIFU_RESULT {
 int ExtractKifu( const char *file_name, SGF_record_t *kifu );
 
 // 着手を抽出
-int GetKifuMove( const SGF_record_t *kifu, int n );
+int GetKifuMove( const SGF_record_t *kifu, const int n );
 
 // 置き石を抽出
-int GetHandicapStone( const SGF_record_t *kifu, int n );
+int GetHandicapStone( const SGF_record_t *kifu, const int n );
 
 #endif
