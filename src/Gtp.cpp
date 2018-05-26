@@ -14,6 +14,7 @@
 #include "Message.h"
 #include "Point.h"
 #include "Rating.h"
+#include "SgfExtractor.h"
 #include "Simulation.h"
 #include "ZobristHash.h"
 
@@ -738,5 +739,84 @@ GTP_kgs_genmove_cleanup( void )
 static void
 GTP_loadsgf( void )
 {
-  GTP_response(brank, true);
+  SGF_record_t sgf;
+  char *command, *filename, *move;
+  int pos, color, size, target_move = 0;
+
+  // コマンドの抽出
+  command = STRTOK(input_copy, DELIM, &next_token);
+  CHOMP(command);
+
+  // ファイル名の抽出
+  filename = STRTOK(NULL, DELIM, &next_token);
+  CHOMP(filename);
+  cerr << filename << endl;
+
+  // 着手数の抽出
+  move = STRTOK(NULL, DELIM, &next_token);
+  if (move != NULL) {
+    CHOMP(move);
+    target_move = atoi(move);
+  }
+
+  // 棋譜の読み込み
+  if (ExtractKifu(filename, &sgf) != 0) {
+    char errmsg[2048];
+#if defined (_WIN32)
+    sprintf_s(errmsg, 2048, "cannot read \"%s\"", filename);
+#else
+    snprintf(errmsg, 2048, "cannot read \"%s\"", filename);
+#endif
+    GTP_response(errmsg, false);
+    return;
+  }
+
+  // 碁盤のサイズを設定
+  size = sgf.board_size;
+
+  // 碁盤の初期化処理
+  if (pure_board_size != size &&
+      size <= PURE_BOARD_SIZE && size > 0) {
+    SetBoardSize(size);
+    SetParameter();
+    SetNeighbor();
+    InitializeNakadeHash();
+  }
+  FreeGame(game);
+  game = AllocateGame();
+  InitializeBoard(game);
+  InitializeSearchSetting();
+  InitializeUctHash();
+
+  // あらかじめ置いてある石を配置
+  for (int i = 0; i < sgf.handicap_stones; i++) {
+    pos = GetHandicapStone(&sgf, i);
+    PutStone(game, pos, sgf.handicap_color[i]);
+  }
+ 
+  // 置き石の個数の設定
+  if (sgf.handicaps != 0) {
+    SetHandicapNum(sgf.handicaps);
+  }
+
+  color = sgf.start_color;
+
+  if (target_move < 1 || target_move > sgf.moves) {
+    target_move = sgf.moves;
+  } else {
+    target_move--;
+  }
+
+  // 石を配置
+  for (int i = 0; i < target_move; i++) {
+    pos = GetKifuMove(&sgf, i);
+    PutStone(game, pos, color);
+    color = FLIP_COLOR(color);
+  }
+
+  if (color == S_BLACK) {
+    GTP_response("black", true);
+  } else {
+    GTP_response("white", true);
+  }
 }

@@ -93,6 +93,7 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
   kifu->handicaps = 0;
   kifu->handicap_stones = 0;
   kifu->komi = 0.0;
+  kifu->start_color = S_BLACK;
   memset(kifu->move_x, 0, sizeof(kifu->move_x));
   memset(kifu->move_y, 0, sizeof(kifu->move_y));
   memset(kifu->black_name, 0, sizeof(kifu->black_name));
@@ -337,7 +338,6 @@ static int
 GetPlayerName( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
 {
   int tmp_cursor = 0;
-  char size[10] = {0};
 
   while ((cursor + tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;
 
