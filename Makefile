@@ -41,7 +41,7 @@ GoBoard.o: src/GoBoard.h src/Pattern.h
 Gtp.o: src/Gtp.cpp src/DynamicKomi.h src/GoBoard.h src/Pattern.h \
  src/UctSearch.h src/ZobristHash.h src/Gtp.h src/Nakade.h src/UctRating.h \
  src/PatternHash.h src/Message.h src/Point.h src/Rating.h \
- src/Simulation.h
+ src/SgfExtractor.h src/Simulation.h
 Gtp.o: src/Gtp.h
 Ladder.o: src/Ladder.cpp src/Message.h src/GoBoard.h src/Pattern.h \
  src/UctSearch.h src/ZobristHash.h src/Ladder.h src/SearchBoard.h \
@@ -79,6 +79,9 @@ Semeai.o: src/Semeai.cpp src/GoBoard.h src/Pattern.h src/Message.h \
  src/UctSearch.h src/ZobristHash.h src/Point.h src/Semeai.h \
  src/UctRating.h src/PatternHash.h
 Semeai.o: src/Semeai.h src/GoBoard.h src/Pattern.h
+SgfExtractor.o: src/SgfExtractor.cpp src/GoBoard.h src/Pattern.h \
+ src/Message.h src/UctSearch.h src/ZobristHash.h src/SgfExtractor.h
+SgfExtractor.o: src/SgfExtractor.h
 Simulation.o: src/Simulation.cpp src/GoBoard.h src/Pattern.h \
  src/Message.h src/UctSearch.h src/ZobristHash.h src/Point.h src/Rating.h \
  src/UctRating.h src/PatternHash.h src/Simulation.h
@@ -99,4 +102,5 @@ Utility.o: src/Utility.h
 ZobristHash.o: src/ZobristHash.cpp src/Nakade.h src/GoBoard.h \
  src/Pattern.h src/ZobristHash.h
 ZobristHash.o: src/ZobristHash.h src/GoBoard.h src/Pattern.h
+
 

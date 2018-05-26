@@ -14,6 +14,7 @@
 #include "Message.h"
 #include "Point.h"
 #include "Rating.h"
+#include "SgfExtractor.h"
 #include "Simulation.h"
 #include "ZobristHash.h"
 
@@ -88,35 +89,37 @@ static void GTP_final_status_list( void );
 static void GTP_set_free_handicap( void );
 //  fixed_handicapコマンドを処理
 static void GTP_fixed_handicap( void );
-
+//  loadsgfコマンドを処理
+static void GTP_loadsgf( void );
 
 ////////////
 //  定数  //
 ////////////
 
 //  GTPコマンド
-const GTP_command_t gtpcmd[GTP_COMMANDS] = {
-  { "quit",                GTP_quit },
-  { "protocol_version",    GTP_protocolversion },
-  { "name",                GTP_name },
-  { "version",             GTP_version },
-  { "boardsize",           GTP_boardsize },
-  { "clear_board",         GTP_clearboard },
-  { "komi",                GTP_komi },
-  { "get_komi",            GTP_getkomi },
-  { "play",                GTP_play },
-  { "fixed_handicap",      GTP_fixed_handicap },
-  { "place_free_handicap", GTP_fixed_handicap },
-  { "set_free_handicap",   GTP_set_free_handicap },
-  { "genmove",             GTP_genmove },
-  { "time_settings",       GTP_timesettings },
-  { "time_left",           GTP_timeleft },
-  { "final_score",         GTP_finalscore },
-  { "final_status_list",   GTP_final_status_list },
-  { "showboard",           GTP_showboard },
-  { "list_commands",       GTP_listcommands },
-  { "known_command",       GTP_knowncommand },
+const GTP_command_t gtpcmd[] = {
+  { "boardsize",           GTP_boardsize           },
+  { "clear_board",         GTP_clearboard          },
+  { "final_score",         GTP_finalscore          },
+  { "final_status_list",   GTP_final_status_list   },
+  { "fixed_handicap",      GTP_fixed_handicap      },
+  { "genmove",             GTP_genmove             },
+  { "get_komi",            GTP_getkomi             },
   { "kgs-genmove_cleanup", GTP_kgs_genmove_cleanup },
+  { "known_command",       GTP_knowncommand        },
+  { "komi",                GTP_komi                },
+  { "list_commands",       GTP_listcommands        },
+  { "loadsgf",             GTP_loadsgf             },
+  { "name",                GTP_name                },
+  { "place_free_handicap", GTP_fixed_handicap      },
+  { "play",                GTP_play                },
+  { "protocol_version",    GTP_protocolversion     },
+  { "quit",                GTP_quit                },
+  { "set_free_handicap",   GTP_set_free_handicap   },
+  { "showboard",           GTP_showboard           },
+  { "time_left",           GTP_timeleft            },
+  { "time_settings",       GTP_timesettings        },
+  { "version",             GTP_version             },
 };
 
 
@@ -137,10 +140,10 @@ GTP_main( void )
     command = STRTOK(input, DELIM, &next_token);
     CHOMP(command);
 
-    for (int i = 0; i < GTP_COMMANDS; i++) {
-      if (!strcmp(command, gtpcmd[i].command)) {
+    for (const GTP_command_t& cmd : gtpcmd) {
+      if (!strcmp(command, cmd.command)) {
 	StopPondering();
-	(*gtpcmd[i].function)();
+	(*cmd.function)();
 	nocommand = false;
 	break;
       }
@@ -730,3 +733,90 @@ GTP_kgs_genmove_cleanup( void )
 }
  
 
+//////////////////////////
+//  void GTP_loadsgf()  //
+//////////////////////////
+static void
+GTP_loadsgf( void )
+{
+  SGF_record_t sgf;
+  char *command, *filename, *move;
+  int pos, color, size, target_move = 0;
+
+  // コマンドの抽出
+  command = STRTOK(input_copy, DELIM, &next_token);
+  CHOMP(command);
+
+  // ファイル名の抽出
+  filename = STRTOK(NULL, DELIM, &next_token);
+  CHOMP(filename);
+  cerr << filename << endl;
+
+  // 着手数の抽出
+  move = STRTOK(NULL, DELIM, &next_token);
+  if (move != NULL) {
+    CHOMP(move);
+    target_move = atoi(move);
+  }
+
+  // 棋譜の読み込み
+  if (ExtractKifu(filename, &sgf) != 0) {
+    char errmsg[2048];
+#if defined (_WIN32)
+    sprintf_s(errmsg, 2048, "cannot read \"%s\"", filename);
+#else
+    snprintf(errmsg, 2048, "cannot read \"%s\"", filename);
+#endif
+    GTP_response(errmsg, false);
+    return;
+  }
+
+  // 碁盤のサイズを設定
+  size = sgf.board_size;
+
+  // 碁盤の初期化処理
+  if (pure_board_size != size &&
+      size <= PURE_BOARD_SIZE && size > 0) {
+    SetBoardSize(size);
+    SetParameter();
+    SetNeighbor();
+    InitializeNakadeHash();
+  }
+  FreeGame(game);
+  game = AllocateGame();
+  InitializeBoard(game);
+  InitializeSearchSetting();
+  InitializeUctHash();
+
+  // あらかじめ置いてある石を配置
+  for (int i = 0; i < sgf.handicap_stones; i++) {
+    pos = GetHandicapStone(&sgf, i);
+    PutStone(game, pos, sgf.handicap_color[i]);
+  }
+ 
+  // 置き石の個数の設定
+  if (sgf.handicaps != 0) {
+    SetHandicapNum(sgf.handicaps);
+  }
+
+  color = sgf.start_color;
+
+  if (target_move < 1 || target_move > sgf.moves) {
+    target_move = sgf.moves;
+  } else {
+    target_move--;
+  }
+
+  // 石を配置
+  for (int i = 0; i < target_move; i++) {
+    pos = GetKifuMove(&sgf, i);
+    PutStone(game, pos, color);
+    color = FLIP_COLOR(color);
+  }
+
+  if (color == S_BLACK) {
+    GTP_response("black", true);
+  } else {
+    GTP_response("white", true);
+  }
+}

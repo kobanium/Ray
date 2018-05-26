@@ -127,7 +127,7 @@ SetSuperKo( const bool flag )
 void
 SetBoardSize( const int size )
 {
-  int i, x, y;
+  int i;
 
   pure_board_size = size;
   pure_board_max = size * size;
@@ -138,16 +138,16 @@ SetBoardSize( const int size )
   board_end = (pure_board_size + OB_SIZE - 1);
 
   i = 0;
-  for (y = board_start; y <= board_end; y++) {
-    for (x = board_start; x <= board_end; x++) {
+  for (int y = board_start; y <= board_end; y++) {
+    for (int x = board_start; x <= board_end; x++) {
       onboard_pos[i++] = POS(x, y);
       board_x[POS(x, y)] = x;
       board_y[POS(x, y)] = y;
     }
   }
 
-  for (y = board_start; y <= board_end; y++) {
-    for (x = board_start; x <= (board_start + pure_board_size / 2); x++) {
+  for (int y = board_start; y <= board_end; y++) {
+    for (int x = board_start; x <= (board_start + pure_board_size / 2); x++) {
       border_dis_x[POS(x, y)] = x - (OB_SIZE - 1);
       border_dis_x[POS(board_end + OB_SIZE - x, y)] = x - (OB_SIZE - 1);
       border_dis_y[POS(y, x)] = x - (OB_SIZE - 1);
@@ -155,8 +155,8 @@ SetBoardSize( const int size )
     }
   }
 
-  for (y = 0; y < pure_board_size; y++) {
-    for (x = 0; x < pure_board_size; x++) {
+  for (int y = 0; y < pure_board_size; y++) {
+    for (int x = 0; x < pure_board_size; x++) {
       move_dis[x][y] = x + y + ((x > y) ? x : y);
       if (move_dis[x][y] >= MOVE_DISTANCE_MAX) move_dis[x][y] = MOVE_DISTANCE_MAX - 1;
     }
@@ -164,8 +164,8 @@ SetBoardSize( const int size )
 
   fill_n(board_pos_id, BOARD_MAX, 0);
   i = 1;
-  for (y = board_start; y <= (board_start + pure_board_size / 2); y++) {
-    for (x = board_start; x <= y; x++) {
+  for (int y = board_start; y <= (board_start + pure_board_size / 2); y++) {
+    for (int x = board_start; x <= y; x++) {
       board_pos_id[POS(x, y)] = i;
       board_pos_id[POS(board_end + OB_SIZE - x, y)] = i;
       board_pos_id[POS(y, x)] = i;
@@ -179,8 +179,8 @@ SetBoardSize( const int size )
   }
 
   first_move_candidates = 0;
-  for (y = board_start; y <= (board_start + board_end) / 2; y++) {
-    for (x = board_end + board_start - y; x <= board_end; x++) {
+  for (int y = board_start; y <= (board_start + board_end) / 2; y++) {
+    for (int x = board_end + board_start - y; x <= board_end; x++) {
       first_move_candidate[first_move_candidates++] = POS(x, y);
     }
   }
@@ -738,18 +738,18 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   const char *board = game->board;
+  const int other = FLIP_COLOR(color);
   int checked_string[4] = { 0 };
   int string_liberties[4] = { 0 };
   int strings = 0;
   int id, lib, libs = 0, lib_sum = 0;
   int liberty[STRING_LIB_MAX];
   int count;
-  bool checked;
   int neighbor4[4], neighbor;
-  bool already_checked;
-  int other = FLIP_COLOR(color);
   int player_id[4] = {0};
   int player_ids = 0;
+  bool checked;
+  bool already_checked;
 
   // 欠け眼を構成する連のIDを取り出す
   GetNeighbor4(neighbor4, pos);
@@ -915,14 +915,14 @@ IsSuicide( const game_info_t *game, const string_t *string, const int color, con
   const char *board = game->board;
   const int *string_id = game->string_id;
   const int other = FLIP_COLOR(color);
-  int neighbor4[4], i;
+  int neighbor4[4];
 
   GetNeighbor4(neighbor4, pos);
 
   // 隣接するの石についての判定
   // 隣接する石が相手でも、その石を含む連の呼吸点が1の時は合法手
   // 隣接する石が自分で、その石を含む連の呼吸点が2以上の時は合法手
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other &&
 	string[string_id[neighbor4[i]]].libs == 1) {
       return false;
@@ -943,9 +943,9 @@ void
 PutStone( game_info_t *game, const int pos, const int color )
 {
   const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
   char *board = game->board;
   string_t *string = game->string;
-  const int other = FLIP_COLOR(color);
   int connection = 0;
   int connect[4] = { 0 };
   int prisoner = 0;
@@ -1052,9 +1052,9 @@ void
 PoPutStone( game_info_t *game, const int pos, const int color )
 {
   const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
   char *board = game->board;
   string_t *string = game->string;
-  const int other = FLIP_COLOR(color);
   int connection = 0;
   int connect[4] = { 0 };
   int prisoner = 0;
@@ -1144,9 +1144,9 @@ PoPutStone( game_info_t *game, const int pos, const int color )
 static void
 MakeString( game_info_t *game, const int pos, const int color )
 {
+  const char *board = game->board;
   string_t *string = game->string;
   string_t *new_string;
-  const char *board = game->board;
   int *string_id = game->string_id;
   int id = 1;
   int lib_add = 0;
@@ -1239,13 +1239,13 @@ AddStone( game_info_t *game, const int pos, const int color, const int id )
 // int color         : 置いた石の色
 // int id            : 石を追加する先の連のID
 {
+  const int other = FLIP_COLOR(color);
   string_t *string = game->string;
   string_t *add_str;
   char *board = game->board;
   int *string_id = game->string_id;
   int lib_add = 0;
-  int other = FLIP_COLOR(color);
-  int neighbor, neighbor4[4], i;
+  int neighbor, neighbor4[4];
 
   // IDを更新
   string_id[pos] = id;
@@ -1261,7 +1261,7 @@ AddStone( game_info_t *game, const int pos, const int color, const int id )
 
   // 空点なら呼吸点を追加し
   // 敵の石があれば隣接する敵連の情報を更新
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == S_EMPTY) {
       lib_add = AddLiberty(add_str, neighbor4[i], lib_add);
     } else if (board[neighbor4[i]] == other) {
@@ -1692,21 +1692,15 @@ RemoveNeighborString( string_t *string, const int id )
 static void
 CheckBentFourInTheCorner( game_info_t *game )
 {
-  char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   const int *string_next = game->string_next;
-  int pos;
-  int i;
-  int id;
-  int neighbor;
-  int color;
-  int lib1, lib2;
-  int neighbor_lib1, neighbor_lib2;
+  char *board = game->board;
+  int pos, id, neighbor, color, lib1, lib2, neighbor_lib1, neighbor_lib2;
 
   // 四隅について隅のマガリ四目が存在するか確認し
   // 存在すれば地を訂正する
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     id = string_id[corner[i]];
     if (string[id].size == 3 &&
 	string[id].libs == 2 &&
@@ -1751,8 +1745,6 @@ CalculateScore( game_info_t *game )
 // game_info_t *game : 盤面の情報を示すポインタ
 {
   const char *board = game->board;
-  int i;
-  int pos;
   int color;
   int scores[S_MAX] = { 0 };
 
@@ -1760,8 +1752,8 @@ CalculateScore( game_info_t *game )
   CheckBentFourInTheCorner(game);
 
   // 地の数え上げ
-  for (i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+  for (int i = 0; i < pure_board_max; i++) {
+    const int pos = onboard_pos[i];
     color = board[pos];
     if (color == S_EMPTY) color = territory[Pat3(game->pat, pos)];
     scores[color]++;
