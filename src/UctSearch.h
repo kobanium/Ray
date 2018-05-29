@@ -126,14 +126,12 @@ struct rate_order_t {
 
 // 残り時間
 extern double remaining_time[S_MAX];
+
 // UCTのノード
 extern uct_node_t *uct_node;
 
 // 現在のルートのインデックス
 extern int current_root;
-
-// 各座標のCriticality
-extern double criticality[BOARD_MAX]; 
 
 
 ////////////
