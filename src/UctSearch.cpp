@@ -63,68 +63,68 @@ static int expand_threshold = EXPAND_THRESHOLD_19;
 static bool extend_time = false;
 
 int current_root; // 現在のルートのインデックス
-mutex mutex_nodes[MAX_NODES];
-mutex mutex_expand;       // ノード展開を排他処理するためのmutex
+static mutex mutex_nodes[MAX_NODES];
+static mutex mutex_expand;       // ノード展開を排他処理するためのmutex
 
 // 探索の設定
-enum SEARCH_MODE mode = CONST_TIME_MODE;
+static enum SEARCH_MODE mode = CONST_TIME_MODE;
 // 使用するスレッド数
-int threads = 1;
+static int threads = 1;
 // 1手あたりの試行時間
-double const_thinking_time = CONST_TIME;
+static double const_thinking_time = CONST_TIME;
 // 1手当たりのプレイアウト数
-int playout = CONST_PLAYOUT;
+static int playout = CONST_PLAYOUT;
 // デフォルトの持ち時間
-double default_remaining_time = ALL_THINKING_TIME;
+static double default_remaining_time = ALL_THINKING_TIME;
 
 // 各スレッドに渡す引数
-thread_arg_t t_arg[THREAD_MAX];
+static thread_arg_t t_arg[THREAD_MAX];
 
 // プレイアウトの統計情報
-statistic_t statistic[BOARD_MAX];  
+static statistic_t statistic[BOARD_MAX];  
 // 盤上の各点のCriticality
-double criticality[BOARD_MAX];  
+static double criticality[BOARD_MAX];  
 // 盤上の各点のOwner(0-100%)
-double owner[BOARD_MAX];  
+static double owner[BOARD_MAX];  
 
 // 現在のオーナーのインデックス
-int owner_index[BOARD_MAX];   
+static int owner_index[BOARD_MAX];   
 // 現在のクリティカリティのインデックス
-int criticality_index[BOARD_MAX];  
+static int criticality_index[BOARD_MAX];  
 
 // 候補手のフラグ
-bool candidates[BOARD_MAX];  
+static bool candidates[BOARD_MAX];  
 
-bool pondering_mode = false;
+static bool pondering_mode = false;
 
-bool ponder = false;
+static bool ponder = false;
 
-bool pondering_stop = false;
+static bool pondering_stop = false;
 
-bool pondered = false;
+static bool pondered = false;
 
-double time_limit;
+static double time_limit;
 
-std::thread *handle[THREAD_MAX];    // スレッドのハンドル
+static std::thread *handle[THREAD_MAX];    // スレッドのハンドル
 
 // UCB Bonusの等価パラメータ
-double bonus_equivalence = BONUS_EQUIVALENCE;
+static double bonus_equivalence = BONUS_EQUIVALENCE;
 // UCB Bonusの重み
-double bonus_weight = BONUS_WEIGHT;
+static double bonus_weight = BONUS_WEIGHT;
 
 // 乱数生成器
-std::mt19937_64 *mt[THREAD_MAX];
+static std::mt19937_64 *mt[THREAD_MAX];
 
 // Criticalityの上限値
-int criticality_max = CRITICALITY_MAX;
+static int criticality_max = CRITICALITY_MAX;
 
-// 
-bool reuse_subtree = false;
+// サブツリーを再利用するフラグ
+static bool reuse_subtree = false;
 
 // 自分の手番の色
-int my_color;
+static int my_color;
 
-ray_clock::time_point begin_time;
+static ray_clock::time_point begin_time;
 
 
 ////////////
