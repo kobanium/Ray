@@ -23,21 +23,21 @@ using namespace std;
 ////////////////
 
 // 戦術的特徴のγ値
-float po_tactical_features[TACTICAL_FEATURE_MAX];
+static float po_tactical_features[TACTICAL_FEATURE_MAX];
 // 3x3パターンのγ値
-float po_pat3[PAT3_MAX];
+static float po_pat3[PAT3_MAX];
 // MD2のパターンのγ値
-float po_md2[MD2_MAX];
+static float po_md2[MD2_MAX];
 // 3x3とMD2のパターンのγ値の積
-float po_pattern[MD2_MAX];
+static float po_pattern[MD2_MAX];
 // 学習した着手距離の特徴 
-float po_neighbor_orig[PREVIOUS_DISTANCE_MAX];
+static float po_neighbor_orig[PREVIOUS_DISTANCE_MAX];
 // 補正した着手距離の特徴
-float po_previous_distance[PREVIOUS_DISTANCE_MAX];
+static float po_previous_distance[PREVIOUS_DISTANCE_MAX];
 // 戦術的特徴1
-float po_tactical_set1[PO_TACTICALS_MAX1];
+static float po_tactical_set1[PO_TACTICALS_MAX1];
 // 戦術的特徴2
-float po_tactical_set2[PO_TACTICALS_MAX2];
+static float po_tactical_set2[PO_TACTICALS_MAX2];
 // パラメータのファイルを格納しているディレクトリのパス
 char po_params_path[1024];
 
