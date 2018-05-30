@@ -121,18 +121,8 @@ const double PO_BIAS = 1.66542;
 //  変数  //
 ////////////
 
-extern float po_tactical_features[TACTICAL_FEATURE_MAX];
-extern float po_neighbor8[PREVIOUS_DISTANCE_MAX];
-extern float po_pat3[PAT3_MAX];
-extern float po_md2[MD2_MAX];
-extern float po_pattern[MD2_MAX];
-extern float po_tactical_set1[PO_TACTICALS_MAX1];
-extern float po_tactical_set2[PO_TACTICALS_MAX2];
-
 extern char po_params_path[1024];
 
-// ビットマスク
-extern unsigned int tactical_features_mask[F_MASK_MAX];
 
 ////////////
 //  関数  //
