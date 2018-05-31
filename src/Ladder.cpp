@@ -84,9 +84,7 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
   const char *board = game->board;
   const string_t *string = game->string;
   const int str = game->string_id[ren_xy];
-  int escape_color, capture_color;
-  int escape_xy, capture_xy;
-  int neighbor;
+  int escape_color, capture_color, escape_xy, capture_xy, neighbor;
   bool result;
   
   if (depth >= 100) {
@@ -172,7 +170,7 @@ CheckLadderExtension( game_info_t *game, int color, int pos )
     return false;
   }
 
-  int id = string_id[pos];
+  const int id = string_id[pos];
 
   int ladder = string[id].lib[0];
 
