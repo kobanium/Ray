@@ -26,7 +26,7 @@ int first_move_candidates;  // 初手の候補手の個数
 
 double komi[S_WHITE + 1];          // コミの値
 double dynamic_komi[S_WHITE + 1];  // ダイナミックコミの値
-double default_komi = KOMI;        // デフォルトのコミの値
+static double default_komi = KOMI;        // デフォルトのコミの値
 
 int board_pos_id[BOARD_MAX];  // 盤上の位置の識別番号 
 
@@ -46,12 +46,12 @@ int move_dis[PURE_BOARD_SIZE][PURE_BOARD_SIZE];  // 着手距離
 int onboard_pos[PURE_BOARD_MAX];  //  実際の盤上の位置との対応
 int first_move_candidate[PURE_BOARD_MAX]; // 初手の候補手
 
-int corner[4];
-int corner_neighbor[4][2];
+static int corner[4];
+static int corner_neighbor[4][2];
 
 int cross[4];
 
-bool check_superko = false;  // 超劫の確認の設定
+static bool check_superko = false;  // 超劫の確認の設定
 
 ///////////////
 // 関数宣言  //
