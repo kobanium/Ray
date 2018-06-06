@@ -54,7 +54,7 @@ index_hash_t md5_index[HASH_MAX];
 static int pat3_index[PAT3_MAX];
 static int md2_index[MD2_MAX];
 
-game_info_t snapback_game;
+static game_info_t snapback_game;
 
 
 // 戦術的特徴のビットマスク
