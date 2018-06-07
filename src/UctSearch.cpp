@@ -478,31 +478,31 @@ UctSearchGenmove( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
-    handle[i] = new thread(ParallelUctSearch, &t_arg[i]);
   }
 
-  for (int i = 0; i < threads; i++) {
-    handle[i]->join();
-    delete handle[i];
-  }
+  const double mag[3] = { 1.0, 1.5, 2.0 };
+  const double search_time_limit = time_limit;
+  int mag_count = 0;
+
   // 着手が41手以降で, 
   // 時間延長を行う設定になっていて,
   // 探索時間延長をすべきときは
-  // 探索回数を1.5倍に増やす
-  if (game->moves > pure_board_size * 3 - 17 &&
-      extend_time &&
-      ExtendTime()) {
-    po_info.halt = (int)(1.5 * po_info.halt);
-    time_limit *= 1.5;
+  // 探索回数を1.5倍, 2.0倍に増やす
+  do {
+    po_info.halt = (int)(mag[mag_count] * po_info.num);
+    time_limit = mag[mag_count] * search_time_limit;
     for (int i = 0; i < threads; i++) {
       handle[i] = new thread(ParallelUctSearch, &t_arg[i]);
     }
-
     for (int i = 0; i < threads; i++) {
       handle[i]->join();
       delete handle[i];
     }
-  }
+    mag_count++;
+  } while (mag_count < 3 &&
+	   game->moves > pure_board_size * 3 - 17 &&
+	   extend_time &&
+	   ExtendTime());
 
   uct_child = uct_node[current_root].child;
 
