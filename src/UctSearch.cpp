@@ -159,7 +159,7 @@ static int ExpandNode( game_info_t *game, int color, int current );
 static int ExpandRoot( game_info_t *game, int color );
 
 // 思考時間を延長する処理
-static bool ExtendTime( void );
+static bool ExtendTime( const int moves );
 
 // 候補手の初期化
 static void InitializeCandidate( child_node_t *uct_child, int pos, bool ladder );
@@ -499,10 +499,7 @@ UctSearchGenmove( game_info_t *game, int color )
       delete handle[i];
     }
     mag_count++;
-  } while (mag_count < 3 &&
-	   game->moves > pure_board_size * 3 - 17 &&
-	   extend_time &&
-	   ExtendTime());
+  } while (mag_count < 3 && ExtendTime(game->moves));
 
   uct_child = uct_node[current_root].child;
 
@@ -989,12 +986,16 @@ InterruptionCheck( void )
 //  思考時間延長の確認   //
 ///////////////////////////
 static bool
-ExtendTime( void )
+ExtendTime( const int moves )
 {
   int max = 0, second = 0;
   const int child_num = uct_node[current_root].child_num;
   child_node_t *uct_child = uct_node[current_root].child;
 
+  if (moves < pure_board_size * 3 - 17 || !extend_time) {
+    return false;
+  }
+  
   // 探索回数が最も多い手と次に多い手を求める
   for (int i = 0; i < child_num; i++) {
     if (uct_child[i].move_count > max) {
