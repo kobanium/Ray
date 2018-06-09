@@ -63,68 +63,68 @@ static int expand_threshold = EXPAND_THRESHOLD_19;
 static bool extend_time = false;
 
 int current_root; // 現在のルートのインデックス
-mutex mutex_nodes[MAX_NODES];
-mutex mutex_expand;       // ノード展開を排他処理するためのmutex
+static mutex mutex_nodes[MAX_NODES];
+static mutex mutex_expand;       // ノード展開を排他処理するためのmutex
 
 // 探索の設定
-enum SEARCH_MODE mode = CONST_TIME_MODE;
+static enum SEARCH_MODE mode = CONST_TIME_MODE;
 // 使用するスレッド数
-int threads = 1;
+static int threads = 1;
 // 1手あたりの試行時間
-double const_thinking_time = CONST_TIME;
+static double const_thinking_time = CONST_TIME;
 // 1手当たりのプレイアウト数
-int playout = CONST_PLAYOUT;
+static int playout = CONST_PLAYOUT;
 // デフォルトの持ち時間
-double default_remaining_time = ALL_THINKING_TIME;
+static double default_remaining_time = ALL_THINKING_TIME;
 
 // 各スレッドに渡す引数
-thread_arg_t t_arg[THREAD_MAX];
+static thread_arg_t t_arg[THREAD_MAX];
 
 // プレイアウトの統計情報
-statistic_t statistic[BOARD_MAX];  
+static statistic_t statistic[BOARD_MAX];  
 // 盤上の各点のCriticality
-double criticality[BOARD_MAX];  
+static double criticality[BOARD_MAX];  
 // 盤上の各点のOwner(0-100%)
-double owner[BOARD_MAX];  
+static double owner[BOARD_MAX];  
 
 // 現在のオーナーのインデックス
-int owner_index[BOARD_MAX];   
+static int owner_index[BOARD_MAX];   
 // 現在のクリティカリティのインデックス
-int criticality_index[BOARD_MAX];  
+static int criticality_index[BOARD_MAX];  
 
 // 候補手のフラグ
-bool candidates[BOARD_MAX];  
+static bool candidates[BOARD_MAX];  
 
-bool pondering_mode = false;
+static bool pondering_mode = false;
 
-bool ponder = false;
+static bool ponder = false;
 
-bool pondering_stop = false;
+static bool pondering_stop = false;
 
-bool pondered = false;
+static bool pondered = false;
 
-double time_limit;
+static double time_limit;
 
-std::thread *handle[THREAD_MAX];    // スレッドのハンドル
+static std::thread *handle[THREAD_MAX];    // スレッドのハンドル
 
 // UCB Bonusの等価パラメータ
-double bonus_equivalence = BONUS_EQUIVALENCE;
+static double bonus_equivalence = BONUS_EQUIVALENCE;
 // UCB Bonusの重み
-double bonus_weight = BONUS_WEIGHT;
+static double bonus_weight = BONUS_WEIGHT;
 
 // 乱数生成器
-std::mt19937_64 *mt[THREAD_MAX];
+static std::mt19937_64 *mt[THREAD_MAX];
 
 // Criticalityの上限値
-int criticality_max = CRITICALITY_MAX;
+static int criticality_max = CRITICALITY_MAX;
 
-// 
-bool reuse_subtree = false;
+// サブツリーを再利用するフラグ
+static bool reuse_subtree = false;
 
 // 自分の手番の色
-int my_color;
+static int my_color;
 
-ray_clock::time_point begin_time;
+static ray_clock::time_point begin_time;
 
 
 ////////////
@@ -159,7 +159,7 @@ static int ExpandNode( game_info_t *game, int color, int current );
 static int ExpandRoot( game_info_t *game, int color );
 
 // 思考時間を延長する処理
-static bool ExtendTime( void );
+static bool ExtendTime( const int moves );
 
 // 候補手の初期化
 static void InitializeCandidate( child_node_t *uct_child, int pos, bool ladder );
@@ -478,31 +478,28 @@ UctSearchGenmove( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
-    handle[i] = new thread(ParallelUctSearch, &t_arg[i]);
   }
 
-  for (int i = 0; i < threads; i++) {
-    handle[i]->join();
-    delete handle[i];
-  }
+  const double mag[3] = { 1.0, 1.5, 2.0 };
+  const double search_time_limit = time_limit;
+  int mag_count = 0;
+
   // 着手が41手以降で, 
   // 時間延長を行う設定になっていて,
   // 探索時間延長をすべきときは
-  // 探索回数を1.5倍に増やす
-  if (game->moves > pure_board_size * 3 - 17 &&
-      extend_time &&
-      ExtendTime()) {
-    po_info.halt = (int)(1.5 * po_info.halt);
-    time_limit *= 1.5;
+  // 探索回数を1.5倍, 2.0倍に増やす
+  do {
+    po_info.halt = (int)(mag[mag_count] * po_info.num);
+    time_limit = mag[mag_count] * search_time_limit;
     for (int i = 0; i < threads; i++) {
       handle[i] = new thread(ParallelUctSearch, &t_arg[i]);
     }
-
     for (int i = 0; i < threads; i++) {
       handle[i]->join();
       delete handle[i];
     }
-  }
+    mag_count++;
+  } while (mag_count < 3 && ExtendTime(game->moves));
 
   uct_child = uct_node[current_root].child;
 
@@ -989,12 +986,16 @@ InterruptionCheck( void )
 //  思考時間延長の確認   //
 ///////////////////////////
 static bool
-ExtendTime( void )
+ExtendTime( const int moves )
 {
   int max = 0, second = 0;
   const int child_num = uct_node[current_root].child_num;
   child_node_t *uct_child = uct_node[current_root].child;
 
+  if (moves < pure_board_size * 3 - 17 || !extend_time) {
+    return false;
+  }
+  
   // 探索回数が最も多い手と次に多い手を求める
   for (int i = 0; i < child_num; i++) {
     if (uct_child[i].move_count > max) {

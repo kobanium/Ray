@@ -21,27 +21,27 @@ using namespace std;
 char uct_params_path[1024];
 
 // w_0
-double weight_zero;
+static double weight_zero;
 // 戦術的特徴のレート
-latent_factor_t uct_tactical_features[UCT_TACTICAL_FEATURE_MAX];
+static latent_factor_t uct_tactical_features[UCT_TACTICAL_FEATURE_MAX];
 // 盤上の位置のレート
-latent_factor_t uct_pos_id[POS_ID_MAX];
+static latent_factor_t uct_pos_id[POS_ID_MAX];
 // パスのレート
-latent_factor_t uct_pass[UCT_PASS_MAX];
+static latent_factor_t uct_pass[UCT_PASS_MAX];
 // 直前の着手からの距離のレート
-latent_factor_t uct_move_distance_1[MOVE_DISTANCE_MAX];
+static latent_factor_t uct_move_distance_1[MOVE_DISTANCE_MAX];
 // 2手前の着手からの距離のレート
-latent_factor_t uct_move_distance_2[MOVE_DISTANCE_MAX];
+static latent_factor_t uct_move_distance_2[MOVE_DISTANCE_MAX];
 // 3x3パターンのレート
-latent_factor_t uct_pat3[PAT3_LIMIT];
+static latent_factor_t uct_pat3[PAT3_LIMIT];
 // マンハッタン距離2のパターンのレート
-latent_factor_t uct_md2[MD2_LIMIT];
+static latent_factor_t uct_md2[MD2_LIMIT];
 // マンハッタン距離3のパターンのレート
-latent_factor_t uct_md3[LARGE_PAT_MAX];
+static latent_factor_t uct_md3[LARGE_PAT_MAX];
 // マンハッタン距離4のパターンのレート
-latent_factor_t uct_md4[LARGE_PAT_MAX];
+static latent_factor_t uct_md4[LARGE_PAT_MAX];
 // マンハッタン距離5のパターンのレート
-latent_factor_t uct_md5[LARGE_PAT_MAX];
+static latent_factor_t uct_md5[LARGE_PAT_MAX];
 // オーナーのレート
 double uct_owner[OWNER_MAX];
 // クリティカリティのレート
@@ -51,10 +51,10 @@ index_hash_t md3_index[HASH_MAX];
 index_hash_t md4_index[HASH_MAX];
 index_hash_t md5_index[HASH_MAX];
 
-int pat3_index[PAT3_MAX];
-int md2_index[MD2_MAX];
+static int pat3_index[PAT3_MAX];
+static int md2_index[MD2_MAX];
 
-game_info_t snapback_game;
+static game_info_t snapback_game;
 
 
 // 戦術的特徴のビットマスク
