@@ -10,21 +10,21 @@
 // SGFの座標を数値に変換
 static int ParsePosition( const char c );
 // 盤の大きさの抽出
-static int GetSize( SGF_record_t *kifu, char *sgf_text, int cursor );
+static int GetSize( SGF_record_t *kifu, const char *sgf_text, const int cursor );
 // 結果の抽出
-static int GetResult( SGF_record_t *kifu, char *sgf_text, int cursor );
+static int GetResult( SGF_record_t *kifu, const char *sgf_text, const int cursor );
 // 着手の抽出
-static int GetMove( SGF_record_t *kifu, char *sgf_text, int cursor );
+static int GetMove( SGF_record_t *kifu, const char *sgf_text, const int cursor );
 // 置き石の数の抽出
-static int GetHandicaps( SGF_record_t *kifu, char *sgf_text, int cursor );
+static int GetHandicaps( SGF_record_t *kifu, const char *sgf_text, const int cursor );
 // 置き石の座標の抽出
-static int GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor, int color );
+static int GetHandicapPosition( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color );
 // コミの抽出
-static int GetKomi( SGF_record_t *kifu, char *sgf_text, int cursor );
+static int GetKomi( SGF_record_t *kifu, const char *sgf_text, const int cursor );
 // 対局者の名前を抽出
-static int GetPlayerName( SGF_record_t *kifu, char *sgf_text, int cursor, int color );
+static int GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color );
 // 無視する情報を飛ばす処理
-static int SkipData( SGF_record_t *kifu, char *sgf_text, int cursor );
+static int SkipData( SGF_record_t *kifu, const char *sgf_text, const int cursor );
 
 
 //////////////////
@@ -44,7 +44,8 @@ GetKifuMove( const SGF_record_t *kifu, const int n )
 ////////////////////
 //  置き石の抽出  //
 ////////////////////
-int GetHandicapStone( const SGF_record_t *kifu, const int n )
+int
+GetHandicapStone( const SGF_record_t *kifu, const int n )
 {
   if (kifu->handicap_x[n] == 0) {
     return PASS;
@@ -101,7 +102,6 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
   memset(kifu->handicap_x, 0, sizeof(kifu->handicap_x));
   memset(kifu->handicap_y, 0, sizeof(kifu->handicap_y));
   memset(kifu->handicap_color, 0, sizeof(kifu->handicap_color));
-
   
   while ((cursor < 100000) && (sgf_text[cursor] != '\0')) {
     if (sgf_text[cursor] == '\n' ||
@@ -132,6 +132,8 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
     // GetHandicaps        : 置き石の個数の抽出 
     // GetHandicapPosition : 置き石の座標
     // GetMove             : 着手の抽出
+    // GetKomi             : コミの抽出
+    // GetPlayerName       : 対局者の名前の抽出
     if (strncmp(&sgf_text[cursor], "SZ[", 3) == 0) cursor = GetSize(kifu, sgf_text, cursor);
     if (strncmp(&sgf_text[cursor], "RE[", 3) == 0) cursor = GetResult(kifu, sgf_text, cursor);
     if (strncmp(&sgf_text[cursor], "HA[", 3) == 0) cursor = GetHandicaps(kifu, sgf_text, cursor);
@@ -169,13 +171,14 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
 //  盤の大きさの抽出  //
 ///////////////////////
 static int
-GetSize( SGF_record_t *kifu, char *sgf_text, int cursor )
+GetSize( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
   int tmp_cursor = 3;
   char size[10];
-  memset(size, 0, sizeof(char)*10);
+  
+  memset(size, 0, sizeof(char) * 10);
 
-  while ((cursor+tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;
+  while ((cursor + tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;
   
   for (int i = 0; i < tmp_cursor - 3; i++) {
     if (cursor + i + 3 < 100000){
@@ -183,7 +186,7 @@ GetSize( SGF_record_t *kifu, char *sgf_text, int cursor )
     }
   }
   kifu->board_size = atoi(size);
-  while ((cursor+tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
+  while ((cursor + tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
   return cursor + tmp_cursor;
 }
 
@@ -192,10 +195,12 @@ GetSize( SGF_record_t *kifu, char *sgf_text, int cursor )
 //  結果の抽出  //
 /////////////////
 static int
-GetResult( SGF_record_t *kifu, char *sgf_text, int cursor )
+GetResult( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
   int tmp_cursor = 3;
-  while ((cursor+tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
+
+  while ((cursor + tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
+
   if (cursor + 3 < 100000){
     switch (sgf_text[cursor + 3]) {
     case 'B':
@@ -212,7 +217,7 @@ GetResult( SGF_record_t *kifu, char *sgf_text, int cursor )
       break;
     }
   }
-  while ((cursor+tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
+  while ((cursor + tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
   return cursor + tmp_cursor;
 }
 
@@ -221,9 +226,10 @@ GetResult( SGF_record_t *kifu, char *sgf_text, int cursor )
 //  着手の抽出  //
 /////////////////
 static int
-GetMove( SGF_record_t *kifu, char *sgf_text, int cursor )
+GetMove( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
   int tmp_cursor = 0;
+
   if (cursor + 3 < 100000){
     if (kifu->moves == 0) {
       if (sgf_text[cursor] == 'B') {
@@ -255,11 +261,12 @@ GetMove( SGF_record_t *kifu, char *sgf_text, int cursor )
 //  置き石の数の抽出  //
 ///////////////////////
 static int
-GetHandicaps( SGF_record_t *kifu, char *sgf_text, int cursor )
+GetHandicaps( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
   int tmp_cursor = 3;
   char handicaps[10] = {0};
-  while ((cursor+tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
+
+  while ((cursor + tmp_cursor < 100000) && (sgf_text[cursor + tmp_cursor] != ']')) tmp_cursor++;  
   
   for (int i = 0; i < tmp_cursor - 3; i++) {
     if (cursor + i + 3 < 100000){
@@ -277,7 +284,7 @@ GetHandicaps( SGF_record_t *kifu, char *sgf_text, int cursor )
 //  置き石の座標の抽出  //
 /////////////////////////
 static int
-GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
+GetHandicapPosition( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color )
 {
   int tmp_cursor = 3;
   int handicaps = 0;
@@ -311,7 +318,7 @@ GetHandicapPosition( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
 //  コミの抽出  //
 //////////////////
 static int
-GetKomi( SGF_record_t *kifu, char *sgf_text, int cursor )
+GetKomi( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
   int tmp_cursor = 3;
   char komi[10] = {0};
@@ -335,7 +342,7 @@ GetKomi( SGF_record_t *kifu, char *sgf_text, int cursor )
 //  対局名の抽出  //
 ////////////////////
 static int
-GetPlayerName( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
+GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color )
 {
   int tmp_cursor = 0;
 
@@ -363,7 +370,7 @@ GetPlayerName( SGF_record_t *kifu, char *sgf_text, int cursor, int color )
 //  無視する情報を飛ばす処理  //
 ///////////////////////////////
 static int
-SkipData( SGF_record_t *kifu, char *sgf_text, int cursor )
+SkipData( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
   int tmp_cursor = 3;
   
