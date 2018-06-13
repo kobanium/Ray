@@ -71,7 +71,7 @@ search_game_info_t::search_game_info_t( const game_info_t *src )
   memcpy(pat,         src->pat,         sizeof(pattern_t) * BOARD_MAX);
   memcpy(string_id,   src->string_id,   sizeof(int) * STRING_POS_MAX);
   memcpy(string_next, src->string_next, sizeof(int) * STRING_POS_MAX);
-  memcpy(candidates,  src->candidates, sizeof(bool) * BOARD_MAX);
+  memcpy(candidates,  src->candidates,  sizeof(bool) * BOARD_MAX);
 
   for (int i = 0; i < MAX_STRING; i++) {
     if (src->string[i].flag) {
