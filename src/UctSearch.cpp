@@ -591,6 +591,8 @@ UctSearchPondering( game_info_t *game, int color )
   // UCTの初期化
   current_root = ExpandRoot(game, color);
 
+  pondered = false;
+
   // 子ノードが1つ(パスのみ)ならPASSを返す
   if (uct_node[current_root].child_num <= 1) {
     ponder = false;
@@ -598,7 +600,6 @@ UctSearchPondering( game_info_t *game, int color )
     return ;
   }
 
-  pondered = false;
   ponder = true;
   pondering_stop = false;
 
