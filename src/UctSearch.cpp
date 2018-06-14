@@ -591,8 +591,6 @@ UctSearchPondering( game_info_t *game, int color )
   // UCTの初期化
   current_root = ExpandRoot(game, color);
 
-  pondered = false;
-
   // 子ノードが1つ(パスのみ)ならPASSを返す
   if (uct_node[current_root].child_num <= 1) {
     ponder = false;
@@ -600,6 +598,7 @@ UctSearchPondering( game_info_t *game, int color )
     return ;
   }
 
+  pondered = false;
   ponder = true;
   pondering_stop = false;
 
@@ -640,7 +639,7 @@ static int
 ExpandRoot( game_info_t *game, int color )
 {
   const int moves = game->moves;
-  unsigned long long hash = game->move_hash;
+  const unsigned long long hash = game->move_hash;
   unsigned int index = FindSameHashIndex(hash, color, moves);
   int pos, child_num = 0, pm1 = PASS, pm2 = PASS;
   bool ladder[BOARD_MAX] = { false };
@@ -766,7 +765,7 @@ static int
 ExpandNode( game_info_t *game, int color, int current )
 {
   const int moves = game->moves;
-  unsigned long long hash = game->move_hash;
+  const unsigned long long hash = game->move_hash;
   unsigned int index = FindSameHashIndex(hash, color, moves);
   int child_num = 0, max_pos = PASS, sibling_num, pm1 = PASS, pm2 = PASS;
   double max_rate = 0.0;
