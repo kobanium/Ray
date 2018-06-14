@@ -640,7 +640,7 @@ static int
 ExpandRoot( game_info_t *game, int color )
 {
   const int moves = game->moves;
-  unsigned long long hash = game->move_hash;
+  const unsigned long long hash = game->move_hash;
   unsigned int index = FindSameHashIndex(hash, color, moves);
   int pos, child_num = 0, pm1 = PASS, pm2 = PASS;
   bool ladder[BOARD_MAX] = { false };
@@ -766,7 +766,7 @@ static int
 ExpandNode( game_info_t *game, int color, int current )
 {
   const int moves = game->moves;
-  unsigned long long hash = game->move_hash;
+  const unsigned long long hash = game->move_hash;
   unsigned int index = FindSameHashIndex(hash, color, moves);
   int child_num = 0, max_pos = PASS, sibling_num, pm1 = PASS, pm2 = PASS;
   double max_rate = 0.0;
