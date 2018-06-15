@@ -1,4 +1,3 @@
-#include <cstring>
 #include <random>
 
 #include "GoBoard.h"
