@@ -51,11 +51,9 @@ SetHandicapNum( const int num )
 {
   if (const_handicap_num == 0) {
     handicap_num = num;
-    if (dk_mode != DK_OFF && 
-	handicap_num == 0) {
+    if (dk_mode != DK_OFF && handicap_num == 0) {
       dk_mode = DK_OFF;
-    } else if (dk_mode == DK_OFF &&
-	       handicap_num != 0) {
+    } else if (dk_mode == DK_OFF &&  handicap_num != 0) {
       dk_mode = DK_LINEAR;
     } 
   } else {
@@ -92,19 +90,16 @@ DynamicKomi( const game_info_t *game, const uct_node_t *root, const int color )
 static void
 LinearHandicap( const game_info_t *game )
 {
-  double new_komi;
-
   if (game->moves > LINEAR_THRESHOLD - 15) {
   // 手数が進んだらコミを変動しない
-    new_komi = (double)handicap_num + 0.5;
+    dynamic_komi[0] = (double)handicap_num + 0.5;
   } else {
     // 新しいコミの値の計算
-    new_komi = HANDICAP_WEIGHT * handicap_num * (1.0 - ((double)game->moves / LINEAR_THRESHOLD));
+    dynamic_komi[0] = HANDICAP_WEIGHT * handicap_num * (1.0 - ((double)game->moves / LINEAR_THRESHOLD));
   }
   // 新しいコミの値を代入
-  dynamic_komi[0] = new_komi;
-  dynamic_komi[S_BLACK] = new_komi + 1;
-  dynamic_komi[S_WHITE] = new_komi - 1;
+  dynamic_komi[S_BLACK] = dynamic_komi[0] + 1;
+  dynamic_komi[S_WHITE] = dynamic_komi[0] - 1;
 
   PrintKomiValue();
 }
