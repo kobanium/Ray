@@ -1163,6 +1163,9 @@ UctSearch( game_info_t *game, int color, mt19937_64 *mt, int current, int *winne
 
     // 終局まで対局のシミュレーション
     Simulation(game, color, mt);
+
+    // 隅の曲がり四目の確認
+    CheckBentFourInTheCorner(game);
     
     // コミを含めない盤面のスコアを求める
     score = (double)CalculateScore(game);

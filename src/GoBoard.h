@@ -257,4 +257,7 @@ void SetKomi( const double new_komi );
 // 上下左右の座標の計算
 void GetNeighbor4( int neighbor4[4], const int pos );
 
+// 隅のマガリ四目の確認
+void CheckBentFourInTheCorner( game_info_t *game );
+
 #endif
