@@ -105,9 +105,6 @@ static void AddNeighbor( string_t *string, const int id, const int head );
 // 隣接する連IDの削除
 static void RemoveNeighborString( string_t *string, const int id );
 
-// 隅のマガリ四目の確認
-static void CheckBentFourInTheCorner( game_info_t *game );
-
 //  盤端での処理
 static bool IsFalseEyeConnection( const game_info_t *game, const int pos, const int color );
 
@@ -1689,7 +1686,7 @@ RemoveNeighborString( string_t *string, const int id )
 ///////////////////////////
 //  隅のマガリ四目の確認  //
 ///////////////////////////
-static void
+void
 CheckBentFourInTheCorner( game_info_t *game )
 {
   const string_t *string = game->string;
@@ -1747,9 +1744,6 @@ CalculateScore( game_info_t *game )
   const char *board = game->board;
   int color;
   int scores[S_MAX] = { 0 };
-
-  // 隅のマガリ四目の確認
-  CheckBentFourInTheCorner(game);
 
   // 地の数え上げ
   for (int i = 0; i < pure_board_max; i++) {
