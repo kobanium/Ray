@@ -736,17 +736,9 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
   const int *string_id = game->string_id;
   const char *board = game->board;
   const int other = FLIP_COLOR(color);
-  int checked_string[4] = { 0 };
-  int string_liberties[4] = { 0 };
-  int strings = 0;
-  int id, lib, libs = 0, lib_sum = 0;
-  int liberty[STRING_LIB_MAX];
-  int count;
-  int neighbor4[4], neighbor;
-  int player_id[4] = {0};
-  int player_ids = 0;
-  bool checked;
-  bool already_checked;
+  int id, neighbor, count, lib, libs = 0, lib_sum = 0, player_ids = 0, strings = 0;
+  int neighbor4[4], player_id[4] = {0}, liberty[STRING_LIB_MAX], checked_string[4] = {0}, string_liberties[4] = {0};
+  bool checked, already_checked;
 
   // 欠け眼を構成する連のIDを取り出す
   GetNeighbor4(neighbor4, pos);
@@ -943,10 +935,8 @@ PutStone( game_info_t *game, const int pos, const int color )
   const int other = FLIP_COLOR(color);
   char *board = game->board;
   string_t *string = game->string;
-  int connection = 0;
-  int connect[4] = { 0 };
-  int prisoner = 0;
-  int neighbor[4];
+  int connection = 0, prisoner = 0;
+  int neighbor[4], connect[4] = { 0 };
 
   // この手番の着手で打ち上げた石の数を0にする
   game->capture_num[color] = 0;
@@ -1052,10 +1042,8 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   const int other = FLIP_COLOR(color);
   char *board = game->board;
   string_t *string = game->string;
-  int connection = 0;
-  int connect[4] = { 0 };
-  int prisoner = 0;
-  int neighbor[4];
+  int connection = 0, prisoner = 0;
+  int neighbor[4], connect[4] = { 0 };
 
   // この手番で取った石の個数を0に
   game->capture_num[color] = 0;
@@ -1142,13 +1130,11 @@ static void
 MakeString( game_info_t *game, const int pos, const int color )
 {
   const char *board = game->board;
+  const int other = FLIP_COLOR(color);
   string_t *string = game->string;
   string_t *new_string;
   int *string_id = game->string_id;
-  int id = 1;
-  int lib_add = 0;
-  int other = FLIP_COLOR(color);
-  int neighbor, neighbor4[4], i;
+  int id = 1, lib_add = 0, neighbor, neighbor4[4];
 
   // 未使用の連のインデックスを見つける
   while (string[id].flag) { id++; }
@@ -1175,7 +1161,7 @@ MakeString( game_info_t *game, const int pos, const int color )
   // 新しく作成した連の上下左右の座標を確認
   // 空点ならば, 作成した連に呼吸点を追加する
   // 敵の連ならば, 隣接する連をお互いに追加する
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == S_EMPTY) {
       lib_add = AddLiberty(new_string, neighbor4[i], lib_add);
     } else if (board[neighbor4[i]] == other) {
