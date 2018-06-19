@@ -53,7 +53,6 @@ const unsigned int po_tactical_features_mask[F_MASK_MAX] = {
   0x10000000,  0x20000000,
 };
 
-
 // MD2パターンが届く範囲
 static int neighbor[UPDATE_NUM];
 
@@ -378,7 +377,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
 	gamma *= po_tactical_set1[game->tactical_features1[pos]];
 	gamma *= po_tactical_set2[game->tactical_features2[pos]];
 	gamma *= bias[i];
-	rate[pos] = (long long)(gamma)+1;
+	rate[pos] = (long long)(gamma) + 1;
 
 	// 新たに計算したレートを代入
 	*sum_rate += rate[pos];
@@ -537,12 +536,12 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
 void
 PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate )
 {
+  const int other = FLIP_COLOR(color);
   int pm1 = PASS, pm2 = PASS, pm3 = PASS;
   int distance_2[4], distance_3[4], distance_4[4];
   bool flag[BOARD_MAX] = { false };  
   int *update_pos = game->update_pos[color];
   int *update_num = &game->update_num[color];
-  int other = FLIP_COLOR(color);
   int nakade_pos[4] = { 0 };
   int nakade_num = 0;
   int prev_feature = game->update_num[color];
@@ -633,7 +632,7 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 	    gamma *= po_previous_distance[dis - 2];
 	  }
 	}
-	rate[pos] = (long long)(gamma)+1;
+	rate[pos] = (long long)(gamma) + 1;
       }
 
       *sum_rate += rate[pos];
@@ -1132,14 +1131,9 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   const int other = FLIP_COLOR(color);
-  int size = 0;
-  int already[4] = { 0 };
-  int already_num = 0;
-  int lib, count = 0, libs = 0;
-  int lib_candidate[10];
-  int id;
-  bool flag;
-  bool checked;
+  int lib, id, count = 0, libs = 0, size = 0, already_num = 0;
+  int already[4] = { 0 }, lib_candidate[10];
+  bool flag, checked;
 
   // 上下左右が空点なら呼吸点の候補に入れる
   if (board[NORTH(pos)] == S_EMPTY) lib_candidate[libs++] = NORTH(pos);
