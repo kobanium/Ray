@@ -97,7 +97,6 @@ static void InputMD2( const char *filename, latent_factor_t *lf );
 static void InputLargePattern( const char *filename, latent_factor_t *lf, index_hash_t *pat_index );
 
 
-
 //////////////////////
 //  γ値の初期設定  //
 //////////////////////
@@ -502,11 +501,9 @@ UctCheckFeatures( game_info_t *game, int color, uct_features_t *uct_features )
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  int previous_move = PASS, id;
-  int check[4] = { 0 };
-  int checked = 0;
+  int checked = 0, previous_move = PASS, id;
+  int neighbor4[4], check[4] = { 0 };
   bool ladder, already_checked;
-  int neighbor4[4];
 
   if (game->moves > 1) previous_move = game->record[game->moves - 1].pos;
 
@@ -573,21 +570,14 @@ UctCheckCaptureAfterKo( game_info_t *game, int color, uct_features_t *uct_featur
 bool
 UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_features )
 {
-  bool flag;
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int other = FLIP_COLOR(color);
-  int size = 0;
-  int already[4] = { 0 };
-  int already_num = 0;
-  int id;
-  int lib, count, libs = 0;
-  int lib_candidate[PURE_BOARD_MAX];   
-  bool checked;
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
+  int id, lib, already_num = 0, size = 0, libs = 0, count;
+  int lib_candidate[PURE_BOARD_MAX], neighbor4[4], already[4] = { 0 };
+  bool checked, flag, already_checked;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
-  int neighbor4[4];
-  bool already_checked;
 
   GetNeighbor4(neighbor4, pos);
 
@@ -672,12 +662,12 @@ UctCheckCapture( game_info_t *game, int color, int pos, uct_features_t *uct_feat
 {
   const char *board = game->board;
   const int other = FLIP_COLOR(color);
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  bool check;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
   int neighbor, id;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
   int neighbor4[4];
+  unsigned long long *tactical_features1 = uct_features->tactical_features1;
+  bool check;
 
   GetNeighbor4(neighbor4, pos);
 
@@ -714,8 +704,8 @@ UctCheckAtari( game_info_t *game, int color, int pos, uct_features_t *uct_featur
 {
   const char *board = game->board;
   const int other = FLIP_COLOR(color);
-  string_t *string = game->string;
-  int *string_id = game->string_id;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
   int id, size, neighbor4[4];
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
@@ -759,14 +749,9 @@ void
 UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_features )
 {
   const int other = FLIP_COLOR(color);
+  const int cross[4] = {- board_size - 1, - board_size + 1, board_size - 1, board_size + 1};
   int i, connect;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
-  int cross[4];
-
-  cross[0] = - board_size - 1;
-  cross[1] = - board_size + 1;
-  cross[2] =   board_size - 1;
-  cross[3] =   board_size + 1;
 
   if (game->capture_num[other] != 2) {
     return;
@@ -1062,15 +1047,12 @@ double
 CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct_features )
 {
   const int moves = game->moves;
-  pattern_t *pat = game->pat;
-  int pm1 = PASS, pm2 = PASS;
-  int dis1 = -1, dis2 = -1;
-  double score = weight_zero;
-  double tmp_score;
+  const pattern_t *pat = game->pat;
+  int pm1 = PASS, pm2 = PASS, dis1 = -1, dis2 = -1, feature_num = 0;
+  double score = weight_zero, tmp_score;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
   unsigned int pat3, md2;
   latent_factor_t *all_feature[UCT_TACTICAL_FEATURE_MAX + 6];
-  int feature_num = 0;
 
   if (moves > 1) pm1 = game->record[moves - 1].pos;
   if (moves > 2) pm2 = game->record[moves - 2].pos;
