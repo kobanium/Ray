@@ -131,8 +131,6 @@ PrintString( const game_info_t *game )
 void
 PrintStringID( const game_info_t *game )
 {
-  int pos;
-
   if (!debug_message) return ;
 
   cerr << "    ";
@@ -144,7 +142,7 @@ PrintStringID( const game_info_t *game )
   for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(3) << (pure_board_size + 1 - i) << ":";
     for (int x = board_start; x <= board_end; x++) {
-      pos = x + y * board_size;
+      const int pos = x + y * board_size;
       if (game->string[game->string_id[pos]].flag) {
 	cerr << " " << setw(3) << game->string_id[pos];
       }
@@ -164,8 +162,6 @@ PrintStringID( const game_info_t *game )
 void
 PrintStringNext( const game_info_t *game )
 {
-  int pos;
-
   if (!debug_message) return ;
 
   cerr << "    ";
@@ -177,7 +173,7 @@ PrintStringNext( const game_info_t *game )
   for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(3) << (pure_board_size + 1 - i);
     for (int x = board_start; x <= board_end; x++) {
-      pos = x + y * board_size;
+      const int pos = x + y * board_size;
       if (game->string[game->string_id[pos]].flag) {
 	if (game->string_next[pos] != STRING_END) {
 	  cerr << setw(3) << game->string_next[pos];
@@ -202,7 +198,7 @@ void
 PrintOwner( const uct_node_t *root, const int color, double *own )
 {
   const statistic_t *statistic = root->statistic;
-  int pos, player = 0, opponent = 0;
+  int player = 0, opponent = 0;
   double owner, score;
 
   if (!debug_message) return ;
@@ -221,7 +217,7 @@ PrintOwner( const uct_node_t *root, const int color, double *own )
   for (int i = 1, y = board_start; y <= board_end; y++, i++) {
     cerr << setw(2) << (pure_board_size + 1 - i) << ":|";
     for (int x = board_start; x <= board_end; x++) {
-      pos = POS(x, y);
+      const int pos = POS(x, y);
       owner = (double)statistic[pos].colors[color] / root->move_count;
       if (owner > 0.5) {
 	player++;
