@@ -164,15 +164,13 @@ CheckLadderExtension( game_info_t *game, int color, int pos )
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  bool flag = false;
 
   if (board[pos] != color){
     return false;
   }
 
   const int id = string_id[pos];
-
-  int ladder = string[id].lib[0];
+  const int ladder = string[id].lib[0];
 
   if (string[id].libs == 1 &&
       IsLegal(game, ladder, color)) {
@@ -180,11 +178,9 @@ CheckLadderExtension( game_info_t *game, int color, int pos )
     search_game_info_t *ladder_game = search_game.get();
     PutStoneForSearch(ladder_game, ladder, color);
     if (IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
-      flag = true;
-    } else {
-      flag = false;
-    }
+      return true;
+    } 
   }
 
-  return flag;
+  return false;
 }
