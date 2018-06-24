@@ -1224,13 +1224,8 @@ UctSearch( game_info_t *game, int color, mt19937_64 *mt, int current, int *winne
 static void
 AddVirtualLoss(child_node_t *child, int current)
 {
-#if defined CPP11
   atomic_fetch_add(&uct_node[current].move_count, VIRTUAL_LOSS);
   atomic_fetch_add(&child->move_count, VIRTUAL_LOSS);
-#else
-  uct_node[current].move_count += VIRTUAL_LOSS;
-  child->move_count += VIRTUAL_LOSS;
-#endif
 }
 
 
