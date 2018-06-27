@@ -97,7 +97,7 @@ static void GTP_loadsgf( void );
 ////////////
 
 //  GTPコマンド
-const GTP_command_t gtpcmd[GTP_COMMANDS] = {
+const GTP_command_t gtpcmd[] = {
   { "boardsize",           GTP_boardsize           },
   { "clear_board",         GTP_clearboard          },
   { "final_score",         GTP_finalscore          },
@@ -140,9 +140,9 @@ GTP_main( void )
     command = STRTOK(input, DELIM, &next_token);
     CHOMP(command);
 
-    for (int i = 0; i < GTP_COMMANDS; i++) {
-      if (!strcmp(command, gtpcmd[i].command)) {
-	(*gtpcmd[i].function)();
+    for (const GTP_command_t& cmd : gtpcmd) {
+      if (!strcmp(command, cmd.command)) {
+	(*cmd.function)();
 	nocommand = false;
 	break;
       }
