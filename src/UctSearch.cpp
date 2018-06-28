@@ -988,9 +988,9 @@ InterruptionCheck( void )
 static bool
 ExtendTime( const int moves )
 {
-  int max = 0, second = 0;
   const int child_num = uct_node[current_root].child_num;
-  child_node_t *uct_child = uct_node[current_root].child;
+  const child_node_t *uct_child = uct_node[current_root].child;
+  int max = 0, second = 0;
 
   if (moves < pure_board_size * 3 - 17 || !extend_time) {
     return false;
@@ -1024,15 +1024,11 @@ ExtendTime( const int moves )
 static void
 ParallelUctSearch( thread_arg_t *arg )
 {
-  thread_arg_t *targ = (thread_arg_t *)arg;
-  game_info_t *game;
-  int color = targ->color;
-  bool interruption = false;
-  bool enough_size = true;
-  int winner = 0;
-  int interval = CRITICALITY_INTERVAL;
-  
-  game = AllocateGame();
+  const thread_arg_t *targ = (thread_arg_t *)arg;
+  const int color = targ->color;
+  bool interruption = false, enough_size = true;
+  int winner = 0, interval = CRITICALITY_INTERVAL;
+  game_info_t *game = AllocateGame();
 
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
