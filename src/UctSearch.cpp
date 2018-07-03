@@ -1070,7 +1070,6 @@ ParallelUctSearch( thread_arg_t *arg )
 
   // メモリの解放
   FreeGame(game);
-  return;
 }
 
 
@@ -1081,14 +1080,11 @@ ParallelUctSearch( thread_arg_t *arg )
 static void
 ParallelUctSearchPondering( thread_arg_t *arg )
 {
-  thread_arg_t *targ = (thread_arg_t *)arg;
-  game_info_t *game;
-  int color = targ->color;
+  const thread_arg_t *targ = (thread_arg_t *)arg;
+  const int color = targ->color;
+  int winner = 0, interval = CRITICALITY_INTERVAL;
   bool enough_size = true;
-  int winner = 0;
-  int interval = CRITICALITY_INTERVAL;
-
-  game = AllocateGame();
+  game_info_t *game = AllocateGame();
 
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
@@ -1124,7 +1120,6 @@ ParallelUctSearchPondering( thread_arg_t *arg )
 
   // メモリの解放
   FreeGame(game);
-  return;
 }
 
 
@@ -1218,7 +1213,7 @@ UctSearch( game_info_t *game, int color, mt19937_64 *mt, int current, int *winne
 //  Virtual Lossの加算  //
 //////////////////////////
 static void
-AddVirtualLoss(child_node_t *child, int current)
+AddVirtualLoss( child_node_t *child, int current )
 {
   atomic_fetch_add(&uct_node[current].move_count, VIRTUAL_LOSS);
   atomic_fetch_add(&child->move_count, VIRTUAL_LOSS);
@@ -1710,7 +1705,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
 //  子ノードのインデックスの収集  //
 ///////////////////////////////////
 static void
-CorrectDescendentNodes(vector<int> &indexes, int index)
+CorrectDescendentNodes( vector<int> &indexes, int index )
 {
   child_node_t *uct_child = uct_node[index].child;
   const int child_num = uct_node[index].child_num;
