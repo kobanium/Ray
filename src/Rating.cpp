@@ -69,6 +69,9 @@ static double jump_bias = JUMP_BIAS;
 //  関数の宣言  //
 //////////////////
 
+//  戦術的特徴の初期化
+static void InitializePoTacticalFeaturesSet( void );
+
 //  呼吸点が1つの連に対する特徴の判定  
 static void PoCheckFeaturesLib1( game_info_t *game, const int color, const int id, int *update, int *update_num );
 
@@ -140,7 +143,7 @@ InitializeRating( void )
 ////////////////////////////
 //  戦術的特徴をまとめる  //
 ////////////////////////////
-void
+static void
 InitializePoTacticalFeaturesSet( void )
 {
   double rate;
