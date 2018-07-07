@@ -134,9 +134,6 @@ void SetNeighbor( void );
 //  初期化
 void InitializeRating( void );
 
-//  戦術的特徴の初期化
-void InitializePoTacticalFeaturesSet( void );
-
 //  着手(Elo Rating)
 int RatingMove( game_info_t *game, int color, std::mt19937_64 *mt );
 

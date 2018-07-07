@@ -69,6 +69,9 @@ static double jump_bias = JUMP_BIAS;
 //  関数の宣言  //
 //////////////////
 
+//  戦術的特徴の初期化
+static void InitializePoTacticalFeaturesSet( void );
+
 //  呼吸点が1つの連に対する特徴の判定  
 static void PoCheckFeaturesLib1( game_info_t *game, const int color, const int id, int *update, int *update_num );
 
@@ -92,6 +95,8 @@ static void PoCheckCaptureAndAtari( game_info_t *game, const int color, const in
 
 //  2目の抜き後に対するホウリコミ   
 static void PoCheckRemove2Stones( game_info_t *game, const int color, int *update, int *update_num );
+
+static void Neighbor12( const int previous_move, int distance_2[], int distance_3[], int distance_4[] );
 
 //  γ読み込み
 static void InputPOGamma( void );
@@ -140,7 +145,7 @@ InitializeRating( void )
 ////////////////////////////
 //  戦術的特徴をまとめる  //
 ////////////////////////////
-void
+static void
 InitializePoTacticalFeaturesSet( void )
 {
   double rate;
@@ -308,8 +313,8 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 *mt )
 ////////////////////////////
 //  12近傍の座標を求める  //
 ////////////////////////////
-void
-Neighbor12( int previous_move, int distance_2[], int distance_3[], int distance_4[] )
+static void
+Neighbor12( const int previous_move, int distance_2[], int distance_3[], int distance_4[] )
 {
   // 着手距離2の座標
   distance_2[0] = previous_move + neighbor[ 2];
