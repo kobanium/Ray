@@ -148,10 +148,8 @@ InitializeRating( void )
 static void
 InitializePoTacticalFeaturesSet( void )
 {
-  double rate;
-
   for (int i = 0; i < PO_TACTICALS_MAX1; i++){
-    rate = 1.0;
+    double rate = 1.0;
 
     if ((i & po_tactical_features_mask[F_SAVE_CAPTURE3_3]) > 0) {
       rate *= po_tactical_features[F_SAVE_CAPTURE3_3];
@@ -206,7 +204,7 @@ InitializePoTacticalFeaturesSet( void )
 
 
   for (int i = 0; i < PO_TACTICALS_MAX2; i++) {
-    rate = 1.0;
+    double rate = 1.0;
 
     if ((i & po_tactical_features_mask[F_SELF_ATARI_SMALL]) > 0) {
       rate *= po_tactical_features[F_SELF_ATARI_SMALL + F_MAX1];
