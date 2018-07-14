@@ -19,7 +19,7 @@ static int handicap_num = 0;
 static int const_handicap_num = 0;
 
 // Dynamic Komiのモード
-enum DYNAMIC_KOMI_MODE dk_mode = DK_OFF;
+static enum DYNAMIC_KOMI_MODE dk_mode = DK_OFF;
 
 
 ////////////
