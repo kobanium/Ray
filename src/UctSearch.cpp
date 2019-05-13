@@ -1642,8 +1642,6 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
   PrintPlayoutInformation(&uct_node[current_root], &po_info, finish_time, 0);
   PrintOwner(&uct_node[current_root], statistic, color, owner);
 
-  pos = uct_child[select_index].pos;
-
   PrintBestSequence(game, uct_node, current_root, color);
 
   CalculateNextPlayouts(game, color, wp, finish_time);
@@ -1653,7 +1651,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
   for (int i = 0; i < pure_board_max; i++) {
     pos = onboard_pos[i];
 
-    if (owner[pos] >= 5 || owner[pos] <= 95) {
+    if (owner[pos] >= 5 && owner[pos] <= 95) {
       candidates[pos] = true;
       count++;
     } else {
