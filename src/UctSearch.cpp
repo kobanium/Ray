@@ -1565,16 +1565,19 @@ UctAnalyze( game_info_t *game, int color )
   for (int y = board_start; y <= board_end; y++) {
     for (int x = board_start; x <= board_end; x++) {
       const int pos = POS(x, y);
-      const double ownership_value = (double)statistic[pos].colors[S_BLACK] / uct_node[current_root].move_count;
-      if (ownership_value > 0.5) {
-	black++;
-      } else {
-	white++;
+      const double black_ownership = (double)statistic[pos].colors[S_BLACK] / uct_node[current_root].move_count;
+      const double white_ownership = (double)statistic[pos].colors[S_WHITE] / uct_node[current_root].move_count;
+      if (black_ownership > 0.5) {
+        black++;
+      }
+      if (white_ownership > 0.5) {
+        white++;
       }
     }
   }
 
-  PrintOwner(&uct_node[current_root], color, owner);
+  PrintOwner(&uct_node[current_root], S_BLACK, owner);
+  PrintOwner(&uct_node[current_root], S_WHITE, owner);
 
   return black - white;
 }

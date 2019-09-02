@@ -16,7 +16,8 @@ using namespace std;
 void
 Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
 {
-  int color = starting_color, pos = -1, pass_count = (game->record[game->moves - 1].pos == PASS && game->moves > 1);
+  int color = starting_color, pos = -1;
+  int pass_count = 0;
 
   // シミュレーション打ち切り手数を設定
   int length = MAX_MOVES - game->moves;
