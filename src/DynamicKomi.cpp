@@ -72,13 +72,13 @@ DynamicKomi( const game_info_t *game, const uct_node_t *root, const int color )
   if (handicap_num != 0) {
     switch(dk_mode) {
       case DK_LINEAR:
-	LinearHandicap(game);
-	break;
+        LinearHandicap(game);
+        break;
       case DK_VALUE:
-	ValueSituational(root, color);
-	break;
+        ValueSituational(root, color);
+        break;
       default:
-	break;
+        break;
     }
   }
 }
