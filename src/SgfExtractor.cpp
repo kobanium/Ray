@@ -105,22 +105,22 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
   
   while ((cursor < 100000) && (sgf_text[cursor] != '\0')) {
     if (sgf_text[cursor] == '\n' ||
-	sgf_text[cursor] == '\r' ||				
-	sgf_text[cursor] == ' '  ||
-	sgf_text[cursor] == ';'  ||
-	sgf_text[cursor] == '('  ||
-	sgf_text[cursor] == ')'  ||
-	sgf_text[cursor] == '\t') { 
+        sgf_text[cursor] == '\r' ||
+        sgf_text[cursor] == ' '  ||
+        sgf_text[cursor] == ';'  ||
+        sgf_text[cursor] == '('  ||
+        sgf_text[cursor] == ')'  ||
+        sgf_text[cursor] == '\t') { 
       while (cursor < 100000 - 1) {
-	cursor++;
-	if (sgf_text[cursor] != '\n' &&
-	    sgf_text[cursor] != '\r' &&	    
-	    sgf_text[cursor] != ' '  &&
-	    sgf_text[cursor] != ';'  &&
+        cursor++;
+        if (sgf_text[cursor] != '\n' &&
+            sgf_text[cursor] != '\r' &&
+            sgf_text[cursor] != ' '  &&
+            sgf_text[cursor] != ';'  &&
             sgf_text[cursor] != '('  &&
-	    sgf_text[cursor] != ')'  &&
-	    sgf_text[cursor] != '\t') 
-	  break;
+            sgf_text[cursor] != ')'  &&
+            sgf_text[cursor] != '\t') 
+          break;
       }
     }    
     if (cursor >= 100000){
@@ -147,17 +147,17 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
 
     // 無視するデータ
     if ((strncmp(&sgf_text[cursor], "GM[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "FF[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "DT[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "PC[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "RU[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "CA[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "TM[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "OT[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "TB[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "TW[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "WR[", 3) == 0) ||
-	(strncmp(&sgf_text[cursor], "BR[", 3) == 0)) {      
+        (strncmp(&sgf_text[cursor], "FF[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "DT[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "PC[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "RU[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "CA[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "TM[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "OT[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "TB[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "TW[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "WR[", 3) == 0) ||
+        (strncmp(&sgf_text[cursor], "BR[", 3) == 0)) {      
       cursor = SkipData(kifu, sgf_text, cursor);
     }
     cursor++;   // 文字を一つ進める
@@ -290,10 +290,10 @@ GetHandicapPosition( SGF_record_t *kifu, const char *sgf_text, const int cursor,
   int handicaps = 0;
 
   while ((cursor + tmp_cursor < 100000) &&
-	 ((sgf_text[cursor + tmp_cursor] == '[') ||
-	  (sgf_text[cursor + tmp_cursor] == ']') ||
-	  (('a' <= sgf_text[cursor + tmp_cursor]) &&
-	   (sgf_text[cursor + tmp_cursor] <= 's')))) tmp_cursor++;
+         ((sgf_text[cursor + tmp_cursor] == '[') ||
+          (sgf_text[cursor + tmp_cursor] == ']') ||
+          (('a' <= sgf_text[cursor + tmp_cursor]) &&
+           (sgf_text[cursor + tmp_cursor] <= 's')))) tmp_cursor++;
 
   if (sgf_text[cursor + tmp_cursor] != ']'){
     tmp_cursor--;
@@ -351,13 +351,13 @@ GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cursor, const
   if (color == S_BLACK) {
     for (int i = 0; i < tmp_cursor - 3; i++) {
       if (cursor + i + 3 < 100000){
-	kifu->black_name[i] = sgf_text[cursor + i + 3];
+        kifu->black_name[i] = sgf_text[cursor + i + 3];
       }
     }
   } else {
     for (int i = 0; i < tmp_cursor - 3; i++) {
       if (cursor + i + 3 < 100000){
-	kifu->white_name[i] = sgf_text[cursor + i + 3];
+        kifu->white_name[i] = sgf_text[cursor + i + 3];
       }
     }
   }
@@ -375,7 +375,7 @@ SkipData( SGF_record_t *kifu, const char *sgf_text, const int cursor )
   int tmp_cursor = 3;
   
   while ((cursor + tmp_cursor < 100000) &&
-	 (sgf_text[cursor + tmp_cursor] != ']')) {
+         (sgf_text[cursor + tmp_cursor] != ']')) {
     tmp_cursor++;
   }
   

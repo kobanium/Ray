@@ -233,7 +233,7 @@ InitializePoTacticalFeaturesSet( void )
     } else if ((i & po_tactical_features_mask[F_ATARI]) > 0) {
       rate *= po_tactical_features[F_ATARI + F_MAX1];
     }
-		
+
     if ((i & po_tactical_features_mask[F_2POINT_EXTENSION_SAFELY]) > 0) {
       rate *= po_tactical_features[F_2POINT_EXTENSION_SAFELY + F_MAX1];
     } else if ((i & po_tactical_features_mask[F_3POINT_EXTENSION_SAFELY]) > 0) {
@@ -350,13 +350,13 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
   if (index == 1) {
     pos = game->record[game->moves - 1].pos;
     if ((border_dis_x[pos] == 1 && border_dis_y[pos] == 2) ||
-	(border_dis_x[pos] == 2 && border_dis_y[pos] == 1)) {
+        (border_dis_x[pos] == 2 && border_dis_y[pos] == 1)) {
       for (int i = 0; i < 4; i++) {
-	if ((border_dis_x[update[i]] == 1 && border_dis_y[update[i]] == 2) ||
-	    (border_dis_x[update[i]] == 2 && border_dis_y[update[i]] == 1)) {
-	  bias[i] = 1000.0;
-	  break;
-	}
+        if ((border_dis_x[update[i]] == 1 && border_dis_y[update[i]] == 2) ||
+            (border_dis_x[update[i]] == 2 && border_dis_y[update[i]] == 1)) {
+          bias[i] = 1000.0;
+          break;
+        }
       }
     }
   }
@@ -372,19 +372,19 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
       sum_rate_row[board_y[pos]] -= rate[pos];
 
       if (!self_atari_flag){
-	rate[pos] = 0;
+        rate[pos] = 0;
       } else {
-	PoCheckCaptureAndAtari(game, color, pos);
+        PoCheckCaptureAndAtari(game, color, pos);
 
-	gamma = po_pattern[MD2(game->pat, pos)] * po_previous_distance[index];
-	gamma *= po_tactical_set1[game->tactical_features1[pos]];
-	gamma *= po_tactical_set2[game->tactical_features2[pos]];
-	gamma *= bias[i];
-	rate[pos] = (long long)(gamma) + 1;
+        gamma = po_pattern[MD2(game->pat, pos)] * po_previous_distance[index];
+        gamma *= po_tactical_set1[game->tactical_features1[pos]];
+        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        gamma *= bias[i];
+        rate[pos] = (long long)(gamma) + 1;
 
-	// 新たに計算したレートを代入
-	*sum_rate += rate[pos];
-	sum_rate_row[board_y[pos]] += rate[pos];
+        // 新たに計算したレートを代入
+        *sum_rate += rate[pos];
+        sum_rate_row[board_y[pos]] += rate[pos];
       }
 
       game->tactical_features1[pos] = 0;
@@ -415,22 +415,22 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
       sum_rate_row[board_y[pos]] -= rate[pos];
 
       if (!self_atari_flag) {
-	rate[pos] = 0;
+        rate[pos] = 0;
       } else {
-	PoCheckCaptureAndAtari(game, color, pos);
-	dis = DIS(pm1, pos);
-	if (dis < 5) {
-	  gamma = 10000.0 * po_previous_distance[dis - 2];
-	} else {
-	  gamma = 10000.0;
-	}
-	gamma *= po_pattern[MD2(game->pat, pos)];
-	gamma *= po_tactical_set1[game->tactical_features1[pos]];
-	gamma *= po_tactical_set2[game->tactical_features2[pos]];
-	rate[pos] = (long long)(gamma) + 1;
-	// 新たに計算したレートを代入      
-	*sum_rate += rate[pos];
-	sum_rate_row[board_y[pos]] += rate[pos];     
+        PoCheckCaptureAndAtari(game, color, pos);
+        dis = DIS(pm1, pos);
+        if (dis < 5) {
+          gamma = 10000.0 * po_previous_distance[dis - 2];
+        } else {
+          gamma = 10000.0;
+        }
+        gamma *= po_pattern[MD2(game->pat, pos)];
+        gamma *= po_tactical_set1[game->tactical_features1[pos]];
+        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        rate[pos] = (long long)(gamma) + 1;
+        // 新たに計算したレートを代入      
+        *sum_rate += rate[pos];
+        sum_rate_row[board_y[pos]] += rate[pos];     
       }
 
       game->tactical_features1[pos] = 0;
@@ -464,17 +464,17 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
 
       // パターン、戦術的特徴、距離のγ値
       if (!self_atari_flag) {
-	rate[pos] = 0;
+        rate[pos] = 0;
       } else {
-	PoCheckCaptureAndAtari(game, color, pos);
-	gamma = po_pattern[MD2(game->pat, pos)];
-	gamma *= po_tactical_set1[game->tactical_features1[pos]];
-	gamma *= po_tactical_set2[game->tactical_features2[pos]];
-	rate[pos] = (long long)(gamma) + 1;
+        PoCheckCaptureAndAtari(game, color, pos);
+        gamma = po_pattern[MD2(game->pat, pos)];
+        gamma *= po_tactical_set1[game->tactical_features1[pos]];
+        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        rate[pos] = (long long)(gamma) + 1;
 
-	// 新たに計算したレートを代入
-	*sum_rate += rate[pos];
-	sum_rate_row[board_y[pos]] += rate[pos];
+        // 新たに計算したレートを代入
+        *sum_rate += rate[pos];
+        sum_rate_row[board_y[pos]] += rate[pos];
       }
 
       game->tactical_features1[pos] = 0;
@@ -502,29 +502,29 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
       if (flag[pos]) continue;
 
       if (game->candidates[pos]) {
-	self_atari_flag = PoCheckSelfAtari(game, color, pos);
+        self_atari_flag = PoCheckSelfAtari(game, color, pos);
 
-	// 元あったレートを消去
-	*sum_rate -= rate[pos];
-	sum_rate_row[board_y[pos]] -= rate[pos];
+        // 元あったレートを消去
+        *sum_rate -= rate[pos];
+        sum_rate_row[board_y[pos]] -= rate[pos];
 
-	// パターン、戦術的特徴、距離のγ値
-	if (!self_atari_flag){
-	  rate[pos] = 0;
-	} else {
-	  PoCheckCaptureAndAtari(game, color, pos);
-	  gamma = po_pattern[MD2(game->pat, pos)];
-	  gamma *= po_tactical_set1[game->tactical_features1[pos]];
-	  gamma *= po_tactical_set2[game->tactical_features2[pos]];
-	  rate[pos] = (long long)(gamma) + 1;
+        // パターン、戦術的特徴、距離のγ値
+        if (!self_atari_flag){
+          rate[pos] = 0;
+        } else {
+          PoCheckCaptureAndAtari(game, color, pos);
+          gamma = po_pattern[MD2(game->pat, pos)];
+          gamma *= po_tactical_set1[game->tactical_features1[pos]];
+          gamma *= po_tactical_set2[game->tactical_features2[pos]];
+          rate[pos] = (long long)(gamma) + 1;
 
-	  // 新たに計算したレートを代入
-	  *sum_rate += rate[pos];
-	  sum_rate_row[board_y[pos]] += rate[pos];
-	}
+          // 新たに計算したレートを代入
+          *sum_rate += rate[pos];
+          sum_rate_row[board_y[pos]] += rate[pos];
+        }
 
-	game->tactical_features1[pos] = 0;
-	game->tactical_features2[pos] = 0;
+        game->tactical_features1[pos] = 0;
+        game->tactical_features2[pos] = 0;
       }
       // 更新済みフラグを立てる
       flag[pos] = true;
@@ -624,18 +624,18 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
       PoCheckCaptureAndAtari(game, color, pos);
 
       if (!self_atari_flag) {
-	rate[pos] = 0;
+        rate[pos] = 0;
       } else {
-	gamma = po_pattern[MD2(game->pat, pos)];
-	gamma *= po_tactical_set1[game->tactical_features1[pos]];
-	gamma *= po_tactical_set2[game->tactical_features2[pos]];
-	if (pm1 != PASS) {
-	  dis = DIS(pos, pm1);
-	  if (dis < 5) {
-	    gamma *= po_previous_distance[dis - 2];
-	  }
-	}
-	rate[pos] = (long long)(gamma) + 1;
+        gamma = po_pattern[MD2(game->pat, pos)];
+        gamma *= po_tactical_set1[game->tactical_features1[pos]];
+        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        if (pm1 != PASS) {
+          dis = DIS(pos, pm1);
+          if (dis < 5) {
+            gamma *= po_previous_distance[dis - 2];
+          }
+        }
+        rate[pos] = (long long)(gamma) + 1;
       }
 
       *sum_rate += rate[pos];
@@ -699,53 +699,53 @@ PoCheckFeaturesLib1( game_info_t *game, const int color, const int id, int *upda
   if (string[id].size == 1) {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	lib = string[neighbor].lib[0];
-	if (string[neighbor].size == 1) {
-	  game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE1_1];
-	} else if (string[neighbor].size == 2) {
-	  game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE1_2];
-	} else {
-	  game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE1_3];
-	}
-	update[(*update_num)++] = lib;
+        lib = string[neighbor].lib[0];
+        if (string[neighbor].size == 1) {
+          game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE1_1];
+        } else if (string[neighbor].size == 2) {
+          game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE1_2];
+        } else {
+          game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE1_3];
+        }
+        update[(*update_num)++] = lib;
       }
       neighbor = string[id].neighbor[neighbor];
     }
   } else if (string[id].size == 2) {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	lib = string[neighbor].lib[0];
-	if (string[neighbor].size == 1) {
-	  if (IsSelfAtariCaptureForSimulation(game, lib, color, liberty)) {
-	    game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE_SELF_ATARI];
-	  } else {
-	    game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE2_1];
-	  }
-	} else if (string[neighbor].size == 2) {
-	  game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE2_2];
-	} else {
-	  game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE2_3];
-	}
-	update[(*update_num)++] = lib;
+        lib = string[neighbor].lib[0];
+        if (string[neighbor].size == 1) {
+          if (IsSelfAtariCaptureForSimulation(game, lib, color, liberty)) {
+            game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE_SELF_ATARI];
+          } else {
+            game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE2_1];
+          }
+        } else if (string[neighbor].size == 2) {
+          game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE2_2];
+        } else {
+          game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE2_3];
+        }
+        update[(*update_num)++] = lib;
       }
       neighbor = string[id].neighbor[neighbor];
     }
   } else if (string[id].size >= 3) {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	lib = string[neighbor].lib[0];
-	if (string[neighbor].size == 1) {
-	  if (IsSelfAtariCaptureForSimulation(game, lib, color, liberty)) {
-	    game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE_SELF_ATARI];
-	  } else {
-	    game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE3_1];
-	  }
-	} else if (string[neighbor].size == 2) {
-	  game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE3_2];
-	} else {
-	  game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE3_3];
-	}
-	update[(*update_num)++] = lib;
+        lib = string[neighbor].lib[0];
+        if (string[neighbor].size == 1) {
+          if (IsSelfAtariCaptureForSimulation(game, lib, color, liberty)) {
+            game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE_SELF_ATARI];
+          } else {
+            game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE3_1];
+          }
+        } else if (string[neighbor].size == 2) {
+          game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE3_2];
+        } else {
+          game->tactical_features1[lib] |= po_tactical_features_mask[F_SAVE_CAPTURE3_3];
+        }
+        update[(*update_num)++] = lib;
       }
       neighbor = string[id].neighbor[neighbor];
     }
@@ -814,9 +814,9 @@ PoCheckFeaturesLib2( game_info_t *game, const int color, const int id, int *upda
       lib1 = string[neighbor].lib[0];
       update[(*update_num)++] = lib1;
       if (string[neighbor].size <= 2) {
-	game->tactical_features1[lib1] |= po_tactical_features_mask[F_2POINT_CAPTURE_SMALL];
+        game->tactical_features1[lib1] |= po_tactical_features_mask[F_2POINT_CAPTURE_SMALL];
       } else {
-	game->tactical_features1[lib1] |= po_tactical_features_mask[F_2POINT_CAPTURE_LARGE];
+        game->tactical_features1[lib1] |= po_tactical_features_mask[F_2POINT_CAPTURE_LARGE];
       }
     } else if (string[neighbor].libs == 2) {
       lib1 = string[neighbor].lib[0];
@@ -826,27 +826,27 @@ PoCheckFeaturesLib2( game_info_t *game, const int color, const int id, int *upda
       capturable1 = IsCapturableAtariForSimulation(game, lib1, color, neighbor);
       capturable2 = IsCapturableAtariForSimulation(game, lib2, color, neighbor);
       if (string[neighbor].size <= 2) {
-	if (capturable1) {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_C_ATARI_SMALL];
-	} else {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_ATARI_SMALL];
-	}
-	if (capturable2) {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_C_ATARI_SMALL];
-	} else {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_ATARI_SMALL];
-	}
+        if (capturable1) {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_C_ATARI_SMALL];
+        } else {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_ATARI_SMALL];
+        }
+        if (capturable2) {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_C_ATARI_SMALL];
+        } else {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_ATARI_SMALL];
+        }
       } else {
-	if (capturable1) {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_C_ATARI_LARGE];
-	} else {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_ATARI_LARGE];
-	}
-	if (capturable2) {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_C_ATARI_LARGE];
-	} else {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_ATARI_LARGE];
-	}
+        if (capturable1) {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_C_ATARI_LARGE];
+        } else {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_2POINT_ATARI_LARGE];
+        }
+        if (capturable2) {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_C_ATARI_LARGE];
+        } else {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_2POINT_ATARI_LARGE];
+        }
       }
     }
     neighbor = string[id].neighbor[neighbor];
@@ -932,9 +932,9 @@ PoCheckFeaturesLib3( game_info_t *game, const int color, const int id, int *upda
       lib1 = string[neighbor].lib[0];
       update[(*update_num)++] = lib1;
       if (string[neighbor].size <= 2) {
-	game->tactical_features1[lib1] |= po_tactical_features_mask[F_3POINT_CAPTURE_SMALL];
+        game->tactical_features1[lib1] |= po_tactical_features_mask[F_3POINT_CAPTURE_SMALL];
       } else {
-	game->tactical_features1[lib1] |= po_tactical_features_mask[F_3POINT_CAPTURE_LARGE];
+        game->tactical_features1[lib1] |= po_tactical_features_mask[F_3POINT_CAPTURE_LARGE];
       }
     } else if (string[neighbor].libs == 2) {
       lib1 = string[neighbor].lib[0];
@@ -944,27 +944,27 @@ PoCheckFeaturesLib3( game_info_t *game, const int color, const int id, int *upda
       capturable1 = IsCapturableAtariForSimulation(game, lib1, color, neighbor);
       capturable2 = IsCapturableAtariForSimulation(game, lib2, color, neighbor);
       if (string[neighbor].size <= 2) {
-	if (capturable1) {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_C_ATARI_SMALL];
-	} else {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_ATARI_SMALL];
-	}
-	if (capturable2) {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_C_ATARI_SMALL];
-	} else {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_ATARI_SMALL];
-	}
+        if (capturable1) {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_C_ATARI_SMALL];
+        } else {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_ATARI_SMALL];
+        }
+        if (capturable2) {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_C_ATARI_SMALL];
+        } else {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_ATARI_SMALL];
+        }
       } else {
-	if (capturable1) {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_C_ATARI_LARGE];
-	} else {
-	  game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_ATARI_LARGE];
-	}
-	if (capturable2) {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_C_ATARI_LARGE];
-	} else {
-	  game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_ATARI_LARGE];
-	}
+        if (capturable1) {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_C_ATARI_LARGE];
+        } else {
+          game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_ATARI_LARGE];
+        }
+        if (capturable2) {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_C_ATARI_LARGE];
+        } else {
+          game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_ATARI_LARGE];
+        }
       }
     } else if (string[neighbor].libs == 3) {
       lib1 = string[neighbor].lib[0];
@@ -974,13 +974,13 @@ PoCheckFeaturesLib3( game_info_t *game, const int color, const int id, int *upda
       update[(*update_num)++] = lib2;
       update[(*update_num)++] = lib3;
       if (string[neighbor].size <= 2) {
-	game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_DAME_SMALL];
-	game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_DAME_SMALL];
-	game->tactical_features2[lib3] |= po_tactical_features_mask[F_3POINT_DAME_SMALL];
+        game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_DAME_SMALL];
+        game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_DAME_SMALL];
+        game->tactical_features2[lib3] |= po_tactical_features_mask[F_3POINT_DAME_SMALL];
       } else {
-	game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_DAME_LARGE];
-	game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_DAME_LARGE];
-	game->tactical_features2[lib3] |= po_tactical_features_mask[F_3POINT_DAME_LARGE];
+        game->tactical_features2[lib1] |= po_tactical_features_mask[F_3POINT_DAME_LARGE];
+        game->tactical_features2[lib2] |= po_tactical_features_mask[F_3POINT_DAME_LARGE];
+        game->tactical_features2[lib3] |= po_tactical_features_mask[F_3POINT_DAME_LARGE];
       }
     }
     neighbor = string[id].neighbor[neighbor];
@@ -1023,11 +1023,11 @@ PoCheckFeatures( game_info_t *game, const int color, int *update, int *update_nu
     id = string_id[WEST(previous_move)];
     if (id != check[0]) {
       if (string[id].libs == 1) {
-	PoCheckFeaturesLib1(game, color, id, update, update_num);
+        PoCheckFeaturesLib1(game, color, id, update, update_num);
       } else if (string[id].libs == 2) {
-	PoCheckFeaturesLib2(game, color, id, update, update_num);
+        PoCheckFeaturesLib2(game, color, id, update, update_num);
       } else if (string[id].libs == 3) {
-	PoCheckFeaturesLib3(game, color, id, update, update_num);
+        PoCheckFeaturesLib3(game, color, id, update, update_num);
       }
     }
     check[checked++] = id;
@@ -1038,11 +1038,11 @@ PoCheckFeatures( game_info_t *game, const int color, int *update, int *update_nu
     id = string_id[EAST(previous_move)];
     if (id != check[0] && id != check[1]) {
       if (string[id].libs == 1) {
-	PoCheckFeaturesLib1(game, color, id, update, update_num);
+        PoCheckFeaturesLib1(game, color, id, update, update_num);
       } else if (string[id].libs == 2) {
-	PoCheckFeaturesLib2(game, color, id, update, update_num);
+        PoCheckFeaturesLib2(game, color, id, update, update_num);
       } else if (string[id].libs == 3) {
-	PoCheckFeaturesLib3(game, color, id, update, update_num);
+        PoCheckFeaturesLib3(game, color, id, update, update_num);
       }
     }
     check[checked++] = id;
@@ -1053,11 +1053,11 @@ PoCheckFeatures( game_info_t *game, const int color, int *update, int *update_nu
     id = string_id[SOUTH(previous_move)];
     if (id != check[0] && id != check[1] && id != check[2]) {
       if (string[id].libs == 1) {
-	PoCheckFeaturesLib1(game, color, id, update, update_num);
+        PoCheckFeaturesLib1(game, color, id, update, update_num);
       } else if (string[id].libs == 2) {
-	PoCheckFeaturesLib2(game, color, id, update, update_num);
+        PoCheckFeaturesLib2(game, color, id, update, update_num);
       } else if (string[id].libs == 3) {
-	PoCheckFeaturesLib3(game, color, id, update, update_num);
+        PoCheckFeaturesLib3(game, color, id, update, update_num);
       }
     }
   }
@@ -1155,17 +1155,17 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
     count = 0;
     while (lib != LIBERTY_END) {
       if (lib != pos) {
-	checked = false;
-	for (int i = 0; i < libs; i++) {
-	  if (lib_candidate[i] == lib) {
-	    checked = true;
-	    break;
-	  }
-	}
-	if (!checked) {
-	  lib_candidate[libs + count] = lib;
-	  count++;
-	}
+        checked = false;
+        for (int i = 0; i < libs; i++) {
+          if (lib_candidate[i] == lib) {
+            checked = true;
+            break;
+          }
+        }
+        if (!checked) {
+          lib_candidate[libs + count] = lib;
+          count++;
+        }
       }
       lib = string[id].lib[lib];
     }
@@ -1174,7 +1174,7 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
     already[already_num++] = id;
     if (libs >= 2) return true;
   } else if (board[NORTH(pos)] == other &&
-	     string[string_id[NORTH(pos)]].libs == 1) {
+             string[string_id[NORTH(pos)]].libs == 1) {
     return true;
   }
 
@@ -1186,20 +1186,20 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (int i = 0; i < libs; i++) {
-	    if (lib_candidate[i] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    lib_candidate[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (int i = 0; i < libs; i++) {
+            if (lib_candidate[i] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            lib_candidate[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       size += string[id].size;
@@ -1207,7 +1207,7 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
       if (libs >= 2) return true;
     }
   } else if (board[WEST(pos)] == other &&
-	     string[string_id[WEST(pos)]].libs == 1) {
+             string[string_id[WEST(pos)]].libs == 1) {
     return true;
   }
 
@@ -1219,20 +1219,20 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (int i = 0; i < libs; i++) {
-	    if (lib_candidate[i] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    lib_candidate[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (int i = 0; i < libs; i++) {
+            if (lib_candidate[i] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            lib_candidate[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       size += string[id].size;
@@ -1240,7 +1240,7 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
       if (libs >= 2) return true;
     }
   } else if (board[EAST(pos)] == other &&
-	     string[string_id[EAST(pos)]].libs == 1) {
+             string[string_id[EAST(pos)]].libs == 1) {
     return true;
   }
 
@@ -1253,20 +1253,20 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (int i = 0; i < libs; i++) {
-	    if (lib_candidate[i] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    lib_candidate[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (int i = 0; i < libs; i++) {
+            if (lib_candidate[i] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            lib_candidate[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       size += string[id].size;
@@ -1274,7 +1274,7 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
       if (libs >= 2) return true;
     }
   } else if (board[SOUTH(pos)] == other &&
-	     string[string_id[SOUTH(pos)]].libs == 1) {
+             string[string_id[SOUTH(pos)]].libs == 1) {
     return true;
   }
 
@@ -1525,11 +1525,11 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
     
     if (pm1 != PASS) {
       if (DIS(pos, pm1) == 2) {
-	gamma *= po_previous_distance[0];
+        gamma *= po_previous_distance[0];
       } else if (DIS(pos, pm1) == 3) {
-	gamma *= po_previous_distance[1];
+        gamma *= po_previous_distance[1];
       } else if (DIS(pos, pm1) == 4) {
-	gamma *= po_previous_distance[2];
+        gamma *= po_previous_distance[2];
       }
     }
     

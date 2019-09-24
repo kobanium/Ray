@@ -1,8 +1,8 @@
 #ifndef _PATTERN_H_
 #define _PATTERN_H_
 
-const int MD2_MAX = 16777216;	// 2^24
-const int PAT3_MAX = 65536;	// 2^16
+const int MD2_MAX = 16777216;   // 2^24
+const int PAT3_MAX = 65536;     // 2^16
 
 const int MD2_LIMIT = 1060624;
 const int PAT3_LIMIT = 4468;
@@ -100,4 +100,4 @@ void DisplayInputMD4( const unsigned int md4 );
 void DisplayInputMD5( const unsigned long long md5 );
 void DisplayInputPattern( const pattern_t *pattern, const int size );
 
-#endif	//  _PATTERN_H_
+#endif  //  _PATTERN_H_
