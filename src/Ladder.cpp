@@ -26,7 +26,7 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 
   for (int i = 0; i < MAX_STRING; i++) {
     if (!string[i].flag ||
-	string[i].color != color) {
+        string[i].color != color) {
       continue;
     }
     // アタリから逃げる着手箇所
@@ -42,32 +42,32 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
       // 隣接する敵連を取って助かるかを確認
       int neighbor = string[i].neighbor[0];
       while (neighbor != NEIGHBOR_END && !flag) {
-	if (string[neighbor].libs == 1) {
-	  if (IsLegal(game, string[neighbor].lib[0], color)) {
-	    PutStoneForSearch(ladder_game, string[neighbor].lib[0], color);
-	    if (IsLadderCaptured(0, ladder_game, string[i].origin, FLIP_COLOR(color)) == DEAD) {
-	      if (string[i].size >= 2) {
-		  ladder_pos[string[neighbor].lib[0]] = true;
-		}
-	      } else {
-		flag = true;
-	      }
-	      Undo(ladder_game);
-	    }
-	}
-	neighbor = string[i].neighbor[neighbor];
+        if (string[neighbor].libs == 1) {
+          if (IsLegal(game, string[neighbor].lib[0], color)) {
+            PutStoneForSearch(ladder_game, string[neighbor].lib[0], color);
+            if (IsLadderCaptured(0, ladder_game, string[i].origin, FLIP_COLOR(color)) == DEAD) {
+              if (string[i].size >= 2) {
+            ladder_pos[string[neighbor].lib[0]] = true;
+          }
+              } else {
+          flag = true;
+              }
+              Undo(ladder_game);
+            }
+        }
+        neighbor = string[i].neighbor[neighbor];
       }
 
       // 取って助からない時は逃げてみる
       if (!flag) {
-	if (IsLegal(game, ladder, color)) {
-	  PutStoneForSearch(ladder_game, ladder, color);
-	  if (string[i].size >= 2 &&
-	      IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
-	    ladder_pos[ladder] = true;
-	  }
-	  Undo(ladder_game);
-	}
+        if (IsLegal(game, ladder, color)) {
+          PutStoneForSearch(ladder_game, ladder, color);
+          if (string[i].size >= 2 &&
+              IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
+            ladder_pos[ladder] = true;
+          }
+          Undo(ladder_game);
+        }
       }
       checked[ladder] = true;
     }
@@ -106,14 +106,14 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
     neighbor = string[str].neighbor[0];
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	if (IsLegalForSearch(game, string[neighbor].lib[0], escape_color)) {
-	  PutStoneForSearch(game, string[neighbor].lib[0], escape_color);
-	  result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
-	  Undo(game);
-	  if (result == ALIVE) {
-	    return ALIVE;
-	  }
-	}
+        if (IsLegalForSearch(game, string[neighbor].lib[0], escape_color)) {
+          PutStoneForSearch(game, string[neighbor].lib[0], escape_color);
+          result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+          Undo(game);
+          if (result == ALIVE) {
+            return ALIVE;
+          }
+        }
       }
       neighbor = string[str].neighbor[neighbor];
     }
@@ -122,12 +122,12 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
     escape_xy = string[str].lib[0];
     while (escape_xy != LIBERTY_END) {
       if (IsLegalForSearch(game, escape_xy, escape_color)) {
-	PutStoneForSearch(game, escape_xy, escape_color);
-	result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
-	Undo(game);
-	if (result == ALIVE) {
-	  return ALIVE;
-	}
+        PutStoneForSearch(game, escape_xy, escape_color);
+        result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+        Undo(game);
+        if (result == ALIVE) {
+          return ALIVE;
+        }
       }
       escape_xy = string[str].lib[escape_xy];
     }
@@ -140,12 +140,12 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
     capture_xy = string[str].lib[0];
     while (capture_xy != LIBERTY_END) {
       if (IsLegalForSearch(game, capture_xy, capture_color)) {
-	PutStoneForSearch(game, capture_xy, capture_color);
-	result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
-	Undo(game);
-	if (result == DEAD) {
-	  return DEAD;
-	}
+        PutStoneForSearch(game, capture_xy, capture_color);
+        result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+        Undo(game);
+        if (result == DEAD) {
+          return DEAD;
+        }
       }
       capture_xy = string[str].lib[capture_xy];
     }

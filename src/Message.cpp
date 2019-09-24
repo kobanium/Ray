@@ -84,9 +84,9 @@ PrintString( const game_info_t *game )
   for (int i = 0; i < MAX_STRING; i++){
     if (string[i].flag) {
       if (game->board[string[i].origin] == S_BLACK) {
-	cerr << "Black String   ";
+        cerr << "Black String   ";
       } else {
-	cerr << "White String   ";
+        cerr << "White String   ";
       }
       cerr << "ID : " << i << " (libs : " << string[i].libs << ", size : " << string[i].size << ")" << endl;
       pos = string[i].lib[0];
@@ -94,8 +94,8 @@ PrintString( const game_info_t *game )
       cerr << "  Liberty : " << endl;
       cerr << "  ";
       while (pos != STRING_END) {
-	cerr << GOGUI_X(pos) << GOGUI_Y(pos) << " ";
-	pos = string[i].lib[pos];
+        cerr << GOGUI_X(pos) << GOGUI_Y(pos) << " ";
+        pos = string[i].lib[pos];
       }
       cerr << endl;
 
@@ -103,9 +103,9 @@ PrintString( const game_info_t *game )
       cerr << "  Stone : " << endl;
       cerr << "    ";
       while (pos != STRING_END) {
-	cerr << GOGUI_X(pos) << GOGUI_Y(pos) << " ";
-	pos = game->string_next[pos];
-	if (pos == game->string_next[pos]) getchar();
+        cerr << GOGUI_X(pos) << GOGUI_Y(pos) << " ";
+        pos = game->string_next[pos];
+        if (pos == game->string_next[pos]) getchar();
       }
       cerr << endl;
 
@@ -114,8 +114,8 @@ PrintString( const game_info_t *game )
       cerr << "  Neighbor : " << endl;
       cerr << "    ";
       while (neighbor < NEIGHBOR_END) {
-	cerr << neighbor << " ";
-	neighbor = string[i].neighbor[neighbor];
+        cerr << neighbor << " ";
+        neighbor = string[i].neighbor[neighbor];
       }
       cerr << endl;
     }
@@ -144,10 +144,9 @@ PrintStringID( const game_info_t *game )
     for (int x = board_start; x <= board_end; x++) {
       const int pos = x + y * board_size;
       if (game->string[game->string_id[pos]].flag) {
-	cerr << " " << setw(3) << game->string_id[pos];
-      }
-      else {
-	cerr << "   -";
+        cerr << " " << setw(3) << game->string_id[pos];
+      } else {
+        cerr << "   -";
       }
     }
     cerr << endl;
@@ -175,13 +174,13 @@ PrintStringNext( const game_info_t *game )
     for (int x = board_start; x <= board_end; x++) {
       const int pos = x + y * board_size;
       if (game->string[game->string_id[pos]].flag) {
-	if (game->string_next[pos] != STRING_END) {
-	  cerr << setw(3) << game->string_next[pos];
-	} else {
-	  cerr << " END";
-	}
+        if (game->string_next[pos] != STRING_END) {
+          cerr << setw(3) << game->string_next[pos];
+        } else {
+          cerr << " END";
+        }
       } else {
-	cerr << "   -";
+        cerr << "   -";
       }
     }
     cerr << endl;
@@ -219,9 +218,9 @@ PrintOwner( const uct_node_t *root, const statistic_t *statistic, const int colo
       const int pos = POS(x, y);
       owner = (double)statistic[pos].colors[color] / root->move_count;
       if (owner > 0.5) {
-	player++;
+        player++;
       } else {
-	opponent++;
+        opponent++;
       }
       own[pos] = owner * 100.0;
       cerr << setw(3) << (int)(owner * 100) << " ";
@@ -308,8 +307,8 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
 
     for (int i = 0; i < child_num; i++) {
       if (uct_child[i].move_count > max) {
-	max = uct_child[i].move_count;
-	index = i;
+        max = uct_child[i].move_count;
+        index = i;
       }
     }
 

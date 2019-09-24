@@ -336,16 +336,16 @@ IsNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
       id = string_id[neighbor4[i]];
       bool check_flag = false;
       for (int j = 0; j < check; j++) {
-	if (checked[j] == id) {
-	  check_flag = true;
-	  break;
-	}
+        if (checked[j] == id) {
+          check_flag = true;
+          break;
+        }
       }
       if (check_flag) continue;
       my_stone = string[id].origin;
       while (my_stone != STRING_END) {
-	stones[n++] = my_stone;
-	my_stone = string_next[my_stone];
+        stones[n++] = my_stone;
+        my_stone = string_next[my_stone];
       }
       checked[check++] = id;
     }
@@ -375,15 +375,15 @@ IsNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
   // ナカデのパターンならばtrueを返す
   // そうでなければfalseを返す
   switch (n) {
-  case 3:
-  case 4:
-  case 5:
-    for (int i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
-      if (nakade_hash[n - 3][i] == hash) {
-	return true;
+    case 3:
+    case 4:
+    case 5:
+      for (int i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
+        if (nakade_hash[n - 3][i] == hash) {
+          return true;
+        }
       }
-    }
-    break;
+      break;
   }
 
   return false;
@@ -412,16 +412,16 @@ IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
       id = string_id[neighbor4[i]];
       bool check_flag = false;
       for (int j = 0; j < check; j++) {
-	if (checked[j] == id) {
-	  check_flag = true;
-	  break;
-	}
+        if (checked[j] == id) {
+          check_flag = true;
+          break;
+        }
       }
       if (check_flag) continue;
       my_stone = string[id].origin;
       while (my_stone != STRING_END) {
-	stones[n++] = my_stone;
-	my_stone = string_next[my_stone];
+        stones[n++] = my_stone;
+        my_stone = string_next[my_stone];
       }
       checked[check++] = id;
     }
@@ -445,16 +445,16 @@ IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
   // ナカデのパターンならばtrueを返す
   // そうでなければfalseを返す
   switch (n) {
-  case 3:
-  case 4:
-  case 5:
-  case 6:
-    for (int i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
-      if (nakade_hash[n - 3][i] == hash) {
-	return true;
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+      for (int i = 0; i < NAKADE_PATTERNS[n - 3]; i++) {
+        if (nakade_hash[n - 3][i] == hash) {
+          return true;
+        }
       }
-    }
-    break;
+      break;
   }
 
   return false;
@@ -497,10 +497,10 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
     // 上下左右について, 未確認で, 自分の石か空点なら追加
     for (int i = 0; i < 4; i++) {
       if (!flag[neighbor4[i]] &&
-	  (board[neighbor4[i]] & color) == 0) {
-	Enqueue(&nakade_queue, neighbor4[i]);
-	flag[neighbor4[i]] = true;
-	size++;
+          (board[neighbor4[i]] & color) == 0) {
+        Enqueue(&nakade_queue, neighbor4[i]);
+        flag[neighbor4[i]] = true;
+        size++;
       }
     }
   }
@@ -521,17 +521,16 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
 
   // ナカデの形になっていれば, その座標を返す
   switch (nakade_num) {
-  case 3:
-  case 4:
-  case 5:
-    for (int i = 0; i < NAKADE_PATTERNS[nakade_num - 3]; i++) {
-      if (nakade_hash[nakade_num - 3][i] == hash) {
-	return nakade[0] + nakade_pos[nakade_num - 3][i];
+    case 3:
+    case 4:
+    case 5:
+      for (int i = 0; i < NAKADE_PATTERNS[nakade_num - 3]; i++) {
+        if (nakade_hash[nakade_num - 3][i] == hash) {
+        return nakade[0] + nakade_pos[nakade_num - 3][i];
+        }
       }
-    }
-    break;
+      break;
   }
-
 
   return NOT_NAKADE;
 }
@@ -594,15 +593,15 @@ CheckRemovedStoneNakade( const game_info_t *game, const int color )
 
   // ナカデになっていれば, その座標を返す
   switch (capture_num) {
-  case 3:
-  case 4:
-  case 5:
-    for (int i = 0; i < NAKADE_PATTERNS[capture_num - 3]; i++) {
-      if (nakade_hash[capture_num - 3][i] == hash) {
-	return capture_pos[0] + nakade_pos[capture_num - 3][i];
+    case 3:
+    case 4:
+    case 5:
+      for (int i = 0; i < NAKADE_PATTERNS[capture_num - 3]; i++) {
+        if (nakade_hash[capture_num - 3][i] == hash) {
+          return capture_pos[0] + nakade_pos[capture_num - 3][i];
+        }
       }
-    }
-    break;
+      break;
   }
 
   return NOT_NAKADE;

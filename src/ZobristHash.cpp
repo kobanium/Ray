@@ -180,11 +180,11 @@ DeleteOldHash( const game_info_t *game )
   while (oldest_move < game->moves) {
     for (unsigned int i = 0; i < uct_hash_size; i++) {
       if (node_hash[i].flag && node_hash[i].moves == oldest_move) {
-	node_hash[i].flag = false;
-	node_hash[i].hash = 0;
-	node_hash[i].color = 0;
-	node_hash[i].moves = 0;
-	used--;
+        node_hash[i].flag = false;
+        node_hash[i].hash = 0;
+        node_hash[i].color = 0;
+        node_hash[i].moves = 0;
+        used--;
       }
     }
     oldest_move++;
@@ -234,8 +234,8 @@ FindSameHashIndex( const unsigned long long hash, const int color, const int mov
     if (!node_hash[i].flag) {
       return uct_hash_size;
     } else if (node_hash[i].hash == hash &&
-	       node_hash[i].color == color &&
-	       node_hash[i].moves == moves) {
+               node_hash[i].color == color &&
+               node_hash[i].moves == moves) {
       return i;
     }
     i++;

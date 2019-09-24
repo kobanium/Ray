@@ -142,9 +142,9 @@ GTP_main( void )
 
     for (const GTP_command_t& cmd : gtpcmd) {
       if (!strcmp(command, cmd.command)) {
-	(*cmd.function)();
-	nocommand = false;
-	break;
+        (*cmd.function)();
+        nocommand = false;
+        break;
       }
     }
 
@@ -670,31 +670,31 @@ GTP_final_status_list( void )
   if (!strcmp(command, "dead")){
     for (int y = board_start; y <= board_end; y++) {
       for (int x = board_start; x <= board_end; x++) {
-	if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] <= 30) ||
-	    (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] >= 70)) {
+        if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] <= 30) ||
+            (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] >= 70)) {
 #if defined (_WIN32)
-	  sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strcat_s(dead, 2048, pos);
+          sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strcat_s(dead, 2048, pos);
 #else
-	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strncat(dead, pos, 5);
+          snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strncat(dead, pos, 5);
 #endif
-	}
+        }
       }
     }
   } else if (!strcmp(command, "alive")){
     for (int y = board_start; y <= board_end; y++) {
       for (int x = board_start; x <= board_end; x++) {
-	if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] >= 70) ||
-	    (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] <= 30)) {
+        if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] >= 70) ||
+            (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] <= 30)) {
 #if defined (_WIN32)
-	  sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strcat_s(dead, 2048, pos);
+          sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strcat_s(dead, 2048, pos);
 #else
-	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strncat(dead, pos, 5);
+          snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strncat(dead, pos, 5);
 #endif
-	}
+        }
       }
     }
   }

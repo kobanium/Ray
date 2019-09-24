@@ -377,7 +377,7 @@ InitializeSearchSetting( void )
     po_info.num = 100000000;
     extend_time = false;
   } else if (mode == TIME_SETTING_MODE ||
-	     mode == TIME_SETTING_WITH_BYOYOMI_MODE) {
+             mode == TIME_SETTING_WITH_BYOYOMI_MODE) {
     if (pure_board_size < 11) {
       time_limit = remaining_time[0] / TIME_RATE_9;
       po_info.num = (int)(PLAYOUT_SPEED * time_limit);
@@ -543,8 +543,8 @@ UctSearchGenmove( game_info_t *game, int color )
   } else if (game->moves >= MAX_MOVES) {
     pos = PASS;
   } else if (game->moves > 3 &&
-	     game->record[game->moves - 1].pos == PASS &&
-	     game->record[game->moves - 3].pos == PASS) {
+             game->record[game->moves - 1].pos == PASS &&
+             game->record[game->moves - 3].pos == PASS) {
     pos = PASS;
   } else if (best_wp <= RESIGN_THRESHOLD) {
     pos = RESIGN;
@@ -579,7 +579,7 @@ UctSearchPondering( game_info_t *game, int color )
   for (int i = 0; i < board_max; i++) {
     criticality[i] = 0.0;    
   }
-				  
+
   po_info.count = 0;
 
   for (int i = 0; i < pure_board_max; i++) {
@@ -680,10 +680,10 @@ ExpandRoot( game_info_t *game, int color )
       uct_child[i].pw = false;
       uct_child[i].open = false;
       if (ladder[pos]) {
-	uct_node[index].move_count -= uct_child[i].move_count;
-	uct_node[index].win -= uct_child[i].win;
-	uct_child[i].move_count = 0;
-	uct_child[i].win = 0;
+        uct_node[index].move_count -= uct_child[i].move_count;
+        uct_node[index].win -= uct_child[i].win;
+        uct_child[i].move_count = 0;
+        uct_child[i].win = 0;
       }
       uct_child[i].ladder = ladder[pos];
     }
@@ -724,21 +724,21 @@ ExpandRoot( game_info_t *game, int color )
     // 候補手の展開
     if (moves == 1) {
       for (int i = 0; i < first_move_candidates; i++) {
-	pos = first_move_candidate[i];
-	// 探索候補かつ合法手であれば探索対象にする
-	if (candidates[pos] && IsLegal(game, pos, color)) {
-	  InitializeCandidate(&uct_child[child_num], pos, ladder[pos]);
-	  child_num++;
-	}	
+        pos = first_move_candidate[i];
+        // 探索候補かつ合法手であれば探索対象にする
+        if (candidates[pos] && IsLegal(game, pos, color)) {
+          InitializeCandidate(&uct_child[child_num], pos, ladder[pos]);
+          child_num++;
+        }
       }
     } else {
       for (int i = 0; i < pure_board_max; i++) {
-	pos = onboard_pos[i];
-	// 探索候補かつ合法手であれば探索対象にする
-	if (candidates[pos] && IsLegal(game, pos, color)) {
-	  InitializeCandidate(&uct_child[child_num], pos, ladder[pos]);
-	  child_num++;
-	}
+        pos = onboard_pos[i];
+        // 探索候補かつ合法手であれば探索対象にする
+        if (candidates[pos] && IsLegal(game, pos, color)) {
+          InitializeCandidate(&uct_child[child_num], pos, ladder[pos]);
+          child_num++;
+        }
       }
     }
     
@@ -829,8 +829,8 @@ ExpandNode( game_info_t *game, int color, int current )
   for (int i = 0; i < sibling_num; i++) {
     if (uct_sibling[i].pos != pm1) {
       if (uct_sibling[i].rate > max_rate) {
-	max_rate = uct_sibling[i].rate;
-	max_pos = uct_sibling[i].pos;
+        max_rate = uct_sibling[i].rate;
+        max_pos = uct_sibling[i].pos;
       }
     }
   }
@@ -839,7 +839,7 @@ ExpandNode( game_info_t *game, int color, int current )
   for (int i = 0; i < child_num; i++) {
     if (uct_child[i].pos == max_pos) {
       if (!uct_child[i].pw) {
-	uct_child[i].open = true;
+        uct_child[i].open = true;
       }
       break;
     }
@@ -1033,7 +1033,7 @@ ParallelUctSearch( thread_arg_t *arg )
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
     do {
-      // 探索回数を1回増やす	
+      // 探索回数を1回増やす
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
@@ -1045,15 +1045,15 @@ ParallelUctSearch( thread_arg_t *arg )
       enough_size = CheckRemainingHashSize();
       // OwnerとCriticalityを計算する
       if (po_info.count > interval) {
-	CalculateOwner(color, po_info.count);
-	CalculateCriticality(color);
-	interval += CRITICALITY_INTERVAL;
+        CalculateOwner(color, po_info.count);
+        CalculateCriticality(color);
+        interval += CRITICALITY_INTERVAL;
       }
       if (GetSpendTime(begin_time) > time_limit) break;
     } while (po_info.count < po_info.halt && !interruption && enough_size);
   } else {
     do {
-      // 探索回数を1回増やす	
+      // 探索回数を1回増やす
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
@@ -1089,7 +1089,7 @@ ParallelUctSearchPondering( thread_arg_t *arg )
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
     do {
-      // 探索回数を1回増やす	
+      // 探索回数を1回増やす
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
@@ -1099,14 +1099,14 @@ ParallelUctSearchPondering( thread_arg_t *arg )
       enough_size = CheckRemainingHashSize();
       // OwnerとCriticalityを計算する
       if (po_info.count > interval) {
-	CalculateOwner(color, po_info.count);
-	CalculateCriticality(color);
-	interval += CRITICALITY_INTERVAL;
+        CalculateOwner(color, po_info.count);
+        CalculateCriticality(color);
+        interval += CRITICALITY_INTERVAL;
       }
     } while (!pondering_stop && enough_size);
   } else {
     do {
-      // 探索回数を1回増やす	
+      // 探索回数を1回増やす
       atomic_fetch_add(&po_info.count, 1);
       // 盤面のコピー
       CopyGame(game, targ->game);
@@ -1163,19 +1163,19 @@ UctSearch( game_info_t *game, int color, mt19937_64 *mt, int current, int *winne
     // コミを考慮した勝敗
     if (my_color == S_BLACK) {
       if (score - dynamic_komi[my_color] >= 0) {
-	result = (color == S_BLACK ? 0 : 1);
-	*winner = S_BLACK;
+        result = (color == S_BLACK ? 0 : 1);
+        *winner = S_BLACK;
       } else {
-	result = (color == S_WHITE ? 0 : 1);
-	*winner = S_WHITE;
+        result = (color == S_WHITE ? 0 : 1);
+        *winner = S_WHITE;
       }
     } else {
       if (score - dynamic_komi[my_color] > 0) {
-	result = (color == S_BLACK ? 0 : 1);
-	*winner = S_BLACK;
+        result = (color == S_BLACK ? 0 : 1);
+        *winner = S_BLACK;
       } else {
-	result = (color == S_WHITE ? 0 : 1);
-	*winner = S_WHITE;
+        result = (color == S_WHITE ? 0 : 1);
+        *winner = S_WHITE;
       }
     }
     // 統計情報の記録
@@ -1269,9 +1269,9 @@ SelectMaxUcbChild( int current, int color )
     for (int i = 0; i < child_num; i++) {
       pos = uct_child[i].pos;
       if (pos == PASS) {
-	dynamic_parameter = 0.0;
+        dynamic_parameter = 0.0;
       } else {
-	dynamic_parameter = uct_owner[o_index[i]] + uct_criticality[c_index[i]];
+        dynamic_parameter = uct_owner[o_index[i]] + uct_criticality[c_index[i]];
       }
       order[i].rate = uct_child[i].rate + dynamic_parameter;
       order[i].index = i;
@@ -1287,7 +1287,7 @@ SelectMaxUcbChild( int current, int color )
       uct_child[order[i].index].pw = true;
     }
   }
-  	
+
   // Progressive Wideningの閾値を超えたら, 
   // レートが最大の手を読む候補を1手追加
   if (sum > pw[uct_node[current].width]) {
@@ -1295,12 +1295,12 @@ SelectMaxUcbChild( int current, int color )
     double max_rate = 0.0;
     for (int i = 0; i < child_num; i++) {
       if (uct_child[i].pw == false) {
-	pos = uct_child[i].pos;
-	dynamic_parameter = uct_owner[owner_index[pos]] + uct_criticality[criticality_index[pos]];
-	if (uct_child[i].rate + dynamic_parameter > max_rate) {
-	  max_index = i;
-	  max_rate = uct_child[i].rate + dynamic_parameter;
-	}
+        pos = uct_child[i].pos;
+        dynamic_parameter = uct_owner[owner_index[pos]] + uct_criticality[criticality_index[pos]];
+        if (uct_child[i].rate + dynamic_parameter > max_rate) {
+          max_index = i;
+          max_rate = uct_child[i].rate + dynamic_parameter;
+        }
       }
     }
     if (max_index != -1) {
@@ -1316,22 +1316,22 @@ SelectMaxUcbChild( int current, int color )
   for (int i = 0; i < child_num; i++) {
     if (uct_child[i].pw || uct_child[i].open) {
       if (uct_child[i].move_count == 0) {
-	ucb_value = FPU;
+        ucb_value = FPU;
       } else {
-	double div, v;
-	// UCB1-TUNED value
-	p = (double)uct_child[i].win / uct_child[i].move_count;
-	div = log(sum) / uct_child[i].move_count;
-	v = p - p * p + sqrt(2.0 * div);
-	ucb_value = p + sqrt(div * ((0.25 < v) ? 0.25 : v));
+        double div, v;
+        // UCB1-TUNED value
+        p = (double)uct_child[i].win / uct_child[i].move_count;
+        div = log(sum) / uct_child[i].move_count;
+        v = p - p * p + sqrt(2.0 * div);
+        ucb_value = p + sqrt(div * ((0.25 < v) ? 0.25 : v));
 
-	// UCB Bonus
-	ucb_value += ucb_bonus_weight * uct_child[i].rate;
+        // UCB Bonus
+        ucb_value += ucb_bonus_weight * uct_child[i].rate;
       }
 
       if (ucb_value > max_value) {
-	max_value = ucb_value;
-	max_child = i;
+        max_value = ucb_value;
+        max_child = i;
       }
     }
   }
@@ -1471,7 +1471,7 @@ CalculateNextPlayouts( game_info_t *game, int color, double best_wp, double fini
       po_info.num = (int)(po_info.count / finish_time * const_thinking_time);
     }
   } else if (mode == TIME_SETTING_MODE ||
-	     mode == TIME_SETTING_WITH_BYOYOMI_MODE) {
+             mode == TIME_SETTING_WITH_BYOYOMI_MODE) {
     remaining_time[color] -= finish_time;
     if (pure_board_size < 11) {
       time_limit = remaining_time[color] / TIME_RATE_9;
@@ -1481,10 +1481,10 @@ CalculateNextPlayouts( game_info_t *game, int color, double best_wp, double fini
       time_limit = remaining_time[color] / (TIME_C_19 + ((TIME_MAXPLY_19 - (game->moves + 1) > 0) ? TIME_MAXPLY_19 - (game->moves + 1) : 0));
     }
     if (mode == TIME_SETTING_WITH_BYOYOMI_MODE &&
-	time_limit < (const_thinking_time * 0.5)) {
+      time_limit < (const_thinking_time * 0.5)) {
       time_limit = const_thinking_time * 0.5;
     }
-    po_info.num = (int)(po_per_sec * time_limit);	
+    po_info.num = (int)(po_per_sec * time_limit);
   } 
 }
 
@@ -1530,9 +1530,9 @@ UctAnalyze( game_info_t *game, int color )
       const int pos = POS(x, y);
       const double ownership_value = (double)statistic[pos].colors[S_BLACK] / uct_node[current_root].move_count;
       if (ownership_value > 0.5) {
-	black++;
+        black++;
       } else {
-	white++;
+        white++;
       }
     }
   }
