@@ -87,7 +87,7 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
   int escape_color, capture_color, escape_xy, capture_xy, neighbor;
   bool result;
   
-  if (depth >= 100) {
+  if (depth >= 100 || game->moves >= MAX_RECORDS - 1) {
     return ALIVE;
   }
 
