@@ -142,10 +142,9 @@ GTP_main( void )
 
     for (const GTP_command_t& cmd : gtpcmd) {
       if (!strcmp(command, cmd.command)) {
-	StopPondering();
-	(*cmd.function)();
-	nocommand = false;
-	break;
+        (*cmd.function)();
+        nocommand = false;
+        break;
       }
     }
 
@@ -185,7 +184,9 @@ GTP_boardsize( void )
   char *command;
   int size;
   char buf[1024];
-  
+
+  StopPondering();
+
   command = STRTOK(NULL, DELIM, &next_token);
 
 #if defined (_WIN32)
@@ -220,6 +221,8 @@ GTP_boardsize( void )
 static void
 GTP_clearboard( void )
 {
+  StopPondering();
+
   player_color = 0;
   SetHandicapNum(0);
   FreeGame(game);
@@ -263,7 +266,9 @@ GTP_genmove( void )
   char pos[10];
   int color;
   int point = PASS;
-  
+
+  StopPondering();
+
   command = STRTOK(input_copy, DELIM, &next_token);
   
   CHOMP(command);
@@ -308,7 +313,9 @@ GTP_play( void )
   char *command;
   char c;
   int color, pos = 0;
-  
+
+  StopPondering();
+
   command = STRTOK(input_copy, DELIM, &next_token);
 
   command = STRTOK(NULL, DELIM, &next_token);
@@ -408,7 +415,9 @@ static void
 GTP_komi( void )
 {
   char* c_komi;
-  
+
+  StopPondering();
+
   c_komi = STRTOK(NULL, DELIM, &next_token);
 
   if (c_komi != NULL) {
@@ -445,18 +454,23 @@ static void
 GTP_finalscore( void )
 {
   char buf[10];
-  double score = 0;
-  
-  score = UctAnalyze(game, S_BLACK) - komi[0];
+
+  StopPondering();
+
+  double score = UctAnalyze(game, S_BLACK) - komi[0];
 
 #if defined(_WIN32)  
-  if (score > 0) {
+  if (abs(score) < 0.1) {
+    sprintf_s(buf, 10, "0");
+  } else if (score > 0) {
     sprintf_s(buf, 10, "B+%.1lf", score);
   } else {
     sprintf_s(buf, 10, "W+%.1lf", abs(score));
   }
 #else
-  if (score > 0) {
+  if (abs(score) < 0.1) {
+    snprintf(buf, 10, "0");
+  } else if (score > 0) {
     snprintf(buf, 10, "B+%.1lf", score);
   } else {
     snprintf(buf, 10, "W+%.1lf", abs(score));
@@ -558,6 +572,8 @@ GTP_fixed_handicap( void )
     {0, 1, 2, 3, 5, 6, 7, 8},
     {0, 1, 2, 3, 4, 5, 6, 7, 8},
   };
+
+  StopPondering();
   
   command = STRTOK(NULL, DELIM, &next_token);
   
@@ -609,6 +625,8 @@ GTP_set_free_handicap( void )
 {
   char *command;
   int pos, num = 0;
+
+  StopPondering();
   
   while (1){
     command = STRTOK(NULL, DELIM, &next_token);
@@ -640,6 +658,8 @@ GTP_final_status_list( void )
   char pos[5];
   int owner[BOARD_MAX]; 
   char *command;
+
+  StopPondering();
   
   OwnerCopy(owner);
   
@@ -650,31 +670,31 @@ GTP_final_status_list( void )
   if (!strcmp(command, "dead")){
     for (int y = board_start; y <= board_end; y++) {
       for (int x = board_start; x <= board_end; x++) {
-	if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] <= 30) ||
-	    (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] >= 70)) {
+        if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] <= 30) ||
+            (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] >= 70)) {
 #if defined (_WIN32)
-	  sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strcat_s(dead, 2048, pos);
+          sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strcat_s(dead, 2048, pos);
 #else
-	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strncat(dead, pos, 5);
+          snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strncat(dead, pos, 5);
 #endif
-	}
+        }
       }
     }
   } else if (!strcmp(command, "alive")){
     for (int y = board_start; y <= board_end; y++) {
       for (int x = board_start; x <= board_end; x++) {
-	if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] >= 70) ||
-	    (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] <= 30)) {
+        if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] >= 70) ||
+            (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] <= 30)) {
 #if defined (_WIN32)
-	  sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strcat_s(dead, 2048, pos);
+          sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strcat_s(dead, 2048, pos);
 #else
-	  snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
-	  strncat(dead, pos, 5);
+          snprintf(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
+          strncat(dead, pos, 5);
 #endif
-	}
+        }
       }
     }
   }
@@ -694,7 +714,9 @@ GTP_kgs_genmove_cleanup( void )
   char pos[10];
   int color;
   int point = PASS;
-  
+
+  StopPondering();
+ 
   command = STRTOK(input_copy, DELIM, &next_token);
   
   CHOMP(command);
@@ -742,6 +764,8 @@ GTP_loadsgf( void )
   SGF_record_t sgf;
   char *command, *filename, *move;
   int pos, color, size, target_move = 0;
+
+  StopPondering();
 
   // コマンドの抽出
   command = STRTOK(input_copy, DELIM, &next_token);

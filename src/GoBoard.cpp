@@ -105,9 +105,6 @@ static void AddNeighbor( string_t *string, const int id, const int head );
 // 隣接する連IDの削除
 static void RemoveNeighborString( string_t *string, const int id );
 
-// 隅のマガリ四目の確認
-static void CheckBentFourInTheCorner( game_info_t *game );
-
 //  盤端での処理
 static bool IsFalseEyeConnection( const game_info_t *game, const int pos, const int color );
 
@@ -461,14 +458,14 @@ InitializeEye( void )
 {
   unsigned int transp[8], pat3_transp16[16];
   //  眼のパターンはそれぞれ1か所あたり2ビットで表現
-  //	123
-  //	4*5
-  //	678
+  //        123
+  //        4*5
+  //        678
   //  それぞれの番号×2ビットだけシフトさせる
-  //	O:自分の石
-  //	X:相手の石
-  //	+:空点
-  //	#:盤外
+  //        O:自分の石
+  //        X:相手の石
+  //        +:空点
+  //        #:盤外
   const int eye_pat3[] = {
     // +OO     XOO     +O+     XO+
     // O*O     O*O     O*O     O*O
@@ -671,24 +668,24 @@ IsLegal( const game_info_t *game, const int pos, const int color )
     // この1手で石を取れる時の処理
     for (int i = 0; i < 4; i++) {
       if (game->board[neighbor4[i]] == other) {
-	id = string_id[neighbor4[i]];
-	if (string[id].libs == 1) {
-	  flag = false;	
-	  for (int j = 0; j < checked; j++) {
-	    if (check[j] == id) {
-	      flag = true;
-	    }
-	  }
-	  if (flag) {
-	    continue;
-	  }
-	  str_pos = string[id].origin;
-	  do {
-	    hash ^= hash_bit[str_pos][other];
-	    str_pos = string_next[str_pos];
-	  } while (str_pos != STRING_END);
-	}
-	check[checked++] = id;
+        id = string_id[neighbor4[i]];
+        if (string[id].libs == 1) {
+          flag = false;
+          for (int j = 0; j < checked; j++) {
+            if (check[j] == id) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            continue;
+          }
+          str_pos = string[id].origin;
+          do {
+            hash ^= hash_bit[str_pos][other];
+            str_pos = string_next[str_pos];
+          } while (str_pos != STRING_END);
+        }
+        check[checked++] = id;
       }
     }
 
@@ -697,7 +694,7 @@ IsLegal( const game_info_t *game, const int pos, const int color )
     
     for (int i = 0; i < game->moves; i++) {
       if (game->record[i].hash == hash) {
-	return false;
+        return false;
       }
     }
   }
@@ -739,17 +736,9 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
   const int *string_id = game->string_id;
   const char *board = game->board;
   const int other = FLIP_COLOR(color);
-  int checked_string[4] = { 0 };
-  int string_liberties[4] = { 0 };
-  int strings = 0;
-  int id, lib, libs = 0, lib_sum = 0;
-  int liberty[STRING_LIB_MAX];
-  int count;
-  int neighbor4[4], neighbor;
-  int player_id[4] = {0};
-  int player_ids = 0;
-  bool checked;
-  bool already_checked;
+  int id, neighbor, count, lib, libs = 0, lib_sum = 0, player_ids = 0, strings = 0;
+  int neighbor4[4], player_id[4] = {0}, liberty[STRING_LIB_MAX], checked_string[4] = {0}, string_liberties[4] = {0};
+  bool checked, already_checked;
 
   // 欠け眼を構成する連のIDを取り出す
   GetNeighbor4(neighbor4, pos);
@@ -757,7 +746,7 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
     checked = false;
     for (int j = 0; j < player_ids; j++) {
       if (player_id[j] == string_id[neighbor4[i]]) {
-	checked = true;
+        checked = true;
       }
     }
     if (!checked) {
@@ -770,7 +759,7 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
     if (board[pos + cross[i]] == other) {
       id = string_id[pos + cross[i]];
       if (IsAlreadyCaptured(game, other, id, player_id, player_ids)) {
-	return false;
+        return false;
       }
     }
   }
@@ -781,35 +770,35 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
     if (board[neighbor4[i]] == color) {
       id = string_id[neighbor4[i]];
       if (string[id].libs == 2) {
-	lib = string[id].lib[0];
-	if (lib == pos) lib = string[id].lib[lib];
-	if (IsSelfAtari(game, color, lib)) return true;
+        lib = string[id].lib[0];
+        if (lib == pos) lib = string[id].lib[lib];
+        if (IsSelfAtari(game, color, lib)) return true;
       }
       already_checked = false;
       for (int j = 0; j < strings; j++) {
-	if (checked_string[j] == id) {
-	  already_checked = true;
-	  break;
-	}
+        if (checked_string[j] == id) {
+          already_checked = true;
+          break;
+        }
       }
       if (already_checked) continue;
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (i = 0; i < libs; i++) {
-	    if (liberty[i] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    liberty[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (i = 0; i < libs; i++) {
+            if (liberty[i] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            liberty[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       string_liberties[strings] = string[id].libs;
@@ -825,7 +814,7 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
   neighbor = string[checked_string[0]].neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1 &&
-	string[checked_string[1]].neighbor[neighbor] != 0) {
+        string[checked_string[1]].neighbor[neighbor] != 0) {
       return false;
     }
     neighbor = string[checked_string[0]].neighbor[neighbor];
@@ -876,23 +865,23 @@ IsLegalNotEye( game_info_t *game, const int pos, const int color )
 
     // 自殺手かどうか
     if (nb4_empty[Pat3(game->pat, pos)] == 0 &&
-	IsSuicide(game, string, color, pos)) {
+        IsSuicide(game, string, color, pos)) {
       return false;
     }
 
     // 劫
     if (game->ko_pos == pos &&
-	game->ko_move == (game->moves - 1)) {
+        game->ko_move == (game->moves - 1)) {
       return false;
     }
 
     // 盤端の特殊処理
     if (false_eye[Pat3(game->pat, pos)] == color) {
       if (IsFalseEyeConnection(game, pos, color)) {
-	return true;
+        return true;
       } else {
-	game->candidates[pos] = false;
-	return false;
+        game->candidates[pos] = false;
+        return false;
       }
     }
 
@@ -924,10 +913,10 @@ IsSuicide( const game_info_t *game, const string_t *string, const int color, con
   // 隣接する石が自分で、その石を含む連の呼吸点が2以上の時は合法手
   for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other &&
-	string[string_id[neighbor4[i]]].libs == 1) {
+        string[string_id[neighbor4[i]]].libs == 1) {
       return false;
     } else if (board[neighbor4[i]] == color &&
-	       string[string_id[neighbor4[i]]].libs > 1) {
+               string[string_id[neighbor4[i]]].libs > 1) {
       return false;
     }
   }
@@ -946,10 +935,8 @@ PutStone( game_info_t *game, const int pos, const int color )
   const int other = FLIP_COLOR(color);
   char *board = game->board;
   string_t *string = game->string;
-  int connection = 0;
-  int connect[4] = { 0 };
-  int prisoner = 0;
-  int neighbor[4];
+  int connection = 0, prisoner = 0;
+  int neighbor[4], connect[4] = { 0 };
 
   // この手番の着手で打ち上げた石の数を0にする
   game->capture_num[color] = 0;
@@ -1010,7 +997,7 @@ PutStone( game_info_t *game, const int pos, const int color )
     } else if (board[neighbor[i]] == other) {
       RemoveLiberty(game, &string[string_id[neighbor[i]]], pos);
       if (string[string_id[neighbor[i]]].libs == 0) {
-	prisoner += RemoveString(game, &string[string_id[neighbor[i]]]);
+        prisoner += RemoveString(game, &string[string_id[neighbor[i]]]);
       }
     }
   }
@@ -1024,7 +1011,7 @@ PutStone( game_info_t *game, const int pos, const int color )
   if (connection == 0) {
     MakeString(game, pos, color);
     if (prisoner == 1 &&
-	string[string_id[pos]].libs == 1) {
+        string[string_id[pos]].libs == 1) {
       game->ko_move = game->moves;
       game->ko_pos = string[string_id[pos]].lib[0];
       game->current_hash ^= hash_bit[game->ko_pos][HASH_KO];
@@ -1055,10 +1042,8 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   const int other = FLIP_COLOR(color);
   char *board = game->board;
   string_t *string = game->string;
-  int connection = 0;
-  int connect[4] = { 0 };
-  int prisoner = 0;
-  int neighbor[4];
+  int connection = 0, prisoner = 0;
+  int neighbor[4], connect[4] = { 0 };
 
   // この手番で取った石の個数を0に
   game->capture_num[color] = 0;
@@ -1109,7 +1094,7 @@ PoPutStone( game_info_t *game, const int pos, const int color )
     } else if (board[neighbor[i]] == other) {
       PoRemoveLiberty(game, &string[string_id[neighbor[i]]], pos, color);
       if (string[string_id[neighbor[i]]].libs == 0) {
-	prisoner += PoRemoveString(game, &string[string_id[neighbor[i]]], color);
+        prisoner += PoRemoveString(game, &string[string_id[neighbor[i]]], color);
       }
     }
   }
@@ -1123,7 +1108,7 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   if (connection == 0) {
     MakeString(game, pos, color);
     if (prisoner == 1 &&
-	string[string_id[pos]].libs == 1) {
+        string[string_id[pos]].libs == 1) {
       game->ko_move = game->moves;
       game->ko_pos = string[string_id[pos]].lib[0];
     }
@@ -1145,13 +1130,11 @@ static void
 MakeString( game_info_t *game, const int pos, const int color )
 {
   const char *board = game->board;
+  const int other = FLIP_COLOR(color);
   string_t *string = game->string;
   string_t *new_string;
   int *string_id = game->string_id;
-  int id = 1;
-  int lib_add = 0;
-  int other = FLIP_COLOR(color);
-  int neighbor, neighbor4[4], i;
+  int id = 1, lib_add = 0, neighbor, neighbor4[4];
 
   // 未使用の連のインデックスを見つける
   while (string[id].flag) { id++; }
@@ -1178,7 +1161,7 @@ MakeString( game_info_t *game, const int pos, const int color )
   // 新しく作成した連の上下左右の座標を確認
   // 空点ならば, 作成した連に呼吸点を追加する
   // 敵の連ならば, 隣接する連をお互いに追加する
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == S_EMPTY) {
       lib_add = AddLiberty(new_string, neighbor4[i], lib_add);
     } else if (board[neighbor4[i]] == other) {
@@ -1295,16 +1278,16 @@ ConnectString( game_info_t *game, const int pos, const int color, const int conn
     flag = true;
     for (int j = 0; j < i; j++) {
       if (id[j] == id[i]) {
-	flag = false;
-	break;
+        flag = false;
+        break;
       }
     }
     if (flag) {
       if (min > id[i]) {
-	str[connections] = &string[min];
-	min = id[i];
+        str[connections] = &string[min];
+        min = id[i];
       } else {
-	str[connections] = &string[id[i]];
+        str[connections] = &string[id[i]];
       }
       connections++;
     }
@@ -1574,9 +1557,9 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     if (str[neighbor].libs < 3) {
       lib = str[neighbor].lib[0];
       while (lib != LIBERTY_END) {
-	update_pos[(*update_num)++] = lib;
-	game->seki[lib] = false;
-	lib = str[neighbor].lib[lib];
+        update_pos[(*update_num)++] = lib;
+        game->seki[lib] = false;
+        lib = str[neighbor].lib[lib];
       }
     }
     neighbor = string->neighbor[neighbor];
@@ -1689,7 +1672,7 @@ RemoveNeighborString( string_t *string, const int id )
 ///////////////////////////
 //  隅のマガリ四目の確認  //
 ///////////////////////////
-static void
+void
 CheckBentFourInTheCorner( game_info_t *game )
 {
   const string_t *string = game->string;
@@ -1703,34 +1686,34 @@ CheckBentFourInTheCorner( game_info_t *game )
   for (int i = 0; i < 4; i++) {
     id = string_id[corner[i]];
     if (string[id].size == 3 &&
-	string[id].libs == 2 &&
-	string[id].neighbors == 1) {
+        string[id].libs == 2 &&
+        string[id].neighbors == 1) {
       color = string[id].color;
       lib1 = string[id].lib[0];
       lib2 = string[id].lib[lib1];
       if ((board[corner_neighbor[i][0]] == S_EMPTY ||
-	   board[corner_neighbor[i][0]] == color) &&
-	  (board[corner_neighbor[i][1]] == S_EMPTY ||
-	   board[corner_neighbor[i][1]] == color)) {
-	neighbor = string[id].neighbor[0];
-	if (string[neighbor].libs == 2 &&
-	    string[neighbor].size > 6) {
-	  // 呼吸点を共有しているかの確認
-	  neighbor_lib1 = string[neighbor].lib[0];
-	  neighbor_lib2 = string[neighbor].lib[neighbor_lib1];
-	  if ((neighbor_lib1 == lib1 && neighbor_lib2 == lib2) ||
-	      (neighbor_lib1 == lib2 && neighbor_lib2 == lib1)) {
-	    pos = string[neighbor].origin;
-	    while (pos != STRING_END) {
-	      board[pos] = (char)color;
-	      pos = string_next[pos];
-	    }
-	    pos = string[neighbor].lib[0];
-	    board[pos] = (char)color;
-	    pos = string[neighbor].lib[pos];
-	    board[pos] = (char)color;
-	  }
-	}
+          board[corner_neighbor[i][0]] == color) &&
+          (board[corner_neighbor[i][1]] == S_EMPTY ||
+          board[corner_neighbor[i][1]] == color)) {
+        neighbor = string[id].neighbor[0];
+        if (string[neighbor].libs == 2 &&
+            string[neighbor].size > 6) {
+          // 呼吸点を共有しているかの確認
+          neighbor_lib1 = string[neighbor].lib[0];
+          neighbor_lib2 = string[neighbor].lib[neighbor_lib1];
+          if ((neighbor_lib1 == lib1 && neighbor_lib2 == lib2) ||
+              (neighbor_lib1 == lib2 && neighbor_lib2 == lib1)) {
+            pos = string[neighbor].origin;
+            while (pos != STRING_END) {
+              board[pos] = (char)color;
+              pos = string_next[pos];
+            }
+            pos = string[neighbor].lib[0];
+            board[pos] = (char)color;
+            pos = string[neighbor].lib[pos];
+            board[pos] = (char)color;
+          }
+        }
       }
     }
   }
@@ -1747,9 +1730,6 @@ CalculateScore( game_info_t *game )
   const char *board = game->board;
   int color;
   int scores[S_MAX] = { 0 };
-
-  // 隅のマガリ四目の確認
-  CheckBentFourInTheCorner(game);
 
   // 地の数え上げ
   for (int i = 0; i < pure_board_max; i++) {

@@ -1,4 +1,3 @@
-#include <cstring>
 #include <random>
 
 #include "GoBoard.h"
@@ -21,6 +20,7 @@ Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
 
   // シミュレーション打ち切り手数を設定
   int length = MAX_MOVES - game->moves;
+
   if (length < 0) {
     return;
   }

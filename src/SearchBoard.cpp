@@ -71,7 +71,7 @@ search_game_info_t::search_game_info_t( const game_info_t *src )
   memcpy(pat,         src->pat,         sizeof(pattern_t) * BOARD_MAX);
   memcpy(string_id,   src->string_id,   sizeof(int) * STRING_POS_MAX);
   memcpy(string_next, src->string_next, sizeof(int) * STRING_POS_MAX);
-  memcpy(candidates,  src->candidates, sizeof(bool) * BOARD_MAX);
+  memcpy(candidates,  src->candidates,  sizeof(bool) * BOARD_MAX);
 
   for (int i = 0; i < MAX_STRING; i++) {
     if (src->string[i].flag) {
@@ -193,8 +193,8 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
     } else if (board[neighbor[i]] == other) {
       RemoveLiberty(game, &string[string_id[neighbor[i]]], pos);
       if (string[string_id[neighbor[i]]].libs == 0) {
-	RecordString(game, string_id[neighbor[i]]);
-	prisoner += RemoveString(game, &string[string_id[neighbor[i]]]);
+        RecordString(game, string_id[neighbor[i]]);
+        prisoner += RemoveString(game, &string[string_id[neighbor[i]]]);
       }
     }
   }
@@ -208,7 +208,7 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
   if (connection == 0) {
     MakeString(game, pos, color);
     if (prisoner == 1 &&
-	string[string_id[pos]].libs == 1) {
+        string[string_id[pos]].libs == 1) {
       game->ko_move = game->moves;
       game->ko_pos = string[string_id[pos]].lib[0];
     }
@@ -218,7 +218,6 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
   } else {
     ConnectString(game, pos, color, connection, connect);
   }
-
 
   // 手数を1つだけ進める
   game->moves++;
@@ -371,16 +370,16 @@ ConnectString( search_game_info_t *game, const int pos, const int color, const i
     flag = true;
     for (int j = 0; j < i; j++) {
       if (id[j] == id[i]) {
-	flag = false;
-	break;
+        flag = false;
+        break;
       }
     }
     if (flag) {
       if (min > id[i]) {
-	str[connections] = &string[min];
-	min = id[i];
+        str[connections] = &string[min];
+        min = id[i];
       } else {
-	str[connections] = &string[id[i]];
+        str[connections] = &string[id[i]];
       }
       ids[connections] = id[i];
       connections++;
@@ -421,10 +420,10 @@ IsSuicide( const search_game_info_t *game, const string_t *string, const int col
   // 隣接する石が自分で、その石を含む連の呼吸点が2以上の時は合法手
   for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other &&
-	string[string_id[neighbor4[i]]].libs == 1) {
+        string[string_id[neighbor4[i]]].libs == 1) {
       return false;
     } else if (board[neighbor4[i]] == color &&
-	     string[string_id[neighbor4[i]]].libs > 1) {
+               string[string_id[neighbor4[i]]].libs > 1) {
       return false;
     }
   }
@@ -501,7 +500,7 @@ MergeLiberty( string_t *dst, string_t *src )
     if (dst->lib[src_lib] == 0) {
       // 該当する場所を見つけるまで進める
       while (dst->lib[dst_lib] < src_lib) {
-	dst_lib = dst->lib[dst_lib];
+        dst_lib = dst->lib[dst_lib];
       }
       // 呼吸点の座標を挿入する
       dst->lib[src_lib] = dst->lib[dst_lib];
@@ -630,7 +629,7 @@ MergeNeighbor( string_t *string, string_t *dst, string_t *src, const int id, con
     if (dst->neighbor[src_neighbor] == 0) {
       // 該当する場所を見つけるまで進める
       while (dst->neighbor[dst_neighbor] < src_neighbor) {
-	dst_neighbor = dst->neighbor[dst_neighbor];
+        dst_neighbor = dst->neighbor[dst_neighbor];
       }
       // 隣接する敵連のIDを挿入する
       dst->neighbor[src_neighbor] = dst->neighbor[dst_neighbor];
@@ -784,12 +783,12 @@ RestoreChain( search_game_info_t *game, const int id, const int stone[], const i
     // 敵の連ならば, 隣接する連をお互いに追加する
     for (int j = 0; j < 4; j++) {
       if (board[neighbor4[j]] == S_EMPTY) {
-	AddLiberty(new_string, neighbor4[j], lib_add);
+        AddLiberty(new_string, neighbor4[j], lib_add);
       } else if (board[neighbor4[j]] == other) {
-	neighbor = string_id[neighbor4[j]];
-	RemoveLiberty(game, &string[neighbor], pos);	
-	AddNeighbor(&string[neighbor], id);
-	AddNeighbor(&string[id], neighbor);	
+        neighbor = string_id[neighbor4[j]];
+        RemoveLiberty(game, &string[neighbor], pos);
+        AddNeighbor(&string[neighbor], id);
+        AddNeighbor(&string[id], neighbor);
       }
     }
   }

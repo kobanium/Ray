@@ -97,7 +97,6 @@ static void InputMD2( const char *filename, latent_factor_t *lf );
 static void InputLargePattern( const char *filename, latent_factor_t *lf, index_hash_t *pat_index );
 
 
-
 //////////////////////
 //  γ値の初期設定  //
 //////////////////////
@@ -150,37 +149,37 @@ UctCheckFeaturesLib1( game_info_t *game, int color, int id, bool ladder, uct_fea
     if (string[neighbor].libs == 1) {
       lib = string[neighbor].lib[0];
       if (string[id].size == 1) {
-	if (string[neighbor].size == 1) {
-	  tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_1_1];
-	} else if (string[neighbor].size == 2) {
-	  tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_1_2];
-	} else {
-	  tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_1_3];
-	}
+        if (string[neighbor].size == 1) {
+          tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_1_1];
+        } else if (string[neighbor].size == 2) {
+          tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_1_2];
+        } else {
+          tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_1_3];
+        }
       } else if (string[id].size == 2){
-	if (string[neighbor].size == 1) {
-	  if (IsSelfAtariCapture(game, lib, color, id)) {
-	    tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_SELF_ATARI];
-	  } else {
-	    tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_2_1];
-	  }
-	} else if (string[neighbor].size == 2) {
-	  tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_2_2];
-	} else {
-	  tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_2_3];
-	}
+        if (string[neighbor].size == 1) {
+          if (IsSelfAtariCapture(game, lib, color, id)) {
+            tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_SELF_ATARI];
+          } else {
+            tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_2_1];
+          }
+        } else if (string[neighbor].size == 2) {
+          tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_2_2];
+        } else {
+          tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_2_3];
+        }
       } else {
-	if (string[neighbor].size == 1) {
-	  if (IsSelfAtariCapture(game, lib, color, id)) {
-	    tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_SELF_ATARI];
-	  } else {
-	    tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_3_1];
-	  }
-	} else if (string[neighbor].size == 2) {
-	  tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_3_2];
-	} else {
-	  tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_3_3];
-	}
+        if (string[neighbor].size == 1) {
+          if (IsSelfAtariCapture(game, lib, color, id)) {
+            tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_SELF_ATARI];
+          } else {
+            tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_3_1];
+          }
+        } else if (string[neighbor].size == 2) {
+          tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_3_2];
+        } else {
+          tactical_features1[lib] |= uct_mask[UCT_SAVE_CAPTURE_3_3];
+        }
       }
     }
     neighbor = string[id].neighbor[neighbor];
@@ -206,30 +205,30 @@ UctCheckFeaturesLib2( game_info_t *game, int color, int id, uct_features_t *uct_
   lib1_state = CheckLibertyState(game, lib1, color, id);
   lib2_state = CheckLibertyState(game, lib2, color, id);
   switch (lib1_state) {
-  case L_DECREASE :
-    tactical_features1[lib1] |= uct_mask[UCT_2POINT_EXTENSION_DECREASE];
-    break;
-  case L_EVEN :
-    tactical_features1[lib1] |= uct_mask[UCT_2POINT_EXTENSION_EVEN];
-    break;
-  case L_INCREASE:
-    tactical_features1[lib1] |= uct_mask[UCT_2POINT_EXTENSION_INCREASE];
-    break;
-  default :
-    break;
+    case L_DECREASE :
+      tactical_features1[lib1] |= uct_mask[UCT_2POINT_EXTENSION_DECREASE];
+      break;
+    case L_EVEN :
+      tactical_features1[lib1] |= uct_mask[UCT_2POINT_EXTENSION_EVEN];
+      break;
+    case L_INCREASE:
+      tactical_features1[lib1] |= uct_mask[UCT_2POINT_EXTENSION_INCREASE];
+      break;
+    default :
+      break;
   }
   switch (lib2_state) {
-  case L_DECREASE :
-    tactical_features1[lib2] |= uct_mask[UCT_2POINT_EXTENSION_DECREASE];
-    break;
-  case L_EVEN :
-    tactical_features1[lib2] |= uct_mask[UCT_2POINT_EXTENSION_EVEN];
-    break;
-  case L_INCREASE:
-    tactical_features1[lib2] |= uct_mask[UCT_2POINT_EXTENSION_INCREASE];
-    break;
-  default :
-    break;
+    case L_DECREASE :
+      tactical_features1[lib2] |= uct_mask[UCT_2POINT_EXTENSION_DECREASE];
+      break;
+    case L_EVEN :
+      tactical_features1[lib2] |= uct_mask[UCT_2POINT_EXTENSION_EVEN];
+      break;
+    case L_INCREASE:
+      tactical_features1[lib2] |= uct_mask[UCT_2POINT_EXTENSION_INCREASE];
+      break;
+    default :
+      break;
   }
 
   // 呼吸点が2つになった連の周囲の敵連を調べる
@@ -241,76 +240,76 @@ UctCheckFeaturesLib2( game_info_t *game, int color, int id, uct_features_t *uct_
   if (string[id].size <= 2) {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	lib1 = string[neighbor].lib[0];
-	if (string[neighbor].size <= 2) {
-	  tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_S_S];
-	} else {
-	  tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_S_L];
-	}
+        lib1 = string[neighbor].lib[0];
+        if (string[neighbor].size <= 2) {
+          tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_S_S];
+        } else {
+          tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_S_L];
+        }
       } else if (string[neighbor].libs == 2) {
-	lib1 = string[neighbor].lib[0];
-	lib2 = string[neighbor].lib[lib1];
-	if (string[neighbor].size <= 2) {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_S_S];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_S_S];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_S_S];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_S_S];
-	  }
-	} else {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_S_L];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_S_L];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_S_L];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_S_L];
-	  }
-	}
+        lib1 = string[neighbor].lib[0];
+        lib2 = string[neighbor].lib[lib1];
+        if (string[neighbor].size <= 2) {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_S_S];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_S_S];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_S_S];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_S_S];
+          }
+        } else {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_S_L];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_S_L];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_S_L];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_S_L];
+          }
+        }
       }
       neighbor = string[id].neighbor[neighbor];
     }
   } else {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	lib1 = string[neighbor].lib[0];
-	if (string[neighbor].size <= 2) {
-	  tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_L_S];
-	} else {
-	  tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_L_L];
-	}
+        lib1 = string[neighbor].lib[0];
+        if (string[neighbor].size <= 2) {
+          tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_L_S];
+        } else {
+          tactical_features1[lib1] |= uct_mask[UCT_2POINT_CAPTURE_L_L];
+        }
       } else if (string[neighbor].libs == 2) {
-	lib1 = string[neighbor].lib[0];
-	lib2 = string[neighbor].lib[lib1];
-	if (string[neighbor].size <= 2) {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_L_S];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_L_S];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_L_S];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_L_S];
-	  }
-	} else {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_L_L];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_L_L];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_L_L];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_L_L];
-	  }
-	}
+        lib1 = string[neighbor].lib[0];
+        lib2 = string[neighbor].lib[lib1];
+        if (string[neighbor].size <= 2) {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_L_S];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_L_S];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_L_S];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_L_S];
+          }
+        } else {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_C_ATARI_L_L];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_2POINT_ATARI_L_L];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_C_ATARI_L_L];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_2POINT_ATARI_L_L];
+          }
+        }
       }
       neighbor = string[id].neighbor[neighbor];
     }
@@ -389,102 +388,102 @@ UctCheckFeaturesLib3( game_info_t *game, int color, int id, uct_features_t *uct_
   if (string[id].size <= 2) {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	lib1 = string[neighbor].lib[0];
-	if (string[neighbor].size <= 2) {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_S_S];
-	} else {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_S_L];
-	}
+        lib1 = string[neighbor].lib[0];
+        if (string[neighbor].size <= 2) {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_S_S];
+        } else {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_S_L];
+        }
       } else if (string[neighbor].libs == 2) {
-	lib1 = string[neighbor].lib[0];
-	lib2 = string[neighbor].lib[lib1];
-	if (string[neighbor].size <= 2) {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_S_S];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_S_S];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_S_S];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_S_S];
-	  }
-	} else {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_S_L];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_S_L];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_S_L];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_S_L];
-	  }
-	}
+        lib1 = string[neighbor].lib[0];
+        lib2 = string[neighbor].lib[lib1];
+        if (string[neighbor].size <= 2) {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_S_S];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_S_S];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_S_S];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_S_S];
+          }
+        } else {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_S_L];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_S_L];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_S_L];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_S_L];
+          }
+        }
       } else if (string[neighbor].libs == 3) {
-	lib1 = string[neighbor].lib[0];
-	lib2 = string[neighbor].lib[lib1];
-	lib3 = string[neighbor].lib[lib2];
-	if (string[neighbor].size <= 2) {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_S_S];
-	  tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_S_S];
-	  tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_S_S];
-	} else {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_S_L];
-	  tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_S_L];
-	  tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_S_L];
-	}
+        lib1 = string[neighbor].lib[0];
+        lib2 = string[neighbor].lib[lib1];
+        lib3 = string[neighbor].lib[lib2];
+        if (string[neighbor].size <= 2) {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_S_S];
+          tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_S_S];
+          tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_S_S];
+        } else {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_S_L];
+          tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_S_L];
+          tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_S_L];
+        }
       }
       neighbor = string[id].neighbor[neighbor];
     }
   } else {
     while (neighbor != NEIGHBOR_END) {
       if (string[neighbor].libs == 1) {
-	lib1 = string[neighbor].lib[0];
-	if (string[neighbor].size <= 2) {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_L_S];
-	} else {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_L_L];
-	}
+        lib1 = string[neighbor].lib[0];
+        if (string[neighbor].size <= 2) {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_L_S];
+        } else {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_CAPTURE_L_L];
+        }
       } else if (string[neighbor].libs == 2) {
-	lib1 = string[neighbor].lib[0];
-	lib2 = string[neighbor].lib[lib1];
-	if (string[neighbor].size <= 2) {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_L_S];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_L_S];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_L_S];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_L_S];
-	  }
-	} else {
-	  if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_L_L];
-	  } else {
-	    tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_L_L];
-	  }
-	  if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_L_L];
-	  } else {
-	    tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_L_L];
-	  }
-	}
+        lib1 = string[neighbor].lib[0];
+        lib2 = string[neighbor].lib[lib1];
+        if (string[neighbor].size <= 2) {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_L_S];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_L_S];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_L_S];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_L_S];
+          }
+        } else {
+          if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_C_ATARI_L_L];
+          } else {
+            tactical_features1[lib1] |= uct_mask[UCT_3POINT_ATARI_L_L];
+          }
+          if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_C_ATARI_L_L];
+          } else {
+            tactical_features1[lib2] |= uct_mask[UCT_3POINT_ATARI_L_L];
+          }
+        }
       } else if (string[neighbor].libs == 3) {
-	lib1 = string[neighbor].lib[0];
-	lib2 = string[neighbor].lib[lib1];
-	lib3 = string[neighbor].lib[lib2];
-	if (string[neighbor].size <= 2) {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_L_S];
-	  tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_L_S];
-	  tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_L_S];
-	} else {
-	  tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_L_L];
-	  tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_L_L];
-	  tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_L_L];
-	}
+        lib1 = string[neighbor].lib[0];
+        lib2 = string[neighbor].lib[lib1];
+        lib3 = string[neighbor].lib[lib2];
+        if (string[neighbor].size <= 2) {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_L_S];
+          tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_L_S];
+          tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_L_S];
+        } else {
+          tactical_features1[lib1] |= uct_mask[UCT_3POINT_DAME_L_L];
+          tactical_features1[lib2] |= uct_mask[UCT_3POINT_DAME_L_L];
+          tactical_features1[lib3] |= uct_mask[UCT_3POINT_DAME_L_L];
+        }
       }
       neighbor = string[id].neighbor[neighbor];
     }
@@ -502,11 +501,9 @@ UctCheckFeatures( game_info_t *game, int color, uct_features_t *uct_features )
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  int previous_move = PASS, id;
-  int check[4] = { 0 };
-  int checked = 0;
+  int checked = 0, previous_move = PASS, id;
+  int neighbor4[4], check[4] = { 0 };
   bool ladder, already_checked;
-  int neighbor4[4];
 
   if (game->moves > 1) previous_move = game->record[game->moves - 1].pos;
 
@@ -519,19 +516,19 @@ UctCheckFeatures( game_info_t *game, int color, uct_features_t *uct_features )
       id = string_id[neighbor4[i]];
       already_checked = false;
       for (int j = 0; j < checked; j++) {
-	if (check[j] == id) {
-	  already_checked = true;
-	  break;
-	}
+        if (check[j] == id) {
+          already_checked = true;
+          break;
+        }
       }
       if (already_checked) continue;
       if (string[id].libs == 1) {
-	ladder = CheckLadderExtension(game, color, neighbor4[i]);
-	UctCheckFeaturesLib1(game, color, id, ladder, uct_features);
+        ladder = CheckLadderExtension(game, color, neighbor4[i]);
+        UctCheckFeaturesLib1(game, color, id, ladder, uct_features);
       } else if (string[id].libs == 2) {
-	UctCheckFeaturesLib2(game, color, id, uct_features);
+        UctCheckFeaturesLib2(game, color, id, uct_features);
       } else if (string[id].libs == 3) {
-	UctCheckFeaturesLib3(game, color, id, uct_features);
+        UctCheckFeaturesLib3(game, color, id, uct_features);
       }
       check[checked++] = id;
     }
@@ -559,8 +556,8 @@ UctCheckCaptureAfterKo( game_info_t *game, int color, uct_features_t *uct_featur
     if (board[neighbor4[i]] == other) {
       id = string_id[neighbor4[i]];
       if (string[id].libs == 1) {
-	lib = string[id].lib[0];
-	tactical_features1[lib] |= uct_mask[UCT_CAPTURE_AFTER_KO];
+        lib = string[id].lib[0];
+        tactical_features1[lib] |= uct_mask[UCT_CAPTURE_AFTER_KO];
       }
     }
   }
@@ -573,21 +570,14 @@ UctCheckCaptureAfterKo( game_info_t *game, int color, uct_features_t *uct_featur
 bool
 UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_features )
 {
-  bool flag;
-  char *board = game->board;
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  int other = FLIP_COLOR(color);
-  int size = 0;
-  int already[4] = { 0 };
-  int already_num = 0;
-  int id;
-  int lib, count, libs = 0;
-  int lib_candidate[PURE_BOARD_MAX];   
-  bool checked;
+  const char *board = game->board;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
+  const int other = FLIP_COLOR(color);
+  int id, lib, already_num = 0, size = 0, libs = 0, count;
+  int lib_candidate[PURE_BOARD_MAX], neighbor4[4], already[4] = { 0 };
+  bool checked, flag, already_checked;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
-  int neighbor4[4];
-  bool already_checked;
 
   GetNeighbor4(neighbor4, pos);
 
@@ -606,9 +596,9 @@ UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_fe
       id = string_id[neighbor4[i]];
       already_checked = false;
       for (int j = 0; j < already_num; j++) {
-	if (already[j] == id) {
-	  already_checked = true;
-	}
+        if (already[j] == id) {
+          already_checked = true;
+        }
       }
       if (already_checked) continue;
 
@@ -616,27 +606,27 @@ UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_fe
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (int j = 0; j < libs; j++) {
-	    if (lib_candidate[j] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    lib_candidate[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (int j = 0; j < libs; j++) {
+            if (lib_candidate[j] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            lib_candidate[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       size += string[id].size;
       already[already_num++] = id;
       if (libs >= 2) return true;
     } else if (board[neighbor4[i]] == other &&
-	       string[string_id[neighbor4[i]]].libs == 1) {
+               string[string_id[neighbor4[i]]].libs == 1) {
       return true;
     }
   }
@@ -672,34 +662,34 @@ UctCheckCapture( game_info_t *game, int color, int pos, uct_features_t *uct_feat
 {
   const char *board = game->board;
   const int other = FLIP_COLOR(color);
-  string_t *string = game->string;
-  int *string_id = game->string_id;
-  bool check;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
   int neighbor, id;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
   int neighbor4[4];
+  unsigned long long *tactical_features1 = uct_features->tactical_features1;
+  bool check;
 
   GetNeighbor4(neighbor4, pos);
 
   for (int i = 0; i < 4; i++) {
     if (board[neighbor4[i]] == other) {
       if (string[string_id[neighbor4[i]]].libs == 1) {
-	check = false;
-	id = string_id[neighbor4[i]];
-	neighbor = string[id].neighbor[0];
-	while (neighbor != NEIGHBOR_END) {
-	  if (string[neighbor].libs == 1) {
-	    check = true;
-	    break;
-	  }
-	  neighbor = string[id].neighbor[neighbor];
-	}
-	if (check) {
-	  tactical_features1[pos] |= uct_mask[UCT_SEMEAI_CAPTURE];
-	  return;
-	} else {
-	  tactical_features1[pos] |= uct_mask[UCT_CAPTURE];
-	}
+        check = false;
+        id = string_id[neighbor4[i]];
+        neighbor = string[id].neighbor[0];
+        while (neighbor != NEIGHBOR_END) {
+          if (string[neighbor].libs == 1) {
+            check = true;
+            break;
+          }
+          neighbor = string[id].neighbor[neighbor];
+        }
+        if (check) {
+          tactical_features1[pos] |= uct_mask[UCT_SEMEAI_CAPTURE];
+          return;
+        } else {
+          tactical_features1[pos] |= uct_mask[UCT_CAPTURE];
+        }
       }
     }
   }
@@ -714,8 +704,8 @@ UctCheckAtari( game_info_t *game, int color, int pos, uct_features_t *uct_featur
 {
   const char *board = game->board;
   const int other = FLIP_COLOR(color);
-  string_t *string = game->string;
-  int *string_id = game->string_id;
+  const string_t *string = game->string;
+  const int *string_id = game->string_id;
   int id, size, neighbor4[4];
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
@@ -725,15 +715,15 @@ UctCheckAtari( game_info_t *game, int color, int pos, uct_features_t *uct_featur
     if (board[neighbor4[i]] == other) {
       id = string_id[neighbor4[i]];
       if (string[id].libs == 2) {
-	size = CheckOiotoshi(game, pos, color, neighbor4[i]);
-	if (size > 4) {
-	  tactical_features1[pos] |= uct_mask[UCT_OIOTOSHI];
-	  return;
-	} else if (size > 0) {
-	  tactical_features1[pos] |= uct_mask[UCT_CAPTURABLE_ATARI];
-	} else {
-	  tactical_features1[pos] |= uct_mask[UCT_ATARI];
-	}
+        size = CheckOiotoshi(game, pos, color, neighbor4[i]);
+        if (size > 4) {
+          tactical_features1[pos] |= uct_mask[UCT_OIOTOSHI];
+          return;
+        } else if (size > 0) {
+          tactical_features1[pos] |= uct_mask[UCT_CAPTURABLE_ATARI];
+        } else {
+          tactical_features1[pos] |= uct_mask[UCT_ATARI];
+        }
       }
     }
   }
@@ -759,14 +749,9 @@ void
 UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_features )
 {
   const int other = FLIP_COLOR(color);
+  const int cross[4] = {- board_size - 1, - board_size + 1, board_size - 1, board_size + 1};
   int i, connect;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
-  int cross[4];
-
-  cross[0] = - board_size - 1;
-  cross[1] = - board_size + 1;
-  cross[2] =   board_size - 1;
-  cross[3] =   board_size + 1;
 
   if (game->capture_num[other] != 2) {
     return;
@@ -1062,15 +1047,12 @@ double
 CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct_features )
 {
   const int moves = game->moves;
-  pattern_t *pat = game->pat;
-  int pm1 = PASS, pm2 = PASS;
-  int dis1 = -1, dis2 = -1;
-  double score = weight_zero;
-  double tmp_score;
+  const pattern_t *pat = game->pat;
+  int pm1 = PASS, pm2 = PASS, dis1 = -1, dis2 = -1, feature_num = 0;
+  double score = weight_zero, tmp_score;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
   unsigned int pat3, md2;
   latent_factor_t *all_feature[UCT_TACTICAL_FEATURE_MAX + 6];
-  int feature_num = 0;
 
   if (moves > 1) pm1 = game->record[moves - 1].pos;
   if (moves > 2) pm2 = game->record[moves - 2].pos;
@@ -1116,7 +1098,7 @@ CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct
   }
   // 2手前からの距離
   if (dis2 != -1) {
-    all_feature[feature_num++] = &uct_move_distance_2[dis2];	
+    all_feature[feature_num++] = &uct_move_distance_2[dis2];
   }
   // パターン
   if (index[2] != -1) {
@@ -1141,7 +1123,7 @@ CalculateLFRScore( game_info_t *game, int pos, int index[3], uct_features_t *uct
     for (int i = 0; i < feature_num; i++) {
       tmp_score = 0.0;
       for (int j = i + 1; j < feature_num; j++) {
-	tmp_score += all_feature[j]->v[f];
+        tmp_score += all_feature[j]->v[f];
       }
       score += tmp_score * all_feature[i]->v[f];
     }
@@ -1290,7 +1272,7 @@ InputLatentFactor( const char *filename, latent_factor_t *lf, int n )
     for (int j = 0; j < LFR_DIMENSION; j++) {
       if (fscanf_s(fp, "%lf", &lf[i].v[j]) == EOF) {
         cerr << "Read Error : " << filename << endl;
-	exit(1);
+        exit(1);
       }
     }
   }
@@ -1335,7 +1317,7 @@ InputPat3( const char *filename, latent_factor_t *lf )
     if (pat3_index[pat3] == -1) {
       Pat3Transpose16(pat3, pat3_transp16);
       for (int i = 0; i < 16; i++) {
-	pat3_index[pat3_transp16[i]] = idx;
+        pat3_index[pat3_transp16[i]] = idx;
       }
       idx++;
     }
@@ -1406,7 +1388,7 @@ InputMD2( const char *filename, latent_factor_t *lf )
     if (md2_index[md2] == -1) {
       MD2Transpose16(md2, md2_transp16);
       for (int i = 0; i < 16; i++) {
-	md2_index[md2_transp16[i]] = idx;
+        md2_index[md2_transp16[i]] = idx;
       }
       idx++;
     }

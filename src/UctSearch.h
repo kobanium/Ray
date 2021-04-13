@@ -83,12 +83,13 @@ struct statistic_t {
 };
 
 struct child_node_t {
-  int pos;  // 着手する座標
+  short pos;  // 着手する座標
   std::atomic<int> move_count;  // 探索回数
   std::atomic<int> win;         // 勝った回数
   int index;   // インデックス
-  double rate; // 着手のレート
-  bool flag;   // Progressive Wideningのフラグ
+  float rate;  // 着手のレート
+  unsigned char mask;
+  bool pw;   // Progressive Wideningのフラグ
   bool open;   // 常に探索候補に入れるかどうかのフラグ
   bool ladder; // シチョウのフラグ
 };
@@ -104,7 +105,6 @@ struct uct_node_t {
   int width;                          // 探索幅
   int child_num;                      // 子ノードの数
   child_node_t child[UCT_CHILD_MAX];  // 子ノードの情報
-  statistic_t statistic[BOARD_MAX];   // 統計情報 
   bool seki[BOARD_MAX];
 };
 

@@ -127,78 +127,78 @@ ClearPattern( pattern_t *pat )
   for (int y = board_start; y <= board_end; y++){
     // 1線
     // 上
-    pat[POS(y, board_start)].list[MD_2] |= 0x0003003F;	// 1 2 3 9
-    pat[POS(y, board_start)].list[MD_3] |= 0x00F0003F;	// 13 14 15 23 24
-    pat[POS(y, board_start)].list[MD_4] |= 0xFC0000FF;	// 25 26 27 28 38 39 40
+    pat[POS(y, board_start)].list[MD_2] |= 0x0003003F;  // 1 2 3 9
+    pat[POS(y, board_start)].list[MD_3] |= 0x00F0003F;  // 13 14 15 23 24
+    pat[POS(y, board_start)].list[MD_4] |= 0xFC0000FF;  // 25 26 27 28 38 39 40
     pat[POS(y, board_start)].large_list[MD_5] |= 0xFF000003FF;
     // 右
-    pat[POS(board_end, y)].list[MD_2] |= 0x000CC330;	// 3 5 8 10
-    pat[POS(board_end, y)].list[MD_3] |= 0x00000FFC;	// 14 15 16 17 18
-    pat[POS(board_end, y)].list[MD_4] |= 0x0000FFFC;	// 26 27 28 29 30 31 32
+    pat[POS(board_end, y)].list[MD_2] |= 0x000CC330;  // 3 5 8 10
+    pat[POS(board_end, y)].list[MD_3] |= 0x00000FFC;  // 14 15 16 17 18
+    pat[POS(board_end, y)].list[MD_4] |= 0x0000FFFC;  // 26 27 28 29 30 31 32
     pat[POS(board_end, y)].large_list[MD_5] |= 0x00000FFFFC;
     // 下
-    pat[POS(y, board_end)].list[MD_2] |= 0x0030FC00;	// 6 7 8 11
-    pat[POS(y, board_end)].list[MD_3] |= 0x0003FF00;	// 17 18 19 20 21
-    pat[POS(y, board_end)].list[MD_4] |= 0x00FFFC00;	// 30 31 32 33 34 35 36
+    pat[POS(y, board_end)].list[MD_2] |= 0x0030FC00;  // 6 7 8 11
+    pat[POS(y, board_end)].list[MD_3] |= 0x0003FF00;  // 17 18 19 20 21
+    pat[POS(y, board_end)].list[MD_4] |= 0x00FFFC00;  // 30 31 32 33 34 35 36
     pat[POS(y, board_end)].large_list[MD_5] |= 0x003FFFF000;
     // 左
-    pat[POS(board_start, y)].list[MD_2] |= 0x00C00CC3;	// 1 4 6 12
-    pat[POS(board_start, y)].list[MD_3] |= 0x00FFC000;	// 20 21 22 23 24
-    pat[POS(board_start, y)].list[MD_4] |= 0xFFFC0000;	// 34 35 36 37 38 39 40
+    pat[POS(board_start, y)].list[MD_2] |= 0x00C00CC3;  // 1 4 6 12
+    pat[POS(board_start, y)].list[MD_3] |= 0x00FFC000;  // 20 21 22 23 24
+    pat[POS(board_start, y)].list[MD_4] |= 0xFFFC0000;  // 34 35 36 37 38 39 40
     pat[POS(board_start, y)].large_list[MD_5] |= 0xFFFFC00000;
 
     // 2線
     // 上
-    pat[POS(y, board_start + 1)].list[MD_2] |= 0x00030000;	// 9
-    pat[POS(y, board_start + 1)].list[MD_3] |= 0x00C0000F;	// 13 14 24
-    pat[POS(y, board_start + 1)].list[MD_4] |= 0xF000003F;	// 25 26 27 39 40
+    pat[POS(y, board_start + 1)].list[MD_2] |= 0x00030000;  // 9
+    pat[POS(y, board_start + 1)].list[MD_3] |= 0x00C0000F;  // 13 14 24
+    pat[POS(y, board_start + 1)].list[MD_4] |= 0xF000003F;  // 25 26 27 39 40
     pat[POS(y, board_start + 1)].large_list[MD_5] |= 0xFC000000FF;
     // 右
-    pat[POS(board_end - 1, y)].list[MD_2] |= 0x000C0000;	// 10
-    pat[POS(board_end - 1, y)].list[MD_3] |= 0x000003F0;	// 15 16 17
-    pat[POS(board_end - 1, y)].list[MD_4] |= 0x00003FF0;	// 27 28 29 30 31
+    pat[POS(board_end - 1, y)].list[MD_2] |= 0x000C0000;  // 10
+    pat[POS(board_end - 1, y)].list[MD_3] |= 0x000003F0;  // 15 16 17
+    pat[POS(board_end - 1, y)].list[MD_4] |= 0x00003FF0;  // 27 28 29 30 31
     pat[POS(board_end - 1, y)].large_list[MD_5] |= 0x000003FFF0;
     // 下
-    pat[POS(y, board_end - 1)].list[MD_2] |= 0x00300000;	// 11
-    pat[POS(y, board_end - 1)].list[MD_3] |= 0x0000FC00;	// 18 19 20
-    pat[POS(y, board_end - 1)].list[MD_4] |= 0x003FF000;	// 31 32 33 34 35
+    pat[POS(y, board_end - 1)].list[MD_2] |= 0x00300000;  // 11
+    pat[POS(y, board_end - 1)].list[MD_3] |= 0x0000FC00;  // 18 19 20
+    pat[POS(y, board_end - 1)].list[MD_4] |= 0x003FF000;  // 31 32 33 34 35
     pat[POS(y, board_end - 1)].large_list[MD_5] |= 0x000FFFC000;
     // 左
-    pat[POS(board_start + 1, y)].list[MD_2] |= 0x00C00000;	// 12
-    pat[POS(board_start + 1, y)].list[MD_3] |= 0x003F0000;	// 21 22 23
-    pat[POS(board_start + 1, y)].list[MD_4] |= 0x3FF00000;	// 35 36 37 38 39
+    pat[POS(board_start + 1, y)].list[MD_2] |= 0x00C00000;  // 12
+    pat[POS(board_start + 1, y)].list[MD_3] |= 0x003F0000;  // 21 22 23
+    pat[POS(board_start + 1, y)].list[MD_4] |= 0x3FF00000;  // 35 36 37 38 39
     pat[POS(board_start + 1, y)].large_list[MD_5] |= 0x3FFF000000;
 
     // 3線
     // 上
-    pat[POS(y, board_start + 2)].list[MD_3] |= 0x00000003;	// 13
-    pat[POS(y, board_start + 2)].list[MD_4] |= 0xC000000F;	// 25 26 40
+    pat[POS(y, board_start + 2)].list[MD_3] |= 0x00000003;  // 13
+    pat[POS(y, board_start + 2)].list[MD_4] |= 0xC000000F;  // 25 26 40
     pat[POS(y, board_start + 2)].large_list[MD_5] |= 0xF00000003F;
     // 右
-    pat[POS(board_end - 2, y)].list[MD_3] |= 0x000000C0;	// 16
-    pat[POS(board_end - 2, y)].list[MD_4] |= 0x00000FC0;	// 28 29 30
+    pat[POS(board_end - 2, y)].list[MD_3] |= 0x000000C0;  // 16
+    pat[POS(board_end - 2, y)].list[MD_4] |= 0x00000FC0;  // 28 29 30
     pat[POS(board_end - 2, y)].large_list[MD_5] |= 0x000000FFC0;
     // 下
-    pat[POS(y, board_end - 2)].list[MD_3] |= 0x00003000;	// 19
-    pat[POS(y, board_end - 2)].list[MD_4] |= 0x000FC000;	// 32 33 34
+    pat[POS(y, board_end - 2)].list[MD_3] |= 0x00003000;  // 19
+    pat[POS(y, board_end - 2)].list[MD_4] |= 0x000FC000;  // 32 33 34
     pat[POS(y, board_end - 2)].large_list[MD_5] |= 0x0003FF0000;
     // 左
-    pat[POS(board_start + 2, y)].list[MD_3] |= 0x000C0000;	// 22
-    pat[POS(board_start + 2, y)].list[MD_4] |= 0x0FC00000;	// 36 37 38
+    pat[POS(board_start + 2, y)].list[MD_3] |= 0x000C0000;  // 22
+    pat[POS(board_start + 2, y)].list[MD_4] |= 0x0FC00000;  // 36 37 38
     pat[POS(board_start + 2, y)].large_list[MD_5] |= 0x0FFC000000;
 
     // 4線 
     // 上
-    pat[POS(y, board_start + 3)].list[MD_4] |= 0x00000003;	// 25
+    pat[POS(y, board_start + 3)].list[MD_4] |= 0x00000003;  // 25
     pat[POS(y, board_start + 3)].large_list[MD_5] |= 0xC00000000F;
     // 右
-    pat[POS(board_end - 3, y)].list[MD_4] |= 0x00000300;	// 29
+    pat[POS(board_end - 3, y)].list[MD_4] |= 0x00000300;  // 29
     pat[POS(board_end - 3, y)].large_list[MD_5] |= 0x0000003F00;
     // 下
-    pat[POS(y, board_end - 3)].list[MD_4] |= 0x00030000;	// 33
+    pat[POS(y, board_end - 3)].list[MD_4] |= 0x00030000;  // 33
     pat[POS(y, board_end - 3)].large_list[MD_5] |= 0x0000FC0000;
     // 左
-    pat[POS(board_start + 3, y)].list[MD_4] |= 0x03000000;	// 37
+    pat[POS(board_start + 3, y)].list[MD_4] |= 0x03000000;  // 37
     pat[POS(board_start + 3, y)].large_list[MD_5] |= 0x03F0000000;
 
     // 5線
@@ -608,7 +608,7 @@ unsigned int
 MD2VerticalMirror( const unsigned int md2 )
 {
   return ((md2 & 0x00FC00) >> 10) | (md2 & 0x0003C0) | ((md2 & 0x00003F) << 10)
-    | (REV2((md2 & 0x330000) >> 16) << 16)	// 9<->11
+    | (REV2((md2 & 0x330000) >> 16) << 16)  // 9<->11
     | (md2 & 0xCC0000);
 }
 
@@ -616,11 +616,11 @@ MD2VerticalMirror( const unsigned int md2 )
 unsigned int
 MD3VerticalMirror( const unsigned int md3 )
 {
-  return (REV6(md3 & 0x003003))				// 13<->19
-    | (REV4((md3 & 0x000C0C) >> 2) << 2)	// 14<->18
-    | (REV2((md3 & 0x000330) >> 4) << 4)	// 15<->17
-    | (REV4((md3 & 0xC0C000) >> 14) << 14)	// 20<->24
-    | (REV2((md3 & 0x330000) >> 16) << 16)	// 21<->23
+  return (REV6(md3 & 0x003003))             // 13<->19
+    | (REV4((md3 & 0x000C0C) >> 2) << 2)    // 14<->18
+    | (REV2((md3 & 0x000330) >> 4) << 4)    // 15<->17
+    | (REV4((md3 & 0xC0C000) >> 14) << 14)  // 20<->24
+    | (REV2((md3 & 0x330000) >> 16) << 16)  // 21<->23
     | (md3 & 0x0C00C0);
 }
 
@@ -629,13 +629,13 @@ MD3VerticalMirror( const unsigned int md3 )
 unsigned int
 MD4VerticalMirror( const unsigned int md4 )
 {
-  return (REV8(md4 & 0x00030003))					// 25<->33
-    | (REV6((md4 & 0x0000C00C) >> 2) << 2)		// 26<->32
-    | (REV4((md4 & 0x00003030) >> 4) << 4)		// 27<->31
-    | (REV2((md4 & 0x00000CC0) >> 6) << 6)		// 28<->30
-    | (REV6((md4 & 0xC00C0000) >> 18) << 18)	// 34<->40
-    | (REV4((md4 & 0x30300000) >> 20) << 20)	// 35<->39
-    | (REV2((md4 & 0x0CC00000) >> 22) << 22)	// 36<->38
+  return (REV8(md4 & 0x00030003))             // 25<->33
+    | (REV6((md4 & 0x0000C00C) >> 2) << 2)    // 26<->32
+    | (REV4((md4 & 0x00003030) >> 4) << 4)    // 27<->31
+    | (REV2((md4 & 0x00000CC0) >> 6) << 6)    // 28<->30
+    | (REV6((md4 & 0xC00C0000) >> 18) << 18)  // 34<->40
+    | (REV4((md4 & 0x30300000) >> 20) << 20)  // 35<->39
+    | (REV2((md4 & 0x0CC00000) >> 22) << 22)  // 36<->38
     | (md4 & 0x03000300);
 }
 
@@ -684,11 +684,11 @@ unsigned int
 MD3HorizontalMirror( const unsigned int md3 )
 {
   return (md3 & 0x003003)
-    | (REV10((md3 & 0xC0000C) >> 2) << 2)	// 14<->24
-    | (REV8((md3 & 0x300030) >> 4) << 4)	// 15<->23
-    | (REV6((md3 & 0x0C00C0) >> 6) << 6)	// 16<->22
-    | (REV4((md3 & 0x030300) >> 8) << 8)	// 17<->21
-    | (REV2((md3 & 0x00CC00) >> 10) << 10);	// 18<->20
+    | (REV10((md3 & 0xC0000C) >> 2) << 2)   // 14<->24
+    | (REV8((md3 & 0x300030) >> 4) << 4)    // 15<->23
+    | (REV6((md3 & 0x0C00C0) >> 6) << 6)    // 16<->22
+    | (REV4((md3 & 0x030300) >> 8) << 8)    // 17<->21
+    | (REV2((md3 & 0x00CC00) >> 10) << 10); // 18<->20
 }
 
 //  md4 
@@ -696,13 +696,13 @@ unsigned int
 MD4HorizontalMirror( const unsigned int md4 )
 {
   return (md4 & 0x00030003)
-    | (REV14((md4 & 0xC000000C) >> 2) << 2)		// 26<->40
-    | (REV12((md4 & 0x30000030) >> 4) << 4)		// 27<->39
-    | (REV10((md4 & 0x0C0000C0) >> 6) << 6)		// 28<->38
-    | (REV8((md4 & 0x03000300) >> 8) << 8)		// 29<->37
-    | (REV6((md4 & 0x00C00C00) >> 10) << 10)	// 30<->36
-    | (REV4((md4 & 0x00303000) >> 12) << 12)	// 31<->35
-    | (REV2((md4 & 0x000CC000) >> 14) << 14);	// 32<->34
+    | (REV14((md4 & 0xC000000C) >> 2) << 2)   // 26<->40
+    | (REV12((md4 & 0x30000030) >> 4) << 4)   // 27<->39
+    | (REV10((md4 & 0x0C0000C0) >> 6) << 6)   // 28<->38
+    | (REV8((md4 & 0x03000300) >> 8) << 8)    // 29<->37
+    | (REV6((md4 & 0x00C00C00) >> 10) << 10)  // 30<->36
+    | (REV4((md4 & 0x00303000) >> 12) << 12)  // 31<->35
+    | (REV2((md4 & 0x000CC000) >> 14) << 14); // 32<->34
 }
 
 //  md5 

@@ -7,7 +7,7 @@
 const int HASH_MAX = 1048576; // 2^20
 const int BIT_MAX = 60;
 
-#define TRANS20(hash)	(((hash&0xFFFFFFFF)^((hash>>32)&0xFFFFFFFF))&0xFFFFF)
+#define TRANS20(hash) (((hash&0xFFFFFFFF)^((hash>>32)&0xFFFFFFFF))&0xFFFFF)
 
 // パターン
 struct pattern_hash_t {
@@ -30,4 +30,4 @@ void PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat );
 //  インデックスを探索
 int SearchIndex( const index_hash_t *index, const unsigned long long hash );
 
-#endif	// _PATTTERNHASH_H_ 
+#endif  // _PATTTERNHASH_H_ 

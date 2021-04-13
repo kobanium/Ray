@@ -125,13 +125,13 @@ CapturableCandidate( const game_info_t *game, const int id )
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       if (string[neighbor].size >= 2) {
-	return -1;
+        return -1;
       } else {
-	if (flag) {
-	  return -1;
-	}
-	capturable_pos = string[neighbor].lib[0];
-	flag = true;
+        if (flag) {
+          return -1;
+        }
+        capturable_pos = string[neighbor].lib[0];
+        flag = true;
       }
     }
     neighbor = string[id].neighbor[neighbor];
@@ -435,17 +435,17 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
     count = 0;
     while (lib != LIBERTY_END) {
       if (lib != pos) {
-	checked = false;
-	for (i = 0; i < libs; i++) {
-	  if (lib_candidate[i] == lib) {
-	    checked = true;
-	    break;
-	  }
-	}
-	if (!checked) {
-	  lib_candidate[libs + count] = lib;
-	  count++;
-	}
+        checked = false;
+        for (i = 0; i < libs; i++) {
+          if (lib_candidate[i] == lib) {
+            checked = true;
+            break;
+          }
+        }
+        if (!checked) {
+          lib_candidate[libs + count] = lib;
+          count++;
+        }
       }
       lib = string[id].lib[lib];
     }
@@ -453,7 +453,7 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
     already[already_num++] = id;
     if (libs >= 2) return false;
   } else if (board[NORTH(pos)] == other &&
-	     string[string_id[NORTH(pos)]].libs == 1) {
+             string[string_id[NORTH(pos)]].libs == 1) {
     return false;
   }
 
@@ -465,27 +465,27 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (i = 0; i < libs; i++) {
-	    if (lib_candidate[i] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    lib_candidate[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (i = 0; i < libs; i++) {
+            if (lib_candidate[i] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            lib_candidate[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       already[already_num++] = id;
       if (libs >= 2) return false;
     }
   } else if (board[WEST(pos)] == other &&
-	     string[string_id[WEST(pos)]].libs == 1) {
+             string[string_id[WEST(pos)]].libs == 1) {
     return false;
   }
 
@@ -497,27 +497,27 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (i = 0; i < libs; i++) {
-	    if (lib_candidate[i] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    lib_candidate[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (i = 0; i < libs; i++) {
+            if (lib_candidate[i] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            lib_candidate[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       already[already_num++] = id;
       if (libs >= 2) return false;
     }
   } else if (board[EAST(pos)] == other &&
-	     string[string_id[EAST(pos)]].libs == 1) {
+             string[string_id[EAST(pos)]].libs == 1) {
     return false;
   }
 
@@ -530,27 +530,27 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
       lib = string[id].lib[0];
       count = 0;
       while (lib != LIBERTY_END) {
-	if (lib != pos) {
-	  checked = false;
-	  for (i = 0; i < libs; i++) {
-	    if (lib_candidate[i] == lib) {
-	      checked = true;
-	      break;
-	    }
-	  }
-	  if (!checked) {
-	    lib_candidate[libs + count] = lib;
-	    count++;
-	  }
-	}
-	lib = string[id].lib[lib];
+        if (lib != pos) {
+          checked = false;
+          for (i = 0; i < libs; i++) {
+            if (lib_candidate[i] == lib) {
+              checked = true;
+              break;
+            }
+          }
+          if (!checked) {
+            lib_candidate[libs + count] = lib;
+            count++;
+          }
+        }
+        lib = string[id].lib[lib];
       }
       libs += count;
       already[already_num++] = id;
       if (libs >= 2) return false;
     }
   } else if (board[SOUTH(pos)] == other &&
-	     string[string_id[SOUTH(pos)]].libs == 1) {
+             string[string_id[SOUTH(pos)]].libs == 1) {
     return false;
   }
 
@@ -578,10 +578,10 @@ IsAlreadyCaptured( const game_info_t *game, const int color, const int id, int p
     checked = false;
     for (i = 0; i < 4; i++) {
       for (j = 0; j < player_ids; j++) {
-	if (player_id[j] == string_id[neighbor4[i]]) {
-	  checked = true;
-	  player_id[j] = 0;
-	}
+        if (player_id[j] == string_id[neighbor4[i]]) {
+          checked = true;
+          player_id[j] = 0;
+        }
       }
     }
     if (checked == false) return false;
@@ -590,17 +590,17 @@ IsAlreadyCaptured( const game_info_t *game, const int color, const int id, int p
     checked = false;
     for (i = 0; i < 4; i++) {
       for (j = 0; j < player_ids; j++) {
-	if (player_id[j] == string_id[neighbor4[i]]) {
-	  checked = true;
-	  player_id[j] = 0;
-	}
+        if (player_id[j] == string_id[neighbor4[i]]) {
+          checked = true;
+          player_id[j] = 0;
+        }
       }
     }
     if (checked == false) return false;
 
     for (i = 0; i < player_ids; i++) {
       if (player_id[i] != 0) {
-	return false;
+        return false;
       }
     }
 
