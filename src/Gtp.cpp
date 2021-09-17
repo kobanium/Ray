@@ -28,6 +28,7 @@ using namespace std;
 //  コマンドの処理用のバッファ
 char input[BUF_SIZE], input_copy[BUF_SIZE];
 char *next_token;
+int command_id;
 
 //  応答用の文字列
 char brank[] = "";
@@ -135,9 +136,20 @@ GTP_main( void )
   while (fgets(input, sizeof(input), stdin) != NULL) {
     char *command;
     bool nocommand = true;
+    command_id = -1;
 
-    STRCPY(input_copy, BUF_SIZE, input);
-    command = STRTOK(input, DELIM, &next_token);
+    if (isdigit(input[0])) {
+      char buf[BUF_SIZE];
+      STRCPY(buf, BUF_SIZE, input);
+      char *strid = STRTOK(buf, DELIM, &next_token);
+      command_id = atoi(strid);
+      command = STRTOK(nullptr, DELIM, &next_token);
+      int offset = command - buf;
+      STRCPY(input_copy, BUF_SIZE, input + offset);
+    } else {
+      STRCPY(input_copy, BUF_SIZE, input);
+      command = STRTOK(input, DELIM, &next_token);
+    }
     CHOMP(command);
 
     for (const GTP_command_t& cmd : gtpcmd) {
@@ -165,7 +177,10 @@ static void
 GTP_response( const char *res, bool success )
 {
   if (success){
-    cout << "= " << res << endl << endl;
+    if (command_id >= 0)
+      cout << "=" << command_id << " " << res << endl << endl;
+    else
+      cout << "= " << res << endl << endl;
   } else {
     if (res != NULL) {
       cerr << res << endl;
