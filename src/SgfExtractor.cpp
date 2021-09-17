@@ -27,6 +27,10 @@ static int GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cu
 static int SkipData( SGF_record_t *kifu, const char *sgf_text, const int cursor );
 
 
+static inline bool IsSgfSpace(char c) {
+  return c == '\n' || c == '\r' || c == ' ' || c == '\t';
+}
+
 //////////////////
 //  着手の抽出  //
 //////////////////
@@ -104,22 +108,16 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
   memset(kifu->handicap_color, 0, sizeof(kifu->handicap_color));
   
   while ((cursor < 100000) && (sgf_text[cursor] != '\0')) {
-    if (sgf_text[cursor] == '\n' ||
-        sgf_text[cursor] == '\r' ||
-        sgf_text[cursor] == ' '  ||
+    if (IsSgfSpace(sgf_text[cursor]) ||
         sgf_text[cursor] == ';'  ||
         sgf_text[cursor] == '('  ||
-        sgf_text[cursor] == ')'  ||
-        sgf_text[cursor] == '\t') { 
+        sgf_text[cursor] == ')') { 
       while (cursor < 100000 - 1) {
         cursor++;
-        if (sgf_text[cursor] != '\n' &&
-            sgf_text[cursor] != '\r' &&
-            sgf_text[cursor] != ' '  &&
+        if (!IsSgfSpace(sgf_text[cursor]) &&
             sgf_text[cursor] != ';'  &&
             sgf_text[cursor] != '('  &&
-            sgf_text[cursor] != ')'  &&
-            sgf_text[cursor] != '\t') 
+            sgf_text[cursor] != ')') 
           break;
       }
     }    
@@ -287,26 +285,34 @@ static int
 GetHandicapPosition( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color )
 {
   int tmp_cursor = 3;
-  int handicaps = 0;
 
   while ((cursor + tmp_cursor < 100000) &&
          ((sgf_text[cursor + tmp_cursor] == '[') ||
           (sgf_text[cursor + tmp_cursor] == ']') ||
-          (('a' <= sgf_text[cursor + tmp_cursor]) &&
+          IsSgfSpace(sgf_text[cursor + tmp_cursor]) ||
+          (('a' <= sgf_text[cursor + tmp_cursor]) && 
            (sgf_text[cursor + tmp_cursor] <= 's')))) tmp_cursor++;
 
   if (sgf_text[cursor + tmp_cursor] != ']'){
     tmp_cursor--;
   }
   
-  handicaps = (tmp_cursor - 1) / 4;
+  int handicaps = 0;
 
-  for (int i = 0; i < handicaps; i++) {
-    if (cursor + 3 + i * 4 < 100000){
-      kifu->handicap_x[i + kifu->handicap_stones] = ParsePosition(sgf_text[cursor + 3 + i * 4]);
-      kifu->handicap_y[i + kifu->handicap_stones] = ParsePosition(sgf_text[cursor + 4 + i * 4]);
-      kifu->handicap_color[i + kifu->handicap_stones] = color;
-    }
+  for (int cur = cursor + 2; cur < cursor + tmp_cursor;) {
+    while (IsSgfSpace(sgf_text[cur])) cur++;
+    if (sgf_text[cur] != '[')
+      return cursor + tmp_cursor;
+    cur++; while (IsSgfSpace(sgf_text[cur])) cur++;
+    kifu->handicap_x[handicaps + kifu->handicap_stones] = ParsePosition(sgf_text[cur]);
+    cur++; while (IsSgfSpace(sgf_text[cur])) cur++;
+    kifu->handicap_y[handicaps + kifu->handicap_stones] = ParsePosition(sgf_text[cur]);
+    cur++; while (IsSgfSpace(sgf_text[cur])) cur++;
+    if (sgf_text[cur] != ']')
+      return cursor + tmp_cursor;
+    cur++;
+    kifu->handicap_color[handicaps + kifu->handicap_stones] = color;
+    handicaps++;
   }
 
   kifu->handicap_stones += handicaps;
