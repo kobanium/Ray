@@ -826,6 +826,7 @@ GTP_loadsgf( void )
   InitializeBoard(game);
   InitializeSearchSetting();
   InitializeUctHash();
+  SetKomi(sgf.komi);
 
   // あらかじめ置いてある石を配置
   for (int i = 0; i < sgf.handicap_stones; i++) {
