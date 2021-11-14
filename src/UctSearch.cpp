@@ -430,7 +430,9 @@ UctSearchGenmove( game_info_t *game, int color )
 
   // 探索情報をクリア
   if (!pondered) {
-    memset(statistic, 0, sizeof(statistic_t) * board_max);
+    for (int i = 0; i < board_max; i++) {
+      statistic[i].clear();
+    }
     fill_n(criticality_index, board_max, 0);
     for (int i = 0; i < board_max; i++) {
       criticality[i] = 0.0;
@@ -574,7 +576,9 @@ UctSearchPondering( game_info_t *game, int color )
   }
 
   // 探索情報をクリア
-  memset(statistic, 0, sizeof(statistic_t) * board_max);  
+  for (int i = 0; i < board_max; i++) {
+    statistic[i].clear();
+  }
   fill_n(criticality_index, board_max, 0);  
   for (int i = 0; i < board_max; i++) {
     criticality[i] = 0.0;    
@@ -1498,7 +1502,9 @@ UctAnalyze( game_info_t *game, int color )
   thread *handle[THREAD_MAX];
 
   // 探索情報をクリア
-  memset(statistic, 0, sizeof(statistic_t) * board_max);  
+  for (int i = 0; i < board_max; i++) {
+    statistic[i].clear();
+  }
   fill_n(criticality_index, board_max, 0);  
   for (int i = 0; i < board_max; i++) {
     criticality[i] = 0.0;
@@ -1571,7 +1577,9 @@ CopyCriticality( double *dest )
 void
 CopyStatistic( statistic_t *dest )
 {
-  memcpy(dest, statistic, sizeof(statistic_t)* BOARD_MAX); 
+  for (int i = 0; i < board_max; i++) {
+    dest[i] = statistic[i];
+  }
 }
 
 
@@ -1586,7 +1594,9 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
   child_node_t *uct_child;
   thread *handle[THREAD_MAX];
 
-  memset(statistic, 0, sizeof(statistic_t)* board_max); 
+  for (int i = 0; i < board_max; i++) {
+    statistic[i].clear();
+  }
   fill_n(criticality_index, board_max, 0); 
   for (int i = 0; i < board_max; i++) {
     criticality[i] = 0.0;
