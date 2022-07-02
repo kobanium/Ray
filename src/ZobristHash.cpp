@@ -4,8 +4,8 @@
 #include <random>
 #include <vector>
 
-#include "Nakade.h"
-#include "ZobristHash.h"
+#include "Nakade.hpp"
+#include "ZobristHash.hpp"
 
 using namespace std;
 

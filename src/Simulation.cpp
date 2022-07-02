@@ -1,10 +1,10 @@
 #include <random>
 
-#include "GoBoard.h"
-#include "Message.h"
-#include "Point.h"
-#include "Rating.h"
-#include "Simulation.h"
+#include "GoBoard.hpp"
+#include "Message.hpp"
+#include "Point.hpp"
+#include "Rating.hpp"
+#include "Simulation.hpp"
 
 using namespace std;
 

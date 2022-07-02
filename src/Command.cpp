@@ -3,12 +3,12 @@
 #include <cstring>
 #include <string>
 
-#include "Command.h"
-#include "DynamicKomi.h"
-#include "GoBoard.h"
-#include "Message.h"
-#include "UctSearch.h"
-#include "ZobristHash.h"
+#include "Command.hpp"
+#include "DynamicKomi.hpp"
+#include "GoBoard.hpp"
+#include "Message.hpp"
+#include "UctSearch.hpp"
+#include "ZobristHash.hpp"
 
 using namespace std;
 

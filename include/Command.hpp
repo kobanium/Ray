@@ -1,5 +1,5 @@
-#ifndef _COMMAND_H_
-#define _COMMAND_H_
+#ifndef _COMMAND_HPP_
+#define _COMMAND_HPP_
 
 ////////////
 //  定数  //

@@ -1,10 +1,10 @@
-#ifndef _UCTRATING_H_
-#define _UCTRATING_H_
+#ifndef _UCTRATING_HPP_
+#define _UCTRATING_HPP_
 
 #include <string>
 
-#include "GoBoard.h"
-#include "PatternHash.h"
+#include "GoBoard.hpp"
+#include "PatternHash.hpp"
 
 
 enum UCT_FEATURE1{

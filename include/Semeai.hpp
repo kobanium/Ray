@@ -1,7 +1,7 @@
-#ifndef _SEMEAI_H_
-#define _SEMEAI_H_
+#ifndef _SEMEAI_HPP_
+#define _SEMEAI_HPP_
 
-#include "GoBoard.h"
+#include "GoBoard.hpp"
 
 enum LIBERTY_STATE {
   L_DECREASE,

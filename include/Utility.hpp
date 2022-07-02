@@ -1,5 +1,5 @@
-#ifndef _UTILITY_H_
-#define _UTILITY_H_
+#ifndef _UTILITY_HPP_
+#define _UTILITY_HPP_
 
 #include <chrono>
 

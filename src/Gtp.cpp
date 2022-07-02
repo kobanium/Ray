@@ -5,18 +5,18 @@
 #include <cctype>
 #include <iostream>
 
-#include "DynamicKomi.h"
-#include "Gtp.h"
-#include "GoBoard.h"
-#include "Nakade.h"
-#include "UctSearch.h"
-#include "UctRating.h"
-#include "Message.h"
-#include "Point.h"
-#include "Rating.h"
-#include "SgfExtractor.h"
-#include "Simulation.h"
-#include "ZobristHash.h"
+#include "DynamicKomi.hpp"
+#include "Gtp.hpp"
+#include "GoBoard.hpp"
+#include "Nakade.hpp"
+#include "UctSearch.hpp"
+#include "UctRating.hpp"
+#include "Message.hpp"
+#include "Point.hpp"
+#include "Rating.hpp"
+#include "SgfExtractor.hpp"
+#include "Simulation.hpp"
+#include "ZobristHash.hpp"
 
 using namespace std;
 

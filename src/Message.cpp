@@ -5,9 +5,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include "Message.h"
-#include "Point.h"
-#include "UctSearch.h"
+#include "Message.hpp"
+#include "Point.hpp"
+#include "UctSearch.hpp"
 
 using namespace std;
 

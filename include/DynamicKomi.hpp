@@ -1,8 +1,8 @@
-#ifndef _DYNAMICKOMI_H_
-#define _DYNAMICKOMI_H_
+#ifndef _DYNAMICKOMI_HPP_
+#define _DYNAMICKOMI_HPP_
 
-#include "GoBoard.h"
-#include "UctSearch.h"
+#include "GoBoard.hpp"
+#include "UctSearch.hpp"
 
 ////////////////
 //    定数    //

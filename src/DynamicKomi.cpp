@@ -1,9 +1,9 @@
 #include <iomanip>
 #include <iostream>
 
-#include "DynamicKomi.h"
-#include "GoBoard.h"
-#include "Message.h"
+#include "DynamicKomi.hpp"
+#include "GoBoard.hpp"
+#include "Message.hpp"
 
 using namespace std;
 

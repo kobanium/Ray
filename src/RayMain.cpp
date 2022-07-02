@@ -4,15 +4,15 @@
 #include <windows.h>
 #endif
 
-#include "Command.h"
-#include "GoBoard.h"
-#include "Gtp.h"
-#include "PatternHash.h"
-#include "Rating.h"
-#include "Semeai.h"
-#include "UctRating.h"
-#include "UctSearch.h"
-#include "ZobristHash.h"
+#include "Command.hpp"
+#include "GoBoard.hpp"
+#include "Gtp.hpp"
+#include "PatternHash.hpp"
+#include "Rating.hpp"
+#include "Semeai.hpp"
+#include "UctRating.hpp"
+#include "UctSearch.hpp"
+#include "ZobristHash.hpp"
 
 
 int

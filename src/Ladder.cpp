@@ -1,10 +1,10 @@
 #include <iostream>
 #include <memory>
 
-#include "Message.h"
-#include "Ladder.h"
-#include "SearchBoard.h"
-#include "Point.h"
+#include "Message.hpp"
+#include "Ladder.hpp"
+#include "SearchBoard.hpp"
+#include "Point.hpp"
 
 using namespace std;
 

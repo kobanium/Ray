@@ -1,9 +1,9 @@
-#ifndef _ZOBRISTHASH_H_
-#define _ZOBRISTHASH_H_
+#ifndef _ZOBRISTHASH_HPP_
+#define _ZOBRISTHASH_HPP_
 
 #include <vector>
 
-#include "GoBoard.h"
+#include "GoBoard.hpp"
 
 ////////////
 //  定数  //

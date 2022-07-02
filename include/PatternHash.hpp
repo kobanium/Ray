@@ -1,8 +1,8 @@
-#ifndef _PATTERNHASH_H_
-#define _PATTERNHASH_H_
+#ifndef _PATTERNHASH_HPP_
+#define _PATTERNHASH_HPP_
 
-#include "GoBoard.h"
-#include "Pattern.h"
+#include "GoBoard.hpp"
+#include "Pattern.hpp"
 
 const int HASH_MAX = 1048576; // 2^20
 const int BIT_MAX = 60;

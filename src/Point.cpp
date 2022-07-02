@@ -4,8 +4,8 @@
 #include <cctype>
 #include <iostream>
 
-#include "GoBoard.h"
-#include "Point.h"
+#include "GoBoard.hpp"
+#include "Point.hpp"
 
 using namespace std;
 

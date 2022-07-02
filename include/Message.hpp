@@ -1,8 +1,8 @@
-#ifndef _MESSAGE_H_
-#define _MESSAGE_H_
+#ifndef _MESSAGE_HPP_
+#define _MESSAGE_HPP_
 
-#include "GoBoard.h"
-#include "UctSearch.h"
+#include "GoBoard.hpp"
+#include "UctSearch.hpp"
 
 
 //  エラーメッセージの出力の設定

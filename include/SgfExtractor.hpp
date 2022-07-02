@@ -1,5 +1,5 @@
-#ifndef _SGF_EXTRACTOR_H_
-#define _SGF_EXTRACTOR_H_
+#ifndef _SGF_EXTRACTOR_HPP_
+#define _SGF_EXTRACTOR_HPP_
 
 struct SGF_record_t {
   int start_color;         // 最初に着手した色

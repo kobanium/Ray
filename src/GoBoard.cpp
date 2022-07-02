@@ -3,10 +3,10 @@
 #include <cstring>
 #include <iostream>
 
-#include "GoBoard.h"
-#include "Semeai.h"
-#include "UctRating.h"
-#include "ZobristHash.h"
+#include "GoBoard.hpp"
+#include "Semeai.hpp"
+#include "UctRating.hpp"
+#include "ZobristHash.hpp"
 
 using namespace std;
 

@@ -1,5 +1,5 @@
-#ifndef _PATTERN_H_
-#define _PATTERN_H_
+#ifndef _PATTERN_HPP_
+#define _PATTERN_HPP_
 
 const int MD2_MAX = 16777216;   // 2^24
 const int PAT3_MAX = 65536;     // 2^16

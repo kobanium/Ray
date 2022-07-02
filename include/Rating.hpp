@@ -1,11 +1,11 @@
-#ifndef _RATING_H_
-#define _RATING_H_
+#ifndef _RATING_HPP_
+#define _RATING_HPP_
 
 #include <string>
 #include <random>
 
-#include "GoBoard.h"
-#include "UctRating.h"
+#include "GoBoard.hpp"
+#include "UctRating.hpp"
 
 
 enum FEATURE1{

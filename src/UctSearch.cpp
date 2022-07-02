@@ -13,16 +13,16 @@
 #include <thread>
 #include <random>
 
-#include "DynamicKomi.h"
-#include "GoBoard.h"
-#include "Ladder.h"
-#include "Message.h"
-#include "PatternHash.h"
-#include "Seki.h"
-#include "Simulation.h"
-#include "UctRating.h"
-#include "UctSearch.h"
-#include "Utility.h"
+#include "DynamicKomi.hpp"
+#include "GoBoard.hpp"
+#include "Ladder.hpp"
+#include "Message.hpp"
+#include "PatternHash.hpp"
+#include "Seki.hpp"
+#include "Simulation.hpp"
+#include "UctRating.hpp"
+#include "UctSearch.hpp"
+#include "Utility.hpp"
 
 #if defined (_WIN32)
 #include <Windows.h>

@@ -1,5 +1,5 @@
-#ifndef _POINT_H_
-#define _POINT_H_
+#ifndef _POINT_HPP_
+#define _POINT_HPP_
 
 
 //////////////////

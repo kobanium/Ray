@@ -2,11 +2,11 @@
 #include <cstring>
 #include <iostream>
 
-#include "Message.h"
-#include "Nakade.h"
-#include "Pattern.h"
-#include "Point.h"
-#include "ZobristHash.h"
+#include "Message.hpp"
+#include "Nakade.hpp"
+#include "Pattern.hpp"
+#include "Point.hpp"
+#include "ZobristHash.hpp"
 
 using namespace std;
 

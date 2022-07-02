@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "SearchBoard.h"
+#include "SearchBoard.hpp"
 
 using namespace std;
 

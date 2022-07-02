@@ -3,9 +3,9 @@
 #include <cstring>
 #include <cctype>
 
-#include "GoBoard.h"
-#include "Message.h"
-#include "SgfExtractor.h"
+#include "GoBoard.hpp"
+#include "Message.hpp"
+#include "SgfExtractor.hpp"
 
 // SGFの座標を数値に変換
 static int ParsePosition( const char c );

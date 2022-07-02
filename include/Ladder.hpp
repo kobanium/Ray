@@ -1,7 +1,7 @@
-#ifndef _LADDER_H_
-#define _LADDER_H_
+#ifndef _LADDER_HPP_
+#define _LADDER_HPP_
 
-#include "GoBoard.h"
+#include "GoBoard.hpp"
 
 // 全ての連に対して逃げて助かるシチョウかどうか確認
 void LadderExtension( game_info_t *game, int color, bool *ladder_pos );

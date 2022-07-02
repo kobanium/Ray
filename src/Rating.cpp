@@ -9,12 +9,12 @@
 #include <functional>
 #include <string>
 
-#include "Message.h"
-#include "Nakade.h"
-#include "Point.h"
-#include "Rating.h"
-#include "Semeai.h"
-#include "Utility.h"
+#include "Message.hpp"
+#include "Nakade.hpp"
+#include "Point.hpp"
+#include "Rating.hpp"
+#include "Semeai.hpp"
+#include "Utility.hpp"
 
 using namespace std;
 

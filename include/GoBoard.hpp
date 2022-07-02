@@ -1,7 +1,7 @@
-#ifndef _GO_BOARD_H_
-#define _GO_BOARD_H_
+#ifndef _GO_BOARD_HPP_
+#define _GO_BOARD_HPP_
 
-#include "Pattern.h"
+#include "Pattern.hpp"
 
 ////////////////
 //    定数    //

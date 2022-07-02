@@ -1,7 +1,7 @@
-#ifndef _NAKADE_H_
-#define _NAKADE_H_
+#ifndef _NAKADE_HPP_
+#define _NAKADE_HPP_
 
-#include "GoBoard.h"
+#include "GoBoard.hpp"
 
 ////////////
 //  定数  //

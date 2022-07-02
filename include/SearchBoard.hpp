@@ -1,7 +1,7 @@
-#ifndef _SEARCH_BOARD_H_
-#define _SEARCH_BOARD_H_
+#ifndef _SEARCH_BOARD_HPP_
+#define _SEARCH_BOARD_HPP_
 
-#include "GoBoard.h"
+#include "GoBoard.hpp"
 
 //////////////
 //  構造体  //

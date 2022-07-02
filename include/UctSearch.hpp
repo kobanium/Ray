@@ -1,11 +1,11 @@
-#ifndef _UCTSEARCH_H_
-#define _UCTSEARCH_H_
+#ifndef _UCTSEARCH_HPP_
+#define _UCTSEARCH_HPP_
 
 #include <atomic>
 #include <random>
 
-#include "GoBoard.h"
-#include "ZobristHash.h"
+#include "GoBoard.hpp"
+#include "ZobristHash.hpp"
 
 ////////////
 //  定数  //

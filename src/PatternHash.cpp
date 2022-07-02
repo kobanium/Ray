@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "PatternHash.h"
+#include "PatternHash.hpp"
 
 using namespace std;
 

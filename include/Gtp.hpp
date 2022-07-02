@@ -1,5 +1,5 @@
-#ifndef _GTP_H_
-#define _GTP_H_
+#ifndef _GTP_HPP_
+#define _GTP_HPP_
 
 /////////////
 //  定数  //

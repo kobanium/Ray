@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "GoBoard.h"
-#include "Point.h"
-#include "Seki.h"
-#include "Semeai.h"
+#include "GoBoard.hpp"
+#include "Point.hpp"
+#include "Seki.hpp"
+#include "Semeai.hpp"
 
 using namespace std;
 

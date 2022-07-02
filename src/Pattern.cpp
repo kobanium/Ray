@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <cstring>
 
-#include "GoBoard.h"
-#include "Pattern.h"
+#include "GoBoard.hpp"
+#include "Pattern.hpp"
 
 
 //  ビット列操作

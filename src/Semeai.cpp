@@ -1,9 +1,9 @@
-#include "GoBoard.h"
-#include "Message.h"
-#include "Point.h"
-#include "Pattern.h"
-#include "Semeai.h"
-#include "UctRating.h"
+#include "GoBoard.hpp"
+#include "Message.hpp"
+#include "Point.hpp"
+#include "Pattern.hpp"
+#include "Semeai.hpp"
+#include "UctRating.hpp"
 
 // IsCapturableAtari関数用
 game_info_t capturable_game;

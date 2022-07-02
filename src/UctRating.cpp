@@ -5,14 +5,14 @@
 #include <cstdio>
 #include <iostream>
 
-#include "Ladder.h"
-#include "Message.h"
-#include "Nakade.h"
-#include "PatternHash.h"
-#include "Point.h"
-#include "Semeai.h"
-#include "Utility.h"
-#include "UctRating.h"
+#include "Ladder.hpp"
+#include "Message.hpp"
+#include "Nakade.hpp"
+#include "PatternHash.hpp"
+#include "Point.hpp"
+#include "Semeai.hpp"
+#include "Utility.hpp"
+#include "UctRating.hpp"
 
 
 using namespace std;
