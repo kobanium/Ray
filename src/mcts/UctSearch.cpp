@@ -1142,7 +1142,7 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *
   // 選んだ手を着手
   PutStone(game, uct_child[next_index].pos, color);
   // 色を入れ替える
-  color = FLIP_COLOR(color);
+  color = GetOppositeColor(color);
 
   if (uct_child[next_index].move_count < expand_threshold) {
     // Virtual Lossを加算
@@ -1370,7 +1370,7 @@ Statistic( game_info_t *game, int winner )
 static void
 CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index )
 {
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const int count = node->move_count;
   const int child_num = node->child_num;
   const double win = (double)node->win / node->move_count;
@@ -1397,7 +1397,7 @@ CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int co
 static void
 CalculateCriticality( int color )
 {
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const double win = (double)uct_node[current_root].win / uct_node[current_root].move_count;
   const double lose = 1.0 - win;
   double tmp;

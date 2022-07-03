@@ -538,7 +538,7 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
 void
 PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate )
 {
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int pm1 = PASS, pm2 = PASS, pm3 = PASS;
   int distance_2[4], distance_3[4], distance_4[4];
   bool flag[BOARD_MAX] = { false };  
@@ -653,7 +653,7 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 static void
 PoCheckFeaturesLib1( game_info_t *game, const int color, const int id, int *update, int *update_num )
 {
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const char *board = game->board;
   const string_t *string = game->string;
   int neighbor = string[id].neighbor[0];
@@ -1073,7 +1073,7 @@ PoCheckCaptureAfterKo( game_info_t *game, const int color, int *update, int *upd
   const string_t *string = game->string;
   const char *board = game->board;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const int previous_move_2 = game->record[game->moves - 2].pos;
   int id ,lib, checked = 0;
   int check[4] = { 0 };
@@ -1132,7 +1132,7 @@ PoCheckSelfAtari( game_info_t *game, const int color, const int pos )
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int lib, id, count = 0, libs = 0, size = 0, already_num = 0;
   int already[4] = { 0 }, lib_candidate[10];
   bool flag, checked;
@@ -1309,7 +1309,7 @@ PoCheckCaptureAndAtari( game_info_t *game, const int color, const int pos )
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int libs;
 
   // 上を調べる
@@ -1368,7 +1368,7 @@ PoCheckCaptureAndAtari( game_info_t *game, const int color, const int pos )
 static void
 PoCheckRemove2Stones( game_info_t *game, const int color, int *update, int *update_num )
 {
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int i, rm1, rm2, check;
 
   if (game->capture_num[other] != 2) {

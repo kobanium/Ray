@@ -44,7 +44,7 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
         if (string[neighbor].libs == 1) {
           if (IsLegal(game, string[neighbor].lib[0], color)) {
             PutStoneForSearch(ladder_game, string[neighbor].lib[0], color);
-            if (IsLadderCaptured(0, ladder_game, string[i].origin, FLIP_COLOR(color)) == DEAD) {
+            if (IsLadderCaptured(0, ladder_game, string[i].origin, GetOppositeColor(color)) == DEAD) {
               if (string[i].size >= 2) {
                 ladder_pos[string[neighbor].lib[0]] = true;
               }
@@ -62,7 +62,7 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
         if (IsLegal(game, ladder, color)) {
           PutStoneForSearch(ladder_game, ladder, color);
           if (string[i].size >= 2 &&
-              IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
+              IsLadderCaptured(0, ladder_game, ladder, GetOppositeColor(color)) == DEAD) {
             ladder_pos[ladder] = true;
           }
           Undo(ladder_game);
@@ -97,7 +97,7 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
   }
 
   escape_color = board[ren_xy];
-  capture_color = FLIP_COLOR(escape_color);
+  capture_color = GetOppositeColor(escape_color);
 
   if (turn_color == escape_color) {
     // 周囲の敵連が取れるか確認し,
@@ -107,7 +107,7 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
       if (string[neighbor].libs == 1) {
         if (IsLegalForSearch(game, string[neighbor].lib[0], escape_color)) {
           PutStoneForSearch(game, string[neighbor].lib[0], escape_color);
-          result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+          result = IsLadderCaptured(depth + 1, game, ren_xy, GetOppositeColor(turn_color));
           Undo(game);
           if (result == ALIVE) {
             return ALIVE;
@@ -122,7 +122,7 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
     while (escape_xy != LIBERTY_END) {
       if (IsLegalForSearch(game, escape_xy, escape_color)) {
         PutStoneForSearch(game, escape_xy, escape_color);
-        result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+        result = IsLadderCaptured(depth + 1, game, ren_xy, GetOppositeColor(turn_color));
         Undo(game);
         if (result == ALIVE) {
           return ALIVE;
@@ -140,7 +140,7 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
     while (capture_xy != LIBERTY_END) {
       if (IsLegalForSearch(game, capture_xy, capture_color)) {
         PutStoneForSearch(game, capture_xy, capture_color);
-        result = IsLadderCaptured(depth + 1, game, ren_xy, FLIP_COLOR(turn_color));
+        result = IsLadderCaptured(depth + 1, game, ren_xy, GetOppositeColor(turn_color));
         Undo(game);
         if (result == DEAD) {
           return DEAD;
@@ -176,7 +176,7 @@ CheckLadderExtension( game_info_t *game, int color, int pos )
     std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
     search_game_info_t *ladder_game = search_game.get();
     PutStoneForSearch(ladder_game, ladder, color);
-    if (IsLadderCaptured(0, ladder_game, ladder, FLIP_COLOR(color)) == DEAD) {
+    if (IsLadderCaptured(0, ladder_game, ladder, GetOppositeColor(color)) == DEAD) {
       return true;
     } 
   }

@@ -543,7 +543,7 @@ UctCheckCaptureAfterKo( game_info_t *game, int color, uct_features_t *uct_featur
   const string_t *string = game->string;
   const char *board = game->board;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const int previous_move_2 = game->record[game->moves - 2].pos;
   int id, lib, neighbor4[4];
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
@@ -571,7 +571,7 @@ UctCheckSelfAtari( game_info_t *game, int color, int pos, uct_features_t *uct_fe
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int id, lib, already_num = 0, size = 0, libs = 0, count;
   int lib_candidate[PURE_BOARD_MAX], neighbor4[4], already[4] = { 0 };
   bool checked, flag, already_checked;
@@ -659,7 +659,7 @@ void
 UctCheckCapture( game_info_t *game, int color, int pos, uct_features_t *uct_features )
 {
   const char *board = game->board;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   int neighbor, id;
@@ -701,7 +701,7 @@ void
 UctCheckAtari( game_info_t *game, int color, int pos, uct_features_t *uct_features )
 {
   const char *board = game->board;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   int id, size, neighbor4[4];
@@ -746,7 +746,7 @@ UctCheckKoConnection( game_info_t *game, uct_features_t *uct_features )
 void
 UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_features )
 {
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   const int cross[4] = {- board_size - 1, - board_size + 1, board_size - 1, board_size + 1};
   int i, connect;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
@@ -793,7 +793,7 @@ UctCheckRemove2Stones( game_info_t *game, int color, uct_features_t *uct_feature
 void
 UctCheckRemove3Stones( game_info_t *game, int color, uct_features_t *uct_features )
 {
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
   if (game->capture_num[other] != 3) {
@@ -821,7 +821,7 @@ void
 UctCheckKeimaTsukekoshi(game_info_t *game, int color, int pos, uct_features_t *uct_features)
 {
   const char *board = game->board;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
   int keima_pos[8], opponent_pos[8];
 
@@ -970,7 +970,7 @@ UctCheckDoubleKeima( game_info_t *game, int color, int pos, uct_features_t *uct_
   // ++O+O++
   // Oのうち自分と相手の石が1個ずつ以上ある時の特徴
   const char *board = game->board;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int keima_pos[8];
   int player = 0, opponent = 0;
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
@@ -1009,7 +1009,7 @@ UctCheckSnapBack( game_info_t *game, int color, int pos, uct_features_t *uct_fea
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   const char *board = game->board;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   unsigned long long *tactical_features1 = uct_features->tactical_features1;
   int neighbor4[4];
 

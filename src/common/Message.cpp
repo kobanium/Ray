@@ -290,7 +290,7 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
 
 
   PutStone(search_result, uct_child[index].pos, color);
-  color = FLIP_COLOR(color);
+  color = GetOppositeColor(color);
 
   std::cerr << uct_child[index].win << "/" << uct_child[index].move_count << ")";
 
@@ -322,7 +322,7 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
 
     PutStone(search_result, uct_child[index].pos, color);
 
-    color = FLIP_COLOR(color);
+    color = GetOppositeColor(color);
 
     std::cerr << uct_child[index].win << "/" << uct_child[index].move_count << ")";
 

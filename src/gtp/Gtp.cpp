@@ -314,7 +314,7 @@ GTP_genmove( void )
   
   GTP_response(pos, true);
 
-  UctSearchPondering(game, FLIP_COLOR(color));
+  UctSearchPondering(game, GetOppositeColor(color));
 }
 
 
@@ -685,7 +685,7 @@ GTP_final_status_list( void )
     for (int y = board_start; y <= board_end; y++) {
       for (int x = board_start; x <= board_end; x++) {
         if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] <= 30) ||
-            (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] >= 70)) {
+            (game->board[POS(x, y)] == GetOppositeColor(player_color) && owner[POS(x, y)] >= 70)) {
 #if defined (_WIN32)
           sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
           strcat_s(dead, 2048, pos);
@@ -700,7 +700,7 @@ GTP_final_status_list( void )
     for (int y = board_start; y <= board_end; y++) {
       for (int x = board_start; x <= board_end; x++) {
         if ((game->board[POS(x, y)] == player_color && owner[POS(x, y)] >= 70) ||
-            (game->board[POS(x, y)] == FLIP_COLOR(player_color) && owner[POS(x, y)] <= 30)) {
+            (game->board[POS(x, y)] == GetOppositeColor(player_color) && owner[POS(x, y)] <= 30)) {
 #if defined (_WIN32)
           sprintf_s(pos, 5, "%c%d ", GOGUI_X(POS(x, y)), GOGUI_Y(POS(x, y)));
           strcat_s(dead, 2048, pos);
@@ -850,7 +850,7 @@ GTP_loadsgf( void )
   for (int i = 0; i < target_move; i++) {
     pos = GetKifuMove(&sgf, i);
     PutStone(game, pos, color);
-    color = FLIP_COLOR(color);
+    color = GetOppositeColor(color);
   }
 
   if (color == S_BLACK) {

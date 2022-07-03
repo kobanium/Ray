@@ -9,15 +9,19 @@
 //  定数  //
 ////////////
 
+//  ハッシュ表のサイズのデフォルト値
+const unsigned int UCT_HASH_SIZE = 16384;
+
+//////////////
+//  列挙型  //
+//////////////
+
 enum hash{
   HASH_PASS,  // パス
   HASH_BLACK, // 黒石
   HASH_WHITE, // 白石
   HASH_KO,    // 劫
 };
-
-//  ハッシュ表のサイズのデフォルト値
-const unsigned int UCT_HASH_SIZE = 16384;
 
 //////////////
 //  構造体  //

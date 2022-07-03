@@ -42,6 +42,6 @@ Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
     // パスの確認
     pass_count = (pos == PASS) ? (pass_count + 1) : 0;
     // 手番の入れ替え
-    color = FLIP_COLOR(color);
+    color = GetOppositeColor(color);
   }
 }

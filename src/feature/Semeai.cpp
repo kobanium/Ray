@@ -22,7 +22,7 @@ IsCapturableAtari( const game_info_t *game, const int pos, const int color, cons
 {
   string_t *string;
   const int *string_id;
-  int other = FLIP_COLOR(color);
+  int other = GetOppositeColor(color);
   int neighbor;
   int id;
   int libs;
@@ -75,7 +75,7 @@ CheckOiotoshi( const game_info_t *game, const int pos, const int color, const in
 {
   string_t *string;
   int *string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int neighbor;
   int id, num = -1;
 
@@ -148,7 +148,7 @@ bool
 IsDeadlyExtension( const game_info_t *game, const int color, const int id )
 {
   game_info_t search_game;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int pos = game->string[id].lib[0];
 
   if (nb4_empty[Pat3(game->pat, pos)] == 0 &&
@@ -237,7 +237,7 @@ IsCapturableAtariForSimulation( const game_info_t *game, const int pos, const in
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int lib;
   bool neighbor = false;
   int index_distance;
@@ -339,7 +339,7 @@ IsSelfAtariCaptureForSimulation( const game_info_t *game, const int pos, const i
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int id;
   int size = 0;
 
@@ -409,7 +409,7 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int already[4] = { 0 };
   int already_num = 0;
   int lib, count = 0, libs = 0;

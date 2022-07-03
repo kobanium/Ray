@@ -150,7 +150,7 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
   int *string_id = game->string_id;
   char *board = game->board;
   string_t *string = game->string;
-  int other = FLIP_COLOR(color);
+  int other = GetOppositeColor(color);
   int connection = 0;
   int connect[4] = { 0 };
   int prisoner = 0;
@@ -321,7 +321,7 @@ AddStone( search_game_info_t *game, const int pos, const int color, const int id
   string_t *add_str;
   int *string_id = game->string_id;
   int lib_add = 0;
-  int other = FLIP_COLOR(color);
+  int other = GetOppositeColor(color);
   int neighbor, neighbor4[4];
 
   // IDを更新
@@ -408,7 +408,7 @@ IsSuicide( const search_game_info_t *game, const string_t *string, const int col
 {
   const char *board = game->board;
   const int *string_id = game->string_id;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int neighbor4[4];
 
   GetNeighbor4(neighbor4, pos);
@@ -442,7 +442,7 @@ MakeString( search_game_info_t *game, const int pos, const int color )
   int *string_id = game->string_id;
   int id = 1;
   int lib_add = 0;
-  int other = FLIP_COLOR(color);
+  int other = GetOppositeColor(color);
   int neighbor, neighbor4[4];
 
   // 未使用の連のインデックスを見つける
@@ -742,7 +742,7 @@ RestoreChain( search_game_info_t *game, const int id, const int stone[], const i
   char *board = game->board;
   int *string_id = game->string_id;
   int lib_add = 0;
-  const int other = FLIP_COLOR(color);
+  const int other = GetOppositeColor(color);
   int neighbor, neighbor4[4];
   int pos;
 
@@ -805,7 +805,7 @@ Undo( search_game_info_t *game )
   const int pm_count = game->moves - 1;
   const int previous_move = game->record[pm_count].pos;
   const int played_color = game->record[pm_count].color;
-  const int opponent_color = FLIP_COLOR(played_color);
+  const int opponent_color = GetOppositeColor(played_color);
   string_t *string = game->string;
   int *string_id = game->string_id;
   undo_record_t* rec = &game->undo[pm_count];
