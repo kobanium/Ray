@@ -559,7 +559,7 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
 
 
 bool 
-IsAlreadyCaptured( const game_info_t *game, const int color, const int id, int player_id[], int player_ids )
+IsAlreadyCaptured( const game_info_t *game, const int id, int player_id[], int player_ids )
 {
   const string_t *string = game->string;
   const int *string_id = game->string_id;

@@ -758,7 +758,7 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
   for (int i = 0; i < 4; i++) {
     if (board[pos + cross[i]] == other) {
       id = string_id[pos + cross[i]];
-      if (IsAlreadyCaptured(game, other, id, player_id, player_ids)) {
+      if (IsAlreadyCaptured(game, id, player_id, player_ids)) {
         return false;
       }
     }

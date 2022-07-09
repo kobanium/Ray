@@ -5,6 +5,24 @@
 #include "util/Utility.hpp"
 
 
+static std::string working_directory;
+
+
+void
+SetWorkingDirectory( const char *program_path )
+{
+  working_directory = std::string(program_path);
+}
+
+
+std::string
+GetWorkingDirectory( void )
+{
+  return working_directory;
+}
+
+
+
 ////////////////////////////
 //  テキスト入力 (float)  //
 ////////////////////////////

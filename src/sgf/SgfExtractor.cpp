@@ -25,7 +25,7 @@ static int GetKomi( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 // 対局者の名前を抽出
 static int GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color );
 // 無視する情報を飛ばす処理
-static int SkipData( SGF_record_t *kifu, const char *sgf_text, const int cursor );
+static int SkipData( const char *sgf_text, const int cursor );
 
 
 static inline bool IsSgfSpace(char c) {
@@ -157,7 +157,7 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
         (strncmp(&sgf_text[cursor], "TW[", 3) == 0) ||
         (strncmp(&sgf_text[cursor], "WR[", 3) == 0) ||
         (strncmp(&sgf_text[cursor], "BR[", 3) == 0)) {      
-      cursor = SkipData(kifu, sgf_text, cursor);
+      cursor = SkipData(sgf_text, cursor);
     }
     cursor++;   // 文字を一つ進める
   }
@@ -377,7 +377,7 @@ GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cursor, const
 //  無視する情報を飛ばす処理  //
 ///////////////////////////////
 static int
-SkipData( SGF_record_t *kifu, const char *sgf_text, const int cursor )
+SkipData( const char *sgf_text, const int cursor )
 {
   int tmp_cursor = 3;
   

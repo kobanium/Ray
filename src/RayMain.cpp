@@ -43,14 +43,9 @@ main( int argc, char **argv )
 #endif
   }
 
-  // 各種パスの設定
-#if defined (_WIN32)
-  sprintf_s(uct_params_path, 1024, "%s\\uct_params", program_path);
-  sprintf_s(po_params_path, 1024, "%s\\sim_params", program_path);
-#else
-  snprintf(uct_params_path, 1024, "%s/uct_params", program_path);
-  snprintf(po_params_path, 1024, "%s/sim_params", program_path);
-#endif
+  // ワーキングディレクトリの設定
+  SetWorkingDirectory(program_path);
+
   // コマンドライン引数の解析  
   AnalyzeCommand(argc, argv);
 

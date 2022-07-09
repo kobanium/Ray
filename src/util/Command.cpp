@@ -7,6 +7,7 @@
 #include "board/GoBoard.hpp"
 #include "board/ZobristHash.hpp"
 #include "common/Message.hpp"
+#include "mcts/SearchManager.hpp"
 #include "mcts/UctSearch.hpp"
 #include "util/Command.hpp"
 
@@ -68,12 +69,12 @@ AnalyzeCommand( int argc, char **argv )
       case COMMAND_PLAYOUT:
         // プレイアウト数固定の探索の設定
         SetPlayout(atoi(argv[++i]));
-        SetMode(CONST_PLAYOUT_MODE);
+        SetSearchSetting(SearchTimeStrategy::ConstantPlayoutMode);
         break;
       case COMMAND_TIME:
         // 持ち時間の設定
         SetTime(atof(argv[++i]));
-        SetMode(TIME_SETTING_MODE);
+        SetSearchSetting(SearchTimeStrategy::TimeControlMode);
         break;
       case COMMAND_SIZE:
         // 碁盤の大きさの設定
@@ -86,8 +87,8 @@ AnalyzeCommand( int argc, char **argv )
         break;
       case COMMAND_CONST_TIME:
         // 1手あたりの思考時間を固定した探索の設定
-        SetConstTime(atof(argv[++i]));
-        SetMode(CONST_TIME_MODE);
+        SetConstThinkingTime(atof(argv[++i]));
+        SetSearchSetting(SearchTimeStrategy::ConstantTimeMode);
         break;
       case COMMAND_THREAD:
         // 探索スレッド数の設定

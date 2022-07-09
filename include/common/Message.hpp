@@ -33,7 +33,7 @@ void PrintOwner( const uct_node_t *root, const statistic_t *statistic, const int
 void PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const int root, const int start_color );
 
 //  探索の情報の表示
-void PrintPlayoutInformation( const uct_node_t *root, const po_info_t *po_info, const double finish_time, const int pre_simulated );
+void PrintPlayoutInformation( const uct_node_t *root, const int po_speed, const double finish_time, const int pre_simulated );
 
 //  座標の出力
 void PrintPoint( const int pos );

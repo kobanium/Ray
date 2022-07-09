@@ -15,9 +15,6 @@
 #include "util/Utility.hpp"
 
 
-// 各種レートが格納されているディレクトリへのパス
-char uct_params_path[1024];
-
 // w_0
 static double weight_zero;
 // 戦術的特徴のレート
@@ -1182,14 +1179,8 @@ AnalyzeUctRating( game_info_t *game, int color, double rate[] )
 void
 InputUCTParameter(void)
 {
-  std::string uct_parameters_path = uct_params_path;
+  std::string uct_parameters_path = GetWorkingDirectory() + PATH_SEPARATOR + "uct_params" + PATH_SEPARATOR;
   std::string path;
-
-#if defined (_WIN32)
-  uct_parameters_path += '\\';
-#else
-  uct_parameters_path += '/';
-#endif
 
   path = uct_parameters_path + "WeightZero.txt";
 
@@ -1246,6 +1237,7 @@ InputUCTParameter(void)
     uct_criticality[i] = exp(criticality_bias * i) - 1;
   }
 }
+
 
 ///////////////////////////
 //  γ読み込み 着手距離  //

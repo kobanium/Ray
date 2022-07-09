@@ -479,7 +479,7 @@ GTP_finalscore( void )
   } else if (score > 0) {
     sprintf_s(buf, 10, "B+%.1lf", score);
   } else {
-    sprintf_s(buf, 10, "W+%.1lf", abs(score));
+    sprintf_s(buf, 10, "W+%.1lf", -score);
   }
 #else
   if (abs(score) < 0.1) {
@@ -487,7 +487,7 @@ GTP_finalscore( void )
   } else if (score > 0) {
     snprintf(buf, 10, "B+%.1lf", score);
   } else {
-    snprintf(buf, 10, "W+%.1lf", abs(score));
+    snprintf(buf, 10, "W+%.1lf", -score);
   }
 #endif
 
@@ -533,13 +533,13 @@ GTP_timeleft( void )
   str2 = STRTOK(NULL, DELIM, &next_token);
   
   if (str1[0] == 'B' || str1[0] == 'b'){
-    remaining_time[S_BLACK] = atof(str2);
+    SetCurrentRemainingTime(S_BLACK, atof(str2));
   } else if (str1[0] == 'W' || str1[0] == 'w'){
-    remaining_time[S_WHITE] = atof(str2);
+    SetCurrentRemainingTime(S_WHITE, atof(str2));
   }
   
-  fprintf(stderr, "%f\n", remaining_time[S_BLACK]);
-  fprintf(stderr, "%f\n", remaining_time[S_WHITE]);
+  fprintf(stderr, "%f\n", GetRemainingTime(S_BLACK));
+  fprintf(stderr, "%f\n", GetRemainingTime(S_WHITE));
   GTP_response(brank, true);
 }
 

@@ -212,8 +212,6 @@ extern index_hash_t md3_index[HASH_MAX];
 extern index_hash_t md4_index[HASH_MAX];
 extern index_hash_t md5_index[HASH_MAX];
 
-extern char uct_params_path[1024];
-
 extern unsigned long long atari_mask;
 extern unsigned long long capture_mask;
 

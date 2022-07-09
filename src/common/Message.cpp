@@ -341,7 +341,7 @@ PrintBestSequence( const game_info_t *game, const uct_node_t *uct_node, const in
 //  探索の情報の表示  //
 ///////////////////////
 void
-PrintPlayoutInformation( const uct_node_t *root, const po_info_t *po_info, const double finish_time, const int pre_simulated )
+PrintPlayoutInformation( const uct_node_t *root, const int po_speed, const double finish_time, const int pre_simulated )
 {
   const double winning_percentage = (double)root->win / root->move_count;
 
@@ -352,9 +352,7 @@ PrintPlayoutInformation( const uct_node_t *root, const po_info_t *po_info, const
   std::cerr << "Win                :  " << std::setw(7) << root->win << std::endl;
   std::cerr << "Thinking Time      :  " << std::setw(7) << finish_time << " sec" << std::endl;
   std::cerr << "Winning Percentage :  " << std::setw(7) << (winning_percentage * 100) << "%" << std::endl;
-  if (finish_time != 0.0) {
-    std::cerr << "Playout Speed      :  " << std::setw(7) << (int)(po_info->count / finish_time) << " PO/sec " << std::endl;
-  }
+  std::cerr << "Playout Speed      :  " << std::setw(7) << po_speed << " PO/sec " << std::endl;
 }
 
 
