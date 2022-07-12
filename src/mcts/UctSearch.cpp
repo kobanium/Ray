@@ -19,9 +19,11 @@
 #include "pattern/PatternHash.hpp"
 #include "feature/Ladder.hpp"
 #include "feature/Seki.hpp"
+#include "mcts/MoveSelection.hpp"
 #include "mcts/Simulation.hpp"
 #include "mcts/UctRating.hpp"
 #include "mcts/UctSearch.hpp"
+#include "mcts/ucb/UCBEvaluation.hpp"
 #include "util/Utility.hpp"
 
 #if defined (_WIN32)
@@ -51,12 +53,13 @@ static int pw[PURE_BOARD_MAX + 1];
 // ノード展開の閾値
 static int expand_threshold = EXPAND_THRESHOLD_19;
 
-int current_root; // 現在のルートのインデックス
+// 現在のルートのインデックス
+int current_root;
+// 各ノードの排他処理のためのmutex
 static std::mutex mutex_nodes[MAX_NODES];
-static std::mutex mutex_expand;       // ノード展開を排他処理するためのmutex
+// ノード展開を排他処理するためのmutex
+static std::mutex mutex_expand;       
 
-// 探索の設定
-//static enum SEARCH_MODE mode = CONST_TIME_MODE;
 // 使用するスレッド数
 static int threads = 1;
 
@@ -88,13 +91,8 @@ static bool pondered = false;
 
 static std::thread *handle[THREAD_MAX];    // スレッドのハンドル
 
-// UCB Bonusの等価パラメータ
-static double bonus_equivalence = BONUS_EQUIVALENCE;
-// UCB Bonusの重み
-static double bonus_weight = BONUS_WEIGHT;
-
 // 乱数生成器
-static std::mt19937_64 *mt[THREAD_MAX];
+static std::mt19937_64 mt[THREAD_MAX];
 
 // Criticalityの上限値
 static int criticality_max = CRITICALITY_MAX;
@@ -143,13 +141,13 @@ static void RatingNode( game_info_t *game, int color, int index );
 static int RateComp( const void *a, const void *b );
 
 // UCB値が最大の子ノードを返す
-static int SelectMaxUcbChild( int current, int color );
+static int SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt );
 
 // 各座標の統計処理
 static void Statistic( game_info_t *game, int winner );
 
 // UCT探索(1回の呼び出しにつき, 1回の探索)
-static int UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *winner );
+static int UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &winner );
 
 
 
@@ -248,12 +246,11 @@ InitializeSearchSetting( void )
   }
 
   // 乱数の初期化
+  std::random_device rand;
   for (int i = 0; i < THREAD_MAX; i++) {
-    if (mt[i]) {
-      delete mt[i];
-    }
-    mt[i] = new std::mt19937_64((unsigned int)(time(NULL) + i));
+    mt[i].seed(rand());
   }
+
 
   SetTimeManagementParameter();
   InitializeTimeSetting();
@@ -289,9 +286,7 @@ StopPondering( void )
 int
 UctSearchGenmove( game_info_t *game, int color )
 {
-  int pos, select_index, max_count, pre_simulated;
-  double pass_wp, best_wp;
-  child_node_t *uct_child;
+  double best_wp;
 
   // 探索情報をクリア
   if (!pondered) {
@@ -307,7 +302,7 @@ UctSearchGenmove( game_info_t *game, int color )
   ResetPoCount();
 
   for (int i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+    const int pos = onboard_pos[i];
     owner[pos] = 50;
     owner_index[pos] = 5;
     candidates[pos] = true;
@@ -324,7 +319,7 @@ UctSearchGenmove( game_info_t *game, int color )
   current_root = ExpandRoot(game, color);
 
   // 前回から持ち込んだ探索回数を記録
-  pre_simulated = uct_node[current_root].move_count;
+  const int pre_simulated = uct_node[current_root].move_count;
 
   // 子ノードが1つ(パスのみ)ならPASSを返す
   if (uct_node[current_root].child_num <= 1) {
@@ -368,56 +363,14 @@ UctSearchGenmove( game_info_t *game, int color )
     mag_count++;
   } while (mag_count < 3 && ExtendTime(uct_node[current_root], game->moves));
 
-  uct_child = uct_node[current_root].child;
-
-  select_index = PASS_INDEX;
-  max_count = uct_child[PASS_INDEX].move_count;
-
-  // 探索回数最大の手を見つける
-  for (int i = 1; i < uct_node[current_root].child_num; i++){
-    if (uct_child[i].move_count > max_count) {
-      select_index = i;
-      max_count = uct_child[i].move_count;
-    }
-  }
-
+  const int pos = SelectMove(game, uct_node[current_root], best_wp);
+  
   // 探索にかかった時間を求める
   const double finish_time = CalculateElapsedTime();
 
-  // パスの勝率の算出
-  if (uct_child[PASS_INDEX].move_count != 0) {
-    pass_wp = (double)uct_child[PASS_INDEX].win / uct_child[PASS_INDEX].move_count;
-  } else {
-    pass_wp = 0;
-  }
-
-  // 選択した着手の勝率の算出(Dynamic Komi)
-  best_wp = (double)uct_child[select_index].win / uct_child[select_index].move_count;
-
   // 各地点の領地になる確率の出力
   PrintOwner(&uct_node[current_root], statistic, color, owner);
-
-  // パスをするときは
-  // 1. 直前の着手がパスで, パスした時の勝率がPASS_THRESHOLD以上
-  // 2. 着手数がMAX_MOVES以上
-  // 投了するときは
-  //    Dynamic Komiでの勝率がRESIGN_THRESHOLD以下
-  // それ以外は選ばれた着手を返す
-  if (pass_wp >= PASS_THRESHOLD &&
-      (game->record[game->moves - 1].pos == PASS)){
-    pos = PASS;
-  } else if (game->moves >= MAX_MOVES) {
-    pos = PASS;
-  } else if (game->moves > 3 &&
-             game->record[game->moves - 1].pos == PASS &&
-             game->record[game->moves - 3].pos == PASS) {
-    pos = PASS;
-  } else if (best_wp <= RESIGN_THRESHOLD) {
-    pos = RESIGN;
-  } else {
-    pos = uct_child[select_index].pos;
-  }
-
+  
   const int po_speed = static_cast<int>(CalculatePlayoutSpeed(finish_time, threads));
 
   // 最善応手列を出力
@@ -696,15 +649,20 @@ RatingNode( game_info_t *game, int color, int index )
   uct_child[PASS_INDEX].rate = CalculateLFRScore(game, PASS, pat_index, &uct_features);
 
   // 直前の着手で発生した特徴の確認
-  UctCheckFeatures(game, color, &uct_features);
+  //UctCheckFeatures(game, color, &uct_features);
+  CheckFeaturesForTree(game, color, &uct_features);
   // 直前の着手で石を2つ取られたか確認
-  UctCheckRemove2Stones(game, color, &uct_features);
+  //UctCheckRemove2Stones(game, color, &uct_features);
+  CheckRemove2StonesForTree(game, color, &uct_features);
   // 直前の着手で石を3つ取られたか確認
-  UctCheckRemove3Stones(game, color, &uct_features);
+  //UctCheckRemove3Stones(game, color, &uct_features);
+  CheckRemove3StonesForTree(game, color, &uct_features);
   // 2手前で劫が発生していたら, 劫を解消するトリの確認
   if (game->ko_move == moves - 2) {
-    UctCheckCaptureAfterKo(game, color, &uct_features);
-    UctCheckKoConnection(game, &uct_features);
+    //UctCheckCaptureAfterKo(game, color, &uct_features);
+    CheckCaptureAfterKoForTree(game, color, &uct_features);
+    //UctCheckKoConnection(game, &uct_features);
+    CheckKoConnectionForTree(game, &uct_features);
   }
 
   max_index = 0;
@@ -714,21 +672,27 @@ RatingNode( game_info_t *game, int color, int index )
     pos = uct_child[i].pos;
 
     // 自己アタリの確認
-    self_atari_flag = UctCheckSelfAtari(game, color, pos, &uct_features);
+    //self_atari_flag = UctCheckSelfAtari(game, color, pos, &uct_features);
+    self_atari_flag = CheckSelfAtariForTree(game, color, pos, &uct_features);
     // ウッテガエシの確認
-    UctCheckSnapBack(game, color, pos, &uct_features);
+    //UctCheckSnapBack(game, color, pos, &uct_features);
+    CheckSnapBackForTree(game, color, pos, &uct_features);
     // トリの確認
     if ((uct_features.tactical_features1[pos] & capture_mask)== 0) {
-      UctCheckCapture(game, color, pos, &uct_features);
+      //UctCheckCapture(game, color, pos, &uct_features);
+      CheckCaptureForTree(game, color, pos, &uct_features);
     }
     // アタリの確認
     if ((uct_features.tactical_features1[pos] & atari_mask) == 0) {
-      UctCheckAtari(game, color, pos, &uct_features);
+      //UctCheckAtari(game, color, pos, &uct_features);
+      CheckAtariForTree(game, color, pos, &uct_features);
     }
     // 両ケイマの確認
-    UctCheckDoubleKeima(game, color, pos, &uct_features);
+    //UctCheckDoubleKeima(game, color, pos, &uct_features);
+    CheckDoubleKeimaForTree(game, color, pos, &uct_features);
     // ケイマのツケコシの確認
-    UctCheckKeimaTsukekoshi(game, color, pos, &uct_features);
+    //UctCheckKeimaTsukekoshi(game, color, pos, &uct_features);
+    CheckKeimaTsukekoshiForTree(game, color, pos, &uct_features);
 
     // 自己アタリが無意味だったらスコアを0.0にする
     // 逃げられないシチョウならスコアを-1.0にする
@@ -789,7 +753,7 @@ ParallelUctSearch( thread_arg_t *arg )
       // 盤面のコピー
       CopyGame(game, targ->game);
       // 1回プレイアウトする
-      UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
+      UctSearch(game, color, mt[targ->thread_id], current_root, winner);
       // 探索を打ち切るか確認
       interruption = CheckInterruption(uct_node[current_root]);
       //interruption = InterruptionCheck();
@@ -810,7 +774,7 @@ ParallelUctSearch( thread_arg_t *arg )
       // 盤面のコピー
       CopyGame(game, targ->game);
       // 1回プレイアウトする
-      UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
+      UctSearch(game, color, mt[targ->thread_id], current_root, winner);
       // 探索を打ち切るか確認
       interruption = CheckInterruption(uct_node[current_root]);
       //interruption = InterruptionCheck();
@@ -848,7 +812,7 @@ ParallelUctSearchPondering( thread_arg_t *arg )
       // 盤面のコピー
       CopyGame(game, targ->game);
       // 1回プレイアウトする
-      UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
+      UctSearch(game, color, mt[targ->thread_id], current_root, winner);
       // ハッシュに余裕があるか確認
       enough_size = CheckRemainingHashSize();
       // OwnerとCriticalityを計算する
@@ -865,7 +829,7 @@ ParallelUctSearchPondering( thread_arg_t *arg )
       // 盤面のコピー
       CopyGame(game, targ->game);
       // 1回プレイアウトする
-      UctSearch(game, color, mt[targ->thread_id], current_root, &winner);
+      UctSearch(game, color, mt[targ->thread_id], current_root, winner);
       // ハッシュに余裕があるか確認
       enough_size = CheckRemainingHashSize();
     } while (!pondering_stop && enough_size);
@@ -881,7 +845,7 @@ ParallelUctSearchPondering( thread_arg_t *arg )
 //  1回の呼び出しにつき, 1プレイアウトする    //
 //////////////////////////////////////////////
 static int 
-UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *winner )
+UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &winner )
 {
   int result = 0, next_index;
   double score;
@@ -890,7 +854,7 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *
   // 現在見ているノードをロック
   LOCK_NODE(current);
   // UCB値最大の手を求める
-  next_index = SelectMaxUcbChild(current, color);
+  next_index = SelectMaxUcbChild(current, color, mt);
   // 選んだ手を着手
   PutStone(game, uct_child[next_index].pos, color);
   // 色を入れ替える
@@ -917,22 +881,22 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 *mt, int current, int *
     if (my_color == S_BLACK) {
       if (score - dynamic_komi[my_color] >= 0) {
         result = (color == S_BLACK ? 0 : 1);
-        *winner = S_BLACK;
+        winner = S_BLACK;
       } else {
         result = (color == S_WHITE ? 0 : 1);
-        *winner = S_WHITE;
+        winner = S_WHITE;
       }
     } else {
       if (score - dynamic_komi[my_color] > 0) {
         result = (color == S_BLACK ? 0 : 1);
-        *winner = S_BLACK;
+        winner = S_BLACK;
       } else {
         result = (color == S_WHITE ? 0 : 1);
-        *winner = S_WHITE;
+        winner = S_WHITE;
       }
     }
     // 統計情報の記録
-    Statistic(game, *winner);
+    Statistic(game, winner);
   } else {
     // Virtual Lossを加算
     AddVirtualLoss(uct_node[current], uct_child[next_index]);
@@ -980,14 +944,13 @@ RateComp( const void *a, const void *b )
 //  UCBが最大となる子ノードのインデックスを返す関数  //
 /////////////////////////////////////////////////////
 static int
-SelectMaxUcbChild( int current, int color )
+SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
 {
   const int child_num = uct_node[current].child_num;
   const int sum = uct_node[current].move_count;
-  const double ucb_bonus_weight = bonus_weight * sqrt(bonus_equivalence / (sum + bonus_equivalence));
   child_node_t *uct_child = uct_node[current].child;
-  int max_child = 0, pos, width;
-  double p, max_value, ucb_value, dynamic_parameter;
+  int pos, width;
+  double dynamic_parameter;
   rate_order_t order[PURE_BOARD_MAX + 1];  
   
   // 128回ごとにOwnerとCriticalityでソートし直す  
@@ -1038,34 +1001,7 @@ SelectMaxUcbChild( int current, int color )
     uct_node[current].width++;  
   }
 
-  max_value = -1;
-  max_child = 0;
-
-  // UCB値最大の手を求める  
-  for (int i = 0; i < child_num; i++) {
-    if (uct_child[i].pw || uct_child[i].open) {
-      if (uct_child[i].move_count == 0) {
-        ucb_value = FPU;
-      } else {
-        double div, v;
-        // UCB1-TUNED value
-        p = (double)uct_child[i].win / uct_child[i].move_count;
-        div = log(sum) / uct_child[i].move_count;
-        v = p - p * p + sqrt(2.0 * div);
-        ucb_value = p + sqrt(div * ((0.25 < v) ? 0.25 : v));
-
-        // UCB Bonus
-        ucb_value += ucb_bonus_weight * uct_child[i].rate;
-      }
-
-      if (ucb_value > max_value) {
-        max_value = ucb_value;
-        max_child = i;
-      }
-    }
-  }
-
-  return max_child;
+  return SelectBestChildIndexByUCB1(uct_node[current], mt);
 }
 
 
@@ -1276,9 +1212,8 @@ CopyStatistic( statistic_t *dest )
 int
 UctSearchGenmoveCleanUp( game_info_t *game, int color )
 {
-  int pos, select_index, max_count, count;
-  double finish_time, wp;
-  child_node_t *uct_child;
+  int pos;
+  double wp;
   std::thread *handle[THREAD_MAX];
 
   for (int i = 0; i < board_max; i++) {
@@ -1320,19 +1255,11 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
     delete handle[i];
   }
 
-  uct_child = uct_node[current_root].child;
+  child_node_t *uct_child = uct_node[current_root].child;
 
-  select_index = 0;
-  max_count = uct_child[0].move_count;
+  const int select_index = SelectMaxVisitChild(uct_node[current_root]);
 
-  for (int i = 0; i < uct_node[current_root].child_num; i++){
-    if (uct_child[i].move_count > max_count) {
-      select_index = i;
-      max_count = uct_child[i].move_count;
-    }
-  }
-
-  finish_time = CalculateElapsedTime();
+  const double finish_time = CalculateElapsedTime();
 
   wp = (double)uct_node[current_root].win / uct_node[current_root].move_count;
 
@@ -1345,7 +1272,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
 
   CalculateNextPlayouts(game, color, wp, finish_time, threads);
 
-  count = 0;
+  int count = 0;
 
   for (int i = 0; i < pure_board_max; i++) {
     pos = onboard_pos[i];

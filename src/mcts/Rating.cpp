@@ -218,7 +218,7 @@ InitializePoTacticalFeaturesSet( void )
 //  着手( rating )  // 
 //////////////////////
 int
-RatingMove( game_info_t *game, int color, std::mt19937_64 *mt )
+RatingMove( game_info_t *game, int color, std::mt19937_64 &mt )
 {
   long long *rate = game->rate[color - 1];
   long long *sum_rate_row = game->sum_rate_row[color - 1];
@@ -233,7 +233,7 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 *mt )
   while (true){
     if (*sum_rate == 0) return PASS;
 
-    rand_num = ((*mt)() % (*sum_rate)) + 1;
+    rand_num = (mt() % (*sum_rate)) + 1;
 
     // 縦方向の位置を求める
     y = board_start;
@@ -728,4 +728,3 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
     rate[i] = (long long int)gamma + 1;
   }
 }
-

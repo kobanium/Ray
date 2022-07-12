@@ -1,6 +1,8 @@
 #ifndef _GO_BOARD_HPP_
 #define _GO_BOARD_HPP_
 
+#include <cstdlib>
+
 #include "board/BoardData.hpp"
 
 ////////////////

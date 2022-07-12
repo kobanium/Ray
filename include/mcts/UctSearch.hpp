@@ -19,9 +19,6 @@ const int MAX_NODES = 1000000;          // UCTのノードの配列のサイズ
 // CriticalityとOwnerを計算する間隔
 const int CRITICALITY_INTERVAL = 100;
 
-// 先頭打着緊急度
-const double FPU = 5.0;
-
 // Progressive Widening
 const double PROGRESSIVE_WIDENING = 1.8;
 
@@ -29,22 +26,6 @@ const double PROGRESSIVE_WIDENING = 1.8;
 const int EXPAND_THRESHOLD_9  = 20;
 const int EXPAND_THRESHOLD_13 = 25;
 const int EXPAND_THRESHOLD_19 = 40;
-
-// UCB Bonusに関する定数
-const double BONUS_EQUIVALENCE = 1000;
-const double BONUS_WEIGHT = 0.35;
-
-// パスする勝率の閾値
-const double PASS_THRESHOLD = 0.90;
-// 投了する勝率の閾値
-const double RESIGN_THRESHOLD = 0.20;
-
-enum SEARCH_MODE {
-  CONST_PLAYOUT_MODE,             // 1手のプレイアウト回数を固定したモード
-  CONST_TIME_MODE,                // 1手の思考時間を固定したモード
-  TIME_SETTING_MODE,              // 持ち時間ありのモード(秒読みなし)
-  TIME_SETTING_WITH_BYOYOMI_MODE, // 持ち時間ありのモード(秒読みあり)
-};
 
 
 //////////////

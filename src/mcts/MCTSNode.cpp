@@ -70,5 +70,17 @@ ReuseRootCandidateWithoutLadderMove( uct_node_t &node, const bool ladder[] )
 
     child[i].ladder = ladder[pos];
   }
+}
 
+
+double
+CalculatePassWinningPercentage( const uct_node_t &node )
+{
+  const child_node_t &pass_child = node.child[PASS_INDEX];
+
+  if (pass_child.move_count != 0) {
+    return (double)pass_child.win / pass_child.move_count;
+  } else {
+    return 0.0;
+  }
 }

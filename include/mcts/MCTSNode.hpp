@@ -58,4 +58,6 @@ void ReuseRootCandidateWithoutLadderMove( uct_node_t &node, const bool ladder[] 
 
 void InitializeNode( uct_node_t &node, const int pm1, const int pm2 );
 
+double CalculatePassWinningPercentage( const uct_node_t &node );
+
 #endif

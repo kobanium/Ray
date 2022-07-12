@@ -11,7 +11,7 @@
 //  終局までシミュレーション  //
 ////////////////////////////////
 void
-Simulation( game_info_t *game, int starting_color, std::mt19937_64 *mt )
+Simulation( game_info_t *game, int starting_color, std::mt19937_64 &mt )
 {
   int color = starting_color, pos = -1;
   int pass_count = 0;
