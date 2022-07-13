@@ -1,2 +1,4 @@
 *.o
 ray
+
+learning_result/*/*.txt
