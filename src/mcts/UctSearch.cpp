@@ -194,6 +194,7 @@ SetParameter( void )
   } else {
     expand_threshold = EXPAND_THRESHOLD_19;
   }
+
   SetTimeManagementParameter();
 }
 

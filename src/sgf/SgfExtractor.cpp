@@ -133,30 +133,39 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
     // GetMove             : 着手の抽出
     // GetKomi             : コミの抽出
     // GetPlayerName       : 対局者の名前の抽出
-    if (strncmp(&sgf_text[cursor], "SZ[", 3) == 0) cursor = GetSize(kifu, sgf_text, cursor);
-    if (strncmp(&sgf_text[cursor], "RE[", 3) == 0) cursor = GetResult(kifu, sgf_text, cursor);
-    if (strncmp(&sgf_text[cursor], "HA[", 3) == 0) cursor = GetHandicaps(kifu, sgf_text, cursor);
-    if (strncmp(&sgf_text[cursor], "AB[", 3) == 0) cursor = GetHandicapPosition(kifu, sgf_text, cursor, S_BLACK);
-    if (strncmp(&sgf_text[cursor], "AW[", 3) == 0) cursor = GetHandicapPosition(kifu, sgf_text, cursor, S_WHITE);
-    if (strncmp(&sgf_text[cursor],  "B[", 2) == 0) cursor = GetMove(kifu, sgf_text, cursor);
-    if (strncmp(&sgf_text[cursor],  "W[", 2) == 0) cursor = GetMove(kifu, sgf_text, cursor);
-    if (strncmp(&sgf_text[cursor], "KM[", 3) == 0) cursor = GetKomi(kifu, sgf_text, cursor);
-    if (strncmp(&sgf_text[cursor], "PB[", 3) == 0) cursor = GetPlayerName(kifu, sgf_text, cursor, S_BLACK);
-    if (strncmp(&sgf_text[cursor], "PW[", 3) == 0) cursor = GetPlayerName(kifu, sgf_text, cursor, S_WHITE);
-
-    // 無視するデータ
-    if ((strncmp(&sgf_text[cursor], "GM[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "FF[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "DT[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "PC[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "RU[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "CA[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "TM[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "OT[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "TB[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "TW[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "WR[", 3) == 0) ||
-        (strncmp(&sgf_text[cursor], "BR[", 3) == 0)) {      
+    if (strncmp(&sgf_text[cursor], "SZ[", 3) == 0) {
+      cursor = GetSize(kifu, sgf_text, cursor);
+    } else if (strncmp(&sgf_text[cursor], "RE[", 3) == 0) {
+      cursor = GetResult(kifu, sgf_text, cursor);
+    } else if (strncmp(&sgf_text[cursor], "HA[", 3) == 0) {
+      cursor = GetHandicaps(kifu, sgf_text, cursor);
+    } else if (strncmp(&sgf_text[cursor], "AB[", 3) == 0) {
+      cursor = GetHandicapPosition(kifu, sgf_text, cursor, S_BLACK);
+    } else if (strncmp(&sgf_text[cursor], "AW[", 3) == 0) {
+      cursor = GetHandicapPosition(kifu, sgf_text, cursor, S_WHITE);
+    } else if (strncmp(&sgf_text[cursor], "KM[", 3) == 0) {
+      cursor = GetKomi(kifu, sgf_text, cursor);
+    } else if (strncmp(&sgf_text[cursor], "PB[", 3) == 0) {
+      cursor = GetPlayerName(kifu, sgf_text, cursor, S_BLACK);
+    } else if (strncmp(&sgf_text[cursor], "PW[", 3) == 0) {
+      cursor = GetPlayerName(kifu, sgf_text, cursor, S_WHITE);
+    } else if (strncmp(&sgf_text[cursor],  "B[", 2) == 0) {
+      cursor = GetMove(kifu, sgf_text, cursor);
+    } else if (strncmp(&sgf_text[cursor],  "W[", 2) == 0) {
+      cursor = GetMove(kifu, sgf_text, cursor);
+    } else if ((strncmp(&sgf_text[cursor], "GM[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "FF[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "DT[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "PC[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "RU[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "CA[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "TM[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "OT[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "TB[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "TW[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "WR[", 3) == 0) ||
+               (strncmp(&sgf_text[cursor], "BR[", 3) == 0)) {      
+      // 無視するデータ
       cursor = SkipData(sgf_text, cursor);
     }
     cursor++;   // 文字を一つ進める

@@ -8,6 +8,7 @@
 #include "board/ZobristHash.hpp"
 #include "feature/Semeai.hpp"
 #include "gtp/Gtp.hpp"
+#include "learn/PatternAnalyzer.hpp"
 #include "pattern/PatternHash.hpp"
 #include "mcts/Rating.hpp"
 #include "mcts/UctRating.hpp"
@@ -58,6 +59,8 @@ main( int argc, char **argv )
   InitializeHash();
   InitializeUctHash();
   SetNeighbor();
+
+  //AnalyzePattern();
 
   // GTP
   GTP_main();

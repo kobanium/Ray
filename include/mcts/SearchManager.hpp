@@ -37,8 +37,6 @@ struct po_info_t {
 };
 
 
-
-
 // 消費時間の算出
 double CalculateElapsedTime( void );
 

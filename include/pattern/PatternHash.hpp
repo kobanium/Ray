@@ -24,6 +24,13 @@ struct index_hash_t {
 //  関数  //
 ////////////
 
+inline unsigned int
+TransHash24( const unsigned long long hash )
+{
+  return ((hash & 0xFFFFFFFF) ^ ((hash >> 32) & 0xFFFFFFFF)) & 0xFFFFFF;
+}
+
+
 //  パターンのハッシュ関数
 void PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat );
 
