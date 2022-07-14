@@ -55,19 +55,19 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
   // また逃げ出す連の大きさで特徴を判定
   if (contact) {
     if (string[id].size == 1) {
-      game->tactical_features1[lib] |= bit_mask[F_SAVE_EXTENSION1];
+      CompareSwapFeature(game->tactical_features, lib, SAVE_EXTENSION, SIM_SAVE_EXTENSION_1);
     } else if (string[id].size == 2) {
-      game->tactical_features1[lib] |= bit_mask[F_SAVE_EXTENSION2];
+      CompareSwapFeature(game->tactical_features, lib, SAVE_EXTENSION, SIM_SAVE_EXTENSION_2);
     } else {
-      game->tactical_features1[lib] |= bit_mask[F_SAVE_EXTENSION3];
+      CompareSwapFeature(game->tactical_features, lib, SAVE_EXTENSION, SIM_SAVE_EXTENSION_3);
     }
   } else {
     if (string[id].size == 1) {
-      game->tactical_features1[lib] |= bit_mask[F_SAVE_EXTENSION_SAFELY1];
+      CompareSwapFeature(game->tactical_features, lib, SAVE_EXTENSION, SIM_SAVE_EXTENSION_SAFELY_1);
     } else if (string[id].size == 2) {
-      game->tactical_features1[lib] |= bit_mask[F_SAVE_EXTENSION_SAFELY2];
+      CompareSwapFeature(game->tactical_features, lib, SAVE_EXTENSION, SIM_SAVE_EXTENSION_SAFELY_2);
     } else {
-      game->tactical_features1[lib] |= bit_mask[F_SAVE_EXTENSION_SAFELY3];
+      CompareSwapFeature(game->tactical_features, lib, SAVE_EXTENSION, SIM_SAVE_EXTENSION_SAFELY_3);
     }
   }
 
@@ -81,11 +81,11 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
       if (string[neighbor].libs == 1) {
         lib = string[neighbor].lib[0];
         if (string[neighbor].size == 1) {
-          game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE1_1];
+          CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_1_1);
         } else if (string[neighbor].size == 2) {
-          game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE1_2];
+          CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_1_2);
         } else {
-          game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE1_3];
+          CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_1_3);
         }
         update[(*update_num)++] = lib;
       }
@@ -97,14 +97,14 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
         lib = string[neighbor].lib[0];
         if (string[neighbor].size == 1) {
           if (IsSelfAtariCaptureForSimulation(game, lib, color, liberty)) {
-            game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE_SELF_ATARI];
+            CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_SELF_ATARI);
           } else {
-            game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE2_1];
+            CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_2_1);
           }
         } else if (string[neighbor].size == 2) {
-          game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE2_2];
+          CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_2_2);
         } else {
-          game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE2_3];
+          CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_2_3);
         }
         update[(*update_num)++] = lib;
       }
@@ -116,21 +116,20 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
         lib = string[neighbor].lib[0];
         if (string[neighbor].size == 1) {
           if (IsSelfAtariCaptureForSimulation(game, lib, color, liberty)) {
-            game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE_SELF_ATARI];
+            CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_SELF_ATARI);
           } else {
-            game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE3_1];
+            CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_3_1);
           }
         } else if (string[neighbor].size == 2) {
-          game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE3_2];
+          CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_3_2);
         } else {
-          game->tactical_features1[lib] |= bit_mask[F_SAVE_CAPTURE3_3];
+          CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_3_3);
         }
         update[(*update_num)++] = lib;
       }
       neighbor = string[id].neighbor[neighbor];
     }
   }
-
 }
 
 
@@ -162,9 +161,9 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
        string[string_id[EAST(lib1)]].libs >= 3) ||
       (board[SOUTH(lib1)] == color && string_id[SOUTH(lib1)] != id &&
        string[string_id[SOUTH(lib1)]].libs >= 3)) {
-    game->tactical_features2[lib1] |= bit_mask[F_2POINT_EXTENSION_SAFELY];
+    CompareSwapFeature(game->tactical_features, lib1, EXTENSION, SIM_2POINT_EXTENSION_SAFELY);
   } else {
-    game->tactical_features2[lib1] |= bit_mask[F_2POINT_EXTENSION];
+    CompareSwapFeature(game->tactical_features, lib1, EXTENSION, SIM_2POINT_EXTENSION);
   }
 
   // 呼吸点の周囲が空点3つ, または呼吸点が3つ以上の自分の連に接続できるかで特徴を判定
@@ -177,9 +176,9 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
        string[string_id[EAST(lib2)]].libs >= 3) ||
       (board[SOUTH(lib2)] == color && string_id[SOUTH(lib2)] != id &&
        string[string_id[SOUTH(lib2)]].libs >= 3)) {
-    game->tactical_features2[lib2] |= bit_mask[F_2POINT_EXTENSION_SAFELY];
+    CompareSwapFeature(game->tactical_features, lib2, EXTENSION, SIM_2POINT_EXTENSION_SAFELY);
   } else {
-    game->tactical_features2[lib2] |= bit_mask[F_2POINT_EXTENSION];
+    CompareSwapFeature(game->tactical_features, lib2, EXTENSION, SIM_2POINT_EXTENSION);
   }
 
   // レートの更新対象に入れる
@@ -195,9 +194,9 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
       lib1 = string[neighbor].lib[0];
       update[(*update_num)++] = lib1;
       if (string[neighbor].size <= 2) {
-        game->tactical_features1[lib1] |= bit_mask[F_2POINT_CAPTURE_SMALL];
+        CompareSwapFeature(game->tactical_features, lib1, CAPTURE, SIM_2POINT_CAPTURE_SMALL);
       } else {
-        game->tactical_features1[lib1] |= bit_mask[F_2POINT_CAPTURE_LARGE];
+        CompareSwapFeature(game->tactical_features, lib1, CAPTURE, SIM_2POINT_CAPTURE_LARGE);
       }
     } else if (string[neighbor].libs == 2) {
       lib1 = string[neighbor].lib[0];
@@ -208,25 +207,25 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
       capturable2 = IsCapturableAtariForSimulation(game, lib2, color, neighbor);
       if (string[neighbor].size <= 2) {
         if (capturable1) {
-          game->tactical_features2[lib1] |= bit_mask[F_2POINT_C_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_2POINT_C_ATARI_SMALL);
         } else {
-          game->tactical_features2[lib1] |= bit_mask[F_2POINT_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_2POINT_ATARI_SMALL);
         }
         if (capturable2) {
-          game->tactical_features2[lib2] |= bit_mask[F_2POINT_C_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_2POINT_C_ATARI_SMALL);
         } else {
-          game->tactical_features2[lib2] |= bit_mask[F_2POINT_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_2POINT_ATARI_SMALL);
         }
       } else {
         if (capturable1) {
-          game->tactical_features2[lib1] |= bit_mask[F_2POINT_C_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_2POINT_C_ATARI_LARGE);
         } else {
-          game->tactical_features2[lib1] |= bit_mask[F_2POINT_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_2POINT_ATARI_LARGE);
         }
         if (capturable2) {
-          game->tactical_features2[lib2] |= bit_mask[F_2POINT_C_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_2POINT_C_ATARI_LARGE);
         } else {
-          game->tactical_features2[lib2] |= bit_mask[F_2POINT_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_2POINT_ATARI_LARGE);
         }
       }
     }
@@ -263,9 +262,9 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
        string[string_id[EAST(lib1)]].libs >= 3) ||
       (board[SOUTH(lib1)] == color && string_id[SOUTH(lib1)] != id &&
        string[string_id[SOUTH(lib1)]].libs >= 3)) {
-    game->tactical_features2[lib1] |= bit_mask[F_3POINT_EXTENSION_SAFELY];
+    CompareSwapFeature(game->tactical_features, lib1, EXTENSION, SIM_3POINT_EXTENSION_SAFELY);
   } else {
-    game->tactical_features2[lib1] |= bit_mask[F_3POINT_EXTENSION];
+    CompareSwapFeature(game->tactical_features, lib1, EXTENSION, SIM_3POINT_EXTENSION);
   }
 
   // 呼吸点の周囲が空点3つ, または呼吸点が3つ以上の自分の連に接続できるかで特徴を判定
@@ -278,9 +277,9 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
        string[string_id[EAST(lib2)]].libs >= 3) ||
       (board[SOUTH(lib2)] == color && string_id[SOUTH(lib2)] != id &&
        string[string_id[SOUTH(lib2)]].libs >= 3)) {
-    game->tactical_features2[lib2] |= bit_mask[F_3POINT_EXTENSION_SAFELY];
+    CompareSwapFeature(game->tactical_features, lib2, EXTENSION, SIM_3POINT_EXTENSION_SAFELY);
   } else {
-    game->tactical_features2[lib2] |= bit_mask[F_3POINT_EXTENSION];
+    CompareSwapFeature(game->tactical_features, lib2, EXTENSION, SIM_3POINT_EXTENSION);
   }
 
   // 呼吸点の周囲が空点3つ, または呼吸点が3つ以上の自分の連に接続できるかで特徴を判定
@@ -293,9 +292,9 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
        string[string_id[ EAST(lib3)]].libs >= 3) ||
       (board[SOUTH(lib3)] == color && string_id[SOUTH(lib3)] != id &&
        string[string_id[SOUTH(lib3)]].libs >= 3)) {
-    game->tactical_features2[lib3] |= bit_mask[F_3POINT_EXTENSION_SAFELY];
+    CompareSwapFeature(game->tactical_features, lib3, EXTENSION, SIM_3POINT_EXTENSION_SAFELY);
   } else {
-    game->tactical_features2[lib3] |= bit_mask[F_3POINT_EXTENSION];
+    CompareSwapFeature(game->tactical_features, lib3, EXTENSION, SIM_3POINT_EXTENSION);
   }
 
   // レートの更新対象に入れる
@@ -313,9 +312,9 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
       lib1 = string[neighbor].lib[0];
       update[(*update_num)++] = lib1;
       if (string[neighbor].size <= 2) {
-        game->tactical_features1[lib1] |= bit_mask[F_3POINT_CAPTURE_SMALL];
+        CompareSwapFeature(game->tactical_features, lib1, CAPTURE, SIM_3POINT_CAPTURE_SMALL);
       } else {
-        game->tactical_features1[lib1] |= bit_mask[F_3POINT_CAPTURE_LARGE];
+        CompareSwapFeature(game->tactical_features, lib1, CAPTURE, SIM_3POINT_CAPTURE_LARGE);
       }
     } else if (string[neighbor].libs == 2) {
       lib1 = string[neighbor].lib[0];
@@ -326,25 +325,25 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
       capturable2 = IsCapturableAtariForSimulation(game, lib2, color, neighbor);
       if (string[neighbor].size <= 2) {
         if (capturable1) {
-          game->tactical_features2[lib1] |= bit_mask[F_3POINT_C_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_3POINT_C_ATARI_SMALL);
         } else {
-          game->tactical_features2[lib1] |= bit_mask[F_3POINT_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_3POINT_ATARI_SMALL);
         }
         if (capturable2) {
-          game->tactical_features2[lib2] |= bit_mask[F_3POINT_C_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_3POINT_C_ATARI_SMALL);
         } else {
-          game->tactical_features2[lib2] |= bit_mask[F_3POINT_ATARI_SMALL];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_3POINT_ATARI_SMALL);
         }
       } else {
         if (capturable1) {
-          game->tactical_features2[lib1] |= bit_mask[F_3POINT_C_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_3POINT_C_ATARI_LARGE);
         } else {
-          game->tactical_features2[lib1] |= bit_mask[F_3POINT_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib1, ATARI, SIM_3POINT_ATARI_LARGE);
         }
         if (capturable2) {
-          game->tactical_features2[lib2] |= bit_mask[F_3POINT_C_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_3POINT_C_ATARI_LARGE);
         } else {
-          game->tactical_features2[lib2] |= bit_mask[F_3POINT_ATARI_LARGE];
+          CompareSwapFeature(game->tactical_features, lib2, ATARI, SIM_3POINT_ATARI_LARGE);
         }
       }
     } else if (string[neighbor].libs == 3) {
@@ -355,13 +354,13 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
       update[(*update_num)++] = lib2;
       update[(*update_num)++] = lib3;
       if (string[neighbor].size <= 2) {
-        game->tactical_features2[lib1] |= bit_mask[F_3POINT_DAME_SMALL];
-        game->tactical_features2[lib2] |= bit_mask[F_3POINT_DAME_SMALL];
-        game->tactical_features2[lib3] |= bit_mask[F_3POINT_DAME_SMALL];
+        CompareSwapFeature(game->tactical_features, lib1, DAME, SIM_3POINT_DAME_SMALL);
+        CompareSwapFeature(game->tactical_features, lib2, DAME, SIM_3POINT_DAME_SMALL);
+        CompareSwapFeature(game->tactical_features, lib3, DAME, SIM_3POINT_DAME_SMALL);
       } else {
-        game->tactical_features2[lib1] |= bit_mask[F_3POINT_DAME_LARGE];
-        game->tactical_features2[lib2] |= bit_mask[F_3POINT_DAME_LARGE];
-        game->tactical_features2[lib3] |= bit_mask[F_3POINT_DAME_LARGE];
+        CompareSwapFeature(game->tactical_features, lib1, DAME, SIM_3POINT_DAME_LARGE);
+        CompareSwapFeature(game->tactical_features, lib2, DAME, SIM_3POINT_DAME_LARGE);
+        CompareSwapFeature(game->tactical_features, lib3, DAME, SIM_3POINT_DAME_LARGE);
       }
     }
     neighbor = string[id].neighbor[neighbor];
@@ -465,7 +464,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     if (string[id].libs == 1) {
       lib = string[id].lib[0];
       update[(*update_num)++] = lib;
-      game->tactical_features1[lib] |= bit_mask[F_CAPTURE_AFTER_KO];
+      CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
     check[checked++] = id;
   }
@@ -476,7 +475,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     if (string[id].libs == 1 && check[0] != id) {
       lib = string[id].lib[0];
       update[(*update_num)++] = lib;
-      game->tactical_features1[lib] |= bit_mask[F_CAPTURE_AFTER_KO];
+      CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
     check[checked++] = id;
   }
@@ -487,7 +486,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     if (string[id].libs == 1 && check[0] != id && check[1] != id) {
       lib = string[id].lib[0];
       update[(*update_num)++] = lib;
-      game->tactical_features1[lib] |= bit_mask[F_CAPTURE_AFTER_KO];
+      CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
     check[checked++] = id;
   }
@@ -498,7 +497,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     if (string[id].libs == 1 && check[0] != id && check[1] != id && check[2] != id) {
       lib = string[id].lib[0];
       update[(*update_num)++] = lib;
-      game->tactical_features1[lib] |= bit_mask[F_CAPTURE_AFTER_KO];
+      CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
   }
 }
@@ -662,18 +661,18 @@ CheckSelfAtariForSimulation( game_info_t *game, const int color, const int pos )
   // または大きさが5以下でナカデの形になる場合は
   // 打っても良いものとする
   if (size < 2) {
-    game->tactical_features2[pos] |= bit_mask[F_SELF_ATARI_SMALL];
+    CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_SELF_ATARI_SMALL);
     flag = true;
   } else if (size < 5) {
     if (IsNakadeSelfAtari(game, pos, color)) {
-      game->tactical_features2[pos] |= bit_mask[F_SELF_ATARI_NAKADE];
+      CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_SELF_ATARI_NAKADE);
       flag = true;
     } else {
-      game->tactical_features2[pos] |= bit_mask[F_SELF_ATARI_LARGE];
+      CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_SELF_ATARI_SMALL);
       flag = false;
     }
   } else {
-    game->tactical_features2[pos] |= bit_mask[F_SELF_ATARI_LARGE];
+    CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_SELF_ATARI_LARGE);
     flag = false;
   }
 
@@ -698,9 +697,9 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   if (board[NORTH(pos)] == other) {
     libs = string[string_id[NORTH(pos)]].libs;
     if (libs == 1) {
-      game->tactical_features1[pos] |= bit_mask[F_CAPTURE];
+      CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
-      game->tactical_features2[pos] |= bit_mask[F_ATARI];
+      CompareSwapFeature(game->tactical_features, pos, ATARI, SIM_ATARI);
     }
   }
 
@@ -710,9 +709,9 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   if (board[WEST(pos)] == other) {
     libs = string[string_id[WEST(pos)]].libs;
     if (libs == 1) {
-      game->tactical_features1[pos] |= bit_mask[F_CAPTURE];
+      CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
-      game->tactical_features2[pos] |= bit_mask[F_ATARI];
+      CompareSwapFeature(game->tactical_features, pos, ATARI, SIM_ATARI);
     }
   }
 
@@ -722,9 +721,9 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   if (board[EAST(pos)] == other) {
     libs = string[string_id[EAST(pos)]].libs;
     if (libs == 1) {
-      game->tactical_features1[pos] |= bit_mask[F_CAPTURE];
+      CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
-      game->tactical_features2[pos] |= bit_mask[F_ATARI];
+      CompareSwapFeature(game->tactical_features, pos, ATARI, SIM_ATARI);
     }
   }
 
@@ -734,9 +733,9 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   if (board[SOUTH(pos)] == other) {
     libs = string[string_id[SOUTH(pos)]].libs;
     if (libs == 1) {
-      game->tactical_features1[pos] |= bit_mask[F_CAPTURE];
+      CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
-      game->tactical_features2[pos] |= bit_mask[F_ATARI];
+      CompareSwapFeature(game->tactical_features, pos, ATARI, SIM_ATARI);
     }
   }
 }
@@ -771,7 +770,7 @@ CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update
   }
 
   if (check >= 2) {
-    game->tactical_features2[rm1] |= bit_mask[F_THROW_IN_2];
+    CompareSwapFeature(game->tactical_features, rm1, THROW_IN, SIM_THROW_IN_2);
     update[(*update_num)++] = rm1;
   }
 
@@ -782,8 +781,7 @@ CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update
   }
 
   if (check >= 2) {
-    game->tactical_features2[rm2] |= bit_mask[F_THROW_IN_2];
+    CompareSwapFeature(game->tactical_features, rm2, THROW_IN, SIM_THROW_IN_2);
     update[(*update_num)++] = rm2;
   }
 }
-

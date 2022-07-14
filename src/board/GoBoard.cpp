@@ -6,8 +6,10 @@
 #include "board/GoBoard.hpp"
 #include "board/String.hpp"
 #include "board/ZobristHash.hpp"
-#include "mcts/UctRating.hpp"
 #include "feature/Semeai.hpp"
+#include "feature/SimulationFeature.hpp"
+#include "mcts/UctRating.hpp"
+
 
 
 /////////////////////
@@ -256,8 +258,7 @@ InitializeBoard( game_info_t *game )
   memset(game->pat,    0, sizeof(pattern_t) * board_max);
 
   std::fill_n(game->board, board_max, 0);              
-  std::fill_n(game->tactical_features1, board_max, 0);
-  std::fill_n(game->tactical_features2, board_max, 0);
+  std::fill_n(game->tactical_features, board_max * ALL_MAX, 0);
   std::fill_n(game->update_num,  (int)S_OB, 0);
   std::fill_n(game->capture_num, (int)S_OB, 0);
   std::fill(game->update_pos[0],  game->update_pos[S_OB], 0);
@@ -320,8 +321,7 @@ CopyGame( game_info_t *dst, const game_info_t *src )
   memcpy(dst->capture_num,        src->capture_num,        sizeof(int) * S_OB);
   memcpy(dst->update_num,         src->update_num,         sizeof(int) * S_OB);
 
-  std::fill_n(dst->tactical_features1, board_max, 0);
-  std::fill_n(dst->tactical_features2, board_max, 0);
+  std::fill_n(dst->tactical_features, board_max * ALL_MAX, 0);
 
   for (int i = 0; i < MAX_STRING; i++) {
     if (src->string[i].flag) {
@@ -942,8 +942,7 @@ PutStone( game_info_t *game, const int pos, const int color )
   game->capture_num[color] = 0;
 
   // 着手箇所の戦術的特徴を全て消す
-  game->tactical_features1[pos] = 0;
-  game->tactical_features2[pos] = 0;
+  ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
 
   game->previous2_hash = game->previous1_hash;
   game->previous1_hash = game->current_hash;
@@ -1067,8 +1066,7 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   game->candidates[pos] = false;
 
   // 着手箇所の戦術的特徴を全て消す
-  game->tactical_features1[pos] = 0;
-  game->tactical_features2[pos] = 0;
+  ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
 
   // 着手箇所のレートを0に戻す
   game->sum_rate[0] -= game->rate[0][pos];

@@ -9,7 +9,9 @@ constexpr char ANALYZE_KIFU_PATH[] = "/home/user/SGF_Files/tygem-data/shuffle-ty
 
 constexpr char ANALYZE_RESULT_PATH[] = "learning_result/analyze";
 
-constexpr int ANALYZE_KIFU_NUM = 300000;
+constexpr int ANALYZE_KIFU_START = 1;
+
+constexpr int ANALYZE_KIFU_END = 30000;
 
 constexpr int HASH_TABLE_MAX = 16777216;
 

@@ -58,7 +58,7 @@ AnalyzePattern( void )
 
   InitializeBoard(init_game);
 
-  for (int i = 1; i <= ANALYZE_KIFU_NUM; i++) {
+  for (int i = ANALYZE_KIFU_START; i <= ANALYZE_KIFU_END; i++) {
     int color = S_BLACK;
     std::ostringstream oss;
 

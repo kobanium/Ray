@@ -7,111 +7,136 @@
 #include "feature/FeatureUtility.hpp"
 
 
-enum FEATURE1{
-  F_SAVE_CAPTURE1_1,
-  F_SAVE_CAPTURE1_2,
-  F_SAVE_CAPTURE1_3,
-  F_SAVE_CAPTURE2_1,
-  F_SAVE_CAPTURE2_2,
-  F_SAVE_CAPTURE2_3,
-  F_SAVE_CAPTURE3_1,
-  F_SAVE_CAPTURE3_2,
-  F_SAVE_CAPTURE3_3,
-  F_SAVE_CAPTURE_SELF_ATARI,
-  F_2POINT_CAPTURE_SMALL,
-  F_2POINT_CAPTURE_LARGE,
-  F_3POINT_CAPTURE_SMALL,
-  F_3POINT_CAPTURE_LARGE,
-  F_CAPTURE,
-  F_CAPTURE_AFTER_KO,
-  F_SAVE_EXTENSION_SAFELY1,
-  F_SAVE_EXTENSION_SAFELY2,
-  F_SAVE_EXTENSION_SAFELY3,
-  F_SAVE_EXTENSION1,
-  F_SAVE_EXTENSION2,
-  F_SAVE_EXTENSION3,
-  F_MAX1,
-};
+#define TF_INDEX(p, f) ((p) * ALL_MAX + (f))
 
-enum FEATURE2 {
-  F_SELF_ATARI_SMALL,
-  F_SELF_ATARI_NAKADE,
-  F_SELF_ATARI_LARGE,
-  F_ATARI,
-  F_2POINT_ATARI_SMALL,
-  F_2POINT_ATARI_LARGE,
-  F_2POINT_C_ATARI_SMALL,
-  F_2POINT_C_ATARI_LARGE,
-  F_3POINT_ATARI_SMALL,
-  F_3POINT_ATARI_LARGE,
-  F_3POINT_C_ATARI_SMALL,
-  F_3POINT_C_ATARI_LARGE,
-  F_3POINT_DAME_SMALL,
-  F_3POINT_DAME_LARGE,
-  F_2POINT_EXTENSION_SAFELY,
-  F_2POINT_EXTENSION,
-  F_3POINT_EXTENSION_SAFELY,
-  F_3POINT_EXTENSION,
-  F_THROW_IN_2,
-  F_MAX2,
+enum ALL_FEATURE {
+  CAPTURE,
+  SAVE_EXTENSION,
+  ATARI,
+  EXTENSION,
+  DAME,
+  THROW_IN,
+  ALL_MAX,
 };
 
 
-const std::string po_features_name[F_MAX1 + F_MAX2] = {
-  "SAVE_CAPTURE1_1         ",
-  "SAVE_CAPTURE1_2         ",
-  "SAVE_CAPTURE1_3         ",
-  "SAVE_CAPTURE2_1         ",
-  "SAVE_CAPTURE2_2         ",
-  "SAVE_CAPTURE2_3         ",
-  "SAVE_CAPTURE3_1         ",
-  "SAVE_CAPTURE3_2         ",
-  "SAVE_CAPTURE3_3         ",
-  "SAVE_CAPTURE_SELF_ATARI ",
-  "2POINT_CAPTURE_SMALL    ",
-  "2POINT_CAPTURE_LARGE    ",
-  "3POINT_CAPTURE_SMALL    ",
-  "3POINT_CAPTURE_LARGE    ",
-  "CAPTURE                 ",
-  "CAPTURE_AFTER_KO        ",
-  "SAVE_EXTENSION_SAFELY1  ",
-  "SAVE_EXTENSION_SAFELY2  ",
-  "SAVE_EXTENSION_SAFELY3  ",
-  "SAVE_EXTENSION1         ",
-  "SAVE_EXTENSION2         ",
-  "SAVE_EXTENSION3         ",
-  "SELF_ATARI_SMALL        ",
-  "SELF_ATARI_NAKADE       ",
-  "SELF_ATARI_LARGE        ",
-  "ATARI                   ",
-  "2POINT_ATARI_SMALL      ",
-  "2POINT_ATARI_LARGE      ",
-  "2POINT_C_ATARI_SMALL    ",
-  "2POINT_C_ATARI_LARGE    ",
-  "3POINT_ATARI_SMALL      ",
-  "3POINT_ATARI_LARGE      ",
-  "3POINT_C_ATARI_SMALL    ",
-  "3POINT_C_ATARI_LARGE    ",
-  "3POINT_DAME_SMALL       ",
-  "3POINT_DAME_LARGE       ",
-  "2POINT_EXTENSION_SAFELY ",
-  "2POINT_EXTENSION        ",
-  "3POINT_EXTENSION_SAFELY ",
-  "3POINT_EXTENSION        ",
-  "THROW_IN_2              ",
+enum CAPTURE_FEATURE {
+  SIM_CAPTURE_NONE,
+  SIM_SELF_ATARI_SMALL,
+  SIM_SELF_ATARI_NAKADE,
+  SIM_SELF_ATARI_LARGE,
+  SIM_CAPTURE,
+
+  SIM_3POINT_CAPTURE_SMALL,
+  SIM_2POINT_CAPTURE_SMALL,
+  SIM_3POINT_CAPTURE_LARGE,
+  SIM_2POINT_CAPTURE_LARGE,
+  SIM_CAPTURE_AFTER_KO,
+
+  SIM_SAVE_CAPTURE_SELF_ATARI,
+  SIM_SAVE_CAPTURE_1_1,
+  SIM_SAVE_CAPTURE_1_2,
+  SIM_SAVE_CAPTURE_1_3,
+  SIM_SAVE_CAPTURE_2_1,
+
+  SIM_SAVE_CAPTURE_2_2,
+  SIM_SAVE_CAPTURE_2_3,
+  SIM_SAVE_CAPTURE_3_1,
+  SIM_SAVE_CAPTURE_3_2,
+  SIM_SAVE_CAPTURE_3_3,
+
+  SIM_CAPTURE_MAX,
 };
 
 
-const int TACTICAL_FEATURE_MAX = F_MAX1 + F_MAX2;
+enum SAVE_EXTENSION_FEATURE {
+  SIM_SAVE_EXTENSION_NONE,
+  SIM_SAVE_EXTENSION_1,
+  SIM_SAVE_EXTENSION_2,
+  SIM_SAVE_EXTENSION_3,
+  SIM_SAVE_EXTENSION_SAFELY_1,
+
+  SIM_SAVE_EXTENSION_SAFELY_2,
+  SIM_SAVE_EXTENSION_SAFELY_3,
+
+  SIM_SAVE_EXTENSION_MAX,
+};
+
+
+enum ATARI_FEATURE {
+  SIM_ATARI_NONE,
+  SIM_ATARI,
+  SIM_3POINT_ATARI_SMALL,
+  SIM_2POINT_ATARI_SMALL,
+  SIM_3POINT_ATARI_LARGE,
+
+  SIM_2POINT_ATARI_LARGE,
+  SIM_3POINT_C_ATARI_SMALL,
+  SIM_2POINT_C_ATARI_SMALL,
+  SIM_3POINT_C_ATARI_LARGE,
+  SIM_2POINT_C_ATARI_LARGE,
+
+  SIM_ATARI_MAX,
+};
+
+enum EXTENSION_FEATURE {
+  SIM_EXTENSION_NONE,
+  SIM_3POINT_EXTENSION,
+  SIM_2POINT_EXTENSION,
+  SIM_3POINT_EXTENSION_SAFELY,
+  SIM_2POINT_EXTENSION_SAFELY,
+
+  SIM_EXTENSION_MAX,
+};
+
+enum DAME_FEATURE {
+  SIM_DAME_NONE,
+  SIM_3POINT_DAME_SMALL,
+  SIM_3POINT_DAME_LARGE,
+
+  SIM_DAME_MAX,
+};
+
+enum THROW_IN_FEATURE {
+  SIM_THROW_IN_NONE,
+  SIM_THROW_IN_2,
+
+  SIM_THROW_IN_MAX,
+};
+
+
+const int SIM_TACTICAL_FEATURES = (SIM_CAPTURE_MAX - 1) +
+  (SIM_SAVE_EXTENSION_MAX - 1) + (SIM_ATARI_MAX - 1) +
+  (SIM_EXTENSION_MAX - 1) + (SIM_DAME_MAX - 1) + (SIM_THROW_IN_MAX - 1);
+
+
 const int PREVIOUS_DISTANCE_MAX = 3;
 
-const int PO_TACTICALS_MAX1 = (1 << F_MAX1);
-const int PO_TACTICALS_MAX2 = (1 << F_MAX2);
+
+
+inline void
+ClearTacticalFeatures( unsigned char *features )
+{
+  features[CAPTURE] = 0;
+  features[SAVE_EXTENSION] = 0;
+  features[ATARI] = 0;
+  features[EXTENSION] = 0;
+  features[DAME] = 0;
+  features[THROW_IN] = 0;
+}
+
+
+inline void
+CompareSwapFeature( unsigned char *tactical_features, const int pos, const int type, const unsigned int new_feature )
+{
+  if (tactical_features[TF_INDEX(pos, type)] < new_feature) {
+    tactical_features[TF_INDEX(pos, type)] = new_feature;
+  }
+}
 
 
 
 void SetCrossPosition( void );
-
 
 void CheckFeaturesForSimulation( game_info_t *game, const int color, int *update, int *update_num );
 
@@ -119,12 +144,9 @@ void CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *
 
 bool CheckSelfAtariForSimulation( game_info_t *game, const int color, const int pos );
 
-
 void CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int pos );
 
-
 void CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update, int *update_num );
-
 
 #endif
 

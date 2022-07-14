@@ -47,8 +47,7 @@ struct game_info_t {
   bool candidates[BOARD_MAX];  // 候補手かどうかのフラグ
   bool seki[BOARD_MAX];
 
-  unsigned int tactical_features1[BOARD_MAX];  // 戦術的特徴
-  unsigned int tactical_features2[BOARD_MAX];  // 戦術的特徴
+  unsigned char tactical_features[BOARD_MAX * 6]; // シミュレーション用の戦術的特徴
 
   int capture_num[S_OB];                   // 前の着手で打ち上げた石の数
   int capture_pos[S_OB][PURE_BOARD_MAX];   // 前の着手で石を打ち上げた座標

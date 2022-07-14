@@ -22,25 +22,29 @@
 //    変数    //
 ////////////////
 
-// 戦術的特徴のγ値
-static float po_tactical_features[TACTICAL_FEATURE_MAX];
 // 3x3パターンのγ値
 static float po_pat3[PAT3_MAX];
 // MD2のパターンのγ値
 static float po_md2[MD2_MAX];
 // 3x3とMD2のパターンのγ値の積
 static float po_pattern[MD2_MAX];
+
 // 学習した着手距離の特徴 
 static float po_neighbor_orig[PREVIOUS_DISTANCE_MAX];
 // 補正した着手距離の特徴
 static float po_previous_distance[PREVIOUS_DISTANCE_MAX];
-// 戦術的特徴1
-static float po_tactical_set1[PO_TACTICALS_MAX1];
-// 戦術的特徴2
-static float po_tactical_set2[PO_TACTICALS_MAX2];
-
 // MD2パターンが届く範囲
 static int neighbor[UPDATE_NUM];
+
+// 戦術的特徴
+static float sim_capture[SIM_CAPTURE_MAX];
+static float sim_save_extension[SIM_SAVE_EXTENSION_MAX];
+static float sim_atari[SIM_ATARI_MAX];
+static float sim_extension[SIM_EXTENSION_MAX];
+static float sim_dame[SIM_DAME_MAX];
+static float sim_throw_in[SIM_THROW_IN_MAX];
+
+
 
 // 着手距離2, 3のγ値の補正
 static double neighbor_bias = NEIGHBOR_BIAS;
@@ -51,9 +55,6 @@ static double jump_bias = JUMP_BIAS;
 //////////////////
 //  関数の宣言  //
 //////////////////
-
-//  戦術的特徴の初期化
-static void InitializePoTacticalFeaturesSet( void );
 
 static void Neighbor12( const int previous_move, int distance_2[], int distance_3[], int distance_4[] );
 
@@ -93,126 +94,22 @@ InitializeRating( void )
 {
   // γ読み込み
   InputPOGamma();
-  // 戦術的特徴をまとめる
-  InitializePoTacticalFeaturesSet();
 }
 
-
-////////////////////////////
-//  戦術的特徴をまとめる  //
-////////////////////////////
-static void
-InitializePoTacticalFeaturesSet( void )
+inline double
+CalculateTacticalFeatures( unsigned char *features )
 {
-  for (int i = 0; i < PO_TACTICALS_MAX1; i++){
-    double rate = 1.0;
+  double rate =
+    sim_capture[features[CAPTURE]] *
+    sim_save_extension[features[SAVE_EXTENSION]] *
+    sim_atari[features[ATARI]] *
+    sim_extension[features[EXTENSION]] *
+    sim_dame[features[DAME]] *
+    sim_throw_in[features[THROW_IN]];
 
-    if ((i & bit_mask[F_SAVE_CAPTURE3_3]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE3_3];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE3_2]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE3_2];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE3_1]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE3_1];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE2_3]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE2_3];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE2_2]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE2_2];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE2_1]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE2_1];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE1_3]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE1_3];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE1_2]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE1_2];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE1_1]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE1_1];
-    } else if ((i & bit_mask[F_SAVE_CAPTURE_SELF_ATARI]) > 0) {
-      rate *= po_tactical_features[F_SAVE_CAPTURE_SELF_ATARI];
-    } else if ((i & bit_mask[F_CAPTURE_AFTER_KO]) > 0) {
-      rate *= po_tactical_features[F_CAPTURE_AFTER_KO];
-    } else if ((i & bit_mask[F_2POINT_CAPTURE_LARGE]) > 0) {
-      rate *= po_tactical_features[F_2POINT_CAPTURE_LARGE];
-    } else if ((i & bit_mask[F_3POINT_CAPTURE_LARGE]) > 0) {
-      rate *= po_tactical_features[F_3POINT_CAPTURE_LARGE];
-    } else if ((i & bit_mask[F_2POINT_CAPTURE_SMALL]) > 0) {
-      rate *= po_tactical_features[F_2POINT_CAPTURE_SMALL];
-    } else if ((i & bit_mask[F_3POINT_CAPTURE_SMALL]) > 0) {
-      rate *= po_tactical_features[F_3POINT_CAPTURE_SMALL];
-    } else if ((i & bit_mask[F_CAPTURE]) > 0) {
-      rate *= po_tactical_features[F_CAPTURE];
-    } 
-
-    if ((i & bit_mask[F_SAVE_EXTENSION_SAFELY3]) > 0) {
-      rate *= po_tactical_features[F_SAVE_EXTENSION_SAFELY3];
-    } else if ((i & bit_mask[F_SAVE_EXTENSION_SAFELY2]) > 0) {
-      rate *= po_tactical_features[F_SAVE_EXTENSION_SAFELY2];
-    } else if ((i & bit_mask[F_SAVE_EXTENSION_SAFELY1]) > 0) {
-      rate *= po_tactical_features[F_SAVE_EXTENSION_SAFELY1];
-    } else if ((i & bit_mask[F_SAVE_EXTENSION3]) > 0) {
-      rate *= po_tactical_features[F_SAVE_EXTENSION3];
-    } else if ((i & bit_mask[F_SAVE_EXTENSION2]) > 0) {
-      rate *= po_tactical_features[F_SAVE_EXTENSION2];
-    } else if ((i & bit_mask[F_SAVE_EXTENSION1]) > 0) {
-      rate *= po_tactical_features[F_SAVE_EXTENSION1];
-    }
-
-    po_tactical_set1[i] = (float)rate;
-  }
-
-
-  for (int i = 0; i < PO_TACTICALS_MAX2; i++) {
-    double rate = 1.0;
-
-    if ((i & bit_mask[F_SELF_ATARI_SMALL]) > 0) {
-      rate *= po_tactical_features[F_SELF_ATARI_SMALL + F_MAX1];
-    } else if ((i & bit_mask[F_SELF_ATARI_NAKADE]) > 0) {
-      rate *= po_tactical_features[F_SELF_ATARI_NAKADE + F_MAX1];
-    } else if ((i & bit_mask[F_SELF_ATARI_LARGE]) > 0) {
-      rate *= po_tactical_features[F_SELF_ATARI_LARGE + F_MAX1];
-    }
-
-    if ((i & bit_mask[F_2POINT_C_ATARI_LARGE]) > 0) {
-      rate *= po_tactical_features[F_2POINT_C_ATARI_LARGE + F_MAX1];
-    } else if ((i & bit_mask[F_3POINT_C_ATARI_LARGE]) > 0) {
-      rate *= po_tactical_features[F_3POINT_C_ATARI_LARGE + F_MAX1];
-    } else if ((i & bit_mask[F_2POINT_C_ATARI_SMALL]) > 0) {
-      rate *= po_tactical_features[F_2POINT_C_ATARI_SMALL + F_MAX1];
-    } else if ((i & bit_mask[F_3POINT_C_ATARI_SMALL]) > 0) {
-      rate *= po_tactical_features[F_3POINT_C_ATARI_SMALL + F_MAX1];
-    } else if ((i & bit_mask[F_2POINT_ATARI_LARGE]) > 0) {
-      rate *= po_tactical_features[F_2POINT_ATARI_LARGE + F_MAX1];
-    } else if ((i & bit_mask[F_3POINT_ATARI_LARGE]) > 0) {
-      rate *= po_tactical_features[F_3POINT_ATARI_LARGE + F_MAX1];
-    } else if ((i & bit_mask[F_2POINT_ATARI_SMALL]) > 0) {
-      rate *= po_tactical_features[F_2POINT_ATARI_SMALL + F_MAX1];
-    } else if ((i & bit_mask[F_3POINT_ATARI_SMALL]) > 0) {
-      rate *= po_tactical_features[F_3POINT_ATARI_SMALL + F_MAX1];
-    } else if ((i & bit_mask[F_ATARI]) > 0) {
-      rate *= po_tactical_features[F_ATARI + F_MAX1];
-    }
-
-    if ((i & bit_mask[F_2POINT_EXTENSION_SAFELY]) > 0) {
-      rate *= po_tactical_features[F_2POINT_EXTENSION_SAFELY + F_MAX1];
-    } else if ((i & bit_mask[F_3POINT_EXTENSION_SAFELY]) > 0) {
-      rate *= po_tactical_features[F_3POINT_EXTENSION_SAFELY + F_MAX1];
-    } else if ((i & bit_mask[F_2POINT_EXTENSION]) > 0) {
-      rate *= po_tactical_features[F_2POINT_EXTENSION + F_MAX1];
-    } else if ((i & bit_mask[F_3POINT_EXTENSION]) > 0) {
-      rate *= po_tactical_features[F_3POINT_EXTENSION + F_MAX1];
-    }
-
-    if ((i & bit_mask[F_3POINT_DAME_LARGE]) > 0) {
-      rate *= po_tactical_features[F_3POINT_DAME_LARGE + F_MAX1];
-    } else if ((i & bit_mask[F_3POINT_DAME_SMALL]) > 0) {
-      rate *= po_tactical_features[F_3POINT_DAME_SMALL + F_MAX1];
-    }
-
-    if ((i & bit_mask[F_THROW_IN_2]) > 0) {
-      rate *= po_tactical_features[F_THROW_IN_2 + F_MAX1];
-    }
-
-    po_tactical_set2[i] = (float)rate;
-  }
+  return rate;
 }
+
 
 //////////////////////
 //  着手( rating )  // 
@@ -333,8 +230,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
         CheckCaptureAndAtariForSimulation(game, color, pos);
 
         gamma = po_pattern[MD2(game->pat, pos)] * po_previous_distance[index];
-        gamma *= po_tactical_set1[game->tactical_features1[pos]];
-        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         gamma *= bias[i];
         rate[pos] = (long long)(gamma) + 1;
 
@@ -343,8 +239,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
         sum_rate_row[board_y[pos]] += rate[pos];
       }
 
-      game->tactical_features1[pos] = 0;
-      game->tactical_features2[pos] = 0;
+      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     }
     flag[pos] = true;
   }
@@ -381,16 +276,14 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
           gamma = 10000.0;
         }
         gamma *= po_pattern[MD2(game->pat, pos)];
-        gamma *= po_tactical_set1[game->tactical_features1[pos]];
-        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         rate[pos] = (long long)(gamma) + 1;
         // 新たに計算したレートを代入      
         *sum_rate += rate[pos];
         sum_rate_row[board_y[pos]] += rate[pos];     
       }
 
-      game->tactical_features1[pos] = 0;
-      game->tactical_features2[pos] = 0;
+      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
       flag[pos] = true;
     }
   }
@@ -424,8 +317,7 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
       } else {
         CheckCaptureAndAtariForSimulation(game, color, pos);
         gamma = po_pattern[MD2(game->pat, pos)];
-        gamma *= po_tactical_set1[game->tactical_features1[pos]];
-        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         rate[pos] = (long long)(gamma) + 1;
 
         // 新たに計算したレートを代入
@@ -433,8 +325,7 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
         sum_rate_row[board_y[pos]] += rate[pos];
       }
 
-      game->tactical_features1[pos] = 0;
-      game->tactical_features2[pos] = 0;
+      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     }
     // 更新済みフラグを立てる
     flag[pos] = true;
@@ -470,8 +361,7 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
         } else {
           CheckCaptureAndAtariForSimulation(game, color, pos);
           gamma = po_pattern[MD2(game->pat, pos)];
-          gamma *= po_tactical_set1[game->tactical_features1[pos]];
-          gamma *= po_tactical_set2[game->tactical_features2[pos]];
+          gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
           rate[pos] = (long long)(gamma) + 1;
 
           // 新たに計算したレートを代入
@@ -479,8 +369,7 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
           sum_rate_row[board_y[pos]] += rate[pos];
         }
 
-        game->tactical_features1[pos] = 0;
-        game->tactical_features2[pos] = 0;
+        ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
       }
       // 更新済みフラグを立てる
       flag[pos] = true;
@@ -568,6 +457,11 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 
   pm1 = game->record[game->moves - 1].pos;
 
+  for (int i = 0; i < pure_board_max; i++) {
+    pos = onboard_pos[i];
+    ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
+  }
+  
   CheckFeaturesForSimulation(game, color, update_pos, &update_num);
   if (game->ko_move == game->moves - 2) {
     CheckCaptureAfterKoForSimulation(game, color, update_pos, &update_num);
@@ -583,8 +477,7 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
         rate[pos] = 0;
       } else {
         gamma = po_pattern[MD2(game->pat, pos)];
-        gamma *= po_tactical_set1[game->tactical_features1[pos]];
-        gamma *= po_tactical_set2[game->tactical_features2[pos]];
+        gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         if (pm1 != PASS) {
           dis = DIS(pos, pm1);
           if (dis < 5) {
@@ -597,8 +490,7 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
       *sum_rate += rate[pos];
       sum_rate_row[board_y[pos]] += rate[pos];
 
-      game->tactical_features1[pos] = 0;
-      game->tactical_features2[pos] = 0;
+      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     }
   }
 }
@@ -613,10 +505,6 @@ InputPOGamma( void )
   std::string po_parameters_path = GetWorkingDirectory() + PATH_SEPARATOR + "sim_params" + PATH_SEPARATOR;
   std::string path;
 
-  // 戦術的特徴の読み込み
-  path = po_parameters_path + "TacticalFeature.txt";
-  InputTxtFLT(path.c_str(), po_tactical_features, TACTICAL_FEATURE_MAX);
-
   // 直前の着手からの距離の読み込み
   path = po_parameters_path + "PreviousDistance.txt";
   InputTxtFLT(path.c_str(), po_neighbor_orig, PREVIOUS_DISTANCE_MAX);
@@ -627,6 +515,26 @@ InputPOGamma( void )
   }
   po_previous_distance[2] = (float)(po_neighbor_orig[2] * jump_bias);
 
+  // 戦術的特徴の読み込み
+  path = po_parameters_path + "CaptureFeature.txt";
+  InputTxtFLT(path.c_str(), sim_capture, SIM_CAPTURE_MAX);
+
+  path = po_parameters_path + "SaveExtensionFeature.txt";
+  InputTxtFLT(path.c_str(), sim_save_extension, SIM_SAVE_EXTENSION_MAX);
+
+  path = po_parameters_path + "AtariFeature.txt";
+  InputTxtFLT(path.c_str(), sim_atari, SIM_ATARI_MAX);
+
+  path = po_parameters_path + "ExtensionFeature.txt";
+  InputTxtFLT(path.c_str(), sim_extension, SIM_EXTENSION_MAX);
+
+  path = po_parameters_path + "DameFeature.txt";
+  InputTxtFLT(path.c_str(), sim_dame, SIM_DAME_MAX);
+
+  path = po_parameters_path + "ThrowInFeature.txt";
+  InputTxtFLT(path.c_str(), sim_throw_in, SIM_THROW_IN_MAX);
+  
+  
   // 3x3のパターンの読み込み
   path = po_parameters_path + "Pat3.txt";
   InputTxtFLT(path.c_str(), po_pat3, PAT3_MAX);
@@ -688,8 +596,7 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
   
   for (int i = 0; i < pure_board_max; i++) {
     pos = onboard_pos[i];
-    game->tactical_features1[pos] = 0;
-    game->tactical_features2[pos] = 0;
+    ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
   }
   
   CheckFeaturesForSimulation(game, color, update_pos, &update_num);
@@ -721,8 +628,7 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
       }
     }
     
-    gamma *= po_tactical_set1[game->tactical_features1[pos]];
-    gamma *= po_tactical_set2[game->tactical_features2[pos]];
+    gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     gamma *= po_pattern[MD2(game->pat, pos)];
     
     rate[i] = (long long int)gamma + 1;
