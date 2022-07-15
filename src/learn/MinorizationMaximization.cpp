@@ -292,7 +292,7 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
   unsigned char *tactical_features = game->tactical_features;
   unsigned int pat_3x3, pat_md2, minpat, transpose[16];
   unsigned int check_pat3[PURE_BOARD_MAX], check_md2[PURE_BOARD_MAX];
-  int cpat3 = 0, cmd2 = 0, update_num, update_pos[PURE_BOARD_MAX];
+  int cpat3 = 0, cmd2 = 0, update_num = 0, update_pos[PURE_BOARD_MAX];
   
   std::fill_n(check_pat3, PURE_BOARD_MAX, 0);
   std::fill_n(check_md2, PURE_BOARD_MAX, 0);
