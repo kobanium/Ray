@@ -96,19 +96,13 @@ AnalyzePattern( void )
           }
         }
         md2_count[min_md2]++;
-      }
-      PatternHash(&game->pat[pos], &hash_pat);
-      Count(md3_count, hash_pat.list[MD_3], &game->pat[pos]);
-      Count(md4_count, hash_pat.list[MD_4], &game->pat[pos]);
-      Count(md5_count, hash_pat.list[MD_MAX + MD_5], &game->pat[pos]);
 
-
-      if (pos != PASS && IsLegal(game, pos, color) == false) {
-        std::cerr << j << std::endl;
-        PrintBoard(game);
-        std::cerr << ParsePoint(pos) << std::endl;
-        getchar();
+        PatternHash(&game->pat[pos], &hash_pat);
+        Count(md3_count, hash_pat.list[MD_3], &game->pat[pos]);
+        Count(md4_count, hash_pat.list[MD_4], &game->pat[pos]);
+        Count(md5_count, hash_pat.list[MD_MAX + MD_5], &game->pat[pos]);
       }
+
       PutStone(game, pos, color);
       color = GetOppositeColor(color);
     }
