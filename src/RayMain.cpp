@@ -8,6 +8,7 @@
 #include "board/ZobristHash.hpp"
 #include "feature/Semeai.hpp"
 #include "gtp/Gtp.hpp"
+#include "learn/MinorizationMaximization.hpp"
 #include "learn/PatternAnalyzer.hpp"
 #include "pattern/PatternHash.hpp"
 #include "mcts/Rating.hpp"
@@ -61,6 +62,8 @@ main( int argc, char **argv )
   SetNeighbor();
 
   //AnalyzePattern();
+
+  //TrainBTModelByMinorizationMaximization();
 
   // GTP
   GTP_main();

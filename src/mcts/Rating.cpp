@@ -59,9 +59,11 @@ static double jump_bias = JUMP_BIAS;
 static void Neighbor12( const int previous_move, int distance_2[], int distance_3[], int distance_4[] );
 
 //  γ読み込み
-static void InputPOGamma( void );
-static void InputMD2( const char *filename, float *ap );
+static void LoadFeatureParameters( void );
 
+static void LoadMD2Parameter( const char *filename, float params[] );
+
+static void LoadParameter( const char *file, float params[], const int array_size );
 
 /////////////////
 // 近傍の設定  //
@@ -93,7 +95,7 @@ void
 InitializeRating( void )
 {
   // γ読み込み
-  InputPOGamma();
+  LoadFeatureParameters();
 }
 
 inline double
@@ -500,14 +502,14 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 //  γ読み込み  //
 /////////////////
 static void
-InputPOGamma( void )
+LoadFeatureParameters( void )
 {
   std::string po_parameters_path = GetWorkingDirectory() + PATH_SEPARATOR + "sim_params" + PATH_SEPARATOR;
   std::string path;
 
   // 直前の着手からの距離の読み込み
   path = po_parameters_path + "PreviousDistance.txt";
-  InputTxtFLT(path.c_str(), po_neighbor_orig, PREVIOUS_DISTANCE_MAX);
+  LoadParameter(path.c_str(), po_neighbor_orig, PREVIOUS_DISTANCE_MAX);
 
   // 直前の着手からの距離のγを補正して出力
   for (int i = 0; i < PREVIOUS_DISTANCE_MAX - 1; i++) {
@@ -517,50 +519,90 @@ InputPOGamma( void )
 
   // 戦術的特徴の読み込み
   path = po_parameters_path + "CaptureFeature.txt";
-  InputTxtFLT(path.c_str(), sim_capture, SIM_CAPTURE_MAX);
+  LoadParameter(path.c_str(), sim_capture, SIM_CAPTURE_MAX);
 
   path = po_parameters_path + "SaveExtensionFeature.txt";
-  InputTxtFLT(path.c_str(), sim_save_extension, SIM_SAVE_EXTENSION_MAX);
+  LoadParameter(path.c_str(), sim_save_extension, SIM_SAVE_EXTENSION_MAX);
 
   path = po_parameters_path + "AtariFeature.txt";
-  InputTxtFLT(path.c_str(), sim_atari, SIM_ATARI_MAX);
+  LoadParameter(path.c_str(), sim_atari, SIM_ATARI_MAX);
 
   path = po_parameters_path + "ExtensionFeature.txt";
-  InputTxtFLT(path.c_str(), sim_extension, SIM_EXTENSION_MAX);
+  LoadParameter(path.c_str(), sim_extension, SIM_EXTENSION_MAX);
 
   path = po_parameters_path + "DameFeature.txt";
-  InputTxtFLT(path.c_str(), sim_dame, SIM_DAME_MAX);
+  LoadParameter(path.c_str(), sim_dame, SIM_DAME_MAX);
 
   path = po_parameters_path + "ThrowInFeature.txt";
-  InputTxtFLT(path.c_str(), sim_throw_in, SIM_THROW_IN_MAX);
+  LoadParameter(path.c_str(), sim_throw_in, SIM_THROW_IN_MAX);
   
   
   // 3x3のパターンの読み込み
   path = po_parameters_path + "Pat3.txt";
-  InputTxtFLT(path.c_str(), po_pat3, PAT3_MAX);
+  LoadParameter(path.c_str(), po_pat3, PAT3_MAX);
 
   // マンハッタン距離2のパターンの読み込み
   path = po_parameters_path + "MD2.txt";
-  InputMD2(path.c_str(), po_md2);
+  LoadMD2Parameter(path.c_str(), po_md2);
 
   // 3x3とMD2のパターンをまとめる
   for (int i = 0; i < MD2_MAX; i++){
-    po_pattern[i] = (float)(po_md2[i] * po_pat3[i & 0xFFFF] * 100.0);
+    if (po_md2[i] != 1.0) {
+      po_pattern[i] = static_cast<float>(po_md2[i] * 10.0);
+    } else {
+      po_pattern[i] = static_cast<float>(po_pat3[(i & 0xffff)] * 10.0);
+    }
+    //po_pattern[i] = (float)(po_md2[i] * po_pat3[i & 0xFFFF] * 100.0);
   }
 }
 
 
-//////////////////////
-//  γ読み込み MD2  //
-//////////////////////
+
 static void
-InputMD2( const char *filename, float *ap )
+LoadParameter( const char *filename, float params[], const int array_size )
+{
+  FILE *fp;
+#if defined (_WIN32)
+  errno_t err;
+
+  err = fopen_s(&fp, filename, "r");
+  if (err != 0) {
+    std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
+  }
+  for (int i = 0; i < array_size; i++) {
+    if (fscanf_s(fp, "%e", &params[i]) == EOF) {
+      std::cerr << "Read Error : " << filename << std::endl;
+    }
+  }
+  #else
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
+    std::cerr << "can not open -" << filename << "-" << std::endl;
+  }
+  for (int i = 0; i < array_size; i++) {
+    if (fscanf(fp, "%e", &params[i]) == EOF) {
+      std::cerr << "Read Error : " << filename << std::endl;
+      exit(1);
+    }
+  }
+  #endif
+  fclose(fp);
+}
+
+
+
+///////////////////////////////
+//  パラメータ読み込み(MD2)  //
+///////////////////////////////
+static void
+LoadMD2Parameter( const char *filename, float params[] )
 {
   FILE *fp;
   int index;
   float rate;
 
-  for (int i = 0; i < MD2_MAX; i++) ap[i] = 1.0;
+  for (int i = 0; i < MD2_MAX; i++) params[i] = 1.0;
 
 #if defined (_WIN32)
   errno_t err;
@@ -569,16 +611,16 @@ InputMD2( const char *filename, float *ap )
   if (err != 0) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
-  while (fscanf_s(fp, "%d%f", &index, &rate) != EOF) {
-    ap[index] = rate;
+  while (fscanf_s(fp, "%d%e", &index, &rate) != EOF) {
+    params[index] = rate;
   }
 #else
   fp = fopen(filename, "r");
   if (fp == NULL) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
-  while (fscanf(fp, "%d%f", &index, &rate) != EOF) {
-    ap[index] = rate;
+  while (fscanf(fp, "%d%e", &index, &rate) != EOF) {
+    params[index] = rate;
   }
 #endif
   fclose(fp);

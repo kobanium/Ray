@@ -1,4 +1,5 @@
 *.o
 ray
 
-learning_result/*/*.txt
+learning_result/**/*.txt
+learning_result/**/*.log
