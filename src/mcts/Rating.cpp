@@ -601,6 +601,7 @@ LoadMD2Parameter( const char *filename, float params[] )
   FILE *fp;
   int index;
   float rate;
+  unsigned int transp[16];
 
   for (int i = 0; i < MD2_MAX; i++) params[i] = 1.0;
 
@@ -612,7 +613,10 @@ LoadMD2Parameter( const char *filename, float params[] )
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
   while (fscanf_s(fp, "%d%e", &index, &rate) != EOF) {
-    params[index] = rate;
+    MD2Transpose16(static_cast<unsigned int>(index), transp);
+    for (int i = 0; i < 16; i++) {
+      params[transp[i]] = rate;
+    }
   }
 #else
   fp = fopen(filename, "r");
@@ -620,7 +624,10 @@ LoadMD2Parameter( const char *filename, float params[] )
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
   while (fscanf(fp, "%d%e", &index, &rate) != EOF) {
-    params[index] = rate;
+    MD2Transpose16(static_cast<unsigned int>(index), transp);
+    for (int i = 0; i < 16; i++) {
+      params[transp[i]] = rate;
+    }
   }
 #endif
   fclose(fp);
