@@ -7,12 +7,6 @@
 constexpr int FM_DIMENSION = 5;
 
 
-constexpr int UPDATE_INTERVAL = 8;
-constexpr int UPDATE_STEPS = 30;
-
-constexpr int UPDATE_MAX = UPDATE_INTERVAL * UPDATE_STEPS;
-
-
 struct mm_t {
   int w;
   double c;

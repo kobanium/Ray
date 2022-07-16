@@ -17,9 +17,9 @@ constexpr int HASH_TABLE_MAX = 16777216;
 
 constexpr int HASH_TABLE_LIMIT = 16000000;
 
-constexpr int HASH_TABLE_HALF = 8388608;
+constexpr int HASH_TABLE_HALF = HASH_TABLE_MAX / 2;
 
-constexpr int APPEARANCE_MIN = 10;
+constexpr int APPEARANCE_MIN = 5;
 
 
 enum class PatternHashStatus {

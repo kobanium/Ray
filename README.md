@@ -1,3 +1,9 @@
+About Ray
+---------
+Ray is a Go (Weiqi, Baduk) game engine based on Monte-Carlo tree search without Deep Learning.
+
+日本語は[こちら](doc/ja/README.md).
+
 Installation
 ------------
 1. 'cd' to the directory which includes 'Makefile'
