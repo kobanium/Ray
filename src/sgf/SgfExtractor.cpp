@@ -74,10 +74,12 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
   errno_t err;
 
   if((err = fopen_s(&fp, file_name, "r")) != 0) {
+    printf("Cannot open this file (%s)!!\n", file_name);
     return -1;
   } 
 #else
   if((fp = fopen(file_name, "r")) == NULL) {
+    printf("Cannot open this file (%s)!!\n", file_name);
     return -1;
   }
 #endif  
@@ -170,7 +172,7 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
     }
     cursor++;   // 文字を一つ進める
   }
-  
+
   return 0;
 }
 

@@ -158,7 +158,7 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
 //  助からないシチョウを逃げる手か判定  //
 //////////////////////////////////////////
 bool
-CheckLadderExtension( game_info_t *game, int color, int pos )
+CheckLadderExtension( const game_info_t *game, const int color, const int pos )
 {
   const char *board = game->board;
   const string_t *string = game->string;

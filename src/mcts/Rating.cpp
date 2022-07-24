@@ -44,8 +44,6 @@ static float sim_extension[SIM_EXTENSION_MAX];
 static float sim_dame[SIM_DAME_MAX];
 static float sim_throw_in[SIM_THROW_IN_MAX];
 
-
-
 // 着手距離2, 3のγ値の補正
 static double neighbor_bias = NEIGHBOR_BIAS;
 // 着手距離4のγ値の補正

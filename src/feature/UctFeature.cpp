@@ -4,13 +4,26 @@
 #include "feature/UctFeature.hpp"
 
 
-game_info_t snapback_game;
+//game_info_t snapback_game;
 
-static void CheckFeatureLib1ForTree( game_info_t *game, int color, int id, bool ladder, uct_features_t *uct_features );
 
-static void CheckFeatureLib2ForTree( game_info_t *game, int color, int id, uct_features_t *uct_features );
 
-static void CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *uct_features );
+
+static void CheckFeaturesLib1ForTree( const game_info_t *game, const int color, const int id, const bool ladder, unsigned int *tactical_features );
+static void CheckFeaturesLib2ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features );
+static void CheckFeaturesLib3ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features );
+
+
+
+static void
+CompareSwapFeature( unsigned int *tactical_features, const int pos, const int type, const unsigned int new_feature )
+{
+  const int index = UctFeatureIndex(pos, type);
+
+  if (tactical_features[index] < new_feature) {
+    tactical_features[index] = new_feature;
+  }
+}
 
 
 
@@ -19,25 +32,24 @@ static void CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_f
 //  呼吸点が1つの連に対する特徴の判定  //
 /////////////////////////////////////////
 static void
-CheckFeatureLib1ForTree( game_info_t *game, int color, int id, bool ladder, uct_features_t *uct_features )
+CheckFeaturesLib1ForTree( const game_info_t *game, const int color, const int id, const bool ladder, unsigned int *tactical_features )
 {
   const string_t *string = game->string;
   int lib, neighbor;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
   // 呼吸点が1つになった連の呼吸点を取り出す
   lib = string[id].lib[0];
 
   // シチョウを逃げる手かどうかで特徴を判定
   if (ladder) {
-    tactical_features1[lib] |= bit_mask[UCT_LADDER_EXTENSION];
+    CompareSwapFeature(tactical_features, lib, UCT_SAVE_EXTENSION_INDEX, UCT_LADDER_EXTENSION);
   } else {
     if (string[id].size == 1) {
-      tactical_features1[lib] |= bit_mask[UCT_SAVE_EXTENSION_1];
+      CompareSwapFeature(tactical_features, lib, UCT_SAVE_EXTENSION_INDEX, UCT_SAVE_EXTENSION_1);
     } else if (string[id].size == 2) {
-      tactical_features1[lib] |= bit_mask[UCT_SAVE_EXTENSION_2];
+      CompareSwapFeature(tactical_features, lib, UCT_SAVE_EXTENSION_INDEX, UCT_SAVE_EXTENSION_2);
     } else {
-      tactical_features1[lib] |= bit_mask[UCT_SAVE_EXTENSION_3];
+      CompareSwapFeature(tactical_features, lib, UCT_SAVE_EXTENSION_INDEX, UCT_SAVE_EXTENSION_3);
     }
   }
 
@@ -49,35 +61,35 @@ CheckFeatureLib1ForTree( game_info_t *game, int color, int id, bool ladder, uct_
       lib = string[neighbor].lib[0];
       if (string[id].size == 1) {
         if (string[neighbor].size == 1) {
-          tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_1_1];
+          CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_1_1);
         } else if (string[neighbor].size == 2) {
-          tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_1_2];
+          CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_1_2);
         } else {
-          tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_1_3];
+          CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_1_3);
         }
       } else if (string[id].size == 2){
         if (string[neighbor].size == 1) {
           if (IsSelfAtariCapture(game, lib, color, id)) {
-            tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_SELF_ATARI];
+            CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_SELF_ATARI);
           } else {
-            tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_2_1];
+            CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_2_1);
           }
         } else if (string[neighbor].size == 2) {
-          tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_2_2];
+          CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_2_2);
         } else {
-          tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_2_3];
+          CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_2_3);
         }
       } else {
         if (string[neighbor].size == 1) {
           if (IsSelfAtariCapture(game, lib, color, id)) {
-            tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_SELF_ATARI];
+            CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_SELF_ATARI);
           } else {
-            tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_3_1];
+            CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_3_1);
           }
         } else if (string[neighbor].size == 2) {
-          tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_3_2];
+          CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_3_2);
         } else {
-          tactical_features1[lib] |= bit_mask[UCT_SAVE_CAPTURE_3_3];
+          CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_SAVE_CAPTURE_3_3);
         }
       }
     }
@@ -91,11 +103,10 @@ CheckFeatureLib1ForTree( game_info_t *game, int color, int id, bool ladder, uct_
 //  呼吸点が2つの連に対する特徴の判定  //
 /////////////////////////////////////////
 void
-CheckFeatureLib2ForTree( game_info_t *game, int color, int id, uct_features_t *uct_features )
+CheckFeaturesLib2ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features )
 {
   const string_t *string = game->string;
   int lib1, lib2, neighbor, lib1_state, lib2_state;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
   // 呼吸点が2つになった連の呼吸点を取り出す
   lib1 = string[id].lib[0];
@@ -106,26 +117,26 @@ CheckFeatureLib2ForTree( game_info_t *game, int color, int id, uct_features_t *u
   lib2_state = CheckLibertyState(game, lib2, color, id);
   switch (lib1_state) {
   case L_DECREASE :
-    tactical_features1[lib1] |= bit_mask[UCT_2POINT_EXTENSION_DECREASE];
+    CompareSwapFeature(tactical_features, lib1, UCT_EXTENSION_INDEX, UCT_2POINT_EXTENSION_DECREASE);
     break;
   case L_EVEN :
-    tactical_features1[lib1] |= bit_mask[UCT_2POINT_EXTENSION_EVEN];
+    CompareSwapFeature(tactical_features, lib1, UCT_EXTENSION_INDEX, UCT_2POINT_EXTENSION_EVEN);
     break;
   case L_INCREASE:
-    tactical_features1[lib1] |= bit_mask[UCT_2POINT_EXTENSION_INCREASE];
+    CompareSwapFeature(tactical_features, lib1, UCT_EXTENSION_INDEX, UCT_2POINT_EXTENSION_INCREASE);
     break;
   default :
     break;
   }
   switch (lib2_state) {
   case L_DECREASE :
-    tactical_features1[lib2] |= bit_mask[UCT_2POINT_EXTENSION_DECREASE];
+    CompareSwapFeature(tactical_features, lib2, UCT_EXTENSION_INDEX, UCT_2POINT_EXTENSION_DECREASE);
     break;
   case L_EVEN :
-    tactical_features1[lib2] |= bit_mask[UCT_2POINT_EXTENSION_EVEN];
+    CompareSwapFeature(tactical_features, lib2, UCT_EXTENSION_INDEX, UCT_2POINT_EXTENSION_EVEN);
     break;
   case L_INCREASE:
-    tactical_features1[lib2] |= bit_mask[UCT_2POINT_EXTENSION_INCREASE];
+    CompareSwapFeature(tactical_features, lib2, UCT_EXTENSION_INDEX, UCT_2POINT_EXTENSION_INCREASE);
     break;
   default :
     break;
@@ -143,34 +154,34 @@ CheckFeatureLib2ForTree( game_info_t *game, int color, int id, uct_features_t *u
       if (string[neighbor].libs == 1) {
         lib1 = string[neighbor].lib[0];
         if (string[neighbor].size <= 2) {
-          tactical_features1[lib1] |= bit_mask[UCT_2POINT_CAPTURE_S_S];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_2POINT_CAPTURE_S_S);
         } else {
-          tactical_features1[lib1] |= bit_mask[UCT_2POINT_CAPTURE_S_L];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_2POINT_CAPTURE_S_L);
         }
       } else if (string[neighbor].libs == 2) {
         lib1 = string[neighbor].lib[0];
         lib2 = string[neighbor].lib[lib1];
         if (string[neighbor].size <= 2) {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_C_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_S_S);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_ATARI_S_S);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_C_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_S_S);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_ATARI_S_S);
           }
         } else {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_C_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_S_L);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_ATARI_S_L);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_C_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_S_L);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_ATARI_S_L);
           }
         }
       }
@@ -181,34 +192,34 @@ CheckFeatureLib2ForTree( game_info_t *game, int color, int id, uct_features_t *u
       if (string[neighbor].libs == 1) {
         lib1 = string[neighbor].lib[0];
         if (string[neighbor].size <= 2) {
-          tactical_features1[lib1] |= bit_mask[UCT_2POINT_CAPTURE_L_S];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_2POINT_CAPTURE_L_S);
         } else {
-          tactical_features1[lib1] |= bit_mask[UCT_2POINT_CAPTURE_L_L];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_2POINT_CAPTURE_L_L);
         }
       } else if (string[neighbor].libs == 2) {
         lib1 = string[neighbor].lib[0];
         lib2 = string[neighbor].lib[lib1];
         if (string[neighbor].size <= 2) {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_C_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_L_S);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_ATARI_L_S);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_C_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_L_S);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_ATARI_L_S);
           }
         } else {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_C_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_L_L);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_2POINT_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_2POINT_ATARI_L_L);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_C_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_C_ATARI_L_L);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_2POINT_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_2POINT_ATARI_L_L);
           }
         }
       }
@@ -221,11 +232,10 @@ CheckFeatureLib2ForTree( game_info_t *game, int color, int id, uct_features_t *u
 //  呼吸点が3つの連に対する特徴の判定  //
 /////////////////////////////////////////
 static void
-CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *uct_features )
+CheckFeaturesLib3ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features )
 {
   const string_t *string = game->string;
   int lib1, lib2, lib3, neighbor, lib1_state, lib2_state, lib3_state;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
   // 呼吸点が3つになった連の呼吸点を取り出す
   lib1 = string[id].lib[0];
@@ -238,39 +248,39 @@ CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *u
   lib3_state = CheckLibertyState(game, lib3, color, id);
   switch (lib1_state) {
   case L_DECREASE :
-    tactical_features1[lib1] |= bit_mask[UCT_3POINT_EXTENSION_DECREASE];
+    CompareSwapFeature(tactical_features, lib1, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_DECREASE);
     break;
   case L_EVEN :
-    tactical_features1[lib1] |= bit_mask[UCT_3POINT_EXTENSION_EVEN];
+    CompareSwapFeature(tactical_features, lib1, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_EVEN);
     break;
   case L_INCREASE:
-    tactical_features1[lib1] |= bit_mask[UCT_3POINT_EXTENSION_INCREASE];
+    CompareSwapFeature(tactical_features, lib1, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_INCREASE);
     break;
   default :
     break;
   }
   switch (lib2_state) {
   case L_DECREASE :
-    tactical_features1[lib2] |= bit_mask[UCT_3POINT_EXTENSION_DECREASE];
+    CompareSwapFeature(tactical_features, lib2, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_DECREASE);
     break;
   case L_EVEN :
-    tactical_features1[lib2] |= bit_mask[UCT_3POINT_EXTENSION_EVEN];
+    CompareSwapFeature(tactical_features, lib2, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_EVEN);
     break;
   case L_INCREASE:
-    tactical_features1[lib2] |= bit_mask[UCT_3POINT_EXTENSION_INCREASE];
+    CompareSwapFeature(tactical_features, lib2, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_INCREASE);
     break;
   default :
     break;
   }
   switch (lib3_state) {
   case L_DECREASE :
-    tactical_features1[lib3] |= bit_mask[UCT_3POINT_EXTENSION_DECREASE];
+    CompareSwapFeature(tactical_features, lib3, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_DECREASE);
     break;
   case L_EVEN :
-    tactical_features1[lib3] |= bit_mask[UCT_3POINT_EXTENSION_EVEN];
+    CompareSwapFeature(tactical_features, lib3, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_EVEN);
     break;
   case L_INCREASE:
-    tactical_features1[lib3] |= bit_mask[UCT_3POINT_EXTENSION_INCREASE];
+    CompareSwapFeature(tactical_features, lib3, UCT_EXTENSION_INDEX, UCT_3POINT_EXTENSION_INCREASE);
     break;
   default :
     break;
@@ -290,34 +300,34 @@ CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *u
       if (string[neighbor].libs == 1) {
         lib1 = string[neighbor].lib[0];
         if (string[neighbor].size <= 2) {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_CAPTURE_S_S];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_3POINT_CAPTURE_S_S);
         } else {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_CAPTURE_S_L];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_3POINT_CAPTURE_S_L);
         }
       } else if (string[neighbor].libs == 2) {
         lib1 = string[neighbor].lib[0];
         lib2 = string[neighbor].lib[lib1];
         if (string[neighbor].size <= 2) {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_C_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_S_S);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_ATARI_S_S);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_C_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_S_S);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_ATARI_S_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_ATARI_S_S);
           }
         } else {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_C_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_S_L);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_ATARI_S_L);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_C_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_S_L);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_ATARI_S_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_ATARI_S_L);
           }
         }
       } else if (string[neighbor].libs == 3) {
@@ -325,13 +335,13 @@ CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *u
         lib2 = string[neighbor].lib[lib1];
         lib3 = string[neighbor].lib[lib2];
         if (string[neighbor].size <= 2) {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_DAME_S_S];
-          tactical_features1[lib2] |= bit_mask[UCT_3POINT_DAME_S_S];
-          tactical_features1[lib3] |= bit_mask[UCT_3POINT_DAME_S_S];
+          CompareSwapFeature(tactical_features, lib1, UCT_DAME_INDEX, UCT_3POINT_DAME_S_S);
+          CompareSwapFeature(tactical_features, lib2, UCT_DAME_INDEX, UCT_3POINT_DAME_S_S);
+          CompareSwapFeature(tactical_features, lib3, UCT_DAME_INDEX, UCT_3POINT_DAME_S_S);
         } else {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_DAME_S_L];
-          tactical_features1[lib2] |= bit_mask[UCT_3POINT_DAME_S_L];
-          tactical_features1[lib3] |= bit_mask[UCT_3POINT_DAME_S_L];
+          CompareSwapFeature(tactical_features, lib1, UCT_DAME_INDEX, UCT_3POINT_DAME_S_L);
+          CompareSwapFeature(tactical_features, lib2, UCT_DAME_INDEX, UCT_3POINT_DAME_S_L);
+          CompareSwapFeature(tactical_features, lib3, UCT_DAME_INDEX, UCT_3POINT_DAME_S_L);
         }
       }
       neighbor = string[id].neighbor[neighbor];
@@ -341,34 +351,34 @@ CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *u
       if (string[neighbor].libs == 1) {
         lib1 = string[neighbor].lib[0];
         if (string[neighbor].size <= 2) {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_CAPTURE_L_S];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_3POINT_CAPTURE_L_S);
         } else {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_CAPTURE_L_L];
+          CompareSwapFeature(tactical_features, lib1, UCT_CAPTURE_INDEX, UCT_3POINT_CAPTURE_L_L);
         }
       } else if (string[neighbor].libs == 2) {
         lib1 = string[neighbor].lib[0];
         lib2 = string[neighbor].lib[lib1];
         if (string[neighbor].size <= 2) {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_C_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_L_S);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_ATARI_L_S);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_C_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_L_S);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_ATARI_L_S];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_ATARI_L_S);
           }
         } else {
           if (IsCapturableAtari(game, lib1, color, string[neighbor].origin)) {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_C_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_L_L);
           } else {
-            tactical_features1[lib1] |= bit_mask[UCT_3POINT_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib1, UCT_ATARI_INDEX, UCT_3POINT_ATARI_L_L);
           }
           if (IsCapturableAtari(game, lib2, color, string[neighbor].origin)) {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_C_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_C_ATARI_L_L);
           } else {
-            tactical_features1[lib2] |= bit_mask[UCT_3POINT_ATARI_L_L];
+            CompareSwapFeature(tactical_features, lib2, UCT_ATARI_INDEX, UCT_3POINT_ATARI_L_L);
           }
         }
       } else if (string[neighbor].libs == 3) {
@@ -376,13 +386,13 @@ CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *u
         lib2 = string[neighbor].lib[lib1];
         lib3 = string[neighbor].lib[lib2];
         if (string[neighbor].size <= 2) {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_DAME_L_S];
-          tactical_features1[lib2] |= bit_mask[UCT_3POINT_DAME_L_S];
-          tactical_features1[lib3] |= bit_mask[UCT_3POINT_DAME_L_S];
+          CompareSwapFeature(tactical_features, lib1, UCT_DAME_INDEX, UCT_3POINT_DAME_L_S);
+          CompareSwapFeature(tactical_features, lib2, UCT_DAME_INDEX, UCT_3POINT_DAME_L_S);
+          CompareSwapFeature(tactical_features, lib3, UCT_DAME_INDEX, UCT_3POINT_DAME_L_S);
         } else {
-          tactical_features1[lib1] |= bit_mask[UCT_3POINT_DAME_L_L];
-          tactical_features1[lib2] |= bit_mask[UCT_3POINT_DAME_L_L];
-          tactical_features1[lib3] |= bit_mask[UCT_3POINT_DAME_L_L];
+          CompareSwapFeature(tactical_features, lib1, UCT_DAME_INDEX, UCT_3POINT_DAME_L_L);
+          CompareSwapFeature(tactical_features, lib2, UCT_DAME_INDEX, UCT_3POINT_DAME_L_L);
+          CompareSwapFeature(tactical_features, lib3, UCT_DAME_INDEX, UCT_3POINT_DAME_L_L);
         }
       }
       neighbor = string[id].neighbor[neighbor];
@@ -394,19 +404,20 @@ CheckFeatureLib3ForTree( game_info_t *game, int color, int id, uct_features_t *u
 //////////////////
 //  特徴の判定  //
 //////////////////
-void
-CheckFeaturesForTree( game_info_t *game, int color, uct_features_t *uct_features )
+int
+CheckFeaturesForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
 {
   const char *board = game->board;
   const string_t *string = game->string;
   const int *string_id = game->string_id;
+  int status = 0;
   int checked = 0, previous_move = PASS, id;
   int neighbor4[4], check[4] = { 0 };
   bool ladder, already_checked;
 
   if (game->moves > 1) previous_move = game->record[game->moves - 1].pos;
 
-  if (previous_move == PASS) return;
+  if (previous_move == PASS) return status;
 
   GetNeighbor4(neighbor4, previous_move);
 
@@ -423,15 +434,20 @@ CheckFeaturesForTree( game_info_t *game, int color, uct_features_t *uct_features
       if (already_checked) continue;
       if (string[id].libs == 1) {
         ladder = CheckLadderExtension(game, color, neighbor4[i]);
-        CheckFeatureLib1ForTree(game, color, id, ladder, uct_features);
+        CheckFeaturesLib1ForTree(game, color, id, ladder, tactical_features);
+        status = 3;
       } else if (string[id].libs == 2) {
-        CheckFeatureLib2ForTree(game, color, id, uct_features);
+        CheckFeaturesLib2ForTree(game, color, id, tactical_features);
+        status = (status <= 1) ? 2 : status;
       } else if (string[id].libs == 3) {
-        CheckFeatureLib3ForTree(game, color, id, uct_features);
+        CheckFeaturesLib3ForTree(game, color, id, tactical_features);
+        status = (status <= 0) ? 1 : status;
       }
       check[checked++] = id;
     }
   }
+
+  return status;
 }
 
 
@@ -440,8 +456,7 @@ CheckFeaturesForTree( game_info_t *game, int color, uct_features_t *uct_features
 //  劫を解消するトリ  //
 ////////////////////////
 void
-//UctCheckCaptureAfterKo( game_info_t *game, int color, uct_features_t *uct_features )
-CheckCaptureAfterKoForTree( game_info_t *game, int color, uct_features_t *uct_features )
+CheckCaptureAfterKoForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
 {
   const string_t *string = game->string;
   const char *board = game->board;
@@ -449,8 +464,6 @@ CheckCaptureAfterKoForTree( game_info_t *game, int color, uct_features_t *uct_fe
   const int other = GetOppositeColor(color);
   const int previous_move_2 = game->record[game->moves - 2].pos;
   int id, lib, neighbor4[4];
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
-
   GetNeighbor4(neighbor4, previous_move_2);
 
   for (int i = 0; i < 4; i++) {
@@ -458,7 +471,7 @@ CheckCaptureAfterKoForTree( game_info_t *game, int color, uct_features_t *uct_fe
       id = string_id[neighbor4[i]];
       if (string[id].libs == 1) {
         lib = string[id].lib[0];
-        tactical_features1[lib] |= bit_mask[UCT_CAPTURE_AFTER_KO];
+        CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_CAPTURE_AFTER_KO);
       }
     }
   }
@@ -469,7 +482,7 @@ CheckCaptureAfterKoForTree( game_info_t *game, int color, uct_features_t *uct_fe
 //  自己アタリ  //
 //////////////////
 bool
-CheckSelfAtariForTree( game_info_t *game, int color, int pos, uct_features_t *uct_features )
+CheckSelfAtariForTree( const game_info_t *game, const int color, const int pos, unsigned int *tactical_features )
 {
   const char *board = game->board;
   const string_t *string = game->string;
@@ -478,7 +491,6 @@ CheckSelfAtariForTree( game_info_t *game, int color, int pos, uct_features_t *uc
   int id, lib, already_num = 0, size = 0, libs = 0, count;
   int lib_candidate[PURE_BOARD_MAX], neighbor4[4], already[4] = { 0 };
   bool checked, flag, already_checked;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
   GetNeighbor4(neighbor4, pos);
 
@@ -537,18 +549,18 @@ CheckSelfAtariForTree( game_info_t *game, int color, int pos, uct_features_t *uc
   // 2.大きさが6以下でナカデの形になる自己アタリ
   // 3.それ以外の自己アタリ
   if (size < 2) {
-    tactical_features1[pos] |= bit_mask[UCT_SELF_ATARI_SMALL];
+    CompareSwapFeature(tactical_features, pos, UCT_CAPTURE_INDEX, UCT_SELF_ATARI_SMALL);
     flag = true;
   } else if (size < 6) {
     if (IsUctNakadeSelfAtari(game, pos, color)) {
-      tactical_features1[pos] |= bit_mask[UCT_SELF_ATARI_NAKADE];
+      CompareSwapFeature(tactical_features, pos, UCT_CAPTURE_INDEX, UCT_SELF_ATARI_NAKADE);
       flag = true;
     } else {
-      tactical_features1[pos] |= bit_mask[UCT_SELF_ATARI_LARGE];
+      CompareSwapFeature(tactical_features, pos, UCT_CAPTURE_INDEX, UCT_SELF_ATARI_LARGE);
       flag = false;
     }
   } else {
-    tactical_features1[pos] |= bit_mask[UCT_SELF_ATARI_LARGE];
+    CompareSwapFeature(tactical_features, pos, UCT_CAPTURE_INDEX, UCT_SELF_ATARI_LARGE);
     flag = false;
   }
   return flag;
@@ -560,7 +572,7 @@ CheckSelfAtariForTree( game_info_t *game, int color, int pos, uct_features_t *uc
 //  トリの判定  //
 //////////////////
 void
-CheckCaptureForTree( game_info_t *game, int color, int pos, uct_features_t *uct_features )
+CheckCaptureForTree( const game_info_t *game, const int color, const int pos, unsigned int *tactical_features )
 {
   const char *board = game->board;
   const int other = GetOppositeColor(color);
@@ -568,7 +580,6 @@ CheckCaptureForTree( game_info_t *game, int color, int pos, uct_features_t *uct_
   const int *string_id = game->string_id;
   int neighbor, id;
   int neighbor4[4];
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
   bool check;
 
   GetNeighbor4(neighbor4, pos);
@@ -587,10 +598,10 @@ CheckCaptureForTree( game_info_t *game, int color, int pos, uct_features_t *uct_
           neighbor = string[id].neighbor[neighbor];
         }
         if (check) {
-          tactical_features1[pos] |= bit_mask[UCT_SEMEAI_CAPTURE];
+          CompareSwapFeature(tactical_features, pos, UCT_CAPTURE_INDEX, UCT_SEMEAI_CAPTURE);
           return;
         } else {
-          tactical_features1[pos] |= bit_mask[UCT_CAPTURE];
+          CompareSwapFeature(tactical_features, pos, UCT_CAPTURE_INDEX, UCT_CAPTURE);
         }
       }
     }
@@ -603,14 +614,13 @@ CheckCaptureForTree( game_info_t *game, int color, int pos, uct_features_t *uct_
 //  アタリの判定  //
 ////////////////////
 void
-CheckAtariForTree( game_info_t *game, int color, int pos, uct_features_t *uct_features )
+CheckAtariForTree( const game_info_t *game, const int color, const int pos, unsigned int *tactical_features )
 {
   const char *board = game->board;
   const int other = GetOppositeColor(color);
   const string_t *string = game->string;
   const int *string_id = game->string_id;
-  int id, size, neighbor4[4];
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
+  int id, neighbor4[4];
 
   GetNeighbor4(neighbor4, pos);
 
@@ -618,15 +628,7 @@ CheckAtariForTree( game_info_t *game, int color, int pos, uct_features_t *uct_fe
     if (board[neighbor4[i]] == other) {
       id = string_id[neighbor4[i]];
       if (string[id].libs == 2) {
-        size = CheckOiotoshi(game, pos, color, neighbor4[i]);
-        if (size > 4) {
-          tactical_features1[pos] |= bit_mask[UCT_OIOTOSHI];
-          return;
-        } else if (size > 0) {
-          tactical_features1[pos] |= bit_mask[UCT_CAPTURABLE_ATARI];
-        } else {
-          tactical_features1[pos] |= bit_mask[UCT_ATARI];
-        }
+        CompareSwapFeature(tactical_features, pos, UCT_ATARI_INDEX, UCT_ATARI);
       }
     }
   }
@@ -637,24 +639,43 @@ CheckAtariForTree( game_info_t *game, int color, int pos, uct_features_t *uct_fe
 //  劫の解消  //
 ////////////////
 void
-CheckKoConnectionForTree( game_info_t *game, uct_features_t *uct_features )
+CheckKoConnectionForTree( const game_info_t *game, unsigned int *tactical_features )
 {
   if (game->ko_move == game->moves - 2) {
-    uct_features->tactical_features1[game->ko_pos] |= bit_mask[UCT_KO_CONNECTION];
+    CompareSwapFeature(tactical_features, game->ko_pos, UCT_CONNECT_INDEX, UCT_KO_CONNECTION);
   }
 }
+
+
+void
+CheckKoRecaptureForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
+{
+  const string_t *string = game->string;
+  const char *board = game->board;
+  const int *string_id = game->string_id;
+  const int pm3 = game->record[game->moves - 3].pos;
+  const int other = GetOppositeColor(color);
+
+  if (board[pm3] == other) {
+    const int id = string_id[pm3];
+    if (string[id].libs == 1) {
+      const int lib = string[id].lib[0];
+      CompareSwapFeature(tactical_features, lib, UCT_CAPTURE_INDEX, UCT_KO_RECAPTURE);
+    }
+  }
+}
+
 
 
 ////////////////////////////////
 // 2目取られた後のホウリコミ  //
 ////////////////////////////////
 void
-CheckRemove2StonesForTree( game_info_t *game, int color, uct_features_t *uct_features )
+CheckRemove2StonesForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
 {
   const int other = GetOppositeColor(color);
   const int cross[4] = {- board_size - 1, - board_size + 1, board_size - 1, board_size + 1};
   int i, connect;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
 
   if (game->capture_num[other] != 2) {
     return;
@@ -677,7 +698,7 @@ CheckRemove2StonesForTree( game_info_t *game, int color, uct_features_t *uct_fea
   }
 
   if (connect >= 2) {
-    tactical_features1[rm1] |= bit_mask[UCT_THROW_IN_2];
+    CompareSwapFeature(tactical_features, rm1, UCT_THROW_IN_INDEX, UCT_THROW_IN_2);
   }
 
   for (i = 0, connect = 0; i < 4; i++) {
@@ -687,262 +708,6 @@ CheckRemove2StonesForTree( game_info_t *game, int color, uct_features_t *uct_fea
   }
 
   if (connect >= 2) {
-    tactical_features1[rm2] |= bit_mask[UCT_THROW_IN_2];
+    CompareSwapFeature(tactical_features, rm2, UCT_THROW_IN_INDEX, UCT_THROW_IN_2);
   }
 }
-
-
-/////////////////////////////
-//  3目抜かれた後のナカデ  //
-/////////////////////////////
-void
-CheckRemove3StonesForTree( game_info_t *game, int color, uct_features_t *uct_features )
-{
-  const int other = GetOppositeColor(color);
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
-
-  if (game->capture_num[other] != 3) {
-    return;
-  }
-
-  const int rm1 = game->capture_pos[other][0];
-  const int rm2 = game->capture_pos[other][1];
-  const int rm3 = game->capture_pos[other][2];
-
-  if (DIS(rm1, rm2) == 2 && DIS(rm1, rm3) == 2){
-    tactical_features1[rm1] |= bit_mask[UCT_NAKADE_3];
-  } else if (DIS(rm1, rm2) == 2 && DIS(rm2, rm3) == 2){
-    tactical_features1[rm2] |= bit_mask[UCT_NAKADE_3];
-  } else if (DIS(rm1, rm3) == 2 && DIS(rm2, rm3) == 2){
-    tactical_features1[rm3] |= bit_mask[UCT_NAKADE_3];
-  }
-}
-
-
-//////////////////////////////
-//  ケイマのツケコシの判定  //
-//////////////////////////////
-void
-CheckKeimaTsukekoshiForTree(game_info_t *game, int color, int pos, uct_features_t *uct_features)
-{
-  const char *board = game->board;
-  const int other = GetOppositeColor(color);
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
-  int keima_pos[8], opponent_pos[8];
-
-  keima_pos[0] = -2 * board_size - 1;
-  keima_pos[1] = -2 * board_size + 1;
-  keima_pos[2] = - board_size - 2;
-  keima_pos[3] = - board_size + 2;
-  keima_pos[4] = board_size - 2;
-  keima_pos[5] = board_size + 2;
-  keima_pos[6] = 2 * board_size - 1;
-  keima_pos[7] = 2 * board_size + 1;
-
-  opponent_pos[0] = - board_size - 1;
-  opponent_pos[1] = - board_size;
-  opponent_pos[2] = - board_size + 1;
-  opponent_pos[3] = - 1;
-  opponent_pos[4] = 1;
-  opponent_pos[5] = board_size - 1;
-  opponent_pos[6] = board_size;
-  opponent_pos[7] = board_size + 1;
-
-  // Pattern No.1
-  // ?O+?
-  // ?+X+
-  // P+O+
-  // ?+++
-  if (board[pos + opponent_pos[0]] == other &&
-            board[pos + opponent_pos[6]] == other &&
-            board[pos + keima_pos[4]] == color &&
-      board[NORTH(pos)] != other &&
-      Pat3(game->pat, opponent_pos[6]) == 0x0000) {
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-
-  // Pattern No.2
-  // ??P?
-  // O+++
-  // +XO+
-  // ?+++
-  if (board[pos + opponent_pos[0]] == other &&
-            board[pos + opponent_pos[4]] == other &&
-            board[pos + keima_pos[1]] == color &&
-      board[WEST(pos)] != other &&
-      Pat3(game->pat, pos + opponent_pos[4]) == 0x0000) {
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-
-  // Pattern No.3
-  // ?+++
-  // P+O+
-  // ?+X+
-  // ?O+?
-  if (board[pos + opponent_pos[1]] == other &&
-            board[pos + opponent_pos[5]] == other &&
-            board[pos + keima_pos[2]] == color &&
-      board[SOUTH(pos)] != other &&
-      Pat3(game->pat, pos + opponent_pos[1]) == 0x0000) {
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-
-  // Pattern No.4
-  // +++?
-  // +O+P
-  // +X+?
-  // ?+O?
-  if (board[pos + opponent_pos[1]] == other &&
-            board[pos + opponent_pos[7]] == other &&
-            board[pos + keima_pos[3]] == color &&
-      board[SOUTH(pos)] != other &&
-      Pat3(game->pat, pos + opponent_pos[1]) == 0x0000) {
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-
-  // Pattern No.5
-  // +P??
-  // +++O
-  // +OX+
-  // +++?
-  if (board[pos + opponent_pos[2]] == other &&
-            board[pos + opponent_pos[3]] == other &&
-            board[pos + keima_pos[0]] == color &&
-      board[EAST(pos)] != other &&
-      Pat3(game->pat, pos + opponent_pos[3]) == 0x0000) {
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-
-  // Pattern No.6
-  // ?+O?
-  // +X+?
-  // +O+P
-  // +++?
-  if (board[pos + opponent_pos[2]] == other &&
-            board[pos + opponent_pos[6]] == other &&
-            board[pos + keima_pos[5]] == color &&
-      board[NORTH(pos)] != other &&
-      Pat3(game->pat, pos + opponent_pos[6]) == 0x0000){
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-
-  // Pattern No.7
-  // ?+++
-  // +XO+
-  // O+++
-  // ??P?
-  if (board[pos + opponent_pos[4]] == other &&
-            board[pos + opponent_pos[5]] == other &&
-            board[pos + keima_pos[7]] == color &&
-      board[WEST(pos)] != other &&
-      Pat3(game->pat, pos + opponent_pos[4]) == 0x0000){
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-
-
-  // Pattern No.8
-  // +++?
-  // +OX+
-  // +++O
-  // ?P??
-  if (board[pos + opponent_pos[3]] == other &&
-            board[pos + opponent_pos[7]] == other &&
-            board[pos + keima_pos[6]] == color &&
-      board[EAST(pos)] != other &&
-      Pat3(game->pat, pos + opponent_pos[3]) == 0x0000){
-    tactical_features1[pos] |= bit_mask[UCT_KEIMA_TSUKEKOSHI];
-    return;
-  }
-}
-
-
-//////////////////////
-//  両ケイマの判定  //
-//////////////////////
-void
-CheckDoubleKeimaForTree( game_info_t *game, int color, int pos, uct_features_t *uct_features )
-{
-  // ++O+O++
-  // +O+++O+
-  // +++X+++
-  // +O+++O+
-  // ++O+O++
-  // Oのうち自分と相手の石が1個ずつ以上ある時の特徴
-  const char *board = game->board;
-  const int other = GetOppositeColor(color);
-  int keima_pos[8];
-  int player = 0, opponent = 0;
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
-
-  if (Pat3(game->pat, pos) != 0x0000) {
-    return;
-  }
-
-  keima_pos[0] = -2 * board_size - 1;
-  keima_pos[1] = -2 * board_size + 1;
-  keima_pos[2] = - board_size - 2;
-  keima_pos[3] = - board_size + 2;
-  keima_pos[4] = board_size - 2;
-  keima_pos[5] = board_size + 2;
-  keima_pos[6] = 2 * board_size - 1;
-  keima_pos[7] = 2 * board_size + 1;
-
-  for (int i = 0; i < 8; i++) {
-    if (board[pos + keima_pos[i]] == color) player++;
-    if (board[pos + keima_pos[i]] == other) opponent++;
-  }
-
-  if (player > 0 && opponent > 0){
-    tactical_features1[pos] |= bit_mask[UCT_DOUBLE_KEIMA];
-  }
-
-}
-
-
-////////////////////
-//  ウッテガエシ  //
-////////////////////
-void
-CheckSnapBackForTree( game_info_t *game, int color, int pos, uct_features_t *uct_features )
-{
-  const string_t *string = game->string;
-  const int *string_id = game->string_id;
-  const char *board = game->board;
-  const int other = GetOppositeColor(color);
-  unsigned long long *tactical_features1 = uct_features->tactical_features1;
-  int neighbor4[4];
-
-  GetNeighbor4(neighbor4, pos);
-
-  for (int i = 0; i < 4; i++) {
-    if (board[neighbor4[i]] == other) {
-      int id = string_id[neighbor4[i]];
-
-      game_info_t *check_game;
-      if (string[id].libs == 1) {
-        check_game = game;
-      } else if (string[id].libs == 2) {
-        CopyGame(&snapback_game, game);
-        PutStone(&snapback_game, pos, color);
-        check_game = &snapback_game;
-      } else {
-        continue;
-      }
-      int id2 = check_game->string_id[neighbor4[i]];
-      int lib = check_game->string[id2].lib[0];
-      int capturable_pos = CapturableCandidate(check_game, id2);
-      if (lib == capturable_pos) {
-        tactical_features1[pos] |= bit_mask[UCT_SNAPBACK];
-        return;
-      }
-    }
-  }
-}
-

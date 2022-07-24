@@ -23,6 +23,6 @@ int PoRemoveString( game_info_t *game, string_t *string, const int color );
 void RemoveLiberty( game_info_t *game, string_t *string, const int pos );
 
 // 連の除去
-int RemoveString( game_info_t *game, string_t *string );
+int RemoveString( game_info_t *game, string_t *string, const int color );
 
 #endif

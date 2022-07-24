@@ -1,18 +1,13 @@
+#include <memory>
+
 #include "board/GoBoard.hpp"
 #include "board/Point.hpp"
+#include "board/SearchBoard.hpp"
 #include "common/Message.hpp"
 #include "feature/Semeai.hpp"
 #include "pattern/Pattern.hpp"
 #include "mcts/UctRating.hpp"
 
-// IsCapturableAtari関数用
-game_info_t capturable_game;
-// CheckOiotoshi関数用
-game_info_t oiotoshi_game;
-// CheckLibertyState関数用
-game_info_t liberty_game;
-// IsSelfAtariCapture関数用
-game_info_t capture_game;
 
 /////////////////////////
 //  1手で取れるか確認  //
@@ -20,28 +15,24 @@ game_info_t capture_game;
 bool
 IsCapturableAtari( const game_info_t *game, const int pos, const int color, const int opponent_pos )
 {
-  string_t *string;
-  const int *string_id;
-  int other = GetOppositeColor(color);
-  int neighbor;
-  int id;
-  int libs;
+  const int other = GetOppositeColor(color);
 
   if (!IsLegal(game, pos, color)) {
     return false;
   }
 
-  // 局面をコピー
-  CopyGame(&capturable_game, game);
-  // とりあえず石を置く
-  PutStone(&capturable_game, pos, color);
+  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
+  search_game_info_t *capturable_game = search_game.get();
 
-  string = capturable_game.string;
-  string_id = capturable_game.string_id;
-  id = string_id[opponent_pos];
+  // とりあえず石を置く
+  PutStoneForSearch(capturable_game, pos, color);
+
+  const string_t *string = capturable_game->string;
+  const int *string_id = capturable_game->string_id;
+  const int id = string_id[opponent_pos];
 
   // 周囲に取り返せる石があれば安全
-  neighbor = string[id].neighbor[0];
+  int neighbor = string[id].neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       return false;
@@ -49,16 +40,14 @@ IsCapturableAtari( const game_info_t *game, const int pos, const int color, cons
     neighbor = string[id].neighbor[neighbor];
   }
 
-  if (!IsLegal(&capturable_game, string[string_id[opponent_pos]].lib[0], other)) {
+  if (!IsLegalForSearch(capturable_game, string[string_id[opponent_pos]].lib[0], other)) {
     return true;
   }
   // 逃げるつもりでダメに打つ
-  PutStone(&capturable_game, string[string_id[opponent_pos]].lib[0], other);
-
-  libs = string[string_id[opponent_pos]].libs;
+  PutStoneForSearch(capturable_game, string[string_id[opponent_pos]].lib[0], other);
 
   // 逃げても呼吸点が1つなら捕獲可能と判定
-  if (libs == 1) {
+  if (string[string_id[opponent_pos]].libs == 1) {
     return true;
   } else {
     return false;
@@ -73,23 +62,23 @@ IsCapturableAtari( const game_info_t *game, const int pos, const int color, cons
 int
 CheckOiotoshi( const game_info_t *game, const int pos, const int color, const int opponent_pos )
 {
-  string_t *string;
-  int *string_id;
   const int other = GetOppositeColor(color);
-  int neighbor;
-  int id, num = -1;
+  int num = -1;
 
   if (!IsLegal(game, pos, color)) {
     return -1;
   }
 
-  CopyGame(&oiotoshi_game, game);
-  PutStone(&oiotoshi_game, pos, color);
-  string = oiotoshi_game.string;
-  string_id = oiotoshi_game.string_id;
-  id = string_id[opponent_pos];
+  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
+  search_game_info_t *oiotoshi_game = search_game.get();
+  
+  PutStoneForSearch(oiotoshi_game, pos, color);
 
-  neighbor = string[id].neighbor[0];
+  const string_t *string = oiotoshi_game->string;
+  const int *string_id = oiotoshi_game->string_id;
+  const int id = string_id[opponent_pos];
+
+  int neighbor = string[id].neighbor[0];
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       return -1;
@@ -97,10 +86,10 @@ CheckOiotoshi( const game_info_t *game, const int pos, const int color, const in
     neighbor = string[id].neighbor[neighbor];
   }
 
-  if (!IsLegal(&oiotoshi_game, string[string_id[opponent_pos]].lib[0], other)) {
+  if (!IsLegalForSearch(oiotoshi_game, string[string_id[opponent_pos]].lib[0], other)) {
     return -1;
   }
-  PutStone(&oiotoshi_game, string[string_id[opponent_pos]].lib[0], other);
+  PutStoneForSearch(oiotoshi_game, string[string_id[opponent_pos]].lib[0], other);
 
   if (string[string_id[opponent_pos]].libs == 1) {
     num = string[string_id[opponent_pos]].size;
@@ -147,7 +136,6 @@ CapturableCandidate( const game_info_t *game, const int id )
 bool
 IsDeadlyExtension( const game_info_t *game, const int color, const int id )
 {
-  game_info_t search_game;
   const int other = GetOppositeColor(color);
   int pos = game->string[id].lib[0];
 
@@ -156,10 +144,12 @@ IsDeadlyExtension( const game_info_t *game, const int color, const int id )
     return true;
   }
 
-  CopyGame(&search_game, game);
-  PutStone(&search_game, pos, other);
+  std::unique_ptr<search_game_info_t> search_game_data(new search_game_info_t(game));
+  search_game_info_t *search_game = search_game_data.get();
 
-  if (search_game.string[search_game.string_id[pos]].libs == 1) {
+  PutStoneForSearch(search_game, pos, other);
+
+  if (search_game->string[search_game->string_id[pos]].libs == 1) {
     return true;
   } else {
     return false;
@@ -173,19 +163,19 @@ IsDeadlyExtension( const game_info_t *game, const int color, const int id )
 bool
 IsSelfAtariCapture( const game_info_t *game, const int pos, const int color, const int id )
 {
-  string_t *string;
-  const int string_pos = game->string[id].origin;
-  int *string_id;
 
   if (!IsLegal(game, pos, color)) {
     return false;
   }
 
-  CopyGame(&capture_game, game);
-  PutStone(&capture_game, pos, color);
+  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
+  search_game_info_t *capture_game = search_game.get();
 
-  string = capture_game.string;
-  string_id = capture_game.string_id;
+  PutStoneForSearch(capture_game, pos, color);
+
+  const string_t *string = capture_game->string;
+  const int *string_id = capture_game->string_id;
+  const int string_pos = game->string[id].origin;
 
   if (string[string_id[string_pos]].libs == 1) {
     return true;
@@ -200,23 +190,21 @@ IsSelfAtariCapture( const game_info_t *game, const int pos, const int color, con
 int
 CheckLibertyState( const game_info_t *game, const int pos, const int color, const int id )
 {
-  string_t *string;
   const int string_pos = game->string[id].origin;
-  int *string_id;
   const int libs = game->string[id].libs;
-  int new_libs;
 
   if (!IsLegal(game, pos, color)) {
     return L_DECREASE;
   }
 
-  CopyGame(&liberty_game, game);
-  PutStone(&liberty_game, pos, color);
+  std::unique_ptr<search_game_info_t> search_game(new search_game_info_t(game));
+  search_game_info_t *liberty_game = search_game.get();
 
-  string = liberty_game.string;
-  string_id = liberty_game.string_id;
+  PutStoneForSearch(liberty_game, pos, color);
 
-  new_libs = string[string_id[string_pos]].libs;
+  const string_t *string = liberty_game->string;
+  const int *string_id = liberty_game->string_id;
+  const int new_libs = string[string_id[string_pos]].libs;
 
   if (new_libs > libs + 1) {
     return L_INCREASE;

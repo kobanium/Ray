@@ -68,45 +68,6 @@ static void InitializeEye( void );
 // 地のパターンの設定
 static void InitializeTerritory( void );
 
-// ダメ(pos)を連(string)に加える
-// 加えたダメ(pos)を返す
-//static int AddLiberty( string_t *string, const int pos, const int head );
-
-// ダメ(pos)を連(string)から取り除く
-//static void RemoveLiberty( game_info_t *game, string_t *string, const int pos );
-
-// ダメ(pos)を連(string)から取り除く
-//static void PoRemoveLiberty( game_info_t *game, string_t *string, const int pos, const int color );
-
-// 石1つの連を作る
-//static void MakeString( game_info_t *game, const int pos, const int color );
-
-// 連と1つの石の接続
-//static void AddStone( game_info_t *game, int pos, int color, int id );
-
-/// 2つ以上の連の接続
-//static void ConnectString( game_info_t *game, const int pos, const int color, const int connection, const int id[] );
-
-// 2つ以上の連のマージ
-//static void MergeString( game_info_t *game, string_t *dst, string_t *src[3], const int n );
-
-// 連に1つ石を加える
-//static void AddStoneToString( game_info_t *game, string_t *string, const int pos, const int head );
-
-// 連を盤上から除去
-// 取り除いた石の数を返す
-//static int RemoveString( game_info_t *game, string_t *string );
-
-// 連を盤上から除去
-// 取り除いた石の数を返す
-//static int PoRemoveString( game_info_t *game, string_t *string, const int color );
-
-// 隣接する連IDの追加
-//static void AddNeighbor( string_t *string, const int id, const int head );
-
-// 隣接する連IDの削除
-//static void RemoveNeighborString( string_t *string, const int id );
-
 //  盤端での処理
 static bool IsFalseEyeConnection( const game_info_t *game, const int pos, const int color );
 
@@ -996,7 +957,7 @@ PutStone( game_info_t *game, const int pos, const int color )
     } else if (board[neighbor[i]] == other) {
       RemoveLiberty(game, &string[string_id[neighbor[i]]], pos);
       if (string[string_id[neighbor[i]]].libs == 0) {
-        prisoner += RemoveString(game, &string[string_id[neighbor[i]]]);
+        prisoner += RemoveString(game, &string[string_id[neighbor[i]]], color);
       }
     }
   }

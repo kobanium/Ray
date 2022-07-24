@@ -8,6 +8,7 @@
 #include "board/GoBoard.hpp"
 #include "board/Point.hpp"
 #include "common/Message.hpp"
+#include "learn/LearningSettings.hpp"
 #include "learn/PatternAnalyzer.hpp"
 #include "pattern/PatternHash.hpp"
 #include "sgf/SgfExtractor.hpp"
@@ -26,8 +27,7 @@ static void RemoveData( std::unique_ptr<hash_table_t> &hash_table );
 
 static void AddData( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash, pattern_t *pat );
 
-static void OutputTargetPattern( std::unique_ptr<int[]> &md2_sim_count,
-                                 std::unique_ptr<int[]> &md2_count,
+static void OutputTargetPattern( std::unique_ptr<int[]> &md2_count,
                                  std::unique_ptr<hash_table_t> &md3_count,
                                  std::unique_ptr<hash_table_t> &md4_count,
                                  std::unique_ptr<hash_table_t> &md5_count );
@@ -36,7 +36,6 @@ static void OutputTargetPattern( std::unique_ptr<int[]> &md2_sim_count,
 void
 AnalyzePattern( void )
 {
-  std::unique_ptr<int[]> md2_sim_count(new int[MD2_MAX]);
   std::unique_ptr<int[]> md2_count(new int[MD2_MAX]);
   std::unique_ptr<hash_table_t> md3_count(new hash_table_t);
   std::unique_ptr<hash_table_t> md4_count(new hash_table_t);
@@ -76,18 +75,6 @@ AnalyzePattern( void )
 
       if (pos != PASS) {
         md2 = MD2(game->pat, pos);
-        if (color == S_BLACK) {
-          md2 = MD2Reverse(md2);
-        }
-        MD2Transpose8(md2, md2_transp);
-        min_md2 = MD2_MAX;
-        for (int k = 0; k < 8; k++) {
-          if (min_md2 > md2_transp[k]) {
-            min_md2 = md2_transp[k];
-          }
-        }
-        md2_sim_count[min_md2]++;
-
         MD2Transpose16(md2, md2_transp);
         min_md2 = MD2_MAX;
         for (int k = 0; k < 16; k++) {
@@ -108,7 +95,7 @@ AnalyzePattern( void )
     }
   }
 
-  OutputTargetPattern(md2_sim_count, md2_count, md3_count, md4_count, md5_count);
+  OutputTargetPattern(md2_count, md3_count, md4_count, md5_count);
 
   FreeGame(game);
   FreeGame(init_game);
@@ -230,24 +217,18 @@ SearchEmpty( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash 
 
 
 static void
-OutputTargetPattern( std::unique_ptr<int[]> &md2_sim_count,
-                     std::unique_ptr<int[]> &md2_count,
+OutputTargetPattern( std::unique_ptr<int[]> &md2_count,
                      std::unique_ptr<hash_table_t> &md3_count,
                      std::unique_ptr<hash_table_t> &md4_count,
                      std::unique_ptr<hash_table_t> &md5_count )
 {
-  std::string result_path(ANALYZE_RESULT_PATH);
-  std::ofstream md2_sim_ofs(result_path + PATH_SEPARATOR + "MD2TargetForSimulation.txt");
-  std::ofstream md2_ofs(result_path + PATH_SEPARATOR + "MD2Target.txt");
-  std::ofstream md3_ofs(result_path + PATH_SEPARATOR + "MD3Target.txt");
-  std::ofstream md4_ofs(result_path + PATH_SEPARATOR + "MD4Target.txt");
-  std::ofstream md5_ofs(result_path + PATH_SEPARATOR + "MD5Target.txt");
-
-  for (int i = 0; i < MD2_MAX; i++) {
-    if (md2_sim_count[i] >= APPEARANCE_MIN) {
-      md2_sim_ofs << i << std::endl;
-    }
-  }
+  const std::string result_path = GetWorkingDirectory() + PATH_SEPARATOR +
+    LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
+    PATTERN_TARGET_DIR_NAME + PATH_SEPARATOR;
+  std::ofstream md2_ofs(result_path + MD2_TARGET_FILE_NAME);
+  std::ofstream md3_ofs(result_path + MD3_TARGET_FILE_NAME);
+  std::ofstream md4_ofs(result_path + MD4_TARGET_FILE_NAME);
+  std::ofstream md5_ofs(result_path + MD5_TARGET_FILE_NAME);
 
   for (int i = 0; i < MD2_MAX; i++) {
     if (md2_count[i] >= APPEARANCE_MIN) {

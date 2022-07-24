@@ -1,4 +1,5 @@
-#include <cstdio>
+#include <iostream>
+#include <sstream>
 #include <cstring>
 
 #include "board/GoBoard.hpp"
@@ -38,8 +39,10 @@
 //  グローバル変数  //
 //////////////////////
 
+
+
 //  更新用ビットマスク
-static const unsigned int update_mask[40][3] = {
+static constexpr unsigned int update_mask[40][3] = {
   //  3x3
   { 0, 0x00004000, 0x00008000 }, //  1->8
   { 0, 0x00001000, 0x00002000 }, //  2->7
@@ -823,84 +826,99 @@ MD5( const pattern_t *pat, const int pos )
 //  表示する  //
 ////////////////
 
+static char
+Stone( const unsigned int pat, const int shift )
+{
+  constexpr char stone[4] = { '+', '@', 'O', '#' };
+
+  return stone[(pat >> shift) & 0x3];
+}
+
+
+
 //  3x3
 void
 DisplayInputPat3( const unsigned int pat3 )
 {
-  static char stone[] = { '+', '@', 'O', '#' };
+  std::ostringstream oss;
 
-  printf("\n");
-  printf("%c%c%c\n", stone[pat3 & 0x3], stone[(pat3 >> 2) & 0x3], stone[(pat3 >> 4) & 0x3]);
-  printf("%c*%c\n", stone[(pat3 >> 6) & 0x3], stone[(pat3 >> 8) & 0x3]);
-  printf("%c%c%c\n", stone[(pat3 >> 10) & 0x3], stone[(pat3 >> 12) & 0x3], stone[(pat3 >> 14) & 0x3]);
+  oss << "\n";
+  oss << Stone(pat3,  0) << Stone(pat3,  2) << Stone(pat3,  4) << "\n";
+  oss << Stone(pat3,  6) << "*"             << Stone(pat3,  8) << "\n";
+  oss << Stone(pat3, 10) << Stone(pat3, 12) << Stone(pat3, 14) << "\n";
+  std::cerr << oss.str() << std::flush;
 }
 
 //  md2
 void
 DisplayInputMD2( const unsigned int md2 )
 {
-  static char stone[] = { '+', '@', 'O', '#' };
+  std::ostringstream oss;
 
-  printf("\n");
-  printf("  %c  \n", stone[(md2 >> 16) & 0x3]);
-  printf(" %c%c%c \n", stone[md2 & 0x3], stone[(md2 >> 2) & 0x3], stone[(md2 >> 4) & 0x3]);
-  printf("%c%c*%c%c\n", stone[(md2 >> 22) & 0x3], stone[(md2 >> 6) & 0x3], stone[(md2 >> 8) & 0x3], stone[(md2 >> 18) & 0x3]);
-  printf(" %c%c%c \n", stone[(md2 >> 10) & 0x3], stone[(md2 >> 12) & 0x3], stone[(md2 >> 14) & 0x3]);
-  printf("  %c  \n", stone[(md2 >> 20) & 0x3]);
+  oss << "\n";
+  oss << "  " << Stone(md2, 16) << "  \n";
+  oss << " " << Stone(md2, 0) << Stone(md2, 2) << Stone(md2, 4) << " \n";
+  oss << Stone(md2, 22) << Stone(md2, 6) << "*" << Stone(md2, 8) << Stone(md2, 18) << "\n";
+  oss << " " << Stone(md2, 10) << Stone(md2, 12) << Stone(md2, 14) << " \n";
+  oss << "  " << Stone(md2, 20) << "  \n";
+  std::cerr << oss.str() << std::flush;
 }
 
 //  md3
 void
 DisplayInputMD3( const unsigned int md3 )
 {
-  static char stone[] = { '+', '@', 'O', '#' };
+  std::ostringstream oss;
 
-  printf("\n");
-  printf("   %c   \n", stone[md3 & 0x3]);
-  printf("  %c %c  \n", stone[(md3 >> 22) & 0x3], stone[(md3 >> 2) & 0x3]);
-  printf(" %c   %c \n", stone[(md3 >> 20) & 0x3], stone[(md3 >> 4) & 0x3]);
-  printf("%c  *  %c\n", stone[(md3 >> 18) & 0x3], stone[(md3 >> 6) & 0x3]);
-  printf(" %c   %c \n", stone[(md3 >> 16) & 0x3], stone[(md3 >> 8) & 0x3]);
-  printf("  %c %c  \n", stone[(md3 >> 14) & 0x3], stone[(md3 >> 10) & 0x3]);
-  printf("   %c   \n", stone[(md3 >> 12) & 0x3]);
+  oss << "\n";
+  oss << "   " << Stone(md3, 0) << "   \n";
+  oss << "  " << Stone(md3, 22) << " " << Stone(md3,  2) << "  \n";
+  oss << " " << Stone(md3, 20) << "   " << Stone(md3,  4) << " \n";
+  oss <<       Stone(md3, 18) << "  *  " << Stone(md3,  6) << "\n";
+  oss << " " << Stone(md3, 16) << "   " << Stone(md3,  8) << " \n";
+  oss << "  " << Stone(md3, 14) << " " << Stone(md3, 10) << "  \n";
+  oss << "   " << Stone(md3, 12) << "   \n";
+  std::cerr << oss.str() << std::endl;
 }
 
 //  md4
 void
 DisplayInputMD4( const unsigned int md4 )
 {
-  static char stone[] = { '+', '@', 'O', '#' };
+  std::ostringstream oss;
 
-  printf("\n");
-  printf("    %c    \n", stone[md4 & 0x3]);
-  printf("   %c %c   \n", stone[(md4 >> 30) & 0x3], stone[(md4 >> 2) & 0x3]);
-  printf("  %c   %c  \n", stone[(md4 >> 28) & 0x3], stone[(md4 >> 4) & 0x3]);
-  printf(" %c     %c \n", stone[(md4 >> 26) & 0x3], stone[(md4 >> 6) & 0x3]);
-  printf("%c   *   %c\n", stone[(md4 >> 24) & 0x3], stone[(md4 >> 8) & 0x3]);
-  printf(" %c     %c \n", stone[(md4 >> 22) & 0x3], stone[(md4 >> 10) & 0x3]);
-  printf("  %c   %c  \n", stone[(md4 >> 20) & 0x3], stone[(md4 >> 12) & 0x3]);
-  printf("   %c %c   \n", stone[(md4 >> 18) & 0x3], stone[(md4 >> 14) & 0x3]);
-  printf("    %c    \n", stone[(md4 >> 16) & 0x3]);
+  oss << "\n";
+  oss << "    " << Stone(md4,  0) << "    \n";
+  oss << "   " << Stone(md4, 30) << " " << Stone(md4,  2) << "   \n";
+  oss << "  " << Stone(md4, 28) << "   " << Stone(md4,  4) << "  \n";
+  oss << " " << Stone(md4, 26) << "     " << Stone(md4,  6) << " \n";
+  oss <<       Stone(md4, 24) << "   *   " << Stone(md4,  8) << "\n";
+  oss << " " << Stone(md4, 22) << "     " << Stone(md4, 10) << " \n";
+  oss << "  " << Stone(md4, 20) << "   " << Stone(md4, 12) << "  \n";
+  oss << "   " << Stone(md4, 18) << " " << Stone(md4, 14) << "   \n";
+  oss << "    " << Stone(md4, 16) << "    \n";
+  std::cerr << oss.str() << std::endl;
 }
 
 //  md5
 void
 DisplayInputMD5( const unsigned long long md5 )
 {
-  static char stone[] = { '+', '@', 'O', '#' };
+  std::ostringstream oss;
 
-  printf("\n");
-  printf("     %c      \n", stone[md5 & 0x3]);
-  printf("    %c %c    \n", stone[(md5 >> 38) & 0x3], stone[(md5 >> 2) & 0x3]);
-  printf("   %c   %c   \n", stone[(md5 >> 36) & 0x3], stone[(md5 >> 4) & 0x3]);
-  printf("  %c     %c  \n", stone[(md5 >> 34) & 0x3], stone[(md5 >> 6) & 0x3]);
-  printf(" %c       %c \n", stone[(md5 >> 32) & 0x3], stone[(md5 >> 8) & 0x3]);
-  printf("%c    *    %c\n", stone[(md5 >> 30) & 0x3], stone[(md5 >> 10) & 0x3]);
-  printf(" %c       %c \n", stone[(md5 >> 28) & 0x3], stone[(md5 >> 12) & 0x3]);
-  printf("  %c     %c  \n", stone[(md5 >> 26) & 0x3], stone[(md5 >> 14) & 0x3]);
-  printf("   %c   %c   \n", stone[(md5 >> 24) & 0x3], stone[(md5 >> 16) & 0x3]);
-  printf("    %c %c    \n", stone[(md5 >> 22) & 0x3], stone[(md5 >> 18) & 0x3]);
-  printf("     %c      \n", stone[(md5 >> 20) & 0x3]);
+  oss << "\n";
+  oss << "     " << Stone(md5,  0) << "     \n";
+  oss << "    " << Stone(md5, 38) << " " << Stone(md5,  2) << "    \n";
+  oss << "   " << Stone(md5, 36) << "   " << Stone(md5,  4) << "   \n";
+  oss << "  " << Stone(md5, 34) << "     " << Stone(md5,  6) << "  \n";
+  oss << " " << Stone(md5, 32) << "       " << Stone(md5,  8) << " \n";
+  oss <<       Stone(md5, 30) << "    *    " << Stone(md5, 10) << "\n";
+  oss << " " << Stone(md5, 28) << "       " << Stone(md5, 12) << " \n";
+  oss << "  " << Stone(md5, 26) << "     " << Stone(md5, 14) << "  \n";
+  oss << "   " << Stone(md5, 24) << "   " << Stone(md5, 16) << "   \n";
+  oss << "    " << Stone(md5, 22) << " " << Stone(md5, 18) << "    \n";
+  oss << "     " << Stone(md5, 20) << "     \n";
+  std::cerr << oss.str() << std::endl;
 }
 
 
@@ -908,39 +926,52 @@ DisplayInputMD5( const unsigned long long md5 )
 void
 DisplayInputPattern( pattern_t *pattern, int size )
 {
-  static char stone[] = { '+', '@', 'O', '#' };
-  unsigned int md2, md3, md4;
+  std::ostringstream oss;
+  unsigned int md2 = pattern->list[MD_2];
+  unsigned int md3 = pattern->list[MD_3];
+  unsigned int md4 = pattern->list[MD_4];
+  unsigned long long md5 = pattern->large_list[MD_5];
 
-  md2 = pattern->list[MD_2];
-  md3 = pattern->list[MD_3];
-  md4 = pattern->list[MD_4];
+  oss << "\n";
+  
 
-  if (size == 4) {
-    printf("\n");
-    printf("    %c    \n", stone[md4 & 0x3]);
-    printf("   %c%c%c   \n", stone[(md4 >> 30) & 0x3], stone[md3 & 0x3], stone[(md4 >> 2) & 0x3]);
-    printf("  %c%c%c%c%c  \n", stone[(md4 >> 28) & 0x3], stone[(md3 >> 22) & 0x3], stone[(md2 >> 16) & 0x3], stone[(md3 >> 2) & 0x3], stone[(md4 >> 4) & 0x3]);
-    printf(" %c%c%c%c%c%c%c \n", stone[(md4 >> 26) & 0x3], stone[(md3 >> 20) & 0x3], stone[md2 & 0x3], stone[(md2 >> 2) & 0x3], stone[(md2 >> 4) & 0x3], stone[(md3 >> 4) & 0x3], stone[(md4 >> 6) & 0x3]);
-    printf("%c%c%c%c*%c%c%c%c\n", stone[(md4 >> 24) & 0x3], stone[(md3 >> 18) & 0x3], stone[(md2 >> 22) & 0x3], stone[(md2 >> 6) & 0x3], stone[(md2 >> 8) & 0x3], stone[(md2 >> 18) & 0x3], stone[(md3 >> 6) & 0x3], stone[(md4 >> 8) & 0x3]);
-    printf(" %c%c%c%c%c%c%c \n", stone[(md4 >> 22) & 0x3], stone[(md3 >> 16) & 0x3], stone[(md2 >> 10) & 0x3], stone[(md2 >> 12) & 0x3], stone[(md2 >> 14) & 0x3], stone[(md3 >> 8) & 0x3], stone[(md4 >> 10) & 0x3]);
-    printf("  %c%c%c%c%c  \n", stone[(md4 >> 20) & 0x3], stone[(md3 >> 14) & 0x3], stone[(md2 >> 20) & 0x3], stone[(md3 >> 10) & 0x3], stone[(md4 >> 12) & 0x3]);
-    printf("   %c%c%c   \n", stone[(md4 >> 18) & 0x3], stone[(md3 >> 12) & 0x3], stone[(md4 >> 14) & 0x3]);
-    printf("    %c    \n", stone[(md4 >> 16) & 0x3]);
+  if (size == 5) {
+    oss << "     " << Stone(md5,  0) << "     \n";
+    oss << "    " << Stone(md5, 38) << Stone(md4,  0) << Stone(md5,  2) << "    \n";
+    oss << "   " << Stone(md5, 36) << Stone(md4, 30) << Stone(md3, 0) << Stone(md4,  2) << Stone(md5,  4) << "   \n";
+    oss << "  " << Stone(md5, 34) << Stone(md4, 28) << Stone(md3, 22) << Stone(md2, 16) << Stone(md3,  2) << Stone(md4,  4) << Stone(md5,  6) << "  \n";
+    oss << " " << Stone(md5, 32) << Stone(md4, 26) << Stone(md3, 20) << Stone(md2,  0) << Stone(md2,  2) << Stone(md2, 4) << Stone(md3,  4) << Stone(md4,  6) << Stone(md5,  8) << " \n";
+    oss <<       Stone(md5, 30) << Stone(md4, 24) << Stone(md3, 18) << Stone(md2, 22) << Stone(md2, 6) << "*" << Stone(md2, 8) << Stone(md2, 18) << Stone(md3,  6) << Stone(md4,  8) << Stone(md5, 10) << "\n";
+    oss << " " << Stone(md5, 28) << Stone(md4, 22) << Stone(md3, 16) << Stone(md2, 10) << Stone(md2, 12) << Stone(md2, 14) << Stone(md3,  8) << Stone(md4, 10) << Stone(md5, 12) << " \n";
+    oss << "  " << Stone(md5, 26) << Stone(md4, 20) << Stone(md3, 14) << Stone(md2, 20) << Stone(md3, 10) << Stone(md4, 12) << Stone(md5, 14) << "  \n";
+    oss << "   " << Stone(md5, 24) << Stone(md4, 18) << Stone(md3, 12) << Stone(md4, 14) << Stone(md5, 16) << "   \n";
+    oss << "    " << Stone(md5, 22) << Stone(md4, 16) << Stone(md5, 18) << "    \n";
+    oss << "     " << Stone(md5, 20) << "     \n";
+  } else if (size == 4) {
+    oss << "    " << Stone(md4,  0) << "    \n";
+    oss << "   " << Stone(md4, 30) << Stone(md3, 0) << Stone(md4,  2) << "   \n";
+    oss << "  " << Stone(md4, 28) << Stone(md3, 22) << Stone(md2, 16) << Stone(md3,  2) << Stone(md4,  4) << "  \n";
+    oss << " " << Stone(md4, 26) << Stone(md3, 20) << Stone(md2,  0) << Stone(md2,  2) << Stone(md2, 4) << Stone(md3,  4) << Stone(md4,  6) << " \n";
+    oss << Stone(md4, 24) << Stone(md3, 18) << Stone(md2, 22) << Stone(md2, 6) << "*" << Stone(md2, 8) << Stone(md2, 18) << Stone(md3,  6) << Stone(md4,  8) << "\n";
+    oss << " " << Stone(md4, 22) << Stone(md3, 16) << Stone(md2, 10) << Stone(md2, 12) << Stone(md2, 14) << Stone(md3,  8) << Stone(md4, 10) << " \n";
+    oss << "  " << Stone(md4, 20) << Stone(md3, 14) << Stone(md2, 20) << Stone(md3, 10) << Stone(md4, 12) << "  \n";
+    oss << "   " << Stone(md4, 18) << Stone(md3, 12) << Stone(md4, 14) << "   \n";
+    oss << "    " << Stone(md4, 16) << "    \n";
   } else if (size == 3) {
-    printf("\n");
-    printf("   %c   \n", stone[md3 & 0x3]);
-    printf("  %c%c%c  \n", stone[(md3 >> 22) & 0x3], stone[(md2 >> 16) & 0x3], stone[(md3 >> 2) & 0x3]);
-    printf(" %c%c%c%c%c \n", stone[(md3 >> 20) & 0x3], stone[md2 & 0x3], stone[(md2 >> 2) & 0x3], stone[(md2 >> 4) & 0x3], stone[(md3 >> 4) & 0x3]);
-    printf("%c%c%c*%c%c%c\n", stone[(md3 >> 18) & 0x3], stone[(md2 >> 22) & 0x3], stone[(md2 >> 6) & 0x3], stone[(md2 >> 8) & 0x3], stone[(md2 >> 18) & 0x3], stone[(md3 >> 6) & 0x3]);
-    printf(" %c%c%c%c%c \n", stone[(md3 >> 16) & 0x3], stone[(md2 >> 10) & 0x3], stone[(md2 >> 12) & 0x3], stone[(md2 >> 14) & 0x3], stone[(md3 >> 8) & 0x3]);
-    printf("  %c%c%c  \n", stone[(md3 >> 14) & 0x3], stone[(md2 >> 20) & 0x3], stone[(md3 >> 10) & 0x3]);
-    printf("   %c   \n", stone[(md3 >> 12) & 0x3]);
+    oss << "   " << Stone(md3, 0) << "   \n";
+    oss << "  " << Stone(md3, 22) << Stone(md2, 16) << Stone(md3,  2) << "  \n";
+    oss << " " << Stone(md3, 20) << Stone(md2,  0) << Stone(md2,  2) << Stone(md2, 4) << Stone(md3,  4) << " \n";
+    oss << Stone(md3, 18) << Stone(md2, 22) << Stone(md2, 6) << "*" << Stone(md2, 8) << Stone(md2, 18) << Stone(md3,  6) << "\n";
+    oss << " " << Stone(md3, 16) << Stone(md2, 10) << Stone(md2, 12) << Stone(md2, 14) << Stone(md3,  8) << " \n";
+    oss << "  " << Stone(md3, 14) << Stone(md2, 20) << Stone(md3, 10) << "  \n";
+    oss << "   " << Stone(md3, 12) << "   \n";
   } else if (size == 2) {
-    printf("\n");
-    printf("  %c  \n", stone[(md2 >> 16) & 0x3]);
-    printf(" %c%c%c \n", stone[md2 & 0x3], stone[(md2 >> 2) & 0x3], stone[(md2 >> 4) & 0x3]);
-    printf("%c%c*%c%c\n", stone[(md2 >> 22) & 0x3], stone[(md2 >> 6) & 0x3], stone[(md2 >> 8) & 0x3], stone[(md2 >> 18) & 0x3]);
-    printf(" %c%c%c \n", stone[(md2 >> 10) & 0x3], stone[(md2 >> 12) & 0x3], stone[(md2 >> 14) & 0x3]);
-    printf("  %c  \n", stone[(md2 >> 20) & 0x3]);
+    oss << "  " << Stone(md2, 16) << "  \n";
+    oss << " " << Stone(md2, 0) << Stone(md2, 2) << Stone(md2, 4) << " \n";
+    oss << Stone(md2, 22) << Stone(md2, 6) << "*" << Stone(md2, 8) << Stone(md2, 18) << "\n";
+    oss << " " << Stone(md2, 10) << Stone(md2, 12) << Stone(md2, 14) << " \n";
+    oss << "  " << Stone(md2, 20) << "  \n";
   }
+
+  std::cerr << oss.str() << std::flush;
 }

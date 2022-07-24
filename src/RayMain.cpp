@@ -8,6 +8,7 @@
 #include "board/ZobristHash.hpp"
 #include "feature/Semeai.hpp"
 #include "gtp/Gtp.hpp"
+#include "learn/FactorizationMachines.hpp"
 #include "learn/MinorizationMaximization.hpp"
 #include "learn/PatternAnalyzer.hpp"
 #include "pattern/PatternHash.hpp"
@@ -64,6 +65,8 @@ main( int argc, char **argv )
   //AnalyzePattern();
 
   //TrainBTModelByMinorizationMaximization();
+
+  //TrainBTModelWithFactorizationMachines();
 
   // GTP
   GTP_main();

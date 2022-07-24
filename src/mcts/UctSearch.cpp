@@ -56,7 +56,7 @@ static int expand_threshold = EXPAND_THRESHOLD_19;
 // 現在のルートのインデックス
 int current_root;
 // 各ノードの排他処理のためのmutex
-static std::mutex mutex_nodes[MAX_NODES];
+static std::mutex *mutex_nodes;
 // ノード展開を排他処理するためのmutex
 static std::mutex mutex_expand;       
 
@@ -216,6 +216,8 @@ InitializeUctSearch( void )
   for (i = i + 1; i <= PURE_BOARD_MAX; i++) { 
     pw[i] = INT_MAX;
   }
+
+  mutex_nodes = new std::mutex[uct_hash_size];
 
   // UCTのノードのメモリを確保
   uct_node = new uct_node_t[uct_hash_size];
@@ -636,97 +638,68 @@ RatingNode( game_info_t *game, int color, int index )
 {
   const int child_num = uct_node[index].child_num;
   const int moves = game->moves;
-  int pos, max_index;
-  int pat_index[3] = {0};
-  double score = 0.0, max_score, dynamic_parameter;
-  bool self_atari_flag;
-  pattern_hash_t hash_pat;
+  int max_index;
+  double score = 0.0, max_score, dynamic_parameter, total_score = 0.0;
   child_node_t *uct_child = uct_node[index].child;
-  uct_features_t uct_features;
-
-  memset(&uct_features, 0, sizeof(uct_features_t));
+  unsigned int tactical_features[BOARD_MAX * UCT_INDEX_MAX] = {0};
+  int distance_index = 0;
 
   // パスのレーティング
-  uct_child[PASS_INDEX].rate = CalculateLFRScore(game, PASS, pat_index, &uct_features);
-
+  uct_child[PASS_INDEX].rate = CalculateMoveScoreWithBTFM(game, PASS, tactical_features, distance_index);
   // 直前の着手で発生した特徴の確認
-  //UctCheckFeatures(game, color, &uct_features);
-  CheckFeaturesForTree(game, color, &uct_features);
+  distance_index = CheckFeaturesForTree(game, color, tactical_features);
   // 直前の着手で石を2つ取られたか確認
-  //UctCheckRemove2Stones(game, color, &uct_features);
-  CheckRemove2StonesForTree(game, color, &uct_features);
-  // 直前の着手で石を3つ取られたか確認
-  //UctCheckRemove3Stones(game, color, &uct_features);
-  CheckRemove3StonesForTree(game, color, &uct_features);
+  CheckRemove2StonesForTree(game, color, tactical_features);
   // 2手前で劫が発生していたら, 劫を解消するトリの確認
   if (game->ko_move == moves - 2) {
-    //UctCheckCaptureAfterKo(game, color, &uct_features);
-    CheckCaptureAfterKoForTree(game, color, &uct_features);
-    //UctCheckKoConnection(game, &uct_features);
-    CheckKoConnectionForTree(game, &uct_features);
+    CheckCaptureAfterKoForTree(game, color, tactical_features);
+    CheckKoConnectionForTree(game, tactical_features);
+  } else if (game->ko_move == moves - 3) {
+    CheckKoRecaptureForTree(game, color, tactical_features);
   }
 
   max_index = 0;
   max_score = uct_child[0].rate;
 
   for (int i = 1; i < child_num; i++) {
-    pos = uct_child[i].pos;
-
+    const int pos = uct_child[i].pos;
+  
     // 自己アタリの確認
-    //self_atari_flag = UctCheckSelfAtari(game, color, pos, &uct_features);
-    self_atari_flag = CheckSelfAtariForTree(game, color, pos, &uct_features);
-    // ウッテガエシの確認
-    //UctCheckSnapBack(game, color, pos, &uct_features);
-    CheckSnapBackForTree(game, color, pos, &uct_features);
+    CheckSelfAtariForTree(game, color, pos, tactical_features);
     // トリの確認
-    if ((uct_features.tactical_features1[pos] & capture_mask)== 0) {
-      //UctCheckCapture(game, color, pos, &uct_features);
-      CheckCaptureForTree(game, color, pos, &uct_features);
-    }
+    CheckCaptureForTree(game, color, pos, tactical_features);
     // アタリの確認
-    if ((uct_features.tactical_features1[pos] & atari_mask) == 0) {
-      //UctCheckAtari(game, color, pos, &uct_features);
-      CheckAtariForTree(game, color, pos, &uct_features);
-    }
-    // 両ケイマの確認
-    //UctCheckDoubleKeima(game, color, pos, &uct_features);
-    CheckDoubleKeimaForTree(game, color, pos, &uct_features);
-    // ケイマのツケコシの確認
-    //UctCheckKeimaTsukekoshi(game, color, pos, &uct_features);
-    CheckKeimaTsukekoshiForTree(game, color, pos, &uct_features);
+    CheckAtariForTree(game, color, pos, tactical_features);
 
     // 自己アタリが無意味だったらスコアを0.0にする
     // 逃げられないシチョウならスコアを-1.0にする
-    if (!self_atari_flag) {
+    if (uct_child[i].ladder) {
       score = 0.0;
-    } else if (uct_child[i].ladder) {
-      score = -1.0;
     } else {
-      // MD3, MD4, MD5のパターンのハッシュ値を求める
-      PatternHash(&game->pat[pos], &hash_pat);
-      // MD3のパターンのインデックスを探す
-      pat_index[0] = SearchIndex(md3_index, hash_pat.list[MD_3]);
-      // MD4のパターンのインデックスを探す
-      pat_index[1] = SearchIndex(md4_index, hash_pat.list[MD_4]);
-      // MD5のパターンのインデックスを探す
-      pat_index[2] = SearchIndex(md5_index, hash_pat.list[MD_5 + MD_MAX]);
-
-      score = CalculateLFRScore(game, pos, pat_index, &uct_features);
+      score = CalculateMoveScoreWithBTFM(game, pos, tactical_features, distance_index);
     }
 
     // その手のγを記録
     uct_child[i].rate = score;
+    total_score += score;
 
     // 現在見ている箇所のOwnerとCriticalityの補正値を求める
-    dynamic_parameter = uct_owner[owner_index[pos]] + uct_criticality[criticality_index[pos]];
+    //dynamic_parameter = 1.0;
+    dynamic_parameter = uct_owner[owner_index[pos]] * uct_criticality[criticality_index[pos]];
 
     // 最もγが大きい着手を記録する
-    if (score + dynamic_parameter > max_score) {
+    if (score * dynamic_parameter > max_score) {
       max_index = i;
-      max_score = score + dynamic_parameter;
+      max_score = score * dynamic_parameter;
     }
   }
 
+  const double inv_total = 1.0 / total_score;
+
+  for (int i = 0; i < child_num; i++) {
+    uct_child[i].rate *= inv_total;
+  }
+  
   // 最もγが大きい着手を探索できるようにする
   uct_child[max_index].pw = true;
 }
@@ -962,11 +935,12 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
     for (int i = 0; i < child_num; i++) {
       pos = uct_child[i].pos;
       if (pos == PASS) {
-        dynamic_parameter = 0.0;
+        dynamic_parameter = 1.0;
       } else {
-        dynamic_parameter = uct_owner[o_index[i]] + uct_criticality[c_index[i]];
+        //dynamic_parameter = 1.0;
+        dynamic_parameter = uct_owner[o_index[i]] * uct_criticality[c_index[i]];
       }
-      order[i].rate = uct_child[i].rate + dynamic_parameter;
+      order[i].rate = uct_child[i].rate * dynamic_parameter;
       order[i].index = i;
       uct_child[i].pw = false;
     }
@@ -989,10 +963,11 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
     for (int i = 0; i < child_num; i++) {
       if (uct_child[i].pw == false) {
         pos = uct_child[i].pos;
-        dynamic_parameter = uct_owner[owner_index[pos]] + uct_criticality[criticality_index[pos]];
-        if (uct_child[i].rate + dynamic_parameter > max_rate) {
+        //dynamic_parameter = 1.0;
+        dynamic_parameter = uct_owner[owner_index[pos]] * uct_criticality[criticality_index[pos]];
+        if (uct_child[i].rate * dynamic_parameter > max_rate) {
           max_index = i;
-          max_rate = uct_child[i].rate + dynamic_parameter;
+          max_rate = uct_child[i].rate * dynamic_parameter;
         }
       }
     }
@@ -1050,7 +1025,7 @@ CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int co
       ((((double)node_statistic[pos].colors[color] / count) * win)
        + (((double)node_statistic[pos].colors[other] / count) * lose));
     if (tmp < 0) tmp = 0;
-    index[i] = (int)(tmp * 40);
+    index[i] = (int)(tmp * CRITICALITY_TERM);
     if (index[i] > criticality_max - 1) index[i] = criticality_max - 1;
   }
 }

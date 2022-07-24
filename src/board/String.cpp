@@ -18,6 +18,9 @@ static void MergeString( game_info_t *game, string_t *dst, string_t *src[3], con
 // 隣接する連IDの削除
 static void RemoveNeighborString( string_t *string, const int id );
 
+// 打ち上げた石の記録
+static int AddCapture( int capture[], const int pos, const int head );
+
 
 //////////////////////
 //  新しい連の作成  //
@@ -365,7 +368,7 @@ PoRemoveLiberty( game_info_t *game, string_t *string, const int pos, const int c
 //  連の除去  //
 ////////////////
 int
-RemoveString( game_info_t *game, string_t *string )
+RemoveString( game_info_t *game, string_t *string, const int color )
 // game_info_t *game : 盤面の情報を示すポインタ
 // string_t *string  : 取り除く対象の連
 {
@@ -377,6 +380,8 @@ RemoveString( game_info_t *game, string_t *string )
   bool *candidates = game->candidates;
   int neighbor, rm_id = string_id[string->origin];
   int removed_color = board[pos];
+  int *capture_pos = game->capture_pos[color];
+  int *capture_num = &game->capture_num[color];
 
   do {
     // 空点に戻す
@@ -384,6 +389,9 @@ RemoveString( game_info_t *game, string_t *string )
 
     // 候補手に追加する
     candidates[pos] = true;
+
+    // 打ち上げた石の記録
+    capture_pos[(*capture_num)++] = pos;
 
     // パターンの更新
     UpdatePatternEmpty(game->pat, pos);
@@ -564,3 +572,20 @@ RemoveNeighborString( string_t *string, const int id )
   string->neighbors--;
 }
 
+
+static int
+AddCapture( int capture[], const int pos, const int head )
+{
+  int cap = head;;
+
+  if (capture[pos] != 0) return pos;
+
+  while (capture[cap] < pos) {
+    cap = capture[cap];
+  }
+
+  capture[pos] = capture[cap];
+  capture[cap] = pos;
+
+  return pos;
+}

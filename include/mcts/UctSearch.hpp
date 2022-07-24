@@ -14,7 +14,6 @@
 ////////////
 
 const int THREAD_MAX = 32;              // 使用するスレッド数の最大値
-const int MAX_NODES = 1000000;          // UCTのノードの配列のサイズ
 
 // CriticalityとOwnerを計算する間隔
 const int CRITICALITY_INTERVAL = 100;
@@ -26,7 +25,6 @@ const double PROGRESSIVE_WIDENING = 1.8;
 const int EXPAND_THRESHOLD_9  = 20;
 const int EXPAND_THRESHOLD_13 = 25;
 const int EXPAND_THRESHOLD_19 = 40;
-
 
 //////////////
 //  構造体  //
@@ -63,9 +61,6 @@ struct rate_order_t {
 //////////////////////
 //  グローバル変数  //
 //////////////////////
-
-// 残り時間
-extern double remaining_time[S_MAX];
 
 // UCTのノード
 extern uct_node_t *uct_node;

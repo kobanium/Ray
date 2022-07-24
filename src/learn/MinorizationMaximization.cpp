@@ -21,7 +21,6 @@
 
 
 
-static const char RESULT_PATH[] = "learning_result/md2";
 static std::vector<int> md2_index;
 
 static std::vector<std::vector<mm_t> > previous_distance;
@@ -117,7 +116,10 @@ TrainBTModelByMinorizationMaximization( void )
 static void
 InitializeLearning( const int threads )
 {
-  const std::string md2_target_path("learning_result/analyze/MD2Target.txt");
+  const std::string md2_target_path = GetWorkingDirectory() + PATH_SEPARATOR +
+    LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
+    PATTERN_TARGET_DIR_NAME + PATH_SEPARATOR +
+    MD2_TARGET_FILE_NAME;    
 
   InputMD2Target(md2_target_path, md2_index, md2_list, md2_target);
 
@@ -147,7 +149,7 @@ MinorizationMaximization( const int threads )
   train_thread_arg_t targ[threads];
   std::thread *handle[threads];
 
-  for (int step = 0; step <= UPDATE_INTERVAL * UPDATE_STEPS; step++) {
+  for (int step = 0; step <= MM_UPDATE_MAX; step++) {
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
     InitializeSigma();
@@ -177,7 +179,7 @@ MinorizationMaximization( const int threads )
 
     OutputLearningLogFile(step, all_moves.load(), elapsed_time);
 
-    if (step % UPDATE_INTERVAL == 0 || step == UPDATE_INTERVAL * UPDATE_STEPS) {
+    if (step % MM_UPDATE_INTERVAL == 0 || step == MM_UPDATE_MAX) {
       OutputAllParameters(step);
       EvaluateMovePrediction(step);
     }
@@ -457,7 +459,7 @@ UpdateParameters( const int update_steps )
 {
   unsigned int transpose[16];
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 0) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 0) {
     for (int i = 0; i < pat3_appearance_num; i++) {
       unsigned int tmp = pat3_appearance[i];
       if (pat3[0][tmp].sigma > 0.0) {
@@ -477,7 +479,7 @@ UpdateParameters( const int update_steps )
     }
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 0) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 0) {
     for (int i = 0; i < md2_appearance_num; i++) {
       unsigned int tmp = md2_index[md2_appearance[i]];
       if (md2[0][tmp].sigma > 0.0) {
@@ -497,13 +499,13 @@ UpdateParameters( const int update_steps )
     }
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 1) UpdateGamma(previous_distance);
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 2) UpdateGamma(capture);
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 3) UpdateGamma(save_extension);
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 4) UpdateGamma(atari);
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 5) UpdateGamma(extension);
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 6) UpdateGamma(dame);
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 7) UpdateGamma(throw_in);
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 1) UpdateGamma(previous_distance);
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 2) UpdateGamma(capture);
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 3) UpdateGamma(save_extension);
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 4) UpdateGamma(atari);
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 5) UpdateGamma(extension);
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 6) UpdateGamma(dame);
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 7) UpdateGamma(throw_in);
 }
 
 
@@ -513,14 +515,16 @@ UpdateParameters( const int update_steps )
 static void
 OutputLearningProgress( const int update_steps )
 {
-  const std::string directory("learning_result/md2/");
+  const std::string directory = GetWorkingDirectory() + PATH_SEPARATOR +
+    LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
+    SIMULATION_RESULT_DIR_NAME + PATH_SEPARATOR;
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 0) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 0) {
     OutputGamma(directory + "Pat3.txt", pat3[0]);
     OutputGamma(directory + "MD2.txt", md2[0], md2_list);
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 1) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 1) {
     for (int i = 0; i < PREVIOUS_DISTANCE_MAX; i++) {
       std::string filename = std::string("PreviousDistance_") + std::to_string(i + 2) + ".txt";
       OutputGammaAdditionMode(directory + filename, previous_distance[0][i]);
@@ -528,42 +532,42 @@ OutputLearningProgress( const int update_steps )
   }
 
   // 戦術的特徴
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 2) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 2) {
     for (int i = 1; i < SIM_CAPTURE_MAX; i++) {
       std::string filename = TrimRightSpace(sim_capture_name[i]);
       OutputGammaAdditionMode(directory + filename + ".txt", capture[0][i]);
     }
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 3) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 3) {
     for (int i = 1; i < SIM_SAVE_EXTENSION_MAX; i++) {
       std::string filename = TrimRightSpace(sim_save_extension_name[i]);
       OutputGammaAdditionMode(directory + filename + ".txt", save_extension[0][i]);
     }
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 4) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 4) {
     for (int i = 1; i < SIM_ATARI_MAX; i++) {
       std::string filename = TrimRightSpace(sim_atari_name[i]);
       OutputGammaAdditionMode(directory + filename + ".txt", atari[0][i]);
     }
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 5) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 5) {
     for (int i = 1; i < SIM_EXTENSION_MAX; i++) {
       std::string filename = TrimRightSpace(sim_extension_name[i]);
       OutputGammaAdditionMode(directory + filename + ".txt", extension[0][i]);
     }
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 6) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 6) {
     for (int i = 1; i < SIM_DAME_MAX; i++) {
       std::string filename = TrimRightSpace(sim_dame_name[i]);
       OutputGammaAdditionMode(directory + filename + ".txt", dame[0][i]);
     }
   }
 
-  if (update_steps == -1 || update_steps % UPDATE_INTERVAL == 7) {
+  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 7) {
     for (int i = 1; i < SIM_THROW_IN_MAX; i++) {
       std::string filename = TrimRightSpace(sim_throw_in_name[i]);
       OutputGammaAdditionMode(directory + filename + ".txt", throw_in[0][i]);
@@ -578,36 +582,40 @@ OutputLearningProgress( const int update_steps )
 static void
 OutputAllParameters( const int step )
 {
-  char path[1024];
+  const std::string result_directory = GetWorkingDirectory() + PATH_SEPARATOR +
+    LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
+    SIMULATION_RESULT_DIR_NAME + PATH_SEPARATOR +
+    "result" + std::to_string(step) + PATH_SEPARATOR;
+  const std::string cmd = "mkdir " + result_directory;
+  std::string path;
 
-  sprintf(path, "mkdir %s/result%d", RESULT_PATH, step);
-  system(path);
+  system(cmd.c_str());
 
   // 戦術的特徴
-  sprintf(path, "%s/result%d/CaptureFeature.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), capture[0]);
-  sprintf(path, "%s/result%d/SaveExtensionFeature.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), save_extension[0]);
-  sprintf(path, "%s/result%d/AtariFeature.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), atari[0]);
-  sprintf(path, "%s/result%d/ExtensionFeature.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), extension[0]);
-  sprintf(path, "%s/result%d/DameFeature.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), dame[0]);
-  sprintf(path, "%s/result%d/ThrowInFeature.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), throw_in[0]);
-  
+  path = result_directory + "CaptureFeature.txt";
+  OutputGamma(path, capture[0]);
+  path = result_directory + "SaveExtensionFeature.txt";
+  OutputGamma(path, save_extension[0]);
+  path = result_directory + "AtariFeature.txt";
+  OutputGamma(path, atari[0]);
+  path = result_directory + "ExtensionFeature.txt";
+  OutputGamma(path, extension[0]);
+  path = result_directory + "DameFeature.txt";
+  OutputGamma(path, dame[0]);
+  path = result_directory + "ThrowInFeature.txt";
+  OutputGamma(path, throw_in[0]);
+
   // 直前からの着手距離
-  sprintf(path, "%s/result%d/PreviousDistance.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), previous_distance[0]);
-  
+  path = result_directory + "PreviousDistance.txt";
+  OutputGamma(path, previous_distance[0]);
+
   // 3x3
-  sprintf(path, "%s/result%d/Pat3.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), pat3[0]);
+  path = result_directory + "Pat3.txt";
+  OutputGamma(path, pat3[0]);
 
   // md2
-  sprintf(path, "%s/result%d/MD2.txt", RESULT_PATH, step);
-  OutputGamma(std::string(path), md2[0], md2_list);
+  path = result_directory + "MD2.txt";
+  OutputGamma(path, md2[0], md2_list);
 }
 
 
@@ -617,7 +625,9 @@ OutputAllParameters( const int step )
 static void
 EvaluateMovePrediction( const int steps )
 {
-  const std::string accuracy_log_directory("learning_result/accuracy/");
+  const std::string accuracy_log_directory = GetWorkingDirectory() + PATH_SEPARATOR +
+    LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
+    ACCURACY_LOG_DIR_NAME + PATH_SEPARATOR;
   const std::string accuracy_filename = accuracy_log_directory + "result" + std::to_string(steps) + ".txt";
   const std::string progress_filename = accuracy_log_directory + ACCURACY_LOG_FILE_NAME;
   std::ofstream accuracy_ofs(accuracy_filename);
