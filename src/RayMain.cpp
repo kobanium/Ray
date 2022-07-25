@@ -4,15 +4,18 @@
 #include <windows.h>
 #endif
 
-#include "Command.h"
-#include "GoBoard.h"
-#include "Gtp.h"
-#include "PatternHash.h"
-#include "Rating.h"
-#include "Semeai.h"
-#include "UctRating.h"
-#include "UctSearch.h"
-#include "ZobristHash.h"
+#include "board/GoBoard.hpp"
+#include "board/ZobristHash.hpp"
+#include "feature/Semeai.hpp"
+#include "gtp/Gtp.hpp"
+#include "learn/FactorizationMachines.hpp"
+#include "learn/MinorizationMaximization.hpp"
+#include "learn/PatternAnalyzer.hpp"
+#include "pattern/PatternHash.hpp"
+#include "mcts/Rating.hpp"
+#include "mcts/UctRating.hpp"
+#include "mcts/UctSearch.hpp"
+#include "util/Command.hpp"
 
 
 int
@@ -43,14 +46,9 @@ main( int argc, char **argv )
 #endif
   }
 
-  // 各種パスの設定
-#if defined (_WIN32)
-  sprintf_s(uct_params_path, 1024, "%s\\uct_params", program_path);
-  sprintf_s(po_params_path, 1024, "%s\\sim_params", program_path);
-#else
-  snprintf(uct_params_path, 1024, "%s/uct_params", program_path);
-  snprintf(po_params_path, 1024, "%s/sim_params", program_path);
-#endif
+  // ワーキングディレクトリの設定
+  SetWorkingDirectory(program_path);
+
   // コマンドライン引数の解析  
   AnalyzeCommand(argc, argv);
 
@@ -63,6 +61,12 @@ main( int argc, char **argv )
   InitializeHash();
   InitializeUctHash();
   SetNeighbor();
+
+  //AnalyzePattern();
+
+  //TrainBTModelByMinorizationMaximization();
+
+  //TrainBTModelWithFactorizationMachines();
 
   // GTP
   GTP_main();
