@@ -4,9 +4,6 @@
 // 学習ワーカスレッド数
 constexpr int TRAIN_THREAD_NUM = 8;
 
-// 学習対象のパターンの最大数
-constexpr int TARGET_PATTERN_MAX = 500000;
-
 // 学習する棋譜を格納したディレクトリのパス
 constexpr char TRAIN_KIFU_PATH[] = "/home/user/SGF_Files/tygem-data/shuffle-tygem";
 
