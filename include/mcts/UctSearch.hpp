@@ -33,6 +33,7 @@ struct thread_arg_t {
   game_info_t *game; // 探索対象の局面
   int thread_id;   // スレッド識別番号
   int color;       // 探索する手番
+  int lz_analysis_cs;
 };
 
 struct statistic_t {
@@ -68,6 +69,7 @@ extern uct_node_t *uct_node;
 // 現在のルートのインデックス
 extern int current_root;
 
+extern bool pondering_mode;
 
 ////////////
 //  関数  //
@@ -92,10 +94,10 @@ void InitializeUctSearch( void );
 void InitializeSearchSetting( void );
 
 // UCT探索による着手生成
-int UctSearchGenmove( game_info_t *game, int color );
+int UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs );
 
 // 予測よみ
-void UctSearchPondering( game_info_t *game, int color );
+void UctSearchPondering( game_info_t *game, int color, int lz_analysis_cs );
 
 // UCT探索による着手生成
 int UctAnalyze( game_info_t *game, int color );

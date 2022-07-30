@@ -81,7 +81,7 @@ static int criticality_index[BOARD_MAX];
 // 候補手のフラグ
 static bool candidates[BOARD_MAX];  
 
-static bool pondering_mode = false;
+bool pondering_mode = false;
 
 static bool ponder = false;
 
@@ -287,7 +287,7 @@ StopPondering( void )
 //  UCTアルゴリズムによる着手生成  //
 /////////////////////////////////////
 int
-UctSearchGenmove( game_info_t *game, int color )
+UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
 {
   double best_wp;
 
@@ -345,6 +345,7 @@ UctSearchGenmove( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = lz_analysis_cs;
   }
 
   const double mag[3] = { 1.0, 1.5, 2.0 };
@@ -391,10 +392,10 @@ UctSearchGenmove( game_info_t *game, int color )
 //  予測読み  //
 ///////////////
 void
-UctSearchPondering( game_info_t *game, int color )
+UctSearchPondering( game_info_t *game, int color, int lz_analysis_cs )
 {
   if (!pondering_mode) {
-    return ;
+    return;
   }
 
   // 探索情報をクリア
@@ -424,7 +425,7 @@ UctSearchPondering( game_info_t *game, int color )
   if (uct_node[current_root].child_num <= 1) {
     ponder = false;
     pondering_stop = true;
-    return ;
+    return;
   }
 
   ponder = true;
@@ -437,10 +438,11 @@ UctSearchPondering( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = lz_analysis_cs;
     handle[i] = new std::thread(ParallelUctSearchPondering, &t_arg[i]);
   }
 
-  return ;
+  return;
 }
 
 
@@ -715,12 +717,16 @@ ParallelUctSearch( thread_arg_t *arg )
   const thread_arg_t *targ = (thread_arg_t *)arg;
   const int color = targ->color;
   bool interruption = false, enough_size = true;
+  bool use_analysis = targ->lz_analysis_cs > 0 ? true : false;
   int winner = 0, interval = CRITICALITY_INTERVAL;
   game_info_t *game = AllocateGame();
+  ray_clock::time_point analysis_timer;
 
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
+    analysis_timer = ray_clock::now();
+
     do {
       // 探索回数を1回増やす
       IncrementPoCount();
@@ -739,6 +745,13 @@ ParallelUctSearch( thread_arg_t *arg )
         CalculateCriticality(color);
         interval += CRITICALITY_INTERVAL;
       }
+
+      if (use_analysis &&
+            int(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
+        analysis_timer = ray_clock::now();
+        PrintLeelaZeroAnalyze(&uct_node[current_root]);
+      }
+
       if (IsTimeOver()) break;
     } while (IsSearchContinue() && !interruption && enough_size);
   } else {
@@ -775,11 +788,14 @@ ParallelUctSearchPondering( thread_arg_t *arg )
   const int color = targ->color;
   int winner = 0, interval = CRITICALITY_INTERVAL;
   bool enough_size = true;
+  bool use_analysis = targ->lz_analysis_cs > 0 ? true : false;
   game_info_t *game = AllocateGame();
+  ray_clock::time_point analysis_timer;
 
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
+    analysis_timer = ray_clock::now();
     do {
       // 探索回数を1回増やす
       IncrementPoCount();
@@ -795,6 +811,13 @@ ParallelUctSearchPondering( thread_arg_t *arg )
         CalculateCriticality(color);
         interval += CRITICALITY_INTERVAL;
       }
+
+      if (use_analysis &&
+            int(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
+        analysis_timer = ray_clock::now();
+        PrintLeelaZeroAnalyze(&uct_node[current_root]);
+      }
+
     } while (!pondering_stop && enough_size);
   } else {
     do {
@@ -1120,6 +1143,7 @@ UctAnalyze( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = -1;
     handle[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
   }
 
@@ -1223,6 +1247,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = -1;
     handle[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
   }
 
