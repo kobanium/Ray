@@ -941,7 +941,6 @@ void GTP_lz_analyze( void )
     CHOMP(command);
     centi_second = std::atoi(command);
   }
-  std::cerr <<  "cs: " << centi_second << std::endl;
 
   bool old_pondering_mode = pondering_mode;
   SetPonderingMode(true);
