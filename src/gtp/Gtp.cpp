@@ -947,7 +947,12 @@ void GTP_lz_analyze( void )
 
   player_color = color;
 
-  std::cout << "= \n";
+  if (command_id >= 0) {
+    std::cout << "=" << command_id << " " << std::endl;
+  } else {
+    std::cout << "= " << std::endl;
+  }
+
   UctSearchPondering(game, color, centi_second);
 
   while (!InputPending()) {
@@ -999,8 +1004,14 @@ void GTP_lz_genmove_analyze( void )
 
   player_color = color;
 
-  std::cout << "= \n";
+  if (command_id >= 0) {
+    std::cout << "=" << command_id << " " << std::endl;
+  } else {
+    std::cout << "= " << std::endl;
+  }
+
   point = UctSearchGenmove(game, color, centi_second);
+
   if (point != RESIGN) {
     PutStone(game, point, color);
   }
