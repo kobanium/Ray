@@ -3,7 +3,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 #include "board/Point.hpp"
 #include "common/Message.hpp"
@@ -419,4 +421,95 @@ PrintReuseCount( const int count )
   if (!debug_message) return ;
 
   std::cerr << "Reuse : " << count << " Playouts" << std::endl;
+}
+
+void
+PrintLeelaZeroAnalyze( const uct_node_t *root )
+{
+  struct verbose_t {
+    std::string lz_pos;
+    int visits, winrate, prior, lcb, index;
+    const char *pv;
+  };
+
+  std::vector<verbose_t> child_verbose;
+
+  for ( int i = 0; i < root->child_num; ++i ) {
+    verbose_t v;
+    const child_node_t *c = &root->child[i];
+
+    char cpos[10];
+    IntegerToString(c->pos, cpos);
+
+    v.lz_pos = std::string{cpos};
+    v.visits = c->move_count.load(std::memory_order_relaxed);
+
+    double raw_winrate = 0.5f;
+    if (v.visits > 0) {
+        raw_winrate = (double)(c->win.load(std::memory_order_relaxed)) / v.visits;
+    }
+
+    v.winrate = std::min(10000, (int)(10000 * raw_winrate));
+    v.prior = std::min(10000, (int)(10000 * c->rate));
+    v.lcb = v.winrate;
+    v.index = c->index;
+
+    if (v.visits > 0) {
+      child_verbose.emplace_back(v);
+    }
+  }
+
+  std::sort(std::begin(child_verbose), std::end(child_verbose),
+              []( verbose_t &a, verbose_t &b ){
+                return a.winrate > b.winrate;
+              }
+           );
+
+  FILE *STD_STREAM = stdout;
+
+  for ( int i = 0; i < (int)child_verbose.size(); ++i ) {
+    verbose_t *v = &child_verbose[i];
+    fprintf(STD_STREAM, "info move %s visits %d winrate %d prior %d lcb %d order %d pv %s",
+              v->lz_pos.c_str(),
+              v->visits,
+              v->winrate,
+              v->prior,
+              v->lcb,
+              i,
+              v->lz_pos.c_str()
+           );
+
+    int current = v->index;
+    int child_num;
+    const child_node_t *uct_child;
+
+    while (current != NOT_EXPANDED) {
+      uct_child = uct_node[current].child;
+      child_num = uct_node[current].child_num;
+
+      int max = 50;
+      int index = -1;
+
+      for (int i = 0; i < child_num; i++) {
+        if (uct_child[i].move_count > max) {
+          max = uct_child[i].move_count;
+          index = i;
+        }
+      }
+
+      if (index == -1) break;
+
+      char cpos[10];
+      IntegerToString(uct_child[index].pos, cpos);
+      fprintf(STD_STREAM, " %s", cpos);
+
+      current = uct_child[index].index;
+    }
+
+    if (i != root->child_num-1) {
+      fprintf(STD_STREAM, " ");
+    }
+  }
+  fprintf(STD_STREAM, "\n");
+  fflush(STD_STREAM);
 }

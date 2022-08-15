@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cctype>
 #include <iostream>
+#include <thread>
 
 #include "board/DynamicKomi.hpp"
 #include "board/GoBoard.hpp"
@@ -16,6 +17,7 @@
 #include "mcts/Simulation.hpp"
 #include "mcts/UctSearch.hpp"
 #include "mcts/UctRating.hpp"
+#include "mcts/MoveSelection.hpp"
 #include "sgf/SgfExtractor.hpp"
 
 
@@ -91,6 +93,9 @@ static void GTP_fixed_handicap( void );
 //  loadsgfコマンドを処理
 static void GTP_loadsgf( void );
 
+static void GTP_lz_analyze( void );
+static void GTP_lz_genmove_analyze( void );
+
 ////////////
 //  定数  //
 ////////////
@@ -109,6 +114,8 @@ const GTP_command_t gtpcmd[] = {
   { "komi",                GTP_komi                },
   { "list_commands",       GTP_listcommands        },
   { "loadsgf",             GTP_loadsgf             },
+  { "lz-analyze",          GTP_lz_analyze          },
+  { "lz-genmove_analyze",  GTP_lz_genmove_analyze  },
   { "name",                GTP_name                },
   { "place_free_handicap", GTP_fixed_handicap      },
   { "play",                GTP_play                },
@@ -305,7 +312,7 @@ GTP_genmove( void )
 
   player_color = color;
   
-  point = UctSearchGenmove(game, color);
+  point = UctSearchGenmove(game, color, -1);
   if (point != RESIGN) {
     PutStone(game, point, color);
   }
@@ -314,7 +321,7 @@ GTP_genmove( void )
   
   GTP_response(pos, true);
 
-  UctSearchPondering(game, GetOppositeColor(color));
+  UctSearchPondering(game, GetOppositeColor(color), -1);
 }
 
 
@@ -858,4 +865,158 @@ GTP_loadsgf( void )
   } else {
     GTP_response("white", true);
   }
+}
+
+bool InputPending() {
+#if defined (_WIN32)
+    static int init = 0, pipe;
+    static HANDLE inh;
+    DWORD dw;
+
+    if (!init) {
+        init = 1;
+        inh = GetStdHandle(STD_INPUT_HANDLE);
+        pipe = !GetConsoleMode(inh, &dw);
+        if (!pipe) {
+            SetConsoleMode(inh, dw & ~(ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT));
+            FlushConsoleInputBuffer(inh);
+        }
+    }
+
+    if (pipe) {
+        if (!PeekNamedPipe(inh, nullptr, 0, nullptr, &dw, nullptr)) {
+            exit(EXIT_FAILURE);
+        }
+
+        return dw;
+    } else {
+        if (!GetNumberOfConsoleInputEvents(inh, &dw)) {
+            exit(EXIT_FAILURE);
+        }
+
+        return dw > 1;
+    }
+    return false;
+#else 
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+    FD_SET(0,&read_fds);
+    struct timeval timeout{0,0};
+    select(1,&read_fds,nullptr,nullptr,&timeout);
+    return FD_ISSET(0, &read_fds);
+#endif
+}
+
+void GTP_lz_analyze( void )
+{
+  char *command;
+  char c;
+  int color, centi_second=50;
+
+  StopPondering();
+
+  command = STRTOK(input_copy, DELIM, &next_token);
+  
+  CHOMP(command);
+
+  command = STRTOK(NULL, DELIM, &next_token);
+  if (command == NULL){
+    GTP_response(err_genmove, true);
+    return;
+  }
+  CHOMP(command);
+
+  c = (char)tolower((int)command[0]);
+  if (c == 'w') {
+    color = S_WHITE;
+  } else if (c == 'b') {
+    color = S_BLACK;
+  } else {
+    GTP_response(err_genmove, true);
+    return;
+  }
+
+  command = STRTOK(NULL, DELIM, &next_token);
+  if (command != NULL){
+    CHOMP(command);
+    centi_second = std::atoi(command);
+  }
+
+  bool old_pondering_mode = pondering_mode;
+  SetPonderingMode(true);
+
+  player_color = color;
+
+  if (command_id >= 0) {
+    std::cout << "=" << command_id << " " << std::endl;
+  } else {
+    std::cout << "= " << std::endl;
+  }
+
+  UctSearchPondering(game, color, centi_second);
+
+  while (!InputPending()) {
+    std::this_thread::yield();
+  }
+
+  StopPondering();
+  SetPonderingMode(old_pondering_mode);
+
+  std::cout << "\n";
+}
+
+void GTP_lz_genmove_analyze( void )
+{
+  char *command;
+  char c;
+  char pos[10];
+  int color, centi_second=50;
+  int point = PASS;
+
+  StopPondering();
+
+  command = STRTOK(input_copy, DELIM, &next_token);
+
+  CHOMP(command);
+
+  command = STRTOK(NULL, DELIM, &next_token);
+  if (command == NULL){
+    GTP_response(err_genmove, true);
+    return;
+  }
+
+  CHOMP(command);
+  c = (char)tolower((int)command[0]);
+  if (c == 'w') {
+    color = S_WHITE;
+  } else if (c == 'b') {
+    color = S_BLACK;
+  } else {
+    GTP_response(err_genmove, true);
+    return;
+  }
+
+  command = STRTOK(NULL, DELIM, &next_token);
+  if (command != NULL){
+    CHOMP(command);
+    centi_second = std::atoi(command);
+  }
+
+  player_color = color;
+
+  if (command_id >= 0) {
+    std::cout << "=" << command_id << " " << std::endl;
+  } else {
+    std::cout << "= " << std::endl;
+  }
+
+  point = UctSearchGenmove(game, color, centi_second);
+
+  if (point != RESIGN) {
+    PutStone(game, point, color);
+  }
+  IntegerToString(point, pos);
+  std::cout << "play " << pos << "\n\n";
+
+  UctSearchPondering(game, GetOppositeColor(color), -1);
 }
