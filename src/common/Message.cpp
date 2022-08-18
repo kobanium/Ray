@@ -439,7 +439,7 @@ PrintLeelaZeroAnalyze( const uct_node_t *root )
     const child_node_t *c = &root->child[i];
 
     char cpos[10];
-    IntegerToString(c->pos, cpos);
+    LzIntegerToString(c->pos, cpos);
 
     v.lz_pos = std::string{cpos};
     v.visits = c->move_count.load(std::memory_order_relaxed);
@@ -459,6 +459,8 @@ PrintLeelaZeroAnalyze( const uct_node_t *root )
     }
   }
 
+  if ( child_verbose.empty() ) return;
+
   std::sort(std::begin(child_verbose), std::end(child_verbose),
               []( verbose_t &a, verbose_t &b ){
                 return a.winrate > b.winrate;
@@ -467,7 +469,7 @@ PrintLeelaZeroAnalyze( const uct_node_t *root )
 
   FILE *STD_STREAM = stdout;
 
-  for ( int i = 0; i < (int)child_verbose.size(); ++i ) {
+  for ( int i = 0; i < (int)child_verbose.size(); i++ ) {
     verbose_t *v = &child_verbose[i];
     fprintf(STD_STREAM, "info move %s visits %d winrate %d prior %d lcb %d order %d pv %s",
               v->lz_pos.c_str(),
@@ -490,23 +492,23 @@ PrintLeelaZeroAnalyze( const uct_node_t *root )
       int max = 50;
       int index = -1;
 
-      for (int i = 0; i < child_num; i++) {
-        if (uct_child[i].move_count > max) {
-          max = uct_child[i].move_count;
-          index = i;
+      for (int j = 0; j < child_num; j++) {
+        if (uct_child[j].move_count > max) {
+          max = uct_child[j].move_count;
+          index = j;
         }
       }
 
       if (index == -1) break;
 
       char cpos[10];
-      IntegerToString(uct_child[index].pos, cpos);
+      LzIntegerToString(uct_child[index].pos, cpos);
       fprintf(STD_STREAM, " %s", cpos);
 
       current = uct_child[index].index;
     }
 
-    if (i != root->child_num-1) {
+    if (i != (int)child_verbose.size()-1) {
       fprintf(STD_STREAM, " ");
     }
   }
