@@ -962,7 +962,7 @@ void GTP_lz_analyze( void )
   StopPondering();
   SetPonderingMode(old_pondering_mode);
 
-  std::cout << "\n";
+  std::cout << std::endl;
 }
 
 void GTP_lz_genmove_analyze( void )
@@ -1016,7 +1016,7 @@ void GTP_lz_genmove_analyze( void )
     PutStone(game, point, color);
   }
   IntegerToString(point, pos);
-  std::cout << "play " << pos << "\n\n";
+  std::cout << "play " << pos << std::endl << std::endl;
 
   UctSearchPondering(game, GetOppositeColor(color), -1);
 }

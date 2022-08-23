@@ -7,7 +7,7 @@
 #include "board/GoBoard.hpp"
 #include "board/Point.hpp"
 
-
+constexpr char lz_pass[] = "pass";
 constexpr char pass[] = "PASS";
 constexpr char resign[] = "resign";
 
@@ -39,6 +39,19 @@ StringToInteger( const char *cpos )
   return pos;
 }
 
+void
+LzIntegerToString( const int pos, char *cpos )
+{
+  if (pos == PASS) {
+#if defined (_WIN32)
+    sprintf_s(cpos, 5, "%s", lz_pass);
+#else
+    snprintf(cpos, 5, "%s", lz_pass);
+#endif
+  } else {
+    IntegerToString(pos, cpos);
+  }
+}
 
 ////////////////////////////////////
 //  1次元表記から2次元表記へ変換  //
