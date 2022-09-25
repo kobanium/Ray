@@ -13,9 +13,9 @@ static double ucb_c = UCB_COEFFICIENT;
 
 
 double
-CalculateMoveScoreBonus( const child_node_t &child, const double weight )
+CalculateMoveScoreBonus( const child_node_t &child, const double move_score_bonus_weight )
 {
-  return weight * child.rate;
+  return move_score_bonus_weight * child.rate;
 }
 
 
@@ -59,8 +59,7 @@ SelectBestChildIndexByUCB1( const uct_node_t &node, std::mt19937_64 &mt )
       if (child[i].move_count == 0) {
         ucb_value = FPU + 0.0001 * (mt() % 10000);
       } else {
-        ucb_value += CalculateUCB1TunedValue(child[i], sum);
-        ucb_value += CalculateMoveScoreBonus(child[i], move_score_bonus_weight);
+        ucb_value = CalculateUCB1TunedValue(child[i], sum) + CalculateMoveScoreBonus(child[i], move_score_bonus_weight);
       }
       if (ucb_value > max_value) {
         max_value = ucb_value;

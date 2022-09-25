@@ -5,7 +5,7 @@
 constexpr int TRAIN_THREAD_NUM = 8;
 
 // 学習する棋譜を格納したディレクトリのパス
-constexpr char TRAIN_KIFU_PATH[] = "/home/user/SGF_Files/tygem-data/shuffle-tygem";
+constexpr char TRAIN_KIFU_PATH[] = "/home/yuki/SGF_Files/tygem-data/shuffle-tygem";
 
 // 学習する棋譜の最初のインデックス
 constexpr int TRAIN_KIFU_START_INDEX = 1;
@@ -14,7 +14,7 @@ constexpr int TRAIN_KIFU_START_INDEX = 1;
 constexpr int TRAIN_KIFU_LAST_INDEX = 30000;
 
 // 正解率測定に使用する棋譜を格納したディレクトリのパス
-constexpr char TEST_KIFU_PATH[] = "/home/user/SGF_Files/tygem-data/shuffle-tygem";
+constexpr char TEST_KIFU_PATH[] = "/home/yuki/SGF_Files/tygem-data/shuffle-tygem";
 
 // 正解率を測定する際に使用する棋譜の最初のインデックス
 constexpr int TEST_KIFU_START_INDEX = 40001;

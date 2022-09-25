@@ -960,7 +960,6 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
       if (pos == PASS) {
         dynamic_parameter = 1.0;
       } else {
-        //dynamic_parameter = 1.0;
         dynamic_parameter = uct_owner[o_index[i]] * uct_criticality[c_index[i]];
       }
       order[i].rate = uct_child[i].rate * dynamic_parameter;
