@@ -20,7 +20,7 @@
 #include "util/Utility.hpp"
 
 
-
+static std::vector<int> pat3_index;
 static std::vector<int> md2_index;
 
 static std::vector<std::vector<mm_t> > previous_distance;
@@ -37,15 +37,9 @@ static std::vector<unsigned int> md2_list;
 
 static std::vector<bool> md2_target;
 
-static std::vector<unsigned int> same_pat3;
-static std::vector<unsigned int> pat3_appearance;
-static int pat3_appearance_num;
-
 static std::atomic<int> all_moves;
 
 static bool first_flag = true;
-
-static std::mutex mutex_3x3;
 
 std::array<std::atomic<int>, PURE_BOARD_MAX> counter;
 
@@ -114,7 +108,8 @@ InitializeLearning( const int threads )
   const std::string md2_target_path = GetWorkingDirectory() + PATH_SEPARATOR +
     LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
     PATTERN_TARGET_DIR_NAME + PATH_SEPARATOR +
-    MD2_TARGET_FILE_NAME;    
+    MD2_TARGET_FILE_NAME;
+  unsigned int transpose[16];
 
   InputMD2Target(md2_target_path, md2_index, md2_list, md2_target);
 
@@ -128,9 +123,16 @@ InitializeLearning( const int threads )
   InitializeLearningData(dame, threads, SIM_DAME_MAX);
   InitializeLearningData(throw_in, threads, SIM_THROW_IN_MAX);
 
-  same_pat3 = std::vector<unsigned int>(PAT3_MAX, 0);
-  pat3_appearance = std::vector<unsigned int>(PAT3_MAX, 0);
-  pat3_appearance_num = 1;
+  pat3_index = std::vector<int>(PAT3_MAX, -1);
+  for (unsigned int pat_3x3 = 0; pat_3x3 < static_cast<unsigned int>(PAT3_MAX); pat_3x3++) {
+    if (pat3_index[pat_3x3] == -1) {
+      Pat3Transpose16(pat_3x3, transpose);
+      const int tc = GetUniquePattern(transpose, 16);
+      for (int i = 0; i < tc; i++) {
+        pat3_index[transpose[i]] = pat_3x3;
+      }
+    }
+  }
 }
 
 
@@ -213,8 +215,6 @@ ReplayMatch( game_info_t *game, const std::string filename, const int id )
 {
   pattern_t *pat = game->pat;
   int color = S_BLACK;
-  unsigned int transpose[16];
-  unsigned int pat_3x3;
   SGF_record_t kifu;
   unsigned char *tactical_features = game->tactical_features;
 
@@ -248,15 +248,11 @@ ReplayMatch( game_info_t *game, const std::string filename, const int id )
         }
 
         const int pat_md2 = md2_index[MD2(pat, pos)];
-        pat_3x3 = Pat3(pat, pos);
+        const int pat_3x3 = pat3_index[Pat3(pat, pos)];
         if (md2_target[pat_md2]) {
           md2[id][pat_md2].w++;
         } else {
-          Pat3Transpose16(pat_3x3, transpose);
-          const int tc = GetUniquePattern(transpose, 16);
-          for (int j = 0; j < tc; j++) {
-            pat3[id][transpose[j]].w++;
-          }
+          pat3[id][pat_3x3].w++;
         }
       }
       
@@ -279,7 +275,6 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
   pattern_t *pat = game->pat;
   double gamma, Ej = 0;
   unsigned char *tactical_features = game->tactical_features;
-  unsigned int pat_3x3, minpat, transpose[16];
   unsigned int check_pat3[PURE_BOARD_MAX], check_md2[PURE_BOARD_MAX];
   int cpat3 = 0, cmd2 = 0, update_num = 0, update_pos[PURE_BOARD_MAX];
   
@@ -325,7 +320,7 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
 
       // 配石パターン
       const int pat_md2 = md2_index[MD2(pat, pos)];
-      pat_3x3 = Pat3(pat, pos);
+      const int pat_3x3 = pat3_index[Pat3(pat, pos)];
       if (md2_target[pat_md2]) {
         gamma *= md2[id][pat_md2].gamma;
       } else {
@@ -352,45 +347,14 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
         }
       }
 
-      // 近傍の配石パターン
-      if (first_flag) {
-        if (!md2_target[pat_md2]) {
-          mutex_3x3.lock();
-        }
-
-        if (md2_target[pat_md2]) {
-          md2[id][pat_md2].c += gamma;
-          check_md2[cmd2++] = pat_md2;
-        } else {
-          // 3x3
-          Pat3Transpose16(pat_3x3, transpose);
-          const int tc = GetUniquePattern(transpose, 16);
-          minpat = transpose[0];
-          for (int j = 0; j < tc; j++) {
-            if(transpose[j] < minpat) minpat = transpose[j];
-          }
-          if (same_pat3[pat_3x3] == 0 && pat_3x3 != 0) {
-            pat3_appearance[pat3_appearance_num++] = minpat;
-            for (int j = 0; j < tc; j++) same_pat3[transpose[j]] = minpat;
-          }
-          pat3[id][minpat].c += gamma;
-          check_pat3[cpat3++] = minpat;
-        }
-
-        if (!md2_target[pat_md2]) {
-          mutex_3x3.unlock();
-        }
+      if (md2_target[pat_md2]) {
+        // md2
+        md2[id][pat_md2].c += gamma;
+        check_md2[cmd2++] = pat_md2;
       } else {
-        if (md2_target[pat_md2]) {
-          // md2
-          md2[id][pat_md2].c += gamma;
-          check_md2[cmd2++] = pat_md2;
-        } else {
-          // 3x3
-          const unsigned int index = same_pat3[pat_3x3];
-          pat3[id][index].c += gamma;
-          check_pat3[cpat3++] = index;
-        }
+        // 3x3
+        pat3[id][pat_3x3].c += gamma;
+        check_pat3[cpat3++] = pat_3x3;
       }
       // 全員の強さ
       Ej += gamma;
@@ -427,19 +391,12 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
 void
 UpdateParameters( const int update_steps )
 {
-  unsigned int transpose[16];
-
   if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 0) {
-    for (int i = 0; i < pat3_appearance_num; i++) {
-      unsigned int tmp = pat3_appearance[i];
-      if (pat3[0][tmp].sigma > 0.0) {
-        pat3[0][tmp].gamma = (pat3[0][tmp].w + 1) / (pat3[0][tmp].sigma + 2.0 / (1.0 + pat3[0][tmp].gamma));
-        Pat3Transpose16(tmp, transpose);
-        const int tc = GetUniquePattern(transpose, 16);
-        for (int j = 0; j < tc; j++) {
-          pat3[0][transpose[j]].gamma = pat3[0][tmp].gamma;
-        }        
-      }
+    // 3x3パターン
+    UpdateGamma(pat3);
+
+    for (int i = 0; i < PAT3_MAX; i++) {
+      pat3[0][i].gamma = pat3[0][pat3_index[i]].gamma;
     }
     const std::size_t data_size = pat3[0].size();
     for (std::vector<mm_t> &vec : pat3) {
@@ -448,27 +405,7 @@ UpdateParameters( const int update_steps )
       }
     }
   }
-  /*
-  if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 0) {
-    for (int i = 0; i < md2_appearance_num; i++) {
-      unsigned int tmp = md2_index[md2_appearance[i]];
-      if (md2[0][tmp].sigma > 0.0) {
-        md2[0][tmp].gamma = (md2[0][tmp].w + 1) / (md2[0][tmp].sigma + 2.0 / (1.0 + md2[0][tmp].gamma));
-        MD2Transpose16(md2_appearance[i], transpose);
-        const int tc = GetUniquePattern(transpose, 16);
-        for (int j = 0; j < tc; j++) {
-          md2[0][md2_index[transpose[j]]].gamma = md2[0][tmp].gamma;
-        }
-      }
-    }
-    const std::size_t data_size = md2[0].size();
-    for (std::vector<mm_t> &vec : md2) {
-      for (std::size_t i = 0; i < data_size; i++) {
-        vec[i].gamma = md2[0][i].gamma;
-      }
-    }
-  }
-  */
+
   if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 0) UpdateGamma(md2);
   if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 1) UpdateGamma(previous_distance);
   if (update_steps == -1 || update_steps % MM_UPDATE_INTERVAL == 2) UpdateGamma(capture);
@@ -682,7 +619,6 @@ CheckAccuracy( game_info_t *game, const std::string filename )
   int color = S_BLACK;
   int update_pos[PURE_BOARD_MAX], update_num = 0;
   int previous_move = PASS;
-  unsigned int pat_3x3, pat_md2;
 
   ExtractKifu(filename.c_str(), &kifu);
 
@@ -739,10 +675,10 @@ CheckAccuracy( game_info_t *game, const std::string filename )
           }
         }
 
-        pat_md2 = MD2(pat, pos);
-        pat_3x3 = Pat3(pat, pos);
-        if (md2_target[md2_index[pat_md2]]) {
-          gamma *= md2[0][md2_index[pat_md2]].gamma;
+        const int pat_md2 = md2_index[MD2(pat, pos)];
+        const int pat_3x3 = pat3_index[Pat3(pat, pos)];
+        if (md2_target[pat_md2]) {
+          gamma *= md2[0][pat_md2].gamma;
         } else {
           gamma *= pat3[0][pat_3x3].gamma;
         }
