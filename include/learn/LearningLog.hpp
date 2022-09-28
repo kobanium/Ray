@@ -6,6 +6,6 @@ void SetLearningLogFilePath( void );
 
 void OutputLearningLogFile( const int update_steps, const int all_moves, const double consume_time );
 
-void OutputLearningLogFile( const int update_steps, const int all_moves, const double consume_time, const double accuracy );
+void OutputLearningLogFile( const int update_steps, const int all_moves, const double consume_time, const double accuracy, const bool is_train );
 
 #endif

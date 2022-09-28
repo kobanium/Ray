@@ -172,6 +172,7 @@ InputLargePatternTarget( const std::string filename, std::vector<index_hash_t> &
   index.resize(HASH_MAX);
 
   for (index_hash_t &datum : index) {
+    datum.hash = 0;
     datum.index = -1;
   }
 

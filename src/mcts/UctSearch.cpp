@@ -747,7 +747,7 @@ ParallelUctSearch( thread_arg_t *arg )
       }
 
       if (use_analysis &&
-            int(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
+          static_cast<int>(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
         analysis_timer = ray_clock::now();
         PrintLeelaZeroAnalyze(&uct_node[current_root]);
       }
@@ -813,7 +813,7 @@ ParallelUctSearchPondering( thread_arg_t *arg )
       }
 
       if (use_analysis &&
-            int(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
+          static_cast<int>(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
         analysis_timer = ray_clock::now();
         PrintLeelaZeroAnalyze(&uct_node[current_root]);
       }
@@ -946,8 +946,6 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
   const int child_num = uct_node[current].child_num;
   const int sum = uct_node[current].move_count;
   child_node_t *uct_child = uct_node[current].child;
-  int pos, width;
-  double dynamic_parameter;
   rate_order_t order[PURE_BOARD_MAX + 1];  
   
   // 128回ごとにOwnerとCriticalityでソートし直す  
@@ -956,12 +954,9 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
     CalculateCriticalityIndex(&uct_node[current], statistic, color, c_index);
     CalculateOwnerIndex(&uct_node[current], statistic, color, o_index);
     for (int i = 0; i < child_num; i++) {
-      pos = uct_child[i].pos;
-      if (pos == PASS) {
-        dynamic_parameter = 1.0;
-      } else {
-        dynamic_parameter = uct_owner[o_index[i]] * uct_criticality[c_index[i]];
-      }
+      const int pos = uct_child[i].pos;
+      const double dynamic_parameter = (pos == PASS) ? 1.0 : uct_owner[o_index[i]] * uct_criticality[c_index[i]];
+
       order[i].rate = uct_child[i].rate * dynamic_parameter;
       order[i].index = i;
       uct_child[i].pw = false;
@@ -969,7 +964,7 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
     qsort(order, child_num, sizeof(rate_order_t), RateComp);
 
     // 子ノードの数と探索幅の最小値を取る
-    width = ((uct_node[current].width > child_num) ? child_num : uct_node[current].width);
+    const int width = ((uct_node[current].width > child_num) ? child_num : uct_node[current].width);
 
     // 探索候補の手を展開し直す
     for (int i = 0; i < width; i++) {
@@ -981,15 +976,16 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
   // レートが最大の手を読む候補を1手追加
   if (sum > pw[uct_node[current].width]) {
     int max_index = -1;
-    double max_rate = 0.0;
+    double max_rate = -10000.0;
     for (int i = 0; i < child_num; i++) {
-      if (uct_child[i].pw == false) {
-        pos = uct_child[i].pos;
-        //dynamic_parameter = 1.0;
-        dynamic_parameter = uct_owner[owner_index[pos]] * uct_criticality[criticality_index[pos]];
-        if (uct_child[i].rate * dynamic_parameter > max_rate) {
+      if (!uct_child[i].pw) {
+        const int pos = uct_child[i].pos;
+        const double dynamic_parameter = (pos == PASS) ? 1.0 : uct_owner[owner_index[pos]] * uct_criticality[criticality_index[pos]];
+        const double rate = uct_child[i].rate * dynamic_parameter;
+
+        if (rate > max_rate) {
           max_index = i;
-          max_rate = uct_child[i].rate * dynamic_parameter;
+          max_rate = rate;
         }
       }
     }
