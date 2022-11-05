@@ -429,7 +429,6 @@ PrintLeelaZeroAnalyze( const uct_node_t *root )
   struct verbose_t {
     std::string lz_pos;
     int visits, winrate, prior, lcb, index;
-    const char *pv;
   };
 
   std::vector<verbose_t> child_verbose;
@@ -444,12 +443,12 @@ PrintLeelaZeroAnalyze( const uct_node_t *root )
     v.lz_pos = std::string{cpos};
     v.visits = c->move_count.load(std::memory_order_relaxed);
 
-    double raw_winrate = 0.5f;
+    double winrate = 0.5f;
     if (v.visits > 0) {
-        raw_winrate = (double)(c->win.load(std::memory_order_relaxed)) / v.visits;
+      winrate = (double)(c->win.load(std::memory_order_relaxed)) / v.visits;
     }
 
-    v.winrate = std::min(10000, (int)(10000 * raw_winrate));
+    v.winrate = std::min(10000, (int)(10000 * winrate));
     v.prior = std::min(10000, (int)(10000 * c->rate));
     v.lcb = v.winrate;
     v.index = c->index;
