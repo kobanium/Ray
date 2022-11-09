@@ -38,7 +38,7 @@ char err_play[] = "play color point";
 char err_komi[] = "komi float";
 
 //  自分の石の色
-int player_color = 0;
+int player_color = S_BLACK;
 
 //  盤面の情報
 game_info_t *game;
@@ -92,8 +92,9 @@ static void GTP_set_free_handicap( void );
 static void GTP_fixed_handicap( void );
 //  loadsgfコマンドを処理
 static void GTP_loadsgf( void );
-
+//  lz_analyzeコマンドを処理
 static void GTP_lz_analyze( void );
+//  lz_genmove_analyzeコマンドを処理
 static void GTP_lz_genmove_analyze( void );
 
 ////////////
@@ -244,7 +245,7 @@ GTP_clearboard( void )
 {
   StopPondering();
 
-  player_color = 0;
+  player_color = S_BLACK;
   SetHandicapNum(0);
   FreeGame(game);
   game = AllocateGame();
@@ -867,7 +868,8 @@ GTP_loadsgf( void )
   }
 }
 
-bool InputPending() {
+bool InputPending()
+{
 #if defined (_WIN32)
     static int init = 0, pipe;
     static HANDLE inh;
@@ -907,45 +909,81 @@ bool InputPending() {
 #endif
 }
 
+void ParseAnalysisTag( int *color, int *centi_second ) {
+  char *command;
+  int token_cnt = 0;
+
+  while (true) {
+    command = STRTOK(NULL, DELIM, &next_token);
+    token_cnt += 1;
+    if (command != NULL && token_cnt <= 2) {
+      CHOMP(command);
+
+      // Parse the color.
+      char c = (char)tolower((int)command[0]);
+      if (c == 'w') {
+        *color = S_WHITE;
+        continue;
+      } else if (c == 'b') {
+        *color = S_BLACK;
+        continue;
+      }
+
+      // Parse the unused interval tag.
+      if (strcmp(command, "minmoves") == 0 ||
+             strcmp(command, "maxmoves") == 0) {
+        STRTOK(NULL, DELIM, &next_token); // eat move numbers
+        continue;
+      }
+
+      if (strcmp(command, "avoid") == 0 ||
+              strcmp(command, "allow") == 0) {
+        STRTOK(NULL, DELIM, &next_token); // eat color
+        STRTOK(NULL, DELIM, &next_token); // eat vertices moves
+        STRTOK(NULL, DELIM, &next_token); // eat until moves
+        continue;
+      }
+
+      // Parse the interval tag.
+      if (strcmp(command, "interval") == 0) {
+        command = STRTOK(NULL, DELIM, &next_token);
+        CHOMP(command);
+      }
+
+      bool is_digit = true;
+      for (int i = 0; i < (int)strlen(command); ++i) {
+        is_digit &= isdigit(command[i]);
+      }
+
+      if (is_digit) {
+        *centi_second = std::atoi(command);
+      }
+    } else {
+      break;
+    }
+  }
+}
+
 void GTP_lz_analyze( void )
 {
   char *command;
-  char c;
-  int color, centi_second=50;
+  int color = S_EMPTY, centi_second = 100;
 
   StopPondering();
 
   command = STRTOK(input_copy, DELIM, &next_token);
-  
   CHOMP(command);
 
-  command = STRTOK(NULL, DELIM, &next_token);
-  if (command == NULL){
-    GTP_response(err_genmove, true);
-    return;
-  }
-  CHOMP(command);
-
-  c = (char)tolower((int)command[0]);
-  if (c == 'w') {
-    color = S_WHITE;
-  } else if (c == 'b') {
-    color = S_BLACK;
-  } else {
-    GTP_response(err_genmove, true);
-    return;
-  }
-
-  command = STRTOK(NULL, DELIM, &next_token);
-  if (command != NULL){
-    CHOMP(command);
-    centi_second = std::atoi(command);
-  }
+  ParseAnalysisTag(&color, &centi_second);
 
   bool old_pondering_mode = pondering_mode;
   SetPonderingMode(true);
 
-  player_color = color;
+  if (color == S_EMPTY) {
+    color = player_color;
+  } else {
+    player_color = color;
+  }
 
   if (command_id >= 0) {
     std::cout << "=" << command_id << " " << std::endl;
@@ -968,41 +1006,22 @@ void GTP_lz_analyze( void )
 void GTP_lz_genmove_analyze( void )
 {
   char *command;
-  char c;
   char pos[10];
-  int color, centi_second=50;
+  int color = S_EMPTY, centi_second = 100;
   int point = PASS;
 
   StopPondering();
 
   command = STRTOK(input_copy, DELIM, &next_token);
-
   CHOMP(command);
 
-  command = STRTOK(NULL, DELIM, &next_token);
-  if (command == NULL){
-    GTP_response(err_genmove, true);
-    return;
-  }
+  ParseAnalysisTag(&color, &centi_second);
 
-  CHOMP(command);
-  c = (char)tolower((int)command[0]);
-  if (c == 'w') {
-    color = S_WHITE;
-  } else if (c == 'b') {
-    color = S_BLACK;
+  if (color == S_EMPTY) {
+    color = player_color;
   } else {
-    GTP_response(err_genmove, true);
-    return;
+    player_color = color;
   }
-
-  command = STRTOK(NULL, DELIM, &next_token);
-  if (command != NULL){
-    CHOMP(command);
-    centi_second = std::atoi(command);
-  }
-
-  player_color = color;
 
   if (command_id >= 0) {
     std::cout << "=" << command_id << " " << std::endl;
