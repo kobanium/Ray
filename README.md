@@ -1,80 +1,59 @@
-About Ray
----------
+# About Ray
 Ray is a Go (Weiqi, Baduk) game engine based on Monte-Carlo tree search without Deep Learning.
 
 日本語は[こちら](doc/ja/README.md).
 
-Installation
-------------
+# Installation
 1. 'cd' to the directory which includes 'Makefile'
 2. Type 'make' to compile
+3. Place parameter files to ```sim_params``` and ```uct_params``` directries (You can download parameter files from [here](https://github.com/kobanium/Ray/releases))
 
-How to run
-----------
+# How to run
+When using a GUI that supports GTP (Go Text Protocol), the following command can be used Ray as a engine.
+```
+./ray
+```
+
+Ray's command line options are as follows,
+
+## Game settings
+| Option | Description | Value | Example of value | Default value | Note |
+| --- | --- | --- | --- | --- | --- |
+| `--size` | Size of go board| Integer more then 1 and less than or equal to PURE_BOARD_SIZE | 9 | PURE_BOARD_SIZE ( = 19 ) | PURE_BOARD_SIZE is defined in include/board/Constant.hpp |
+| `--komi` | Komi value | Real number | 6.5 | KOMI ( = 6.5 ) | KOMI is defined in include/board/Constant.hpp |
+| `--superko` | Positional super ko | - | - | - | Supporting positional super ko only |
+| `--handicap` | The number of handicap stones | Integer more than 1 | 2 | 0 | This option is for debugging. |
+
+### annotation
+The `--playout` option, the `--const-time option`, and the `--time` option are effective when specified last, respectively.
+
+## Time management and search settings
+| Option | Description | Value | Example of value | Default value | Note |
+| --- | --- | --- | --- | --- | --- |
+| `--playout` | The number of playouts per move | Integer more than 0 | 1000 | - | |
+| `--const-time` | Time to thinking per move (seconds) | Real number | 7.5 | CONST_TIME ( = 10.0) | CONST_TIME is defined in include/mcts/SearchManager.hpp |
+| `--time` | Total remaining time for a game (minutes) | Real number | 1800.0 | - | |
+| `--thread` | The number of search thread | Integer more than 0 and less than or equal to THREAD_MAX ( = 64 ) | 16 | 1 | THREAD_MAX is defined in include/mcts/UctSearch.hpp |
+| `--reuse-subtree` | Reusing MCTS sub-tree | - | - | - | |
+| `--pondering` | Pondering on opponent's thinking time | - | - | - | |
+| `--tree-size` | Maximum number of MCTS nodes | Integer power of 2 | 16834 | UCT_HASH_SIZE ( = 16834 ) | UCT_HASH_SIZE is defined in include/board/ZobristHash.hpp |
+
+### annotation
+When the `--pondering` option is enabled, the `--reuse-pondering` option is automatically enabled automatically.  
+
+## Misc
+
+| Option | Description | Value | Example of value | Default value | Note |
+| --- | --- | --- | --- | --- | --- |
+| `--no-debug` | No debug message mode | - | - | - | |
+
+
+## Example settings
+
 By default settings, Ray will consume 10 seconds each move on a single CPU 
 and require 800MB of memory. 
 
     ./ray
-
-Ray has some options :
-
-Setting the total number of playouts per move (3000 PO/move). Default is 10000.
-
-    ./ray --playout 3000
-
-Ray plays with time settings 30:00 (1800 seconds).
-
-    ./ray --time 1800       
-
-Ray runs on 13x13. Default is 19x19 (Maximum is also 19x19).
-You can ignore it if GTP sends 'boardsize' command.
-
-    ./ray --size 13         
-                  
-Ray considers 5 seconds each move. 
-
-    ./ray --const-time 5
-    
-Setting the number of threads. Default is 1 (Maximun is 32).
-
-    ./ray --thread 4
-
-Setting komi value. Default is 6.5.
-You can ignore this command if GTP sends 'komi' command.
-
-    ./ray --komi 7.5        
-                  
-Setting the number of handicap stones for test.
-This makes Ray ignore komi command from GTP.
-
-    ./ray --handicap 4      
-                  
-This makes Ray use subtree if it exist. Default is off.
-This command saves Ray's remaining time.
-
-    ./ray --reuse-subtree   
-                  
-This makes Ray think during the opponent's turn.
-(Automatically, this command turns 'reuse-subtree mode' on)
-
-    ./ray --pondering
-
-Setting the number of uct nodes. Default is 16384. If you
-want to run Ray with many threads and a long time setting,
-I recommend you to use this command. The number of nodes must be 2^n.
-
-    ./ray --tree-size
-
-Ray never print Ray's log.
-
-    ./ray --no-debug        
-
-Ray avoids positional-superko move.
-
-    ./ray --superko         
-
-
-e.g.
 
 Playing with 4 sec/move with 8 threads
 
@@ -90,11 +69,9 @@ Ray thinks during the opponent's turn.
     ./ray --time 1800 --thread 16 --tree-size 65536 --pondering
 
 
-License
--------
+## License
 Ray is distributed under the BSD License.
 Please see the "COPYING" file.
 
-Contact
--------
+## Contact
 rayauthor19x19@gmail.com (Yuki Kobayashi)

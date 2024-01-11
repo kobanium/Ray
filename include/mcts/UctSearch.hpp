@@ -13,7 +13,7 @@
 //  定数  //
 ////////////
 
-const int THREAD_MAX = 32;              // 使用するスレッド数の最大値
+const int THREAD_MAX = 64;              // 使用するスレッド数の最大値
 
 // CriticalityとOwnerを計算する間隔
 const int CRITICALITY_INTERVAL = 100;

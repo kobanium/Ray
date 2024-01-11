@@ -61,4 +61,7 @@ constexpr int PASS = 0;
 // 投了
 constexpr int RESIGN = -1;
 
+// デフォルトのコミの値
+const double KOMI = 6.5;
+
 #endif

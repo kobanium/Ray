@@ -353,6 +353,7 @@ InputBTFMParameter( const char *filename, fm_t params[], const int n )
   err = fopen_s(&fp, filename, "r");
   if (err != 0) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
   }
   for (int i = 0; i < n; i++) {
     if (fscanf_s(fp, "%lf", &params[i].w) == EOF) {
@@ -370,6 +371,7 @@ InputBTFMParameter( const char *filename, fm_t params[], const int n )
   fp = fopen(filename, "r");
   if (fp == NULL) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
   }
   for (int i = 0; i < n; i++) {
     if (fscanf(fp, "%lf", &params[i].w) == EOF) {

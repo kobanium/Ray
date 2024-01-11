@@ -21,31 +21,43 @@ Windowsでの動作確認はしていません. Linuxで利用する際には下
 使い方
 ------
 
-コマンドラインオプション
-------------------------
-コマンドラインオプションは下表の通りです.
 
-| オプション | 概要 | 使い方 |
-|------------|------|--------|
-| --size  | 碁盤のサイズの指定 | --size [2以上19以下の整数] |
-| --playout  | 1手あたりのプレイアウト回数の指定 | --playout [1以上の整数] |
-| --const-time  | 1手あたりの思考時間(秒数)の指定 | --const-time [1以上の整数] |
-| --time  | 持ち時間の指定 | --time [1以上の整数] |
-| --thread  | 探索するスレッド数の指定 | --thread [1以上の整数] |
-| --komi  | コミの指定 | --komi [任意の小数] |
-| --handicap  | 置き石の個数の指定 (テスト対局用) | --handicap [2以上の整数] |
-| --reuse-subtree  | 探索木の再利用を有効化 | --reuse-subtree |
-| --pondering | 予測読みの有効化 | --pondering |
-| --tree-size | 探索木の最大サイズの指定 | --tree-size [2以上の2のべき乗の整数] |
-| --no-debug  | コンソールメッセージ出力の抑止 | --no-debug |
-| --superko  | 超劫の有効化 | --superko |
 
-## 注意
+## Game settings
+| オプション | 概要 | 設定する値 | 値の例 | デフォルト値 | 備考 |
+| --- | --- | --- | --- | --- | --- |
+| `--size` | 碁盤のサイズの指定 | 1以上PURE_BOARD_SIZE以下の整数 | 9 | PURE_BOARD_SIZE ( = 19 ) | PURE_BOARD_SIZE は include/board/Constant.hpp に定義しています。 |
+| `--komi` | コミの値の設定 | 実数 | 6.5 | KOMI ( = 6.5 ) | KOMI は include/board/Constant.hpp に定義しています。 |
+| `--superko` | 超劫の有効化 | - | - | - | Positional Super Koのみサポートしています。 |
+| `--handicap` | 置き石の数の指定 | 1以上の整数 | 2 | 0 | デバッグ用のオプションです。 |
+
+### 注意
 --playoutオプション, --const-timeオプション, --timeオプションはそれぞれ最後に指定されたものが有効になります.  
---ponderingオプションを有効にすると, 自動的に--reuse-ponderingオプションが自動で有効になります.  
---superkoでサポートするのはPositional Superkoのみです.  
 
-開発者向け
-----------
+
+
+## Time management and search settings
+| Option | Description | Value | Example of value | Default value | Note |
+| --- | --- | --- | --- | --- | --- |
+| `--playout` | 1手あたりのプレイアウト回数の指定 | 1以上の整数 | 0 | 1000 | - | |
+| `--const-time` | 1手あたりの思考時間の指定 | 実数 | 7.5 | CONST_TIME ( = 10.0) | CONST_TIME は include/mcts/SearchManager.hpp に定義しています。 |
+| `--time` | 1局の持ち時間の指定 (分) | 実数 | 1800.0 | - | |
+| `--thread` | 探索スレッド数の指定 | 1以上THREAD_MAX ( = 64 ) 以下の整数 | 16 | 1 | THREAD_MAX は include/mcts/UctSearch.hpp に定義しています。 |
+| `--reuse-subtree` | サブツリー再利用の有効化 | - | - | - | |
+| `--pondering` | 予測読みの有効化 | - | - | - | |
+| `--tree-size` | MCTSノード数の指定 | 2のべき乗の整数 | 16834 | UCT_HASH_SIZE ( = 16834 ) | UCT_HASH_SIZE は include/board/ZobristHash.hpp に定義しています。 |
+
+### 注意
+--ponderingオプションを有効にすると, 自動的に--reuse-ponderingオプションが自動で有効になります.  
+
+
+## Misc
+
+| Option | Description | Value | Example of value | Default value | Note |
+| --- | --- | --- | --- | --- | --- |
+| `--no-debug` | デバッグメッセージ出力の抑制 | - | - | - | |
+
+
+## 開発者向け
 モンテカルロ・シミュレーション用のパラメータの学習の方法は[こちら](LearningForSimulation.md).  
 木探索用のパラメータの学習方法は[こちら](LearningForTree.md).
