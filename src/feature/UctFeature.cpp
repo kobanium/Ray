@@ -435,13 +435,13 @@ CheckFeaturesForTree( const game_info_t *game, const int color, unsigned int *ta
       if (string[id].libs == 1) {
         ladder = CheckLadderExtension(game, color, neighbor4[i]);
         CheckFeaturesLib1ForTree(game, color, id, ladder, tactical_features);
-        status = 3;
+        status = MOVE_DISTANCE_MAX * 3;
       } else if (string[id].libs == 2) {
         CheckFeaturesLib2ForTree(game, color, id, tactical_features);
-        status = (status <= 1) ? 2 : status;
+        status = (status <= MOVE_DISTANCE_MAX * 1) ? MOVE_DISTANCE_MAX * 2 : status;
       } else if (string[id].libs == 3) {
         CheckFeaturesLib3ForTree(game, color, id, tactical_features);
-        status = (status <= 0) ? 1 : status;
+        status = (status <= MOVE_DISTANCE_MAX * 0) ? MOVE_DISTANCE_MAX * 1 : status;
       }
       check[checked++] = id;
     }
