@@ -24,7 +24,7 @@
 
 constexpr bool has_interaction = true;
 
-
+static std::vector<int> pat3_index;
 static std::vector<int> md2_index;
 static std::vector<index_hash_t> md3_index;
 static std::vector<index_hash_t> md4_index;
@@ -65,9 +65,6 @@ static std::vector<unsigned int> same_pat3;
 static std::atomic<int> all_moves;
 static std::atomic<int> counter;
 
-static std::mutex mutex_3x3;
-static std::mutex mutex_md2;
-
 static double learning_rate = 0.01;
 static std::atomic<int> prediction[PURE_BOARD_MAX + 1];
 static double likelihood;
@@ -78,7 +75,7 @@ static std::map<int, double> lr_schedule;
 
 static constexpr double minW = 0.00001;
 static constexpr double minV = 0.00001;
-static constexpr double lambda = 0.00001;
+static constexpr double lambda = 0.001;
 static constexpr double lambdaV = lambda * 2;
 
 static std::map<UCT_CAPTURE_FEATURE, std::string> capture_file_name;
@@ -95,7 +92,7 @@ static void InitializeOutputFileMap( void );
 static void InitializeWeights( std::vector<btfm_t> &data, const int size, std::mt19937_64 &mt, std::normal_distribution<> &dist, int &data_id );
 static void LearningSecondOrderBradleyTerryModel( void );
 static void CorrectAllFeatures( game_info_t *game, int color, std::vector<btfm_t*> featureList[], std::map<int, btfm_t*> &featureMap );
-static void ProcessPosition( game_info_t *game, int expertMove, int color, int thread_id );
+static void ProcessPosition( game_info_t *game, const int expertMove, const int color, const int thread_id );
 static double CalculateFirstTerm( const std::vector<btfm_t*> &t, const int n );
 static double CalculateSecondTerm( const std::vector<btfm_t*> &t, const int i, const int j );
 static void Output( void );
@@ -105,6 +102,9 @@ static void LearningLoop( train_thread_arg_t *arg );
 static void PlaybackGame( game_info_t *game, char *filename, int id );
 static void CorrectTacticalFeature( std::vector<btfm_t*> feature_list[], std::map<int, btfm_t*> &feature_map, std::vector<btfm_t> &feature, const unsigned int tactical_features[], const UCT_ALL_FEATURE feature_index, const int pos );
 static void CorrectMoveDistanceFeature( std::vector<btfm_t*> feature_list[], std::map<int, btfm_t*> &feature_map, std::vector<btfm_t> &move_distance_feature, const int pos, const int previous_move, const int shift );
+static void PlaybackGameForEvaluation( game_info_t *game, char *filename );
+static void EvaluateMovePrediction( game_info_t *game, const int expert_move, const int color );
+static void TestingLoop( train_thread_arg_t *arg );
 
 
 void
@@ -208,28 +208,14 @@ InitializeLearning( void )
     throw_in[0].v[i] = 1.0;
   }
 
-  same_pat3 = std::vector<unsigned int>(PAT3_MAX, 0);
-
-  unsigned int minpat, transp[16];
-  // 3x3パターンの対称形のインデックスを計算
-  for (unsigned int pat3 = 0; pat3 < PAT3_MAX; pat3++) {
-    Pat3Transpose16(pat3, transp);
-    const int tc = GetUniquePattern(transp, 16);
-    minpat = transp[0];
-    for (int i = 1; i < tc; i++) {
-      if (transp[i] < minpat) minpat = transp[i];
-    }
-    if (same_pat3[pat3] == 0 && pat3 != 0) {
-      for (int i = 0; i < tc; i++) same_pat3[transp[i]] = minpat;
-    }
-  }
-
-  // MD2パターンの対称形のインデックスを計算
-  for (unsigned int md2 = 0; md2 < MD2_MAX; md2++) {
-    if (md2_index[md2] != 0) {
-      MD2Transpose16(md2, transp);
-      for (int i = 0; i < 16; i++) {
-        md2_index[transp[i]] = md2_index[md2];
+  unsigned int transpose[16];
+  pat3_index = std::vector<int>(PAT3_MAX, -1);
+  for (unsigned int pat_3x3 = 0; pat_3x3 < static_cast<unsigned int>(PAT3_MAX); pat_3x3++) {
+    if (pat3_index[pat_3x3] == -1) {
+      Pat3Transpose16(pat_3x3, transpose);
+      const int tc = GetUniquePattern(transpose, 16);
+      for (int i = 0; i < tc; i++) {
+        pat3_index[transpose[i]] = pat_3x3;
       }
     }
   }
@@ -263,6 +249,108 @@ CalculateSecondTerm( const std::vector<btfm_t*> &t, const int i, const int j )
 }
 
 
+
+
+static double
+CalculateMoveScore( game_info_t *game, const int pos, const unsigned int tactical_features[], const int distance_index )
+{
+  const int moves = game->moves;
+  const int pm1 = (moves > 1) ? game->record[moves - 1].pos : PASS;
+  const int pm2 = (moves > 2) ? game->record[moves - 2].pos : PASS;
+  const int pm3 = (moves > 3) ? game->record[moves - 3].pos : PASS;
+  const int pm4 = (moves > 4) ? game->record[moves - 4].pos : PASS;
+  int dis = 0;
+  std::vector<btfm_t*> active_features;
+  pattern_hash_t hash_pat;
+
+  if (pos == PASS) {
+    if (moves > 1 && pm1 == PASS) {
+      active_features.push_back(&pass[UCT_PASS_AFTER_PASS]);
+    } else {
+      active_features.push_back(&pass[UCT_PASS_AFTER_MOVE]);
+    }
+  } else {
+    if (pm1 != PASS) {
+      dis = DIS(pos, pm1);
+      if (dis >= MOVE_DISTANCE_MAX - 1) {
+        dis = MOVE_DISTANCE_MAX - 1;
+      }
+      active_features.push_back(&move_distance_1[dis + distance_index]);
+    }
+    if (pm2 != PASS) {
+      dis = DIS(pos, pm2);
+      if (dis >= MOVE_DISTANCE_MAX - 1) {
+        dis = MOVE_DISTANCE_MAX - 1;
+      }
+      active_features.push_back(&move_distance_2[dis + distance_index]);
+    }
+    if (pm3 != PASS) {
+      dis = DIS(pos, pm3);
+      if (dis >= MOVE_DISTANCE_MAX - 1) {
+        dis = MOVE_DISTANCE_MAX - 1;
+      }
+      active_features.push_back(&move_distance_3[dis + distance_index]);
+    }
+    if (pm4 != PASS) {
+      dis = DIS(pos, pm4);
+      if (dis >= MOVE_DISTANCE_MAX - 1) {
+        dis = MOVE_DISTANCE_MAX - 1;
+      }
+      active_features.push_back(&move_distance_4[dis + distance_index]);
+    }
+
+    const unsigned int *features = &tactical_features[pos * UCT_INDEX_MAX];
+
+    if (features[UCT_CAPTURE_INDEX]        > 0) active_features.push_back(&capture[features[UCT_CAPTURE_INDEX]]);
+    if (features[UCT_SAVE_EXTENSION_INDEX] > 0) active_features.push_back(&save_extension[features[UCT_SAVE_EXTENSION_INDEX]]);
+    if (features[UCT_ATARI_INDEX]          > 0) active_features.push_back(&atari[features[UCT_ATARI_INDEX]]);
+    if (features[UCT_EXTENSION_INDEX]      > 0) active_features.push_back(&extension[features[UCT_EXTENSION_INDEX]]);
+    if (features[UCT_DAME_INDEX]           > 0) active_features.push_back(&dame[features[UCT_DAME_INDEX]]);
+    if (features[UCT_CONNECT_INDEX]        > 0) active_features.push_back(&connect[features[UCT_CONNECT_INDEX]]);
+    if (features[UCT_THROW_IN_INDEX]       > 0) active_features.push_back(&throw_in[features[UCT_THROW_IN_INDEX]]);
+
+    active_features.push_back(&pos_id[board_pos_id[pos]]);
+
+    PatternHash(&game->pat[pos], &hash_pat);
+    const int pat_3x3 = pat3_index[Pat3(game->pat, pos)];
+    const int pat_md2 = md2_index[MD2(game->pat, pos)];
+    const int md3_idx = SearchIndex(md3_index.data(), hash_pat.list[MD_3]);
+    const int md4_idx = SearchIndex(md4_index.data(), hash_pat.list[MD_4]);
+    const int md5_idx = SearchIndex(md5_index.data(), hash_pat.list[MD_5 + MD_MAX]);
+
+    if (md5_idx != -1 && md5_target[md5_idx]) {
+      active_features.push_back(&md5[md5_idx]);
+    } else if (md4_idx != -1 && md4_target[md4_idx]) {
+      active_features.push_back(&md4[md4_idx]);
+    } else if (md3_idx != -1 && md3_target[md3_idx]) {
+      active_features.push_back(&md3[md3_idx]);
+    } else if (pat_md2 != 0 && md2_target[pat_md2]) {
+      active_features.push_back(&md2[pat_md2]);
+    } else {
+      active_features.push_back(&pat3[pat_3x3]);
+    }
+  }
+
+  if (moves > 1 && game->ko_move == game->moves - 1) {
+    active_features.push_back(&ko_exist[0]);
+  }
+
+  const int feature_num = active_features.size();
+  const double gamma = CalculateFirstTerm(active_features, feature_num);
+  double theta = feature_num > 1 ? 1.0 : 0.0;
+
+  for (int i = 0; i < feature_num - 1; i++) {
+    for (int j = i + 1; j < feature_num; j++) {
+      theta *= CalculateSecondTerm(active_features, i, j);
+    }
+  }
+
+  return gamma + theta;
+}
+
+
+
+
 static void
 UpdateFirstTermAdam( btfm_t *feature, const double alpha, const double lambda, const double minW, const int id )
 {
@@ -274,7 +362,6 @@ UpdateFirstTermAdam( btfm_t *feature, const double alpha, const double lambda, c
   const double grad = feature->grad_w[id];
   const double weight_decay = w - 1.0;
   const double gradSq = grad * grad;
-
 
   const double first_moment_w = beta * feature->first_moment_w + (1.0 - beta) * grad;
   const double second_moment_w = gamma * feature->second_moment_w + (1.0 - gamma) * gradSq;
@@ -320,7 +407,7 @@ UpdateSecondTermAdam( btfm_t *feature, const double alpha, const double lambda, 
 
 
 static void
-ProcessPosition( game_info_t *game, int expertMove, int color, int thread_id )
+ProcessPosition( game_info_t *game, const int expertMove, const int color, const int thread_id )
 {
   std::map<int, btfm_t*> featureMap;
   std::vector<btfm_t*> featureList[BOARD_MAX];
@@ -398,7 +485,7 @@ ProcessPosition( game_info_t *game, int expertMove, int color, int thread_id )
   }
 
   const double invTotal = 1.0 / totalScore;
-  const double invTotalN = 1.0 / (totalScore * (double)FM_DIMENSION);
+  const double invTotalN = 1.0 / (totalScore * static_cast<double>(FM_DIMENSION));
 
   // 全ての着手に共通する項の計算
   for (int p = 0; p < PURE_BOARD_MAX; p++) {
@@ -481,7 +568,6 @@ ProcessPosition( game_info_t *game, int expertMove, int color, int thread_id )
     }
   }
 
-
   for (auto &x : featureMap) {
     btfm_t *feature = x.second;
     mutex_terms[feature->id].lock();
@@ -520,9 +606,16 @@ LearningSecondOrderBradleyTerryModel( void  )
   train_thread_arg_t targ[TRAIN_THREAD_NUM];
   std::thread *handle[TRAIN_THREAD_NUM];
 
+  for (int i = 0; i < thread_num; i++) {
+    targ[i].id = i;
+  }
+  
   for (int step = 0; step <= BTFM_UPDATE_STEPS; step++){
-    //  タイマー起動
-    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+    for (int i = 0; i < thread_num; i++) {
+      targ[i].step = step;
+    }
+    
+    const std::chrono::system_clock::time_point train_start = std::chrono::system_clock::now();
 
     if (lr_schedule.count(step) != 0 &&
         lr_schedule[step] != learning_rate) {
@@ -533,8 +626,6 @@ LearningSecondOrderBradleyTerryModel( void  )
     }
 
     for (int i = 0; i < thread_num; i++) {
-      targ[i].id = i;
-      targ[i].step = step;
       handle[i] = new std::thread(LearningLoop, &targ[i]);
     }
 
@@ -543,26 +634,50 @@ LearningSecondOrderBradleyTerryModel( void  )
       delete handle[i];
     }
 
-    double accuracy = (double)(prediction[0].load()) / counter.load();
+    const std::chrono::system_clock::time_point train_end = std::chrono::system_clock::now();
+    const double train_elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(train_end - train_start).count() * 0.001;
+    const double train_accuracy = static_cast<double>(prediction[0].load()) / counter.load();
+
+    // 学習のログファイル出力
+    OutputLearningLogFile(step, all_moves.load(), train_elapsed_time, train_accuracy, true);
+
+    std::cerr << "Train data accuracy : " << train_accuracy << std::endl;
 
     // 算出結果を消去
     for (int i = 0; i < PURE_BOARD_MAX + 1; i++) {
       prediction[i].store(0);
     }
     likelihood = 0.0;
+    counter.store(0);
 
-    /* 出力 */
+    // Output parameter files.
     Output();
 
-    // 学習のログファイル出力
-    std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
-    const double elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() * 0.001;
-    OutputLearningLogFile(step, all_moves.load(), elapsed_time, accuracy);
+    // Validation phase.
+    const std::chrono::system_clock::time_point test_start = std::chrono::system_clock::now();
+    for (int i = 0; i < thread_num; i++) {
+      handle[i] = new std::thread(TestingLoop, &targ[i]);
+    }
+
+    for (int i = 0; i < thread_num; i++) {
+      handle[i]->join();
+      delete handle[i];
+    }
+
+    const std::chrono::system_clock::time_point test_end = std::chrono::system_clock::now();
+    const double test_elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(test_end - test_start).count() * 0.001;
+    const double test_accuracy = static_cast<double>(prediction[0].load()) / counter.load();
+    OutputLearningLogFile(step, counter.load(), test_elapsed_time, test_accuracy, false);
+
+    std::cerr << "Test data accuracy : " << test_accuracy << std::endl;
+
+    for (int i = 0; i < PURE_BOARD_MAX + 1; i++) {
+      prediction[i].store(0);
+    }
+    counter.store(0);
 
     Backup(step);
 
-
-    counter.store(0);
     all_moves.store(0);
   }
 }
@@ -588,8 +703,34 @@ LearningLoop( train_thread_arg_t *targ )
     }
   }
 
-  FreeGame( game );
-  FreeGame( init_game );
+  FreeGame(game);
+  FreeGame(init_game);
+}
+
+
+static void
+TestingLoop( train_thread_arg_t *targ )
+{
+  char filename[1024];
+  game_info_t *game = AllocateGame();
+  game_info_t *init_game = AllocateGame();
+
+  InitializeBoard(init_game);
+
+  for (int i = TEST_KIFU_START_INDEX; i <= TEST_KIFU_LAST_INDEX; i++) {
+    if (i % thread_num == targ->id) {
+      sprintf(filename, "%s/%d.sgf", TEST_KIFU_PATH, i);
+      if (i % 1000 == 0) {
+        fprintf(stderr, "Test %d.sgf\n", i);
+        fflush(stderr);
+      }
+      CopyGame(game, init_game);
+      PlaybackGameForEvaluation(game, filename);
+    }
+  }
+  
+  FreeGame(game);
+  FreeGame(init_game);
 }
 
 static void
@@ -619,6 +760,26 @@ PlaybackGame( game_info_t *game, char *filename, int id )
 
 
 static void
+PlaybackGameForEvaluation( game_info_t *game, char *filename )
+{
+  SGF_record_t kifu;
+  int color = S_BLACK;
+
+  ExtractKifu(filename, &kifu);
+
+  for (int i = 0; i < kifu.moves; i++) {
+    const int pos = GetKifuMove(&kifu, i);
+
+    EvaluateMovePrediction(game, pos, color);
+
+    PutStone(game, pos, color);
+
+    color = GetOppositeColor(color);
+  }
+}
+
+
+static void
 CorrectAllFeatures( game_info_t *game, int color, std::vector<btfm_t*> featureList[], std::map<int, btfm_t*> &featureMap )
 {
   const int moves = game->moves;
@@ -627,23 +788,11 @@ CorrectAllFeatures( game_info_t *game, int color, std::vector<btfm_t*> featureLi
   const int pm3 = (moves > 3) ? game->record[moves - 3].pos : PASS;
   const int pm4 = (moves > 4) ? game->record[moves - 4].pos : PASS;
   unsigned int tactical_features[BOARD_MAX * UCT_INDEX_MAX] = {0};
-  int pos, id = 0, distance_index = 0;
+  int id = 0;
   pattern_t *pat = game->pat;
-  int index[3];
   pattern_hash_t hash_pat;
 
-  for (int i = 0; i < PURE_BOARD_MAX; i++) {
-    pos = onboard_pos[i];
-    tactical_features[UctFeatureIndex(pos, UCT_CAPTURE_INDEX)] = 0;
-    tactical_features[UctFeatureIndex(pos, UCT_SAVE_EXTENSION_INDEX)] = 0;
-    tactical_features[UctFeatureIndex(pos, UCT_ATARI_INDEX)] = 0;
-    tactical_features[UctFeatureIndex(pos, UCT_EXTENSION_INDEX)] = 0;
-    tactical_features[UctFeatureIndex(pos, UCT_DAME_INDEX)] = 0;
-    tactical_features[UctFeatureIndex(pos, UCT_CONNECT_INDEX)] = 0;
-    tactical_features[UctFeatureIndex(pos, UCT_THROW_IN_INDEX)] = 0;
-  }
-
-  distance_index = CheckFeaturesForTree( game, color, tactical_features );
+  const int distance_index = CheckFeaturesForTree( game, color, tactical_features );
   CheckRemove2StonesForTree(game, color, tactical_features);
 
   if (moves > 2 && game->ko_move == moves - 2) {
@@ -670,8 +819,8 @@ CorrectAllFeatures( game_info_t *game, int color, std::vector<btfm_t*> featureLi
     featureMap[id] = &ko_exist[0];
   }
 
-  for (int i = 0; i < PURE_BOARD_MAX; i++) {
-    pos = onboard_pos[i];
+  for (int i = 0; i < pure_board_max; i++) {
+    const int pos = onboard_pos[i];
     if (IsLegal(game, pos, color)) {
       CheckSelfAtariForTree(game, color, pos, tactical_features);
       CheckCaptureForTree(game, color, pos, tactical_features);
@@ -699,46 +848,102 @@ CorrectAllFeatures( game_info_t *game, int color, std::vector<btfm_t*> featureLi
       if (!featureMap.count(id)) {
         featureMap[id] = &pos_id[board_pos_id[pos]];
       }
+
       PatternHash(&game->pat[pos], &hash_pat);
-      index[0] = SearchIndex(md3_index.data(), hash_pat.list[MD_3]);
-      index[1] = SearchIndex(md4_index.data(), hash_pat.list[MD_4]);
-      index[2] = SearchIndex(md5_index.data(), hash_pat.list[MD_5 + MD_MAX]);
-      if (index[2] != -1 && md5_target[index[2]]) {
-        featureList[pos].push_back(&md5[index[2]]);
-        id = md5[index[2]].id;
+      const int pat_3x3 = pat3_index[Pat3(pat, pos)];
+      const int pat_md2 = md2_index[MD2(pat, pos)];
+      const int md3_idx = SearchIndex(md3_index.data(), hash_pat.list[MD_3]);
+      const int md4_idx = SearchIndex(md4_index.data(), hash_pat.list[MD_4]);
+      const int md5_idx = SearchIndex(md5_index.data(), hash_pat.list[MD_5 + MD_MAX]);
+
+      if (md5_idx != -1 && md5_target[md5_idx]) {
+        featureList[pos].push_back(&md5[md5_idx]);
+        id = md5[md5_idx].id;
         if (!featureMap.count(id)) {
-          featureMap[id] = &md5[index[2]];
+          featureMap[id] = &md5[md5_idx];
         }
-      } else if (index[1] != -1 && md4_target[index[1]]) {
-        featureList[pos].push_back(&md4[index[1]]);
-        id = md4[index[1]].id;
+      } else if (md4_idx != -1 && md4_target[md4_idx]) {
+        featureList[pos].push_back(&md4[md4_idx]);
+        id = md4[md4_idx].id;
         if (!featureMap.count(id)) {
-          featureMap[id] = &md4[index[1]];
+          featureMap[id] = &md4[md4_idx];
         }
-      } else if (index[0] != -1 && md3_target[index[0]]) {
-        featureList[pos].push_back(&md3[index[0]]);
-        id = md3[index[0]].id;
+      } else if (md3_idx != -1 && md3_target[md3_idx]) {
+        featureList[pos].push_back(&md3[md3_idx]);
+        id = md3[md3_idx].id;
         if (!featureMap.count(id)) {
-          featureMap[id] = &md3[index[0]];
+          featureMap[id] = &md3[md3_idx];
         }
-      } else if (md2_target[md2_index[MD2(pat, pos)]]) {
-        const unsigned int idx = md2_index[MD2(pat, pos)];
-        featureList[pos].push_back(&md2[idx]);
-        id = md2[idx].id;
+      } else if (pat_md2 != 0 && md2_target[pat_md2]) {
+        featureList[pos].push_back(&md2[pat_md2]);
+        id = md2[pat_md2].id;
         if (!featureMap.count(id)) {
-          featureMap[id] = &md2[idx];
+          featureMap[id] = &md2[pat_md2];
         }
       } else {
-        const unsigned int idx = same_pat3[Pat3(pat, pos)];
-        featureList[pos].push_back(&pat3[idx]);
-        id = pat3[idx].id;
+        featureList[pos].push_back(&pat3[pat_3x3]);
+        id = pat3[pat_3x3].id;
         if (!featureMap.count(id)) {
-          featureMap[id] = &pat3[idx];
+          featureMap[id] = &pat3[pat_3x3];
         }
       }
     }
   }
 }
+
+
+static void
+EvaluateMovePrediction( game_info_t *game, const int expert_move, const int color )
+{
+  const int moves = game->moves;
+  std::vector<std::pair<double, int> > score_list;
+  unsigned int tactical_features[BOARD_MAX * UCT_INDEX_MAX] = {0};
+  const int distance_index = CheckFeaturesForTree(game, color, tactical_features);
+  CheckRemove2StonesForTree(game, color, tactical_features);
+
+  if (moves > 2 && game->ko_move == moves - 2) {
+    CheckCaptureAfterKoForTree(game, color, tactical_features);
+    CheckKoConnectionForTree(game, tactical_features);
+  } else if (moves > 3 && game->ko_move == moves - 3) {
+    CheckKoRecaptureForTree(game, color, tactical_features);
+  }
+
+
+  score_list.push_back({ CalculateMoveScore(game, PASS, tactical_features, distance_index), PASS });
+
+  for (int i = 0; i < pure_board_max; i++) {
+    const int pos = onboard_pos[i];
+    if (IsLegal(game, pos, color)) {
+      CheckSelfAtariForTree(game, color, pos, tactical_features);
+      CheckCaptureForTree(game, color, pos, tactical_features);
+      CheckAtariForTree(game, color, pos, tactical_features);
+
+      score_list.push_back({ CalculateMoveScore(game, pos, tactical_features, distance_index), pos });
+    } else {
+      score_list.push_back({ 0.0, pos });
+    }
+  }
+
+  std::sort(score_list.begin(), score_list.end(), std::greater<std::pair<double, int> >());
+
+  int skip = 0;
+
+  for (int j = 0; j < pure_board_max + 1; j++) {
+    if (j != 0 &&
+        score_list[j].first == score_list[j - 1].first) {
+      skip++;
+    } else {
+      skip = 0;
+    }
+    if (score_list[j].second == expert_move) {
+      prediction[j]++;
+    }
+  }
+  counter++;
+}
+
+
+
 
 static void
 CorrectTacticalFeature( std::vector<btfm_t*> feature_list[],
@@ -772,7 +977,7 @@ CorrectMoveDistanceFeature( std::vector<btfm_t*> feature_list[],
     if (distance > MOVE_DISTANCE_MAX - 1) {
       distance = MOVE_DISTANCE_MAX - 1;
     }
-    distance += shift * MOVE_DISTANCE_MAX;
+    distance += shift;
     feature_list[pos].push_back(&move_distance_feature[distance]);
     const int id = move_distance_feature[distance].id;
     if (!feature_map.count(id)) {
@@ -788,6 +993,13 @@ Output( void )
   const std::string output_directory = GetWorkingDirectory() + PATH_SEPARATOR +
     LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
     TREE_RESULT_DIR_NAME + PATH_SEPARATOR;
+
+  for (unsigned int i = 0; i < static_cast<unsigned int>(PAT3_MAX); i++) {
+    pat3[i].w = pat3[pat3_index[i]].w;
+    for (int j = 0; j < FM_DIMENSION; j++) {
+      pat3[i].v[j] = pat3[pat3_index[i]].v[j];
+    }
+  }
   
   // パス
   OutputBTFMParameter(output_directory + "Pass.txt", pass);
@@ -918,6 +1130,7 @@ OutputFMAdd( std::string filename, btfm_t &t )
   }
   ofs << std::endl;
 }
+
 
 static void
 InitializeOutputFileMap( void )

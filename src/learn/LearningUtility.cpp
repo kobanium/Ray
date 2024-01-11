@@ -36,7 +36,7 @@ OutputGamma( const std::string filename, const std::vector<mm_t> &data, const st
 
   for (std::size_t i = 0; i < data_size; i++) {
     if (data[i].gamma != 1.0) {
-      ofs << index_list[i] << "\t" << data[i].gamma << "\n";
+      ofs << index_list[i] << "\t" << std::scientific << data[i].gamma << "\n";
     }
   }
 }
@@ -130,7 +130,7 @@ InputMD2Target( const std::string filename, std::vector<int> &md2_index, std::ve
 {
   std::ifstream ifs(filename, std::ios::in);
   int target_index = 1;
-  unsigned int index;
+  unsigned int index, md2_transpose16[16];
 
   if (ifs.fail()) {
     std::cerr << "Cannot open \"" << filename << "\"" << std::endl;
@@ -144,9 +144,13 @@ InputMD2Target( const std::string filename, std::vector<int> &md2_index, std::ve
   md2_target.push_back(false);
 
   while (ifs >> index) {
-    md2_index[index] = target_index++;
+    MD2Transpose16(index, md2_transpose16);
+    for (int i = 0; i < 16; i++) {
+      md2_index[md2_transpose16[i]] = target_index;
+    }
     md2_list.push_back(index);
     md2_target.push_back(true);
+    target_index++;
   }
   std::cerr << "MD2 Target : " << md2_target.size() << std::endl;
 }
@@ -168,6 +172,7 @@ InputLargePatternTarget( const std::string filename, std::vector<index_hash_t> &
   index.resize(HASH_MAX);
 
   for (index_hash_t &datum : index) {
+    datum.hash = 0;
     datum.index = -1;
   }
 

@@ -26,6 +26,8 @@ const char gogui_x[] = {
 //  関数  //
 ////////////
 
+void LzIntegerToString( const int pos, char *cpos );
+
 //  2次元表記から1次元表記へ変換  
 int StringToInteger( const char *cpos );
 

@@ -41,7 +41,7 @@ static fm_t uct_pos_id[POS_ID_MAX];
 
 // パターン
 static fm_t uct_pat3[PAT3_MAX];
-static fm_t uct_md2[MD2_MAX];
+static fm_t uct_md2[LARGE_PAT_MAX];
 static fm_t uct_md3[LARGE_PAT_MAX];
 static fm_t uct_md4[LARGE_PAT_MAX];
 static fm_t uct_md5[LARGE_PAT_MAX];
@@ -57,7 +57,6 @@ static index_hash_t md3_index[HASH_MAX];
 static index_hash_t md4_index[HASH_MAX];
 static index_hash_t md5_index[HASH_MAX];
 
-static int pat3_index[PAT3_MAX];
 static int md2_index[MD2_MAX];
 
 double criticality_init = CRITICALITY_INIT;
@@ -118,21 +117,17 @@ Theta( std::vector<fm_t*> &t, const int i, const int j )
 }
 
 
-
 double
 CalculateMoveScoreWithBTFM( const game_info_t *game, const int pos, const unsigned int *tactical_features, const int distance_index )
 {
   const int moves = game->moves;
-  int pm1 = PASS, pm2 = PASS, pm3 = PASS, pm4 = PASS;
+  const int pm1 = (moves > 1) ? game->record[moves - 1].pos : PASS;
+  const int pm2 = (moves > 2) ? game->record[moves - 2].pos : PASS;
+  const int pm3 = (moves > 3) ? game->record[moves - 3].pos : PASS;
+  const int pm4 = (moves > 4) ? game->record[moves - 4].pos : PASS;
   int dis = 0;
-  int pat3_idx, md2_idx, md3_idx, md4_idx, md5_idx;
   std::vector<fm_t*> active_features;
   pattern_hash_t hash_pat;
-
-  if (moves > 1) pm1 = game->record[moves - 1].pos;
-  if (moves > 2) pm2 = game->record[moves - 2].pos;
-  if (moves > 3) pm3 = game->record[moves - 3].pos;
-  if (moves > 4) pm4 = game->record[moves - 4].pos;
 
   if (pos == PASS) {
     if (moves > 1 && pm1 == PASS) {
@@ -141,41 +136,36 @@ CalculateMoveScoreWithBTFM( const game_info_t *game, const int pos, const unsign
       active_features.push_back(&uct_pass[UCT_PASS_AFTER_MOVE]);
     }
   } else {
-    PatternHash(&game->pat[pos], &hash_pat);
-    md3_idx = SearchIndex(md3_index, hash_pat.list[MD_3]);
-    md4_idx = SearchIndex(md4_index, hash_pat.list[MD_4]);
-    md5_idx = SearchIndex(md5_index, hash_pat.list[MD_5 + MD_MAX]);
-
-    if (moves > 1 && pm1 != PASS) {
+    if (pm1 != PASS) {
       dis = DIS(pos, pm1);
       if (dis >= MOVE_DISTANCE_MAX - 1) {
         dis = MOVE_DISTANCE_MAX - 1;
       }
-      active_features.push_back(&uct_move_distance_1[dis + distance_index * MOVE_DISTANCE_MAX]);
+      active_features.push_back(&uct_move_distance_1[dis + distance_index]);
     }
 
-    if (moves > 2 && pm2 != PASS) {
+    if (pm2 != PASS) {
       dis = DIS(pos, pm2);
       if (dis >= MOVE_DISTANCE_MAX - 1) {
         dis = MOVE_DISTANCE_MAX - 1;
       }
-      active_features.push_back(&uct_move_distance_2[dis + distance_index * MOVE_DISTANCE_MAX]);
+      active_features.push_back(&uct_move_distance_2[dis + distance_index]);
     }
 
-    if (moves > 3 && pm3 != PASS) {
+    if (pm3 != PASS) {
       dis = DIS(pos, pm3);
       if (dis >= MOVE_DISTANCE_MAX - 1) {
         dis = MOVE_DISTANCE_MAX - 1;
       }
-      active_features.push_back(&uct_move_distance_3[dis + distance_index * MOVE_DISTANCE_MAX]);
+      active_features.push_back(&uct_move_distance_3[dis + distance_index]);
     }
 
-    if (moves > 4 && pm4 != PASS) {
+    if (pm4 != PASS) {
       dis = DIS(pos, pm4);
       if (dis >= MOVE_DISTANCE_MAX - 1) {
         dis = MOVE_DISTANCE_MAX - 1;
       }
-      active_features.push_back(&uct_move_distance_4[dis + distance_index * MOVE_DISTANCE_MAX]);
+      active_features.push_back(&uct_move_distance_4[dis + distance_index]);
     }
 
     const unsigned int *features = &tactical_features[pos * UCT_INDEX_MAX];
@@ -188,8 +178,12 @@ CalculateMoveScoreWithBTFM( const game_info_t *game, const int pos, const unsign
     if (features[UCT_CONNECT_INDEX]        > 0) active_features.push_back(&uct_connect[features[UCT_CONNECT_INDEX]]);
     if (features[UCT_THROW_IN_INDEX]       > 0) active_features.push_back(&uct_throw_in[features[UCT_THROW_IN_INDEX]]);
 
-    pat3_idx = pat3_index[Pat3(game->pat, pos)];
-    md2_idx = md2_index[MD2(game->pat, pos)];
+    PatternHash(&game->pat[pos], &hash_pat);
+    const int pat3_idx = Pat3(game->pat, pos);
+    const int md2_idx = md2_index[MD2(game->pat, pos)];
+    const int md3_idx = SearchIndex(md3_index, hash_pat.list[MD_3]);
+    const int md4_idx = SearchIndex(md4_index, hash_pat.list[MD_4]);
+    const int md5_idx = SearchIndex(md5_index, hash_pat.list[MD_5 + MD_MAX]);
 
     // 盤上の位置
     active_features.push_back(&uct_pos_id[board_pos_id[pos]]);
@@ -233,31 +227,30 @@ void
 AnalyzeUctRating( game_info_t *game, int color, double rate[] )
 {
   const int moves = game->moves;
-  unsigned int tactical_features[BOARD_MAX * UCT_INDEX_MAX] = {0};
-
+  unsigned int tactical_features[BOARD_MAX * UCT_INDEX_MAX] = {0};  
   const int distance_index = CheckFeaturesForTree(game, color, tactical_features);
 
   CheckRemove2StonesForTree(game, color, tactical_features);
-  if (game->ko_move == moves - 2) {
+  if (moves > 2 && game->ko_move == moves - 2) {
     CheckCaptureAfterKoForTree(game, color, tactical_features);
     CheckKoConnectionForTree(game, tactical_features);
-  } else if (game->ko_move == moves - 3) {
+  } else if (moves > 3 && game->ko_move == moves - 3) {
     CheckKoRecaptureForTree(game, color, tactical_features);
   }
-  
+
   for (int i = 0; i < pure_board_max; i++) {
     const int pos = onboard_pos[i];
-    if (!game->candidates[pos] || !IsLegal(game, pos, color)) {
-      rate[i] = 0;
-      continue;
+    if (IsLegal(game, pos, color)) {
+      CheckSelfAtariForTree(game, color, pos, tactical_features);
+      CheckCaptureForTree(game, color, pos, tactical_features);
+      CheckAtariForTree(game, color, pos, tactical_features);
+
+      rate[i] = CalculateMoveScoreWithBTFM(game, pos, tactical_features, distance_index);
+    } else {
+      rate[i] = 0.0;
     }
-
-    CheckSelfAtariForTree(game, color, pos, tactical_features);
-    CheckCaptureForTree(game, color, pos, tactical_features);
-    CheckAtariForTree(game, color, pos, tactical_features);
-
-    rate[i] = CalculateMoveScoreWithBTFM(game, pos, tactical_features, distance_index);
   }
+  rate[pure_board_max] = CalculateMoveScoreWithBTFM(game, PASS, tactical_features, distance_index);
 }
 
 //////////////////
@@ -292,6 +285,17 @@ InputUCTParameter(void)
   InputBTFMParameter(path.c_str(), uct_connect, UCT_CONNECT_MAX);
   path = uct_parameters_path + "ThrowInFeature.txt";
   InputBTFMParameter(path.c_str(), uct_throw_in, UCT_THROW_IN_MAX);
+
+  /*
+  for (int i = 0; i < UCT_CAPTURE_MAX; i++) {
+    fm_t &feature = uct_capture[i];
+    std::cerr << feature.w;
+    for (int j = 0; j < BTFM_DIMENSION; j++) {
+      std::cerr << " " << feature.v[j];
+    }
+    std::cerr << std::fixed << std::endl;
+  }
+  */
 
   // 盤上の位置
   path = uct_parameters_path + "PosID.txt";
@@ -349,14 +353,15 @@ InputBTFMParameter( const char *filename, fm_t params[], const int n )
   err = fopen_s(&fp, filename, "r");
   if (err != 0) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
   }
   for (int i = 0; i < n; i++) {
-    if (fscanf_s(fp, "%le", &params[i].w) == EOF) {
+    if (fscanf_s(fp, "%lf", &params[i].w) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
     for (int j = 0; j < BTFM_DIMENSION; j++) {
-      if (fscanf_s(fp, "%le", &params[i].v[j]) == EOF) {
+      if (fscanf_s(fp, "%lf", &params[i].v[j]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -366,14 +371,15 @@ InputBTFMParameter( const char *filename, fm_t params[], const int n )
   fp = fopen(filename, "r");
   if (fp == NULL) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
   }
   for (int i = 0; i < n; i++) {
-    if (fscanf(fp, "%le", &params[i].w) == EOF) {
+    if (fscanf(fp, "%lf", &params[i].w) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
     for (int j = 0; j < BTFM_DIMENSION; j++) {
-      if (fscanf(fp, "%le", &params[i].v[j]) == EOF) {
+      if (fscanf(fp, "%lf", &params[i].v[j]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -392,23 +398,7 @@ static void
 InputPat3( const char *filename, fm_t params[] )
 {
   FILE *fp;
-  int idx = 0;
   double weight;
-  unsigned int pat3_transp16[16];
-
-  for (unsigned int pat3 = 0; pat3 < static_cast<unsigned int>(PAT3_MAX); pat3++) {
-    pat3_index[pat3] = -1;
-  }
-
-  for (unsigned int pat3 = 0; pat3 < static_cast<unsigned int>(PAT3_MAX); pat3++) {
-    if (pat3_index[pat3] == -1) {
-      Pat3Transpose16(pat3, pat3_transp16);
-      for (int i = 0; i < 16; i++) {
-        pat3_index[pat3_transp16[i]] = idx;
-      }
-      idx++;
-    }
-  }
 
 #if defined (_WIN32)
   errno_t err;
@@ -419,14 +409,13 @@ InputPat3( const char *filename, fm_t params[] )
     exit(1);
   }
   for (unsigned int pat3 = 0; pat3 < static_cast<unsigned int>(PAT3_MAX); pat3++) {
-    if (fscanf_s(fp, "%le", &weight) == EOF) {
+    if (fscanf_s(fp, "%lf", &weight) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
-    idx = pat3_index[pat3];
-    params[idx].w = weight;   
+    params[pat3].w = weight;   
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf_s(fp, "%le", &params[idx].v[i]) == EOF) {
+      if (fscanf_s(fp, "%lf", &params[pat3].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -439,14 +428,13 @@ InputPat3( const char *filename, fm_t params[] )
     exit(1);
   }
   for (unsigned int pat3 = 0; pat3 < static_cast<unsigned int>(PAT3_MAX); pat3++) {
-    if (fscanf(fp, "%le", &weight) == EOF) {
+    if (fscanf(fp, "%lf", &weight) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
-    idx = pat3_index[pat3];
-    params[idx].w = weight;
+    params[pat3].w = weight;
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf(fp, "%le", &params[idx].v[i]) == EOF) {
+      if (fscanf(fp, "%lf", &params[pat3].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -464,24 +452,12 @@ static void
 InputMD2( const char *filename, fm_t params[] )
 {
   FILE *fp;
-  int index, idx = 0;
-  double weight;
+  int index, counter = 0;
   unsigned int md2_transp16[16];
 
   for (unsigned int md2 = 0; md2 < static_cast<unsigned int>(MD2_MAX); md2++) {
     md2_index[md2] = -1;
   }
-
-  for (unsigned int md2 = 0; md2 < static_cast<unsigned int>(MD2_MAX); md2++) {
-    if (md2_index[md2] == -1) {
-      MD2Transpose16(md2, md2_transp16);
-      for (int i = 0; i < 16; i++) {
-        md2_index[md2_transp16[i]] = idx;
-      }
-      idx++;
-    }
-  }
-
 #if defined (_WIN32)
   errno_t err;
 
@@ -489,11 +465,11 @@ InputMD2( const char *filename, fm_t params[] )
   if (err != 0) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
-  while (fscanf_s(fp, "%d%le", &index, &weight) != EOF) {
+  while (fscanf_s(fp, "%d%lf", &index, &weight) != EOF) {
     idx = md2_index[index];
     params[idx].w = weight;
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf_s(fp, "%le", &params[idx].v[i]) == EOF) {
+      if (fscanf_s(fp, "%lf", &params[idx].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -504,15 +480,20 @@ InputMD2( const char *filename, fm_t params[] )
   if (fp == NULL) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
-  while (fscanf(fp, "%d%le", &index, &weight) != EOF) {
-    idx = md2_index[index];
-    params[idx].w = weight;
+  while (fscanf(fp, "%d%lf", &index, &params[counter].w) != EOF) {
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf(fp, "%le", &params[idx].v[i]) == EOF) {
+      if (fscanf(fp, "%lf", &params[counter].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
     }
+    MD2Transpose16(index, md2_transp16);
+
+    for (int i = 0; i < 16; i++) {
+      const unsigned int idx = md2_transp16[i];
+      md2_index[idx] = counter;
+    }
+    counter++;
   }
 #endif
   fclose(fp);
@@ -536,19 +517,17 @@ InputLargePattern( const char *filename, fm_t params[], index_hash_t pat_index[]
   }
 
 #if defined (_WIN32)
-  errno_t err;
-
-  err = fopen_s(&fp, filename, "r");
+  errno_t err = fopen_s(&fp, filename, "r");
   if (err != 0) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
     exit(1);
   }
-  while (fscanf_s(fp, "%d%llu%le", &index, &hash, &weight) != EOF) {
+  while (fscanf_s(fp, "%d%llu%lf", &index, &hash, &weight) != EOF) {
     pat_index[index].hash = hash;
     pat_index[index].index = idx;
     params[idx].w = weight;
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf_s(fp, "%le", &params[idx].v[i]) == EOF) {
+      if (fscanf_s(fp, "%lf", &params[idx].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -561,12 +540,12 @@ InputLargePattern( const char *filename, fm_t params[], index_hash_t pat_index[]
     std::cerr << "can not open -" << filename << "-" << std::endl;
     exit(1);
   }
-  while (fscanf(fp, "%d%llu%le", &index, &hash, &weight) != EOF) {
+  while (fscanf(fp, "%d%llu%lf", &index, &hash, &weight) != EOF) {
     pat_index[index].hash = hash;
     pat_index[index].index = idx;
     params[idx].w = weight;
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf(fp, "%le", &params[idx].v[i]) == EOF) {
+      if (fscanf(fp, "%lf", &params[idx].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }

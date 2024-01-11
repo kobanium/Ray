@@ -4,8 +4,9 @@
 #include "board/GoBoard.hpp"
 #include "pattern/Pattern.hpp"
 
-const int HASH_MAX = 1048576; // 2^20
-const int BIT_MAX = 60;
+constexpr int HASH_MAX = 1048576; // 2^20
+constexpr int BIT_MAX = 60;
+
 
 #define TRANS20(hash) (((hash&0xFFFFFFFF)^((hash>>32)&0xFFFFFFFF))&0xFFFFF)
 

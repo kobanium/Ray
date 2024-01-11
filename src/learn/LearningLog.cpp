@@ -33,15 +33,16 @@ OutputLearningLogFile( const int update_steps, const int all_moves, const double
 
 
 void
-OutputLearningLogFile( const int update_steps, const int all_moves, const double consume_time, const double accuracy )
+OutputLearningLogFile( const int update_steps, const int all_moves, const double consume_time, const double accuracy, const bool is_train )
 {
   std::ofstream ofs(learning_log_file_path, std::ios::app);
+  std::string phase = is_train ? "Training" : "Testing ";
 
   if (!ofs) {
-    std::cerr << "step " << update_steps << ", accuracy : " << accuracy << std::endl;
+    std::cerr << phase << " step " << update_steps << ", accuracy : " << accuracy << std::endl;
     std::cerr << ", all_moves : " << all_moves << ", run_time : " << consume_time << " seconds" << std::endl;
   } else {
-    ofs << "step " << update_steps << ", accuracy : " << accuracy;
+    ofs << phase << " step " << update_steps << ", accuracy : " << accuracy;
     ofs << ", all_moves : " << all_moves << ", run_time : ";
     ofs << std::fixed << std::setprecision(3) << consume_time << " seconds\n";
   }

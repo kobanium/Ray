@@ -81,7 +81,7 @@ static int criticality_index[BOARD_MAX];
 // 候補手のフラグ
 static bool candidates[BOARD_MAX];  
 
-static bool pondering_mode = false;
+bool pondering_mode = false;
 
 static bool ponder = false;
 
@@ -287,7 +287,7 @@ StopPondering( void )
 //  UCTアルゴリズムによる着手生成  //
 /////////////////////////////////////
 int
-UctSearchGenmove( game_info_t *game, int color )
+UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
 {
   double best_wp;
 
@@ -345,6 +345,7 @@ UctSearchGenmove( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = lz_analysis_cs;
   }
 
   const double mag[3] = { 1.0, 1.5, 2.0 };
@@ -391,10 +392,10 @@ UctSearchGenmove( game_info_t *game, int color )
 //  予測読み  //
 ///////////////
 void
-UctSearchPondering( game_info_t *game, int color )
+UctSearchPondering( game_info_t *game, int color, int lz_analysis_cs )
 {
   if (!pondering_mode) {
-    return ;
+    return;
   }
 
   // 探索情報をクリア
@@ -424,7 +425,7 @@ UctSearchPondering( game_info_t *game, int color )
   if (uct_node[current_root].child_num <= 1) {
     ponder = false;
     pondering_stop = true;
-    return ;
+    return;
   }
 
   ponder = true;
@@ -437,10 +438,11 @@ UctSearchPondering( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = lz_analysis_cs;
     handle[i] = new std::thread(ParallelUctSearchPondering, &t_arg[i]);
   }
 
-  return ;
+  return;
 }
 
 
@@ -715,12 +717,16 @@ ParallelUctSearch( thread_arg_t *arg )
   const thread_arg_t *targ = (thread_arg_t *)arg;
   const int color = targ->color;
   bool interruption = false, enough_size = true;
+  bool use_analysis = targ->lz_analysis_cs > 0 ? true : false;
   int winner = 0, interval = CRITICALITY_INTERVAL;
   game_info_t *game = AllocateGame();
+  ray_clock::time_point analysis_timer;
 
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
+    analysis_timer = ray_clock::now();
+
     do {
       // 探索回数を1回増やす
       IncrementPoCount();
@@ -739,6 +745,13 @@ ParallelUctSearch( thread_arg_t *arg )
         CalculateCriticality(color);
         interval += CRITICALITY_INTERVAL;
       }
+
+      if (use_analysis &&
+          static_cast<int>(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
+        analysis_timer = ray_clock::now();
+        PrintLeelaZeroAnalyze(&uct_node[current_root]);
+      }
+
       if (IsTimeOver()) break;
     } while (IsSearchContinue() && !interruption && enough_size);
   } else {
@@ -775,11 +788,14 @@ ParallelUctSearchPondering( thread_arg_t *arg )
   const int color = targ->color;
   int winner = 0, interval = CRITICALITY_INTERVAL;
   bool enough_size = true;
+  bool use_analysis = targ->lz_analysis_cs > 0 ? true : false;
   game_info_t *game = AllocateGame();
+  ray_clock::time_point analysis_timer;
 
   // スレッドIDが0のスレッドだけ別の処理をする
   // 探索回数が閾値を超える, または探索が打ち切られたらループを抜ける
   if (targ->thread_id == 0) {
+    analysis_timer = ray_clock::now();
     do {
       // 探索回数を1回増やす
       IncrementPoCount();
@@ -795,6 +811,13 @@ ParallelUctSearchPondering( thread_arg_t *arg )
         CalculateCriticality(color);
         interval += CRITICALITY_INTERVAL;
       }
+
+      if (use_analysis &&
+          static_cast<int>(100 * GetSpendTime(analysis_timer)) > targ->lz_analysis_cs) {
+        analysis_timer = ray_clock::now();
+        PrintLeelaZeroAnalyze(&uct_node[current_root]);
+      }
+
     } while (!pondering_stop && enough_size);
   } else {
     do {
@@ -923,8 +946,6 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
   const int child_num = uct_node[current].child_num;
   const int sum = uct_node[current].move_count;
   child_node_t *uct_child = uct_node[current].child;
-  int pos, width;
-  double dynamic_parameter;
   rate_order_t order[PURE_BOARD_MAX + 1];  
   
   // 128回ごとにOwnerとCriticalityでソートし直す  
@@ -933,13 +954,9 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
     CalculateCriticalityIndex(&uct_node[current], statistic, color, c_index);
     CalculateOwnerIndex(&uct_node[current], statistic, color, o_index);
     for (int i = 0; i < child_num; i++) {
-      pos = uct_child[i].pos;
-      if (pos == PASS) {
-        dynamic_parameter = 1.0;
-      } else {
-        //dynamic_parameter = 1.0;
-        dynamic_parameter = uct_owner[o_index[i]] * uct_criticality[c_index[i]];
-      }
+      const int pos = uct_child[i].pos;
+      const double dynamic_parameter = (pos == PASS) ? 1.0 : uct_owner[o_index[i]] * uct_criticality[c_index[i]];
+
       order[i].rate = uct_child[i].rate * dynamic_parameter;
       order[i].index = i;
       uct_child[i].pw = false;
@@ -947,7 +964,7 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
     qsort(order, child_num, sizeof(rate_order_t), RateComp);
 
     // 子ノードの数と探索幅の最小値を取る
-    width = ((uct_node[current].width > child_num) ? child_num : uct_node[current].width);
+    const int width = ((uct_node[current].width > child_num) ? child_num : uct_node[current].width);
 
     // 探索候補の手を展開し直す
     for (int i = 0; i < width; i++) {
@@ -959,15 +976,16 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
   // レートが最大の手を読む候補を1手追加
   if (sum > pw[uct_node[current].width]) {
     int max_index = -1;
-    double max_rate = 0.0;
+    double max_rate = -10000.0;
     for (int i = 0; i < child_num; i++) {
-      if (uct_child[i].pw == false) {
-        pos = uct_child[i].pos;
-        //dynamic_parameter = 1.0;
-        dynamic_parameter = uct_owner[owner_index[pos]] * uct_criticality[criticality_index[pos]];
-        if (uct_child[i].rate * dynamic_parameter > max_rate) {
+      if (!uct_child[i].pw) {
+        const int pos = uct_child[i].pos;
+        const double dynamic_parameter = (pos == PASS) ? 1.0 : uct_owner[owner_index[pos]] * uct_criticality[criticality_index[pos]];
+        const double rate = uct_child[i].rate * dynamic_parameter;
+
+        if (rate > max_rate) {
           max_index = i;
-          max_rate = uct_child[i].rate * dynamic_parameter;
+          max_rate = rate;
         }
       }
     }
@@ -1120,6 +1138,7 @@ UctAnalyze( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = -1;
     handle[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
   }
 
@@ -1223,6 +1242,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
     t_arg[i].thread_id = i;
     t_arg[i].game = game;
     t_arg[i].color = color;
+    t_arg[i].lz_analysis_cs = -1;
     handle[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
   }
 

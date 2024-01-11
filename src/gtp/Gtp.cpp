@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cctype>
 #include <iostream>
+#include <thread>
 
 #include "board/DynamicKomi.hpp"
 #include "board/GoBoard.hpp"
@@ -16,6 +17,7 @@
 #include "mcts/Simulation.hpp"
 #include "mcts/UctSearch.hpp"
 #include "mcts/UctRating.hpp"
+#include "mcts/MoveSelection.hpp"
 #include "sgf/SgfExtractor.hpp"
 
 
@@ -36,7 +38,7 @@ char err_play[] = "play color point";
 char err_komi[] = "komi float";
 
 //  自分の石の色
-int player_color = 0;
+int player_color = S_BLACK;
 
 //  盤面の情報
 game_info_t *game;
@@ -90,6 +92,10 @@ static void GTP_set_free_handicap( void );
 static void GTP_fixed_handicap( void );
 //  loadsgfコマンドを処理
 static void GTP_loadsgf( void );
+//  lz_analyzeコマンドを処理
+static void GTP_lz_analyze( void );
+//  lz_genmove_analyzeコマンドを処理
+static void GTP_lz_genmove_analyze( void );
 
 ////////////
 //  定数  //
@@ -109,6 +115,8 @@ const GTP_command_t gtpcmd[] = {
   { "komi",                GTP_komi                },
   { "list_commands",       GTP_listcommands        },
   { "loadsgf",             GTP_loadsgf             },
+  { "lz-analyze",          GTP_lz_analyze          },
+  { "lz-genmove_analyze",  GTP_lz_genmove_analyze  },
   { "name",                GTP_name                },
   { "place_free_handicap", GTP_fixed_handicap      },
   { "play",                GTP_play                },
@@ -237,7 +245,7 @@ GTP_clearboard( void )
 {
   StopPondering();
 
-  player_color = 0;
+  player_color = S_BLACK;
   SetHandicapNum(0);
   FreeGame(game);
   game = AllocateGame();
@@ -305,7 +313,7 @@ GTP_genmove( void )
 
   player_color = color;
   
-  point = UctSearchGenmove(game, color);
+  point = UctSearchGenmove(game, color, -1);
   if (point != RESIGN) {
     PutStone(game, point, color);
   }
@@ -314,7 +322,7 @@ GTP_genmove( void )
   
   GTP_response(pos, true);
 
-  UctSearchPondering(game, GetOppositeColor(color));
+  UctSearchPondering(game, GetOppositeColor(color), -1);
 }
 
 
@@ -858,4 +866,176 @@ GTP_loadsgf( void )
   } else {
     GTP_response("white", true);
   }
+}
+
+bool InputPending()
+{
+#if defined (_WIN32)
+    static int init = 0, pipe;
+    static HANDLE inh;
+    DWORD dw;
+
+    if (!init) {
+        init = 1;
+        inh = GetStdHandle(STD_INPUT_HANDLE);
+        pipe = !GetConsoleMode(inh, &dw);
+        if (!pipe) {
+            SetConsoleMode(inh, dw & ~(ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT));
+            FlushConsoleInputBuffer(inh);
+        }
+    }
+
+    if (pipe) {
+        if (!PeekNamedPipe(inh, nullptr, 0, nullptr, &dw, nullptr)) {
+            exit(EXIT_FAILURE);
+        }
+
+        return dw;
+    } else {
+        if (!GetNumberOfConsoleInputEvents(inh, &dw)) {
+            exit(EXIT_FAILURE);
+        }
+
+        return dw > 1;
+    }
+    return false;
+#else 
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+    FD_SET(0,&read_fds);
+    struct timeval timeout{0,0};
+    select(1,&read_fds,nullptr,nullptr,&timeout);
+    return FD_ISSET(0, &read_fds);
+#endif
+}
+
+void ParseAnalysisTag( int *color, int *centi_second ) {
+  char *command;
+  int token_cnt = 0;
+
+  while (true) {
+    command = STRTOK(NULL, DELIM, &next_token);
+    token_cnt += 1;
+    if (command != NULL && token_cnt <= 2) {
+      CHOMP(command);
+
+      // Parse the color.
+      char c = (char)tolower((int)command[0]);
+      if (c == 'w') {
+        *color = S_WHITE;
+        continue;
+      } else if (c == 'b') {
+        *color = S_BLACK;
+        continue;
+      }
+
+      // Parse the unused interval tag.
+      if (strcmp(command, "minmoves") == 0 ||
+             strcmp(command, "maxmoves") == 0) {
+        STRTOK(NULL, DELIM, &next_token); // eat move numbers
+        continue;
+      }
+
+      if (strcmp(command, "avoid") == 0 ||
+              strcmp(command, "allow") == 0) {
+        STRTOK(NULL, DELIM, &next_token); // eat color
+        STRTOK(NULL, DELIM, &next_token); // eat vertices moves
+        STRTOK(NULL, DELIM, &next_token); // eat until moves
+        continue;
+      }
+
+      // Parse the interval tag.
+      if (strcmp(command, "interval") == 0) {
+        command = STRTOK(NULL, DELIM, &next_token);
+        CHOMP(command);
+      }
+
+      bool is_digit = true;
+      for (int i = 0; i < (int)strlen(command); ++i) {
+        is_digit &= isdigit(command[i]);
+      }
+
+      if (is_digit) {
+        *centi_second = std::atoi(command);
+      }
+    } else {
+      break;
+    }
+  }
+}
+
+void GTP_lz_analyze( void )
+{
+  char *command;
+  int color = S_EMPTY, centi_second = 100;
+
+  StopPondering();
+
+  command = STRTOK(input_copy, DELIM, &next_token);
+  CHOMP(command);
+
+  ParseAnalysisTag(&color, &centi_second);
+
+  bool old_pondering_mode = pondering_mode;
+  SetPonderingMode(true);
+
+  if (color == S_EMPTY) {
+    color = player_color;
+  } else {
+    player_color = color;
+  }
+
+  if (command_id >= 0) {
+    std::cout << "=" << command_id << " " << std::endl;
+  } else {
+    std::cout << "= " << std::endl;
+  }
+
+  UctSearchPondering(game, color, centi_second);
+
+  while (!InputPending()) {
+    std::this_thread::yield();
+  }
+
+  StopPondering();
+  SetPonderingMode(old_pondering_mode);
+
+  std::cout << std::endl;
+}
+
+void GTP_lz_genmove_analyze( void )
+{
+  char *command;
+  char pos[10];
+  int color = S_EMPTY, centi_second = 100;
+  int point = PASS;
+
+  StopPondering();
+
+  command = STRTOK(input_copy, DELIM, &next_token);
+  CHOMP(command);
+
+  ParseAnalysisTag(&color, &centi_second);
+
+  if (color == S_EMPTY) {
+    color = player_color;
+  } else {
+    player_color = color;
+  }
+
+  if (command_id >= 0) {
+    std::cout << "=" << command_id << " " << std::endl;
+  } else {
+    std::cout << "= " << std::endl;
+  }
+
+  point = UctSearchGenmove(game, color, centi_second);
+
+  if (point != RESIGN) {
+    PutStone(game, point, color);
+  }
+  IntegerToString(point, pos);
+  std::cout << "play " << pos << std::endl << std::endl;
+
+  UctSearchPondering(game, GetOppositeColor(color), -1);
 }

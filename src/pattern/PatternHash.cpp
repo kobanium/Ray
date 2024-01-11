@@ -194,7 +194,7 @@ MD5Hash( const unsigned long long md5 )
 int
 SearchIndex( const index_hash_t *index, const unsigned long long hash )
 {
-  const int key = TRANS20(hash);
+  const int key = TransHash20(hash);
   int i;
 
   if (key >= HASH_MAX) std::cerr << "Over Run" << std::endl;

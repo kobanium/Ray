@@ -533,8 +533,7 @@ LoadFeatureParameters( void )
 
   path = po_parameters_path + "ThrowInFeature.txt";
   LoadParameter(path.c_str(), sim_throw_in, SIM_THROW_IN_MAX);
-  
-  
+
   // 3x3のパターンの読み込み
   path = po_parameters_path + "Pat3.txt";
   LoadParameter(path.c_str(), po_pat3, PAT3_MAX);
@@ -545,7 +544,7 @@ LoadFeatureParameters( void )
 
   // 3x3とMD2のパターンをまとめる
   for (int i = 0; i < MD2_MAX; i++){
-    if (po_md2[i] != 1.0) {
+    if (po_md2[i] > 0.0) {
       po_pattern[i] = static_cast<float>(po_md2[i] * 10.0);
     } else {
       po_pattern[i] = static_cast<float>(po_pat3[(i & 0xffff)] * 10.0);
@@ -573,10 +572,11 @@ LoadParameter( const char *filename, float params[], const int array_size )
       std::cerr << "Read Error : " << filename << std::endl;
     }
   }
-  #else
+#else
   fp = fopen(filename, "r");
   if (fp == NULL) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
   }
   for (int i = 0; i < array_size; i++) {
     if (fscanf(fp, "%e", &params[i]) == EOF) {
@@ -584,7 +584,7 @@ LoadParameter( const char *filename, float params[], const int array_size )
       exit(1);
     }
   }
-  #endif
+#endif
   fclose(fp);
 }
 
@@ -601,14 +601,16 @@ LoadMD2Parameter( const char *filename, float params[] )
   float rate;
   unsigned int transp[16];
 
-  for (int i = 0; i < MD2_MAX; i++) params[i] = 1.0;
-
+  for (int i = 0; i < MD2_MAX; i++) {
+    params[i] = 0.0;
+  }
 #if defined (_WIN32)
   errno_t err;
 
   err = fopen_s(&fp, filename, "r");
   if (err != 0) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
   }
   while (fscanf_s(fp, "%d%e", &index, &rate) != EOF) {
     MD2Transpose16(static_cast<unsigned int>(index), transp);
@@ -620,6 +622,7 @@ LoadMD2Parameter( const char *filename, float params[] )
   fp = fopen(filename, "r");
   if (fp == NULL) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
+    exit(1);
   }
   while (fscanf(fp, "%d%e", &index, &rate) != EOF) {
     MD2Transpose16(static_cast<unsigned int>(index), transp);
@@ -637,12 +640,11 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
 {
   const int moves = game->moves;
   const int pm1 = game->record[moves - 1].pos;
-  int pos;
-  float gamma;
+  double gamma;
   int update_pos[BOARD_MAX], update_num = 0;  
   
   for (int i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+    const int pos = onboard_pos[i];
     ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
   }
   
@@ -653,10 +655,10 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
   }
   
   for (int i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+    const int pos = onboard_pos[i];
     
     if (!IsLegal(game, pos, color)) {
-      rate[i] = 0;
+      rate[i] = 0.0;
       continue;
     }
     
@@ -666,18 +668,18 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
     gamma = 1.0;
     
     if (pm1 != PASS) {
-      if (DIS(pos, pm1) == 2) {
-        gamma *= po_previous_distance[0];
-      } else if (DIS(pos, pm1) == 3) {
-        gamma *= po_previous_distance[1];
-      } else if (DIS(pos, pm1) == 4) {
-        gamma *= po_previous_distance[2];
+      const int distance = DIS(pos, pm1);
+      if (distance == 2) {
+        gamma *= po_neighbor_orig[0];
+      } else if (distance == 3) {
+        gamma *= po_neighbor_orig[1];
+      } else if (distance == 4) {
+        gamma *= po_neighbor_orig[2];
       }
     }
     
     gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     gamma *= po_pattern[MD2(game->pat, pos)];
-    
-    rate[i] = (long long int)gamma + 1;
+    rate[i] = gamma;
   }
 }
