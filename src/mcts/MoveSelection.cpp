@@ -1,6 +1,24 @@
+#include <iostream>
+
+#include "common/Message.hpp"
 #include "mcts/MoveSelection.hpp"
 
 
+static double resign_threshold = RESIGN_THRESHOLD;
+
+
+void
+SetResignThreshold( const double threshold )
+{
+  if (threshold <= 0.0) {
+    PrintResignThresholdIsTooSmall(threshold);
+    resign_threshold = 0.0;
+  } else if (threshold > 1.0) {
+    PrintResignThresholdIsTooLarge(threshold);
+  } else {
+    resign_threshold = threshold;
+  }
+}
 
 
 int
@@ -21,7 +39,6 @@ SelectMaxVisitChild( const uct_node_t &root )
 }
 
 
-
 int
 SelectMove( const game_info_t *game, const uct_node_t &root, double &best_wp )
 {
@@ -29,7 +46,7 @@ SelectMove( const game_info_t *game, const uct_node_t &root, double &best_wp )
   const int select_index = SelectMaxVisitChild(root);
   const double pass_wp = CalculatePassWinningPercentage(root);
 
-  best_wp = (double)child[select_index].win / child[select_index].move_count;
+  best_wp = static_cast<double>(child[select_index].win) / child[select_index].move_count;
   
   if (pass_wp >= PASS_THRESHOLD &&
       (game->record[game->moves - 1].pos == PASS)) {
@@ -40,7 +57,7 @@ SelectMove( const game_info_t *game, const uct_node_t &root, double &best_wp )
              game->record[game->moves - 1].pos == PASS &&
              game->record[game->moves - 3].pos == PASS) {
     return PASS;
-  } else if (best_wp <= RESIGN_THRESHOLD) {
+  } else if (best_wp < resign_threshold) {
     return RESIGN;
   } else {
     return child[select_index].pos;
