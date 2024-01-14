@@ -12,6 +12,9 @@ constexpr double PASS_THRESHOLD = 0.90;
 constexpr double RESIGN_THRESHOLD = 0.20;
 
 
+// 投了する閾値の設定
+void SetResignThreshold( const double threshold );
+
 // 探索回数最大の子ノードのインデックスを取得
 int SelectMaxVisitChild( const uct_node_t &root );
 

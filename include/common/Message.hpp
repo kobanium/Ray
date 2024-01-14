@@ -50,6 +50,10 @@ void PrintPlayoutLimits( const double time_limit, const int playout_limit );
 //  再利用した探索回数の出力
 void PrintReuseCount( const int count );
 
+void PrintResignThresholdIsTooLarge( const double threshold );
+
+void PrintResignThresholdIsTooSmall( const double threshold );
+
 void PrintLeelaZeroAnalyze( const uct_node_t *root );
 
 #endif

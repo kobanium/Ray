@@ -7,6 +7,7 @@
 #include "board/GoBoard.hpp"
 #include "board/ZobristHash.hpp"
 #include "common/Message.hpp"
+#include "mcts/MoveSelection.hpp"
 #include "mcts/SearchManager.hpp"
 #include "mcts/UctSearch.hpp"
 #include "util/Command.hpp"
@@ -30,6 +31,7 @@ const std::string command[COMMAND_MAX] = {
   "--tree-size",
   "--no-debug",
   "--superko",
+  "--resign",
 };
 
 //  コマンドの説明
@@ -46,6 +48,7 @@ const std::string errmessage[COMMAND_MAX] = {
   "Set tree size (tree size must be 2 ^ n)",
   "Prohibit any debug message",
   "Prohibit superko move",
+  "Set resign threshold (threshold is must be [0.0, 1.0])"
 };
 
 
@@ -119,6 +122,9 @@ AnalyzeCommand( int argc, char **argv )
       case COMMAND_SUPERKO:
         // 超劫のh判定の設定
         SetSuperKo(true);
+        break;
+      case COMMAND_RESIGN_THRESHOLD:
+        SetResignThreshold(atof(argv[++i]));
         break;
       case COMMAND_NO_DEBUG:
         // デバッグメッセージを出力しない設定
