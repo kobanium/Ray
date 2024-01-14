@@ -423,6 +423,30 @@ PrintReuseCount( const int count )
   std::cerr << "Reuse : " << count << " Playouts" << std::endl;
 }
 
+
+void
+PrintResignThresholdIsTooLarge( const double threshold )
+{
+  std::ostringstream oss;
+
+  oss << "Resign threshold = " << threshold << " is too large.\n";
+  oss << "Resign threshold must be larger than or equal to 0.0, smaller than or equal to 1.0.\n";
+  oss << "Ignore this setting.\n";
+  std::cerr << oss.str() << std::flush;
+}
+
+void
+PrintResignThresholdIsTooSmall( const double threshold )
+{
+  std::ostringstream oss;
+
+  oss << "Resign threshold = " << threshold << " is too small.\n";
+  oss << "Resign threshold is set to 0.0.\n";
+  oss << "Ray never resigns.\n";
+  std::cerr << oss.str() << std::flush;
+}
+
+
 void
 PrintLeelaZeroAnalyze( const uct_node_t *root )
 {
