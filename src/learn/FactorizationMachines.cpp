@@ -99,10 +99,10 @@ static void Output( void );
 static void Backup( const int k );
 static void OutputFMAdd( std::string filename, btfm_t &t );
 static void LearningLoop( train_thread_arg_t *arg );
-static void PlaybackGame( game_info_t *game, char *filename, int id );
+static void PlaybackGame( game_info_t *game, const char *filename, const int id );
 static void CorrectTacticalFeature( std::vector<btfm_t*> feature_list[], std::map<int, btfm_t*> &feature_map, std::vector<btfm_t> &feature, const unsigned int tactical_features[], const UCT_ALL_FEATURE feature_index, const int pos );
 static void CorrectMoveDistanceFeature( std::vector<btfm_t*> feature_list[], std::map<int, btfm_t*> &feature_map, std::vector<btfm_t> &move_distance_feature, const int pos, const int previous_move, const int shift );
-static void PlaybackGameForEvaluation( game_info_t *game, char *filename );
+static void PlaybackGameForEvaluation( game_info_t *game, const char *filename );
 static void EvaluateMovePrediction( game_info_t *game, const int expert_move, const int color );
 static void TestingLoop( train_thread_arg_t *arg );
 
@@ -685,7 +685,6 @@ LearningSecondOrderBradleyTerryModel( void  )
 static void
 LearningLoop( train_thread_arg_t *targ )
 {
-  char filename[1024];
   game_info_t *game = AllocateGame();
   game_info_t *init_game = AllocateGame();
 
@@ -693,13 +692,13 @@ LearningLoop( train_thread_arg_t *targ )
 
   for (int i = TRAIN_KIFU_START_INDEX; i <= TRAIN_KIFU_LAST_INDEX; i++) {
     if (i % thread_num == targ->id) {
-      sprintf(filename, "%s/%d.sgf", TRAIN_KIFU_PATH, i);
+      const std::string filename = TRAIN_KIFU_PATH + PATH_SEPARATOR + std::to_string(i) + ".sgf";
       if (i % 1000 == 0) {
         fprintf(stderr, "%d.sgf\n", i);
         fflush(stderr);
       }
       CopyGame(game, init_game);
-      PlaybackGame(game, filename, targ->id);
+      PlaybackGame(game, filename.c_str(), targ->id);
     }
   }
 
@@ -711,7 +710,6 @@ LearningLoop( train_thread_arg_t *targ )
 static void
 TestingLoop( train_thread_arg_t *targ )
 {
-  char filename[1024];
   game_info_t *game = AllocateGame();
   game_info_t *init_game = AllocateGame();
 
@@ -719,13 +717,13 @@ TestingLoop( train_thread_arg_t *targ )
 
   for (int i = TEST_KIFU_START_INDEX; i <= TEST_KIFU_LAST_INDEX; i++) {
     if (i % thread_num == targ->id) {
-      sprintf(filename, "%s/%d.sgf", TEST_KIFU_PATH, i);
+      const std::string filename = TEST_KIFU_PATH + PATH_SEPARATOR + std::to_string(i) + ".sgf";
       if (i % 1000 == 0) {
         fprintf(stderr, "Test %d.sgf\n", i);
         fflush(stderr);
       }
       CopyGame(game, init_game);
-      PlaybackGameForEvaluation(game, filename);
+      PlaybackGameForEvaluation(game, filename.c_str());
     }
   }
   
@@ -734,7 +732,7 @@ TestingLoop( train_thread_arg_t *targ )
 }
 
 static void
-PlaybackGame( game_info_t *game, char *filename, int id )
+PlaybackGame( game_info_t *game, const char *filename, const int id )
 {
   SGF_record_t kifu;
   int color = S_BLACK;
@@ -760,7 +758,7 @@ PlaybackGame( game_info_t *game, char *filename, int id )
 
 
 static void
-PlaybackGameForEvaluation( game_info_t *game, char *filename )
+PlaybackGameForEvaluation( game_info_t *game, const char *filename )
 {
   SGF_record_t kifu;
   int color = S_BLACK;
