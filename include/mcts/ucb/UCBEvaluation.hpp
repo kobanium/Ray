@@ -8,7 +8,7 @@
 
 constexpr double FPU = 5.0;
 
-constexpr double BONUS_WEIGHT = 0.35;
+constexpr double BONUS_WEIGHT = 0.20;
 
 constexpr double BONUS_EQUIVALENCE = 1000;
 

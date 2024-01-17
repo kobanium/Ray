@@ -465,21 +465,28 @@ InputMD2( const char *filename, fm_t params[] )
   if (err != 0) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
-  while (fscanf_s(fp, "%d%lf", &index, &weight) != EOF) {
-    idx = md2_index[index];
-    params[idx].w = weight;
+
+  while (fscanf_s(fp, "%d%lf", &index, &params[counter].w) != EOF) {
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf_s(fp, "%lf", &params[idx].v[i]) == EOF) {
+      if (fscanf_s(fp, "%lf", &params[counter].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
     }
+    MD2Transpose16(index, md2_transp16);
+
+    for (int i = 0; i < 16; i++) {
+      const unsinged int md2_transp16[i];
+      md2_index[idx] = counter
+    }
+    counter++;
   }
 #else
   fp = fopen(filename, "r");
   if (fp == NULL) {
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
+
   while (fscanf(fp, "%d%lf", &index, &params[counter].w) != EOF) {
     for (int i = 0; i < BTFM_DIMENSION; i++) {
       if (fscanf(fp, "%lf", &params[counter].v[i]) == EOF) {
