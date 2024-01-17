@@ -21,7 +21,7 @@ constexpr int CRITICALITY_MAX = 25;
 
 constexpr double CRITICALITY_TERM = 100.0;
 constexpr double CRITICALITY_INIT = 0.765745;
-constexpr double CRITICALITY_BIAS = 0.32;
+constexpr double CRITICALITY_BIAS = 0.35;
 
 constexpr double OWNER_K = 6.6;
 constexpr double OWNER_BIAS = 1.8;
