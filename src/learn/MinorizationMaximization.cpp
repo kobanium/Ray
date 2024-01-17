@@ -56,7 +56,7 @@ static void IncrementTacticalFeatureCount( std::vector<mm_t> &data, const unsign
 
 static void InitializeLearningData( std::vector<std::vector<mm_t> > &data, const int threads, const int data_size );
 
-static void InitializeLearning( const int threads );
+static void InitializeLearning( void );
 
 static void InitializeSigma( void );
 
@@ -88,22 +88,20 @@ static void OutputLearningProgress( const int update_steps );
 
 static void OutputAllParameters( const int step );
 
-static void MinorizationMaximization( const int threads );
+static void MinorizationMaximization( void );
 
 
 void
 TrainBTModelByMinorizationMaximization( void )
 {
-  const int n_threads = TRAIN_THREAD_NUM;
-
   SetLearningLogFilePath();
-  InitializeLearning(n_threads);
-  MinorizationMaximization(n_threads);
+  InitializeLearning();
+  MinorizationMaximization();
 }
 
 
 static void
-InitializeLearning( const int threads )
+InitializeLearning( void )
 {
   const std::string md2_target_path = GetWorkingDirectory() + PATH_SEPARATOR +
     LEARNING_RESULT_DIR_NAME + PATH_SEPARATOR +
@@ -113,15 +111,15 @@ InitializeLearning( const int threads )
 
   InputMD2Target(md2_target_path, md2_index, md2_list, md2_target);
 
-  InitializeLearningData(previous_distance, threads, PREVIOUS_DISTANCE_MAX);
-  InitializeLearningData(pat3, threads, PAT3_MAX);
-  InitializeLearningData(md2, threads, md2_target.size());
-  InitializeLearningData(capture, threads, SIM_CAPTURE_MAX);
-  InitializeLearningData(save_extension, threads, SIM_SAVE_EXTENSION_MAX);
-  InitializeLearningData(atari, threads, SIM_ATARI_MAX);
-  InitializeLearningData(extension, threads, SIM_EXTENSION_MAX);
-  InitializeLearningData(dame, threads, SIM_DAME_MAX);
-  InitializeLearningData(throw_in, threads, SIM_THROW_IN_MAX);
+  InitializeLearningData(previous_distance, TRAIN_THREAD_NUM, PREVIOUS_DISTANCE_MAX);
+  InitializeLearningData(pat3, TRAIN_THREAD_NUM, PAT3_MAX);
+  InitializeLearningData(md2, TRAIN_THREAD_NUM, md2_target.size());
+  InitializeLearningData(capture, TRAIN_THREAD_NUM, SIM_CAPTURE_MAX);
+  InitializeLearningData(save_extension, TRAIN_THREAD_NUM, SIM_SAVE_EXTENSION_MAX);
+  InitializeLearningData(atari, TRAIN_THREAD_NUM, SIM_ATARI_MAX);
+  InitializeLearningData(extension, TRAIN_THREAD_NUM, SIM_EXTENSION_MAX);
+  InitializeLearningData(dame, TRAIN_THREAD_NUM, SIM_DAME_MAX);
+  InitializeLearningData(throw_in, TRAIN_THREAD_NUM, SIM_THROW_IN_MAX);
 
   pat3_index = std::vector<int>(PAT3_MAX, -1);
   for (unsigned int pat_3x3 = 0; pat_3x3 < static_cast<unsigned int>(PAT3_MAX); pat_3x3++) {
@@ -137,31 +135,31 @@ InitializeLearning( const int threads )
 
 
 static void
-MinorizationMaximization( const int threads )
+MinorizationMaximization( void )
 {
-  train_thread_arg_t targ[threads];
-  std::thread *handle[threads];
+  train_thread_arg_t targ[TRAIN_THREAD_NUM];
+  std::thread *handle[TRAIN_THREAD_NUM];
 
   for (int step = 0; step <= MM_UPDATE_MAX; step++) {
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
     InitializeSigma();
 
-    for (int i = 0; i < threads; i++) {
+    for (int i = 0; i < TRAIN_THREAD_NUM; i++) {
       targ[i].id = i;
       targ[i].step = step;
       handle[i] = new std::thread(LearningWorker, &targ[i]);
     }
 
-    for (int i = 0; i < threads; i++) {
+    for (int i = 0; i < TRAIN_THREAD_NUM; i++) {
       handle[i]->join();
       delete handle[i];
     }
 
     if (first_flag) {
-      SumWin(threads);
+      SumWin(TRAIN_THREAD_NUM);
     }
-    SumSigma(threads);
+    SumSigma(TRAIN_THREAD_NUM);
 
     UpdateParameters(step - 1);
 

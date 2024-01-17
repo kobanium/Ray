@@ -511,9 +511,9 @@ LoadFeatureParameters( void )
 
   // 直前の着手からの距離のγを補正して出力
   for (int i = 0; i < PREVIOUS_DISTANCE_MAX - 1; i++) {
-    po_previous_distance[i] = (float)(po_neighbor_orig[i] * neighbor_bias);
+    po_previous_distance[i] = static_cast<float>(po_neighbor_orig[i] * neighbor_bias);
   }
-  po_previous_distance[2] = (float)(po_neighbor_orig[2] * jump_bias);
+  po_previous_distance[2] = static_cast<float>(po_neighbor_orig[2] * jump_bias);
 
   // 戦術的特徴の読み込み
   path = po_parameters_path + "CaptureFeature.txt";

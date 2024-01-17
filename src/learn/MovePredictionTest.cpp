@@ -14,13 +14,13 @@
 #include "sgf/SgfExtractor.hpp"
 #include "mcts/UctRating.hpp"
 #include "mcts/Rating.hpp"
-
+#include "util/Utility.hpp"
 
 
 static std::array<std::atomic<int>, PURE_BOARD_MAX + 1> appearance;
 static constexpr int KIFU_START = 40001;
 static constexpr int KIFU_END = 70000;
-static constexpr char *KIFU_PATH = "/home/yuki/SGF_Files/tygem-data/shuffle-tygem";
+static constexpr char KIFU_PATH[] = "/home/yuki/SGF_Files/tygem-data/shuffle-tygem";
 static constexpr int TEST_WORKER_THREADS = 8;
 
 static void CheckMovePrediction( game_info_t *game, const char *filename );
@@ -62,18 +62,19 @@ PredictionTestWorker( const int thread_id )
 {
   game_info_t *game = AllocateGame();
   game_info_t *init_game = AllocateGame();
-  char filename[256];
 
   InitializeBoard(init_game);
   
   for (int i = KIFU_START; i <= KIFU_END; i++) {
     if (i % TEST_WORKER_THREADS == thread_id) {
       CopyGame(game, init_game);
-      sprintf(filename, "%s/%d.sgf", KIFU_PATH, i);
+
+      const std::string filename = KIFU_PATH + PATH_SEPARATOR + std::to_string(i) + ".sgf";
+
       if (i % 1000 == 0) {
         std::cerr << filename << std::endl;
       }
-      CheckMovePrediction(game, filename);
+      CheckMovePrediction(game, filename.c_str());
     }
   }
 
