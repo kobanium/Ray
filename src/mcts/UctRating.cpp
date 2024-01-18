@@ -476,8 +476,8 @@ InputMD2( const char *filename, fm_t params[] )
     MD2Transpose16(index, md2_transp16);
 
     for (int i = 0; i < 16; i++) {
-      const unsinged int md2_transp16[i];
-      md2_index[idx] = counter
+      const unsigned int idx = md2_transp16[i];
+      md2_index[idx] = counter;
     }
     counter++;
   }
