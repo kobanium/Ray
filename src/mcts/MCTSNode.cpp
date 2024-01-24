@@ -12,6 +12,7 @@ InitializeNode( uct_node_t &node, const int pm1, const int pm2 )
   node.width = 0;
   node.child_num = 0;
   std::fill_n(node.seki, BOARD_MAX, false);
+  std::fill_n(node.ownership, BOARD_MAX, 0.0);
 }
 
 
@@ -82,5 +83,36 @@ CalculatePassWinningPercentage( const uct_node_t &node )
     return (double)pass_child.win / pass_child.move_count;
   } else {
     return 0.0;
+  }
+}
+
+
+double
+CalculateWinningRate( const child_node_t &child )
+{
+  if (child.move_count > 0) {
+    return static_cast<double>(child.win) / child.move_count;
+  } else {
+    return 0.0;
+  }
+}
+
+
+void
+UpdateOwnership( uct_node_t &node, game_info_t *game, const int current_color )
+{
+  const char *board = game->board;
+
+  for (int i = 0; i < pure_board_max; i++) {
+    const int pos = onboard_pos[i];
+    int color = board[pos];
+
+    if (color == S_EMPTY) color = territory[Pat3(game->pat, pos)];
+
+    if (color == current_color) {
+      node.ownership[pos] += 1.0;
+    } else if (color == S_EMPTY) {
+      node.ownership[pos] += 0.5;
+    }
   }
 }

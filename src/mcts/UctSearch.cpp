@@ -151,6 +151,20 @@ static int UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int cur
 
 
 
+uct_node_t&
+GetNode( const int index )
+{
+  return uct_node[index];
+}
+
+
+uct_node_t&
+GetRootNode( void )
+{
+  return uct_node[current_root];
+}
+
+
 /////////////////////
 //  予測読みの設定  //
 /////////////////////
@@ -915,6 +929,10 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
   // 探索結果の反映
   UpdateResult(uct_node[current], uct_child[next_index], result);
 
+  mutex_nodes[current].lock();
+  UpdateOwnership(uct_node[current], game, GetOppositeColor(color));
+  mutex_nodes[current].unlock();
+
   return 1 - result;
 }
 
@@ -1312,3 +1330,4 @@ CorrectDescendentNodes( std::vector<int> &indexes, int index )
     }
   }   
 }
+

@@ -116,5 +116,10 @@ int UctSearchGenmoveCleanUp( game_info_t *game, int color );
 // 探索の再利用の設定
 void SetReuseSubtree( bool flag );
 
+// 指定したインデックスのノードを取得
+uct_node_t& GetNode( const int index );
+
+// ルートノードを取得
+uct_node_t& GetRootNode( void );
 
 #endif
