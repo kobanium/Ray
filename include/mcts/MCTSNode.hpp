@@ -44,6 +44,7 @@ struct uct_node_t {
   int child_num;                      // 子ノードの個数
   child_node_t child[UCT_CHILD_MAX];  // 子ノードの情報
   bool seki[BOARD_MAX];               // セキの判定
+  double ownership[BOARD_MAX];        // Onwership
 };
 
 
@@ -59,5 +60,9 @@ void ReuseRootCandidateWithoutLadderMove( uct_node_t &node, const bool ladder[] 
 void InitializeNode( uct_node_t &node, const int pm1, const int pm2 );
 
 double CalculatePassWinningPercentage( const uct_node_t &node );
+
+double CalculateWinningRate( const child_node_t &child );
+
+void UpdateOwnership( uct_node_t &node, game_info_t *game, const int current_color );
 
 #endif

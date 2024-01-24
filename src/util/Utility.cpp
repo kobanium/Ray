@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
+#include <vector>
 
 #include "util/Utility.hpp"
 
@@ -90,4 +92,20 @@ InputTxtDBL( const char *filename, double *ap, const int array_size )
   }
 #endif
   fclose(fp);
+}
+
+
+std::string
+JoinStrings( const std::vector<std::string> &str_vec, const char *delimiter = 0 )
+{
+  std::string result;
+
+  if (!str_vec.empty()) {
+    result += str_vec[0];
+    for (decltype(str_vec.size()) i = 1, c = str_vec.size(); i < c; i++) {
+      if (delimiter) result += delimiter;
+      result += str_vec[i];
+    }
+  }
+  return result;
 }
