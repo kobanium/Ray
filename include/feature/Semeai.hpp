@@ -40,4 +40,7 @@ bool IsSelfAtari( const game_info_t *game, const int color, const int pos );
 //  欠け眼を継ぐかどうかの判定の準備
 bool IsAlreadyCaptured( const game_info_t *game, const int id, int player_id[], int player_ids );
 
+//  自己アタリ
+bool IsMeaningfulSelfAtari( const game_info_t *game, const int color, const int pos );
+
 #endif

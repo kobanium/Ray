@@ -193,10 +193,11 @@ GTP_response( const char *res, bool success )
       std::cout << "= " << res << std::endl << std::endl;
     }
   } else {
+    std::cout << "? ";
     if (res != NULL) {
-      std::cerr << res << std::endl;
+      std::cout << res;
     }
-    std::cout << "?" << std::endl << std::endl;
+    std::cout << std::endl << std::endl;
   }
 }
 
@@ -410,12 +411,11 @@ GTP_listcommands( void )
   int i;
 
   i = 0;
-  list[i++] = '\n';
   for (const auto& cmd : gtpcmd) {
+    list[i++] = '\n';
     for (unsigned int k = 0; k < strlen(cmd.command); k++){
       list[i++] = cmd.command[k];
     }
-    list[i++] = '\n';
   }
   list[i++] = '\0';
 
