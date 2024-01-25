@@ -32,6 +32,7 @@ const std::string command[COMMAND_MAX] = {
   "--no-debug",
   "--superko",
   "--resign",
+  "--cgos",
 };
 
 //  コマンドの説明
@@ -48,7 +49,8 @@ const std::string errmessage[COMMAND_MAX] = {
   "Set tree size (tree size must be 2 ^ n)",
   "Prohibit any debug message",
   "Prohibit superko move",
-  "Set resign threshold (threshold is must be [0.0, 1.0])"
+  "Set resign threshold (threshold is must be [0.0, 1.0])",
+  "Set CGOS player mode",
 };
 
 
@@ -125,6 +127,9 @@ AnalyzeCommand( int argc, char **argv )
         break;
       case COMMAND_RESIGN_THRESHOLD:
         SetResignThreshold(atof(argv[++i]));
+        break;
+      case COMMAND_CGOS_MODE:
+        SetCaptureAllMode(true);
         break;
       case COMMAND_NO_DEBUG:
         // デバッグメッセージを出力しない設定
