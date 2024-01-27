@@ -12,6 +12,9 @@ constexpr double PASS_THRESHOLD = 0.90;
 constexpr double RESIGN_THRESHOLD = 0.20;
 
 
+// CGOSモードの設定
+void SetCaptureAllMode( const bool flag );
+
 // 投了する閾値の設定
 void SetResignThreshold( const double threshold );
 
@@ -19,6 +22,6 @@ void SetResignThreshold( const double threshold );
 int SelectMaxVisitChild( const uct_node_t &root );
 
 // 探索結果から着手選択
-int SelectMove( const game_info_t *game, const uct_node_t &root, double &best_wp );
+int SelectMove( const game_info_t *game, const uct_node_t &root, const int color, double &best_wp );
 
 #endif

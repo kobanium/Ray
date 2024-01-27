@@ -8,6 +8,7 @@
 #include "board/ZobristHash.hpp"
 #include "mcts/MCTSNode.hpp"
 #include "mcts/SearchManager.hpp"
+#include "mcts/Statistic.hpp"
 
 ////////////
 //  定数  //
@@ -34,23 +35,6 @@ struct thread_arg_t {
   int thread_id;   // スレッド識別番号
   int color;       // 探索する手番
   int lz_analysis_cs;
-};
-
-struct statistic_t {
-  std::atomic<int> colors[3];  // その箇所を領地にした回数
-
-  void clear() {
-    for (int i = 0; i < 3; i++) {
-      colors[i] = 0;
-    }
-  }
-
-  statistic_t& operator=(const statistic_t& v) {
-    for (int i = 0; i < 3; i++) {
-      colors[i] = v.colors[i].load();
-    }
-    return *this;
-  }
 };
 
 struct rate_order_t {
@@ -116,5 +100,10 @@ int UctSearchGenmoveCleanUp( game_info_t *game, int color );
 // 探索の再利用の設定
 void SetReuseSubtree( bool flag );
 
+// 指定したインデックスのノードを取得
+uct_node_t& GetNode( const int index );
+
+// ルートノードを取得
+uct_node_t& GetRootNode( void );
 
 #endif

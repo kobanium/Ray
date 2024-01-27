@@ -13,6 +13,7 @@
 #include "common/Message.hpp"
 #include "feature/Nakade.hpp"
 #include "gtp/Gtp.hpp"
+#include "mcts/AnalysisData.hpp"
 #include "mcts/Rating.hpp"
 #include "mcts/Simulation.hpp"
 #include "mcts/UctSearch.hpp"
@@ -96,6 +97,8 @@ static void GTP_loadsgf( void );
 static void GTP_lz_analyze( void );
 //  lz_genmove_analyzeコマンドを処理
 static void GTP_lz_genmove_analyze( void );
+//  cgos-genmove_analyzeコマンドを処理
+static void GTP_cgos_genmove_analyze( void );
 
 ////////////
 //  定数  //
@@ -103,30 +106,31 @@ static void GTP_lz_genmove_analyze( void );
 
 //  GTPコマンド
 const GTP_command_t gtpcmd[] = {
-  { "boardsize",           GTP_boardsize           },
-  { "clear_board",         GTP_clearboard          },
-  { "final_score",         GTP_finalscore          },
-  { "final_status_list",   GTP_final_status_list   },
-  { "fixed_handicap",      GTP_fixed_handicap      },
-  { "genmove",             GTP_genmove             },
-  { "get_komi",            GTP_getkomi             },
-  { "kgs-genmove_cleanup", GTP_kgs_genmove_cleanup },
-  { "known_command",       GTP_knowncommand        },
-  { "komi",                GTP_komi                },
-  { "list_commands",       GTP_listcommands        },
-  { "loadsgf",             GTP_loadsgf             },
-  { "lz-analyze",          GTP_lz_analyze          },
-  { "lz-genmove_analyze",  GTP_lz_genmove_analyze  },
-  { "name",                GTP_name                },
-  { "place_free_handicap", GTP_fixed_handicap      },
-  { "play",                GTP_play                },
-  { "protocol_version",    GTP_protocolversion     },
-  { "quit",                GTP_quit                },
-  { "set_free_handicap",   GTP_set_free_handicap   },
-  { "showboard",           GTP_showboard           },
-  { "time_left",           GTP_timeleft            },
-  { "time_settings",       GTP_timesettings        },
-  { "version",             GTP_version             },
+  { "boardsize",            GTP_boardsize            },
+  { "cgos-genmove_analyze", GTP_cgos_genmove_analyze },
+  { "clear_board",          GTP_clearboard           },
+  { "final_score",          GTP_finalscore           },
+  { "final_status_list",    GTP_final_status_list    },
+  { "fixed_handicap",       GTP_fixed_handicap       },
+  { "genmove",              GTP_genmove              },
+  { "get_komi",             GTP_getkomi              },
+  { "kgs-genmove_cleanup",  GTP_kgs_genmove_cleanup  },
+  { "known_command",        GTP_knowncommand         },
+  { "komi",                 GTP_komi                 },
+  { "list_commands",        GTP_listcommands         },
+  { "loadsgf",              GTP_loadsgf              },
+  { "lz-analyze",           GTP_lz_analyze           },
+  { "lz-genmove_analyze",   GTP_lz_genmove_analyze   },
+  { "name",                 GTP_name                 },
+  { "place_free_handicap",  GTP_fixed_handicap       },
+  { "play",                 GTP_play                 },
+  { "protocol_version",     GTP_protocolversion      },
+  { "quit",                 GTP_quit                 },
+  { "set_free_handicap",    GTP_set_free_handicap    },
+  { "showboard",            GTP_showboard            },
+  { "time_left",            GTP_timeleft             },
+  { "time_settings",        GTP_timesettings         },
+  { "version",              GTP_version              },
 };
 
 
@@ -189,10 +193,11 @@ GTP_response( const char *res, bool success )
       std::cout << "= " << res << std::endl << std::endl;
     }
   } else {
+    std::cout << "? ";
     if (res != NULL) {
-      std::cerr << res << std::endl;
+      std::cout << res;
     }
-    std::cout << "?" << std::endl << std::endl;
+    std::cout << std::endl << std::endl;
   }
 }
 
@@ -406,12 +411,11 @@ GTP_listcommands( void )
   int i;
 
   i = 0;
-  list[i++] = '\n';
   for (const auto& cmd : gtpcmd) {
+    list[i++] = '\n';
     for (unsigned int k = 0; k < strlen(cmd.command); k++){
       list[i++] = cmd.command[k];
     }
-    list[i++] = '\n';
   }
   list[i++] = '\0';
 
@@ -1036,6 +1040,62 @@ void GTP_lz_genmove_analyze( void )
   }
   IntegerToString(point, pos);
   std::cout << "play " << pos << std::endl << std::endl;
+
+  UctSearchPondering(game, GetOppositeColor(color), -1);
+}
+
+
+
+static void
+GTP_cgos_genmove_analyze( void )
+{
+  std::ostringstream oss;
+  std::string analyze_data;
+  char pos[10];
+  char *command;
+  char c;
+  int color;
+  int point = PASS;
+
+  StopPondering();
+
+  command = STRTOK(input_copy, DELIM, &next_token);
+  
+  CHOMP(command);
+
+  command = STRTOK(NULL, DELIM, &next_token);
+  if (command == NULL){
+    GTP_response(err_genmove, true);
+    return;
+  }
+  CHOMP(command);
+  c = static_cast<char>(tolower(static_cast<int>(command[0])));
+  if (c == 'w') {
+    color = S_WHITE;
+  } else if (c == 'b') {
+    color = S_BLACK;
+  } else {
+    GTP_response(err_genmove, true);
+    return;
+  }
+
+  player_color = color;
+  
+  point = UctSearchGenmove(game, color, -1);
+  if (point != RESIGN) {
+    PutStone(game, point, color);
+
+    CgosAnalyzeData data(GetRootNode(), color);
+    analyze_data = data.GetJsonData();
+  }
+
+  IntegerToString(point, pos);
+
+  oss << "\n";
+  oss << analyze_data << "\n";
+  oss << "play " << pos;
+  
+  GTP_response(oss.str().c_str(), true);
 
   UctSearchPondering(game, GetOppositeColor(color), -1);
 }

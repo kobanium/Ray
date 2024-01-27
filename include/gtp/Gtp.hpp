@@ -18,7 +18,7 @@ const int BUF_SIZE = 256;
 #define PROGRAM_NAME  "Ray"
 
 //  プログラムのバージョン
-#define PROGRAM_VERSION  "10.3.0"
+#define PROGRAM_VERSION  "11.0.0"
 
 //  GTPのバージョン
 #define PROTOCOL_VERSION  "2"

@@ -23,6 +23,7 @@ Ray's command line options are as follows,
 | `--komi` | Komi value | Real number | 6.5 | KOMI ( = 6.5 ) | KOMI is defined in include/board/Constant.hpp |
 | `--superko` | Positional super ko | - | - | - | Supporting positional super ko only |
 | `--handicap` | The number of handicap stones | Integer more than 1 | 2 | 0 | This option is for debugging. |
+| `--cgos` | CGOS player mode | - | - | - | Activating capturing all dead stones mode |
 
 ### annotation
 The `--playout` option, the `--const-time option`, and the `--time` option are effective when specified last, respectively.
@@ -37,6 +38,7 @@ The `--playout` option, the `--const-time option`, and the `--time` option are e
 | `--reuse-subtree` | Reusing MCTS sub-tree | - | - | - | |
 | `--pondering` | Pondering on opponent's thinking time | - | - | - | |
 | `--tree-size` | Maximum number of MCTS nodes | Integer power of 2 | 16834 | UCT_HASH_SIZE ( = 16834 ) | UCT_HASH_SIZE is defined in include/board/ZobristHash.hpp |
+| `--resign` | Resign threshold | Rean number more than or equal to 0.0 and less than or equal to 1.0 | 0.1 | RESIGN_THRESHOLD ( = 0.20 ) | RESIGN_THRESHOLD is defined in include/mcts/MoveSelection.hpp |
 
 ### annotation
 When the `--pondering` option is enabled, the `--reuse-pondering` option is automatically enabled automatically.  

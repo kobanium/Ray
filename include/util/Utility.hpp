@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <string>
+#include <vector>
 
 #if defined (_WIN32)
 const std::string PATH_SEPARATOR = "\\";
@@ -28,5 +29,7 @@ void InputTxtDBL( const char *filename, double *ap, const int array_size );
 void SetWorkingDirectory( const char *program_path );
 
 std::string GetWorkingDirectory( void );
+
+std::string JoinStrings( const std::vector<std::string> &str_vec, const char *deliminter );
 
 #endif

@@ -19,6 +19,7 @@
 #include "pattern/PatternHash.hpp"
 #include "feature/Ladder.hpp"
 #include "feature/Seki.hpp"
+#include "feature/Semeai.hpp"
 #include "mcts/MoveSelection.hpp"
 #include "mcts/Simulation.hpp"
 #include "mcts/UctRating.hpp"
@@ -149,6 +150,22 @@ static void Statistic( game_info_t *game, int winner );
 // UCT探索(1回の呼び出しにつき, 1回の探索)
 static int UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &winner );
 
+// ノード展開の閾値を取得
+static int GetExpandThreshold( const game_info_t *game );
+
+
+uct_node_t&
+GetNode( const int index )
+{
+  return uct_node[index];
+}
+
+
+uct_node_t&
+GetRootNode( void )
+{
+  return uct_node[current_root];
+}
 
 
 /////////////////////
@@ -367,7 +384,7 @@ UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
     mag_count++;
   } while (mag_count < 3 && ExtendTime(uct_node[current_root], game->moves));
 
-  const int pos = SelectMove(game, uct_node[current_root], best_wp);
+  const int pos = SelectMove(game, uct_node[current_root], color, best_wp);
   
   // 探索にかかった時間を求める
   const double finish_time = CalculateElapsedTime();
@@ -523,7 +540,9 @@ ExpandRoot( game_info_t *game, int color )
       for (int i = 0; i < pure_board_max; i++) {
         const int pos = onboard_pos[i];
         // 探索候補かつ合法手であれば探索対象にする
-        if (candidates[pos] && IsLegal(game, pos, color)) {
+        if (candidates[pos] &&
+            IsLegal(game, pos, color) &&
+            IsMeaningfulSelfAtari(game, color, pos)) {
           InitializeCandidate(uct_child[child_num], child_num, pos, ladder[pos]);
         }
       }
@@ -585,7 +604,9 @@ ExpandNode( game_info_t *game, int color, int current )
   for (int i = 0; i < pure_board_max; i++) {
     const int pos = onboard_pos[i];
     // 探索候補でなければ除外
-    if (candidates[pos] && IsLegal(game, pos, color)) {
+    if (candidates[pos] &&
+        IsLegal(game, pos, color) &&
+        IsMeaningfulSelfAtari(game, color, pos)) {
       InitializeCandidate(uct_child[child_num], child_num, pos, false);
     }
   }
@@ -857,7 +878,7 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
   // 色を入れ替える
   color = GetOppositeColor(color);
 
-  if (uct_child[next_index].move_count < expand_threshold) {
+  if (uct_child[next_index].move_count < GetExpandThreshold(game)) {
     AddVirtualLoss(uct_node[current], uct_child[next_index]);
 
     memcpy(game->seki, uct_node[current].seki, sizeof(bool) * BOARD_MAX);
@@ -872,7 +893,7 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
     CheckBentFourInTheCorner(game);
     
     // コミを含めない盤面のスコアを求める
-    score = (double)CalculateScore(game);
+    score = static_cast<double>(CalculateScore(game));
     
     // コミを考慮した勝敗
     if (my_color == S_BLACK) {
@@ -914,6 +935,10 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
 
   // 探索結果の反映
   UpdateResult(uct_node[current], uct_child[next_index], result);
+
+  mutex_nodes[current].lock();
+  UpdateOwnership(uct_node[current], game, GetOppositeColor(color));
+  mutex_nodes[current].unlock();
 
   return 1 - result;
 }
@@ -1055,7 +1080,7 @@ static void
 CalculateCriticality( int color )
 {
   const int other = GetOppositeColor(color);
-  const double win = (double)uct_node[current_root].win / uct_node[current_root].move_count;
+  const double win = static_cast<double>(uct_node[current_root].win) / uct_node[current_root].move_count;
   const double lose = 1.0 - win;
   double tmp;
   const int count = GetPoCount();
@@ -1063,13 +1088,13 @@ CalculateCriticality( int color )
   for (int i = 0; i < pure_board_max; i++) {
     const int pos = onboard_pos[i];
 
-    tmp = ((float)statistic[pos].colors[0] / count) -
-      ((((float)statistic[pos].colors[color] / count) * win)
-       + (((float)statistic[pos].colors[other] / count) * lose));
+    tmp = (static_cast<float>(statistic[pos].colors[0]) / count) -
+      (((static_cast<float>(statistic[pos].colors[color]) / count) * win)
+       + ((static_cast<float>(statistic[pos].colors[other]) / count) * lose));
 
     criticality[pos] = tmp;
     if (tmp < 0) tmp = 0;
-    criticality_index[pos] = (int)(tmp * 40);
+    criticality_index[pos] = static_cast<int>(tmp * 40);
     if (criticality_index[pos] > criticality_max - 1) criticality_index[pos] = criticality_max - 1;
   }
 }
@@ -1088,7 +1113,7 @@ CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, i
 
   for (int i = 1; i < child_num; i++){
     const int pos = node->child[i].pos;
-    index[i] = (int)((double)node_statistic[pos].colors[color] * 10.0 / count + 0.5);
+    index[i] = static_cast<int>(static_cast<double>(node_statistic[pos].colors[color]) * 10.0 / count + 0.5);
     if (index[i] > OWNER_MAX - 1) index[i] = OWNER_MAX - 1;
     if (index[i] < 0)             index[i] = 0;
   }
@@ -1103,7 +1128,7 @@ CalculateOwner( int color, int count )
 {
   for (int i = 0; i < pure_board_max; i++){
     const int pos = onboard_pos[i];
-    owner_index[pos] = (int)((double)statistic[pos].colors[color] * 10.0 / count + 0.5);
+    owner_index[pos] = static_cast<int>(static_cast<double>(statistic[pos].colors[color]) * 10.0 / count + 0.5);
     if (owner_index[pos] > OWNER_MAX - 1) owner_index[pos] = OWNER_MAX - 1;
     if (owner_index[pos] < 0)             owner_index[pos] = 0;
   }
@@ -1287,7 +1312,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
     pos = uct_child[select_index].pos;
   }
   
-  if ((double)uct_child[select_index].win / uct_child[select_index].move_count < RESIGN_THRESHOLD) {
+  if (static_cast<double>(uct_child[select_index].win) / uct_child[select_index].move_count < RESIGN_THRESHOLD) {
     return PASS;
   } else {
     return pos;
@@ -1311,4 +1336,17 @@ CorrectDescendentNodes( std::vector<int> &indexes, int index )
       CorrectDescendentNodes(indexes, uct_child[i].index);
     }
   }   
+}
+
+
+static int
+GetExpandThreshold( const game_info_t *game )
+{
+  if (game->moves > 2 &&
+      game->record[game->moves - 1].pos == PASS &&
+      game->record[game->moves - 2].pos == PASS) {
+    return INT_MAX - 1;
+  } else {
+    return expand_threshold;
+  }
 }
