@@ -6,7 +6,7 @@ Ray is a Go (Weiqi, Baduk) game engine based on Monte-Carlo tree search without 
 # Installation
 1. 'cd' to the directory which includes 'Makefile'
 2. Type 'make' to compile
-3. Place parameter files to ```sim_params``` and ```uct_params``` directries (You can download parameter files from [here](https://github.com/kobanium/Ray/releases))
+3. Place parameter files to ```sim_params``` and ```uct_params``` directories (You can download parameter files from [here](https://github.com/kobanium/Ray/releases))
 
 # How to run
 When using a GUI that supports GTP (Go Text Protocol), the following command can be used Ray as a engine.
