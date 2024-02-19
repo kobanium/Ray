@@ -1,3 +1,11 @@
+/**
+ * @file src/board/ZobristHash.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Hash table for Monte-Carlo tree search.
+ * @~japanese
+ * @brief モンテカルロ木探索用のハッシュ表
+ */
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
@@ -8,42 +16,87 @@
 #include "feature/Nakade.hpp"
 
 
-
-////////////
-//  変数  //
-////////////
-
-//  UCTのノード用のビット列 (局面の合流なし)
+/**
+ * @~english
+ * @brief Bit strings for MCTS nodes.
+ * @~japanese
+ * @brief UCTのノード用のビット列
+ */
 unsigned long long move_bit[MAX_RECORDS][BOARD_MAX][HASH_KO + 1]; 
 
-// 局面を表すためのビット列
+/**
+ * @~english
+ * @brief Bit strings for describing positions.
+ * @~japanese
+ * @brief 局面を表現する用のビット列
+ */
 unsigned long long hash_bit[BOARD_MAX][HASH_KO + 1];
 
-// ナカデの形を判断するためのビット列
+/**
+ * @~english
+ * @brief Bit strings for nakade evaluation.
+ * @~japanese
+ * @brief ナカデ評価用のビット列
+ */
 unsigned long long shape_bit[BOARD_MAX];  
 
-// ハッシュ表
+/**
+ * @~english
+ * @brief Hash table for MCTS nodes.
+ * @~japanese
+ * @brief MCTSノード用のハッシュ表
+ */
 node_hash_t *node_hash;
 
-// ハッシュのエントリ数
+/**
+ * @~english
+ * @brief The number of hash entries.
+ * @~japanese
+ * @brief ハッシュエントリの個数
+ */
 static unsigned int used;
 
-// ハッシュ表にある最も古いデータが持つ手数
+/**
+ * @~english
+ * @brief Oldest move in hash entries.
+ * @~japanese
+ * @brief ハッシュ表にある最も古いデータが持つ手数
+ */
 static int oldest_move;
 
-// ハッシュ表のサイズ
+/**
+ * @~english
+ * @brief Hash table size.
+ * @~japanese
+ * @brief ハッシュ表の大きさ
+ */
 unsigned int uct_hash_size = UCT_HASH_SIZE;
 
-// 探索停止するハッシュ表のエントリ数
+/**
+ * @~english
+ * @brief Limitation for the number of hash entries.
+ * @~japanese
+ * @brief ハッシュエントリの上限値
+ */
 unsigned int uct_hash_limit = UCT_HASH_SIZE * 9 / 10;
 
-// ハッシュ表に余裕があるかどうかを表すフラグ
+/**
+ * @~english
+ * @brief Hash table has enough empty entries or not.
+ * @~japanese
+ * @brief ハッシュ表に余裕があるかどうかを表すフラグ
+ */
 bool enough_size;
 
 
-////////////////////////////////////
-//  ハッシュテーブルのサイズの設定  //
-////////////////////////////////////
+/**
+ * @~english
+ * @brief Set hash table size.
+ * @param[in] new_size Hash table size.
+ * @~japanese
+ * @brief ハッシュ表のサイズの設定
+ * @param[in] new_size 設定するハッシュ表のサイズ
+ */
 void
 SetHashSize( const unsigned int new_size )
 {
@@ -61,9 +114,16 @@ SetHashSize( const unsigned int new_size )
 }
 
 
-/////////////////////////
-//  インデックスの取得  //
-/////////////////////////
+/**
+ * @~english
+ * @brief Transform hash value to hash key.
+ * @param[in] hash Hash value.
+ * @return Hash key.
+ * @~japanese
+ * @brief ハッシュ値をキーに変換
+ * @param[in] hash 局面のハッシュ値
+ * @return ハッシュキー
+ */
 unsigned int
 TransHash( const unsigned long long hash )
 {
@@ -71,9 +131,12 @@ TransHash( const unsigned long long hash )
 }
 
 
-/////////////////////
-//  bit列の初期化  //
-/////////////////////
+/**
+ * @~english
+ * @brief Initialize bit strings.
+ * @~japanese
+ * @brief Bit列の初期化
+ */
 void
 InitializeHash( void )
 {
@@ -110,9 +173,12 @@ InitializeHash( void )
 }
 
 
-//////////////////////////////////
-//  UCTノードのハッシュの初期化  //
-//////////////////////////////////
+/**
+ * @~english
+ * @brief Initialize hash table.
+ * @~japanese
+ * @brief ハッシュ表の初期化
+ */
 void
 InitializeUctHash( void )
 {
@@ -128,9 +194,12 @@ InitializeUctHash( void )
 }
 
 
-/////////////////////////////////////
-//  UCTノードのハッシュ情報のクリア  //
-/////////////////////////////////////
+/**
+ * @~english
+ * @brief Clear hash table entries.
+ * @~japanese
+ * @brief ハッシュ表のクリア
+ */
 void
 ClearUctHash( void )
 {
@@ -146,9 +215,14 @@ ClearUctHash( void )
 }
 
 
-////////////////////////////////////////
-//  現局面から到達し得ないノードの削除  //
-////////////////////////////////////////
+/**
+ * @~english
+ * @brief Clear all not descendent nodes.
+ * @param[in] indexes Indexes of not descendent nodes.
+ * @~japanese
+ * @brief 現局面の子孫ではないノードの削除
+ * @param[in] indexes 子孫ではないノードのインデックス
+ */
 void
 ClearNotDescendentNodes( std::vector<int> &indexes )
 {
@@ -170,9 +244,14 @@ ClearNotDescendentNodes( std::vector<int> &indexes )
 }
 
 
-///////////////////////
-//  古いデータの削除  //
-///////////////////////
+/**
+ * @~english
+ * @brief Delete old hash entries.
+ * @param[in] game Board position data.
+ * @~japanese
+ * @brief 古いエントリーを削除
+ * @param[in] game 局面情報
+ */
 void
 DeleteOldHash( const game_info_t *game )
 {
@@ -193,9 +272,20 @@ DeleteOldHash( const game_info_t *game )
 }
 
 
-//////////////////////////////////////
-//  未使用のインデックスを探して返す  //
-//////////////////////////////////////
+/**
+ * @~english
+ * @brief Search empty index on hash table.
+ * @param[in] hash Hash value of current position.
+ * @param[in] color Player's color.
+ * @param[in] moves The number of move count.
+ * @return Unused hash table's index.
+ * @~japanese
+ * @brief 未使用のインデックスを探して返す
+ * @param[in] hash 現局面のハッシュ値
+ * @param[in] color 手番の色
+ * @param[in] moves 着手数
+ * @return 未使用のインデックス
+ */
 unsigned int
 SearchEmptyIndex( const unsigned long long hash, const int color, const int moves )
 {
@@ -220,9 +310,20 @@ SearchEmptyIndex( const unsigned long long hash, const int color, const int move
 }
 
 
-////////////////////////////////////////////
-//  ハッシュ値に対応するインデックスを返す  //
-////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Search element which has same hash value.
+ * @param[in] hash Hash value of current position.
+ * @param[in] color Player's color.
+ * @param[in] moves The number of move count.
+ * @return Index on hash table.
+ * @~japanese
+ * @brief ハッシュ値に対応するインデックスを返す
+ * @param[in] hash 局面のハッシュ値
+ * @param[in] color 手番の色
+ * @param[in] moves 着手数
+ * @return ハッシュ表のインデックス
+ */
 unsigned int
 FindSameHashIndex( const unsigned long long hash, const int color, const int moves)
 {
@@ -245,9 +346,14 @@ FindSameHashIndex( const unsigned long long hash, const int color, const int mov
 }
 
 
-////////////////////////////////////////////////
-//  ハッシュテーブルに余裕があるかどうかの判定  //
-////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check enough empty hash table size. 
+ * @return Check result.
+ * @~japanese
+ * @brief ハッシュ表に十分な空きがあるか判定
+ * @return 判定結果
+ */
 bool
 CheckRemainingHashSize( void )
 {

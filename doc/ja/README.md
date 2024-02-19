@@ -18,14 +18,13 @@ Windowsでの動作確認はしていません. Linuxで利用する際には下
 # make
 ```
 
-```sim_params```と```uct_params```の各パラメータファイルは[こちら](https://github.com/kobanium/Ray/releases)からダウンロードして各フォルダに配置してください.
+sim_paramsとuct_paramsの各パラメータファイルは[こちら](https://github.com/kobanium/Ray/releases)からダウンロードして各フォルダに配置してください.
 
 使い方
 ------
 
+## 対局の設定
 
-
-## Game settings
 | オプション | 概要 | 設定する値 | 値の例 | デフォルト値 | 備考 |
 | --- | --- | --- | --- | --- | --- |
 | `--size` | 碁盤のサイズの指定 | 1以上PURE_BOARD_SIZE以下の整数 | 9 | PURE_BOARD_SIZE ( = 19 ) | PURE_BOARD_SIZE は include/board/Constant.hpp に定義しています。 |
@@ -37,12 +36,11 @@ Windowsでの動作確認はしていません. Linuxで利用する際には下
 ### 注意
 --playoutオプション, --const-timeオプション, --timeオプションはそれぞれ最後に指定されたものが有効になります.  
 
+## 探索や時間管理の設定
 
-
-## Time management and search settings
-| Option | Description | Value | Example of value | Default value | Note |
+| オプション | 概要 | 設定する値 | 値の例 | デフォルト値 | 備考 |
 | --- | --- | --- | --- | --- | --- |
-| `--playout` | 1手あたりのプレイアウト回数の指定 | 1以上の整数 | 0 | 1000 | - | |
+| `--playout` | 1手あたりのプレイアウト回数の指定 | 1以上の整数 | 0 | 1000 | - |
 | `--const-time` | 1手あたりの思考時間の指定 | 実数 | 7.5 | CONST_TIME ( = 10.0) | CONST_TIME は include/mcts/SearchManager.hpp に定義しています。 |
 | `--time` | 1局の持ち時間の指定 (分) | 実数 | 1800.0 | - | |
 | `--thread` | 探索スレッド数の指定 | 1以上THREAD_MAX ( = 64 ) 以下の整数 | 16 | 1 | THREAD_MAX は include/mcts/UctSearch.hpp に定義しています。 |
@@ -55,7 +53,7 @@ Windowsでの動作確認はしていません. Linuxで利用する際には下
 --ponderingオプションを有効にすると, 自動的に--reuse-ponderingオプションが自動で有効になります.  
 
 
-## Misc
+## その他
 
 | Option | Description | Value | Example of value | Default value | Note |
 | --- | --- | --- | --- | --- | --- |

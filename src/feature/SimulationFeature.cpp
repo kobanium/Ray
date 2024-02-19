@@ -1,9 +1,22 @@
+/**
+ * @file src/feature/SimulationFeature.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Features for Monte-Carlo simulation.
+ * @~japanese
+ * @brief モンテカルロ・シミュレーション用の特徴
+ */
 #include "feature/Nakade.hpp"
 #include "feature/Semeai.hpp"
 #include "feature/SimulationFeature.hpp"
 
 
-
+/**
+ * @~english
+ * @brief Diagonal coordinates.
+ * @~japanese
+ * @brief 斜めの座標.
+ */
 static int cross[4];
 
 
@@ -17,6 +30,12 @@ static void CheckFeatureLib2ForSimulation( game_info_t *game, const int color, c
 static void CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num );
 
 
+/**
+ * @~english
+ * @brief Set diagonal coordinates.
+ * @~japanese
+ * @brief 斜め4箇所の座標の設定.
+ */
 void
 SetCrossPosition( void )
 {
@@ -27,10 +46,22 @@ SetCrossPosition( void )
 }
 
 
-
-/////////////////////////////////////////
-//  呼吸点が1つの連に対する特徴の判定  //
-/////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check features for the string with only 1 liberty.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] id String ID.
+ * @param[in, out] update Update intersections.
+ * @param[in, out] update_num The number of update intersections.
+ * @~japanese
+ * @brief 呼吸点が1つの連に対する特徴の判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @param[in, out] update 更新箇所
+ * @param[in, out] update_num 更新箇所の数
+ */
 static void
 CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num )
 {
@@ -133,10 +164,22 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
 }
 
 
-
-/////////////////////////////////////////
-//  呼吸点が2つの連に対する特徴の判定  //
-/////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check features for the string with 2 liberties.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] id String ID.
+ * @param[in, out] update Update intersections.
+ * @param[in, out] update_num The number of update intersections.
+ * @~japanese
+ * @brief 呼吸点が2つの連に対する特徴の判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @param[in, out] update 更新箇所
+ * @param[in, out] update_num 更新箇所の数
+ */
 static void
 CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num )
 {
@@ -234,9 +277,22 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
 }
 
 
-/////////////////////////////////////////
-//  呼吸点が3つの連に対する特徴の判定  //
-/////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check features for the string with 3 liberties.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] id String ID.
+ * @param[in, out] update Update intersections.
+ * @param[in, out] update_num The number of update intersections.
+ * @~japanese
+ * @brief 呼吸点が3つの連に対する特徴の判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @param[in, out] update 更新箇所
+ * @param[in, out] update_num 更新箇所の数
+ */
 static void
 CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num )
 {
@@ -368,9 +424,22 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
 }
 
 
-//////////////////
-//  特徴の判定  //
-//////////////////
+/**
+ * @~english
+ * @brief Check features around previous move.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] update Update intersections.
+ * @param[in, out] update_num The number of update intersections.
+ * @return Feature status.
+ * @~japanese
+ * @brief 直前の着手の周辺の特徴の判定
+ * @param[in] game 盤面情報
+ * @param[in] color 手番の色
+ * @param[in, out] update 更新箇所の座標
+ * @param[in, out] update_num 更新箇所の個数
+ * @return 特徴の状態
+ */
 void
 CheckFeaturesForSimulation( game_info_t *game, const int color, int *update, int *update_num )
 {
@@ -444,9 +513,20 @@ CheckFeaturesForSimulation( game_info_t *game, const int color, int *update, int
 }
 
 
-////////////////////////
-//  劫を解消するトリ  //
-////////////////////////
+/**
+ * @~english
+ * @brief Check capturing features.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] update Update intersections.
+ * @param[in, out] update_num The number of update intersections.
+ * @~japanese
+ * @brief トリの特徴の判定
+ * @param[in] game 盤面情報
+ * @param[in] color 手番の色
+ * @param[in, out] update 更新箇所の座標
+ * @param[in, out] update_num 更新箇所の個数
+ */
 void
 CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *update, int *update_num )
 {
@@ -503,9 +583,20 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
 }
 
 
-//////////////////
-//  自己アタリ  //
-//////////////////
+/**
+ * @~english
+ * @brief Check self-atari features.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] pos Intersection.
+ * @return Self atari activated flag.
+ * @~japanese
+ * @brief 自己アタリの特徴の判定
+ * @param[in] game 盤面情報
+ * @param[in] color 手番の色
+ * @param[in] pos 確認する座標
+ * @return 自己アタリの有無
+ */
 bool
 CheckSelfAtariForSimulation( game_info_t *game, const int color, const int pos )
 {
@@ -679,9 +770,19 @@ CheckSelfAtariForSimulation( game_info_t *game, const int color, const int pos )
   return flag;
 }
 
-//////////////////
-//  トリの判定  //
-//////////////////
+
+/**
+ * @~english
+ * @brief Check capturing and atari features.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] pos Intersection.
+ * @~japanese
+ * @brief トリとアタリの特徴の判定
+ * @param[in] game 盤面情報
+ * @param[in] color 手番の色
+ * @param[in] pos 確認する座標
+ */
 void
 CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int pos )
 {
@@ -740,9 +841,23 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   }
 }
 
-///////////////////////////////////
-//  2目抜かれたときのホウリコミ  //
-///////////////////////////////////
+
+/**
+ * @~english
+ * @brief Check features making half-eye.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] update Update intersections.
+ * @param[in, out] update_num The number of update intersections.
+ * @return Feature status.
+ * @~japanese
+ * @brief 2目の抜き跡へのホウリコミの特徴の判定
+ * @param[in] game 盤面情報
+ * @param[in] color 手番の色
+ * @param[in, out] update 更新箇所の座標
+ * @param[in, out] update_num 更新箇所の個数
+ * @return 特徴の状態
+ */
 void
 CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update, int *update_num )
 {

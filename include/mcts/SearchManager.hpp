@@ -1,3 +1,11 @@
+/**
+ * @file SearchManager.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Management of time consumption.
+ * @~japanese
+ * @brief 思考時間の管理
+ */
 #ifndef _SEARCH_MANAGER_HPP_
 #define _SEARCH_MANAGER_HPP_
 
@@ -8,20 +16,110 @@
 #include "util/Utility.hpp"
 
 
-constexpr double ALL_THINKING_TIME = 90.0;  // 持ち時間(デフォルト)
-constexpr int CONST_PLAYOUT = 10000;        // 1手あたりのプレイアウト回数(デフォルト)
-constexpr double CONST_TIME = 10.0;         // 1手あたりの思考時間(デフォルト)
-constexpr int PLAYOUT_SPEED = 1000;         // 初期盤面におけるプレイアウト速度
+/**
+ * @~english
+ * @brief Default remaining time.
+ * @~japanese
+ * @brief 持ち時間(デフォルト)
+ */
+constexpr double ALL_THINKING_TIME = 90.0;
 
-// 思考時間の割り振り
+/**
+ * @~english
+ * @brief Default playouts per move.
+ * @~japanese
+ * @brief 1手あたりのプレイアウト回数(デフォルト)
+ */
+constexpr int CONST_PLAYOUT = 10000;
+
+/**
+ * @~english
+ * @brief Default thinking time per move.
+ * @~japanese
+ * @brief 1手あたりの思考時間(デフォルト)
+ */
+constexpr double CONST_TIME = 10.0;
+
+/**
+ * @~english
+ * @brief Search speed at an initial position.
+ * @~japanese
+ * @brief 初期盤面におけるプレイアウト速度
+ */
+constexpr int PLAYOUT_SPEED = 1000;
+
+/**
+ * @~english
+ * @brief Time consumption ratio for remaining time (9x9).
+ * @~japanese
+ * @brief 1手あたりに使用する持ち時間の割合(9x9)
+ */
 constexpr int TIME_C_9 = 20;
+
+/**
+ * @~english
+ * @brief The number of moves to maximize thinking time (9x9).
+ * @~japanese
+ * @brief 思考時間を最大にする手数(9x9)
+ */
 constexpr int TIME_MAXPLY_9 = 0;
+
+/**
+ * @~english
+ * @brief Time consumption ratio for remaining time (13x13).
+ * @~japanese
+ * @brief 1手あたりに使用する持ち時間の割合(13x13)
+ */
 constexpr int TIME_C_13 = 30;
+
+/**
+ * @~english
+ * @brief The number of moves to maximize thinking time (13x13).
+ * @~japanese
+ * @brief 思考時間を最大にする手数(13x13)
+ */
 constexpr int TIME_MAXPLY_13 = 30;
+
+/**
+ * @~english
+ * @brief Time consumption ratio for remaining time (19x19).
+ * @~japanese
+ * @brief 1手あたりに使用する持ち時間の割合(19x19)
+ */
 constexpr int TIME_C_19 = 60;
+
+/**
+ * @~english
+ * @brief The number of moves to maximize thinking time (19x19).
+ * @~japanese
+ * @brief 思考時間を最大にする手数(19x19)
+ */
 constexpr int TIME_MAXPLY_19 = 80;
 
 
+/**
+ * @enum SearchTimeStrategy
+ * @~english
+ * @brief Strategy for search time.
+ * @var ConstantPlayoutMode
+ * Constant playouts per move.
+ * @var ConstantTimeMode
+ * Constant time per move.
+ * @var TimeControlMode
+ * Control search time with remaining time.
+ * @var TimeControlWithByoYomiMode
+ * Control search time with remaining time and byo-yomi.
+ * @~japanese
+ * @brief 探索時間の戦略
+ * @var ConstantPlayoutMode
+ * 1手のプレイアウト回数を固定したモード
+ * @var ConstantTimeMode
+ * 1手の思考時間を固定したモード
+ * @var TimeControlMode
+ * 持ち時間ありのモード(秒読み無し)
+ * @var TimeControlWithByoYomiMode
+ * 持ち時間ありのモード(秒読みあり)
+ */
 enum class SearchTimeStrategy {
   ConstantPlayoutMode,
   ConstantTimeMode,
@@ -30,9 +128,36 @@ enum class SearchTimeStrategy {
 };  
 
 
+/**
+ * @struct po_info_t
+ * @~english
+ * @brief Record of playout counts.
+ * @~japanese
+ * @brief プレイアウト回数の記録
+ */
 struct po_info_t {
+  /**
+   * @~english
+   * @brief Playout count limitation for next turn.
+   * @~japanese
+   * @brief 次のプレイアウト回数の上限値
+   */
   int num;
+
+  /**
+   * @~english
+   * @brief Playout count limitation.
+   * @~japanese
+   * @brief プレイアウト回数の上限値
+   */
   int halt;
+
+  /**
+   * @~english
+   * @brief Current playout counts.
+   * @~japanese
+   * @brief 現在のプレイアウト回数
+   */
   std::atomic<int> count;
 };
 
@@ -93,9 +218,6 @@ bool IsTimeOver( void );
 
 // 探索回数をゼロクリア
 void ResetPoCount( void );
-
-// 既に実行している探索回数を設定
-void SetPoCount( const int count );
 
 // 1手あたりの思考時間の設定
 void SetConstThinkingTime( const double time );

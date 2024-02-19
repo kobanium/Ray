@@ -1,7 +1,26 @@
+/**
+ * @file MCTSNode.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Operation for MCTS nodes.
+ * @~japanese
+ * @brief MCTSのノードの操作
+ */
 #include "mcts/MCTSNode.hpp"
 
 
-
+/**
+ * @~english
+ * @brief Initialize information for a node.
+ * @param[in, out] node MCTS node
+ * @param[in] pm1 Previous move coordinate.
+ * @param[in] pm2 Move coordinate before previous move.
+ * @~japanese
+ * @brief ノードの初期化
+ * @param[in, out] node MCTSノード
+ * @param[in] pm1 1手前の着手箇所
+ * @param[in] pm2 2手前の着手箇所
+ */
 void
 InitializeNode( uct_node_t &node, const int pm1, const int pm2 )
 {
@@ -16,6 +35,20 @@ InitializeNode( uct_node_t &node, const int pm1, const int pm2 )
 }
 
 
+/**
+ * @~english
+ * @brief Initialize information for a candidate.
+ * @param[in, out] child Child node.
+ * @param[in, out] child_num The number of child nodes.
+ * @param[in] pos Intersection.
+ * @param[in] ladder Ladder capturable flag.
+ * @~japanese
+ * @brief 候補手の初期化
+ * @param[in, out] child 子ノード
+ * @param[in, out] child_num 子ノードの個数
+ * @param[in] pos 着手箇所
+ * @param[in] ladder シチョウで逃げられないフラグ
+ */
 void
 InitializeCandidate( child_node_t &child, int &child_num, const int pos, const bool ladder )
 {
@@ -32,6 +65,17 @@ InitializeCandidate( child_node_t &child, int &child_num, const int pos, const b
 }
 
 
+
+/**
+ * @~english
+ * @brief Add virtual loss.
+ * @param[in, out] node MCTS node.
+ * @param[in, out] child Child node.
+ * @~japanese
+ * @brief Virtual Lossの加算
+ * @param[in, out] node MCTSノード
+ * @param[in, out] child 子ノード
+ */
 void
 AddVirtualLoss( uct_node_t &node, child_node_t &child )
 {
@@ -40,6 +84,18 @@ AddVirtualLoss( uct_node_t &node, child_node_t &child )
 }
 
 
+/**
+ * @~english
+ * @brief Update search result.
+ * @param[in, out] node MCTS node.
+ * @param[in, out] child Child node.
+ * @param[in] result Search result.
+ * @~japanese
+ * @brief 探索結果の更新
+ * @param[in, out] node MCTSノード
+ * @param[in, out] child 子ノード
+ * @param[in] result 探索結果
+ */
 void
 UpdateResult( uct_node_t &node, child_node_t &child, const int result )
 {
@@ -50,6 +106,16 @@ UpdateResult( uct_node_t &node, child_node_t &child, const int result )
 }
 
 
+/**
+ * @~english
+ * @brief Reuse root candidates without ladder capturable move (For UCB search).
+ * @param[in, out] node MCTS node.
+ * @param[in] ladder Ladder capturable flags.
+ * @~japanese
+ * @brief シチョウで逃げられない手を除いたルートの候補手の再利用
+ * @param[in, out] node MCTSノード
+ * @param[in] ladder シチョウで逃げられない箇所のフラグ
+ */
 void
 ReuseRootCandidateWithoutLadderMove( uct_node_t &node, const bool ladder[] )
 {
@@ -74,19 +140,39 @@ ReuseRootCandidateWithoutLadderMove( uct_node_t &node, const bool ladder[] )
 }
 
 
+/**
+ * @~english
+ * @brief Calculate winning rate of pass.
+ * @param[in] node MCTS node.
+ * @return Winning rate of pass.
+ * @~japanese
+ * @brief パスの勝率の計算
+ * @param[in] node MCTSノード
+ * @return パスの勝率
+ */
 double
 CalculatePassWinningPercentage( const uct_node_t &node )
 {
   const child_node_t &pass_child = node.child[PASS_INDEX];
 
   if (pass_child.move_count != 0) {
-    return (double)pass_child.win / pass_child.move_count;
+    return static_cast<double>(pass_child.win) / pass_child.move_count;
   } else {
     return 0.0;
   }
 }
 
 
+/**
+ * @~english
+ * @brief Calculate winning rate.
+ * @param[in] child MCTS child node.
+ * @return Winning rate of MCTS child node.
+ * @~japanese
+ * @brief 勝率の計算
+ * @param[in] child 子ノード
+ * @return 子ノードの勝率
+ */
 double
 CalculateWinningRate( const child_node_t &child )
 {
@@ -98,6 +184,18 @@ CalculateWinningRate( const child_node_t &child )
 }
 
 
+/**
+ * @~english
+ * @brief Update Monte-Carlo ownership.
+ * @param[in, out] node MCTS node.
+ * @param[in] game End position data.
+ * @param[in] current_color Current player's color.
+ * @~japanese
+ * @brief モンテカルロ・シミュレーションのOwnershipの更新
+ * @param[in, out] node MCTSノード
+ * @param[in] game 終局時の局面情報
+ * @param[in] current_color 現在の手番の色
+ */
 void
 UpdateOwnership( uct_node_t &node, game_info_t *game, const int current_color )
 {

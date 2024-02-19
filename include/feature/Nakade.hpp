@@ -1,27 +1,67 @@
+/**
+ * @file Nakade.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Nakade checker.
+ * @~japanese
+ * @brief ナカデの確認
+ */
 #ifndef _NAKADE_HPP_
 #define _NAKADE_HPP_
 
 #include "board/GoBoard.hpp"
 
-////////////
-//  定数  //
-////////////
+/**
+ * @~english
+ * @brief Not nakade value.
+ * @~japanese
+ * @brief ナカデではない時の値
+ */
+constexpr int NOT_NAKADE = -1;
 
-const int NOT_NAKADE = -1;
+/**
+ * @~english
+ * @brief Maximum data size for nakade queue.
+ * @~japanese
+ * @brief ナカデを確認するキューの最大データ長
+ */
+constexpr int NAKADE_QUEUE_SIZE = 30;
 
-const int NAKADE_QUEUE_SIZE = 30;
 
-//////////////
-//  構造体  //
-//////////////
+/**
+ * @struct nakade_queue_t
+ * @~english
+ * @brief Queue for nakade check.
+ * @~japanese
+ * @brief ナカデを確認するためのキュー
+ */
 struct nakade_queue_t {
+  /**
+   * @~english
+   * @brief Coordinate.
+   * @~japanese
+   * @brief 座標
+   */
   int pos[NAKADE_QUEUE_SIZE];
-  int head, tail;
+
+  /**
+   * @~english
+   * @brief Index of head element.
+   * @~japanese
+   * @brief 先頭のインデックス
+   */
+  int head;
+
+  /**
+   * @~english
+   * @brief Index of tail element.
+   * @~japanese
+   * @brief 末尾のインデックス
+   */
+  int tail;
 };
 
-////////////
-//  関数  //
-////////////
+
 // ナカデのハッシュの初期設定
 void InitializeNakadeHash( void );
 

@@ -1,3 +1,11 @@
+/**
+ * @file src/board/GoBoard.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Position controller.
+ * @~japanese
+ * @brief 盤面の処理
+ */
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -11,53 +19,222 @@
 #include "mcts/UctRating.hpp"
 
 
+/**
+ * @~english
+ * @brief The number of intersections.
+ * @~japanese
+ * @brief 交点の個数
+ */
+int pure_board_max = PURE_BOARD_MAX;
 
-/////////////////////
-//     大域変数    //
-/////////////////////
+/**
+ * @~english
+ * @brief Size of board.
+ * @~japanese
+ * @brief 盤の辺の大きさ
+ */
+int pure_board_size = PURE_BOARD_SIZE;
 
-int pure_board_max = PURE_BOARD_MAX;    // 盤のの大きさ    
-int pure_board_size = PURE_BOARD_SIZE;  // 盤の辺の大きさ  
-int board_max = BOARD_MAX;              // 盤外を含む盤の大きさ  
-int board_size = BOARD_SIZE;            // 盤外を含む盤の辺の大きさ 
+/**
+ * @~english
+ * @brief The number of intersections including out of a board.
+ * @~japanese
+ * @brief 盤外を含む盤の大きさ
+ */
+int board_max = BOARD_MAX;
 
-int board_start = BOARD_START;  // 盤の左(上)端
-int board_end = BOARD_END;      //  盤の右(下)端
+/**
+ * @~english
+ * @brief Size of a board including out of a board.
+ * @~japanese
+ * @brief 盤外を含む盤の辺の大きさ
+ */
+int board_size = BOARD_SIZE;
 
-int first_move_candidates;  // 初手の候補手の個数
+/**
+ * @~english
+ * @brief Coordinate of left edge (Coordinate of upper edge).
+ * @~japanese
+ * @brief 盤の左(上)端
+ */
+int board_start = BOARD_START;
 
-double komi[S_WHITE + 1];          // コミの値
-double dynamic_komi[S_WHITE + 1];  // ダイナミックコミの値
-static double default_komi = KOMI;        // デフォルトのコミの値
+/**
+ * @~english
+ * @brief Coordinate of right edge (Coordinate of bottom edge).
+ * @~japanese
+ * @brief 盤の右(下)端
+ */
+int board_end = BOARD_END;
 
-int board_pos_id[BOARD_MAX];  // 盤上の位置の識別番号 
+/**
+ * @~english
+ * @brief The number of first move candidates.
+ * @~japanese
+ * @brief 初手の候補手の個数
+ */
+int first_move_candidates;
 
-int board_x[BOARD_MAX];  // x方向の座標  
-int board_y[BOARD_MAX];  // y方向の座標  
+/**
+ * @~english
+ * @brief Komi values for each color.
+ * @~japanese
+ * @brief コミの値
+ */
+double komi[S_WHITE + 1];
 
-unsigned char eye[PAT3_MAX];        // 目のパターン
+/**
+ * @~english
+ * @brief Dynamic komi values for each color.
+ * @~japanese
+ * @brief ダイナミックコミの値
+ */
+double dynamic_komi[S_WHITE + 1];
+
+/**
+ * @~english
+ * @brief Default komi value.
+ * @~japanese
+ * @brief デフォルトのコミの値
+ */
+static double default_komi = KOMI;
+
+/**
+ * @~english
+ * @brief Board position ID.
+ * @~japanese
+ * @brief 盤上の位置の識別番号
+ */
+int board_pos_id[BOARD_MAX];
+
+/**
+ * @~english
+ * @brief Coordinates of X-axis.
+ * @~japanese
+ * @brief Y方向の座標
+ */
+int board_x[BOARD_MAX];
+
+/**
+ * @~english
+ * @brief Coordinates of Y-axis.
+ * @~japanese
+ * @brief X方向の座標
+ */
+int board_y[BOARD_MAX];
+
+/**
+ * @~english
+ * @brief Patterns of eye shape.
+ * @~japanese
+ * @brief 眼のパターン
+ */
+unsigned char eye[PAT3_MAX];
+
+/**
+ * @~english
+ * @brief Patterns of half-eye shape.
+ * @~japanese
+ * @brief 欠け眼のパターン
+ */
 unsigned char false_eye[PAT3_MAX];
-unsigned char territory[PAT3_MAX];  // 領地のパターン
-unsigned char nb4_empty[PAT3_MAX];  // 上下左右の空点の数
+
+/**
+ * @~english
+ * @brief Patterns of territory.
+ * @~japanese
+ * @brief 領地のパターン
+ */
+unsigned char territory[PAT3_MAX];
+
+/**
+ * @~english
+ * @brief The number of neighbor empty points.
+ * @~japanese
+ * @brief 上下左右の空点の数
+ */
+unsigned char nb4_empty[PAT3_MAX];
+
+/**
+ * @~english
+ * @brief Eye shape condition.
+ * @~japanese
+ * @brief 眼の状態
+ */
 eye_condition_t eye_condition[PAT3_MAX];
 
-int border_dis_x[BOARD_MAX];                     // x方向の距離   
-int border_dis_y[BOARD_MAX];                     // y方向の距離   
-int move_dis[PURE_BOARD_SIZE][PURE_BOARD_SIZE];  // 着手距離  
+/**
+ * @~english
+ * @brief X-axis distance from board edge.
+ * @~japanese
+ * @brief X方向の盤端からの距離
+ */
+int border_dis_x[BOARD_MAX];
 
-int onboard_pos[PURE_BOARD_MAX];  //  実際の盤上の位置との対応
-int first_move_candidate[PURE_BOARD_MAX]; // 初手の候補手
+/**
+ * @~english
+ * @brief Y-axis distance from board edge.
+ * @~japanese
+ * @brief Y方向の盤端からの距離
+ */
+int border_dis_y[BOARD_MAX];
 
+/**
+ * @~english
+ * @brief Move distance.
+ * @~japanese
+ * @brief 着手距離
+ */
+int move_dis[PURE_BOARD_SIZE][PURE_BOARD_SIZE];
+
+/**
+ * @~english
+ * @brief Positions for invalid intersections.
+ * @~japanese
+ * @brief 実際の盤上の位置との対応
+ */
+int onboard_pos[PURE_BOARD_MAX];
+
+/**
+ * @~english
+ * @brief Candidates for first move.
+ * @~japanese
+ * @brief 初手の候補手
+ */
+int first_move_candidate[PURE_BOARD_MAX];
+
+/**
+ * @~english
+ * @brief Corner intersection coordinates.
+ * @~japanese
+ * @brief 角の座標
+ */
 static int corner[4];
+
+/**
+ * @~english
+ * @brief Neighbor coordinates of corner intersection.
+ * @~japanese
+ * @brief 角に隣接する座標
+ */
 static int corner_neighbor[4][2];
 
+/**
+ * @~english
+ * @brief Cross intersection's coordinates.
+ * @~japanese
+ * @brief 斜めの座標
+ */
 int cross[4];
 
-static bool check_superko = false;  // 超劫の確認の設定
+/**
+ * @~english
+ * @brief Super ko flag.
+ * @~japanese
+ * @brief 超劫の有効化フラグ
+ */
+static bool check_superko = false;
 
-///////////////
-// 関数宣言  //
-///////////////
 
 // 4近傍の空点数の初期化
 static void InitializeNeighbor( void );
@@ -72,18 +249,29 @@ static void InitializeTerritory( void );
 static bool IsFalseEyeConnection( const game_info_t *game, const int pos, const int color );
 
 
-//////////////////
-//  超劫の設定  //
-//////////////////
+/**
+ * @~english
+ * @brief Set super ko setting.
+ * @param[in] flag Super ko activation flag.
+ * @~japanese
+ * @brief 超劫の設定
+ * @param[in] flag 超劫の有効フラグ
+ */
 void
 SetSuperKo( const bool flag )
 {
   check_superko = flag;
 }
 
-///////////////////////
-//  盤の大きさの設定  //
-///////////////////////
+
+/**
+ * @~english
+ * @brief Set board size.
+ * @param[in] size Board size.
+ * @~japanese
+ * @brief 盤の大きさの設定
+ * @param[in] size 盤の大きさ
+ */
 void
 SetBoardSize( const int size )
 {
@@ -160,9 +348,15 @@ SetBoardSize( const int size )
   corner_neighbor[3][1] = WEST(POS(board_end, board_end));
 }
 
-//////////////////////
-//  コミの値の設定  //
-//////////////////////
+
+/**
+ * @~english
+ * @brief Set new komi value.
+ * @param[in] new_komi New komi value.
+ * @~japanese
+ * @brief コミの設定
+ * @param[in] new_komi 設定するコミの値
+ */
 void
 SetKomi( const double new_komi )
 {
@@ -173,9 +367,16 @@ SetKomi( const double new_komi )
 }
 
 
-////////////////////////////
-//  上下左右の座標の導出  //
-////////////////////////////
+/**
+ * @~english
+ * @brief Get nearest neighbor intersections coordinates.
+ * @param[in, out] neighbor4 Nearest neighbor intersections coordinates.
+ * @param[in] pos Intersection coordinates.
+ * @~japanese
+ * @brief 上下左右の座標の取得
+ * @param[in, out] neighbor4 上下左右の座標
+ * @param[in] pos 原点の座標
+ */
 void
 GetNeighbor4( int neighbor4[4], const int pos )
 {
@@ -185,9 +386,15 @@ GetNeighbor4( int neighbor4[4], const int pos )
   neighbor4[3] = SOUTH(pos);
 }
 
-////////////////////////
-//  メモリ領域の確保  //
-////////////////////////
+
+/**
+ * @~english
+ * @brief Allocate board data memory.
+ * @return Board data memory.
+ * @~japanese
+ * @brief 局面情報のメモリ領域の確保
+ * @return 局面情報のメモリ領域
+ */
 game_info_t *
 AllocateGame( void )
 {
@@ -199,9 +406,14 @@ AllocateGame( void )
 }
 
 
-////////////////////////
-//  メモリ領域の解放  //
-////////////////////////
+/**
+ * @~english
+ * @brief Free board position data memory.
+ * @param[in, out] game Board position data.
+ * @~japanese
+ * @brief 局面情報のメモリ領域の解放
+ * @param[in, out] game 局面情報
+ */
 void
 FreeGame( game_info_t *game )
 {
@@ -209,9 +421,14 @@ FreeGame( game_info_t *game )
 }
 
 
-////////////////////////
-//  対局情報の初期化  //
-////////////////////////
+/**
+ * @~english
+ * @brief Initialize board position data.
+ * @param[in, out] game Board position data.
+ * @~japanese
+ * @brief 局面情報の初期化
+ * @param[in, out] game 局面情報
+ */
 void
 InitializeBoard( game_info_t *game )
 {
@@ -220,8 +437,8 @@ InitializeBoard( game_info_t *game )
 
   std::fill_n(game->board, board_max, 0);              
   std::fill_n(game->tactical_features, board_max * ALL_MAX, 0);
-  std::fill_n(game->update_num,  (int)S_OB, 0);
-  std::fill_n(game->capture_num, (int)S_OB, 0);
+  std::fill_n(game->update_num,  static_cast<int>(S_OB), 0);
+  std::fill_n(game->capture_num, static_cast<int>(S_OB), 0);
   std::fill(game->update_pos[0],  game->update_pos[S_OB], 0);
   std::fill(game->capture_pos[0], game->capture_pos[S_OB], 0);
   
@@ -266,9 +483,16 @@ InitializeBoard( game_info_t *game )
 }
 
 
-//////////////
-//  コピー  //
-//////////////
+/**
+ * @~english
+ * @brief Copy board position data.
+ * @param[in, out] dst Board position data destination.
+ * @param[in] src Board position data source.
+ * @~japanese
+ * @brief 局面情報のコピー
+ * @param[in, out] dst コピー先の局面情報ポインタ
+ * @param[in] src コピー元の局面情報ポインタ
+ */
 void
 CopyGame( game_info_t *dst, const game_info_t *src )
 {
@@ -306,10 +530,12 @@ CopyGame( game_info_t *dst, const game_info_t *src )
 }
 
 
-
-////////////////////
-//  定数の初期化  //
-////////////////////
+/**
+ * @~english
+ * @brief Initialize constant values.
+ * @~japanese
+ * @brief 定数の初期化
+ */
 void
 InitializeConst( void )
 {
@@ -392,9 +618,12 @@ InitializeConst( void )
 }
 
 
-//////////////////////////////
-//  隣接する空点数の初期化  //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Set the number of neighbor empty points.
+ * @~japanese
+ * @brief 隣接する空点数の設定
+ */
 static void
 InitializeNeighbor( void )
 {
@@ -411,9 +640,12 @@ InitializeNeighbor( void )
 }
 
 
-////////////////////////////
-//  眼のパターンの初期化  //
-////////////////////////////
+/**
+ * @~english
+ * @brief Set eye patterns.
+ * @~japanese
+ * @brief 眼のパターンの設定
+ */
 static void
 InitializeEye( void )
 {
@@ -574,9 +806,12 @@ InitializeEye( void )
 }
 
 
-/////////////////////////////////////////
-//  地のパターン（4近傍が同色）を設定  //
-/////////////////////////////////////////
+/**
+ * @~english
+ * @brief Set territory patterns.
+ * @~japanese
+ * @brief 地のパターン（4近傍が同色）を設定
+ */
 static void
 InitializeTerritory( void )
 {
@@ -590,9 +825,20 @@ InitializeTerritory( void )
 }
 
 
-//////////////////
-//  合法手判定  //
-//////////////////
+/**
+ * @~english
+ * @brief Check legal move.
+ * @param[in] game Board position data.
+ * @param[in] pos Move coordinate.
+ * @param[in] color Player's color.
+ * @return Move is legal or not.
+ * @~japanese
+ * @brief 合法手判定
+ * @param[in] game 局面情報
+ * @param[in] pos 着手する座標
+ * @param[in] color 手番の色
+ * @return 合法手か否かの判定
+ */
 bool
 IsLegal( const game_info_t *game, const int pos, const int color )
 {
@@ -664,9 +910,20 @@ IsLegal( const game_info_t *game, const int pos, const int color )
 }
 
 
-////////////////////
-//  盤端での処理  //
-////////////////////
+/**
+ * @~english
+ * @brief Check edge connection move.
+ * @param[in] game Board position data.
+ * @param[in] pos Move coordinate.
+ * @param[in] color Player's color.
+ * @return Edge connection is valid or not.
+ * @~japanese
+ * @brief 盤端での接続可否判定
+ * @param[in] game 局面情報
+ * @param[in] pos 判定する座標
+ * @param[in] color 手番の色
+ * @return 盤端での接続判定
+ */
 static bool
 IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
 {
@@ -796,9 +1053,20 @@ IsFalseEyeConnection( const game_info_t *game, const int pos, const int color )
 }
 
 
-////////////////////////////////////
-//  合法手でかつ目でないかを判定  //
-////////////////////////////////////
+/**
+ * @~english
+ * @brief Check legal move and not eye pattern.
+ * @param[in] game Board position data.
+ * @param[in] pos Move coordinate.
+ * @param[in] color Player's color.
+ * @return Move is legal and not eye pattern or not.
+ * @~japanese
+ * @brief 合法手かつ眼でないかを判定
+ * @param[in] game 局面情報
+ * @param[in] pos 着手する座標
+ * @param[in] color 手番の色
+ * @return 合法手かつ眼でないか否かの判定
+ */
 bool
 IsLegalNotEye( game_info_t *game, const int pos, const int color )
 {
@@ -856,9 +1124,22 @@ IsLegalNotEye( game_info_t *game, const int pos, const int color )
 }
 
 
-////////////////////
-//  自殺手の判定  //
-////////////////////
+/**
+ * @~english
+ * @brief Check suicide move.
+ * @param[in] game Board position data.
+ * @param[in] string Stones string data.
+ * @param[in] color Player's color.
+ * @param[in] pos Intersection coordinate.
+ * @return Move is suicide move or not.
+ * @~japanese
+ * @brief 自殺手の判定
+ * @param[in] game 局面情報
+ * @param[in] string 連の情報
+ * @param[in] color 手番の色
+ * @param[in] pos 確認する交点の座標
+ * @return 自殺手か否かの判定
+ */
 bool
 IsSuicide( const game_info_t *game, const string_t *string, const int color, const int pos )
 {
@@ -886,9 +1167,18 @@ IsSuicide( const game_info_t *game, const string_t *string, const int color, con
 }
 
 
-////////////////
-//  石を置く  //
-////////////////
+/**
+ * @~english
+ * @brief Set a stone to board.
+ * @param[in, out] game Board position data.
+ * @param[in] pos Stone's coordinate.
+ * @param[in] color Stone's color.
+ * @~japanese
+ * @brief 石を置く処理
+ * @param[in, out] game 局面情報
+ * @param[in] pos 石を置く座標
+ * @param[in] color 置く石の色
+ */
 void
 PutStone( game_info_t *game, const int pos, const int color )
 {
@@ -992,9 +1282,18 @@ PutStone( game_info_t *game, const int pos, const int color )
 }
 
 
-////////////////
-//  石を置く  //
-////////////////
+/**
+ * @~english
+ * @brief Set a stone to board for Monte-Carlo simulation.
+ * @param[in, out] game Board position data.
+ * @param[in] pos Stone's coordinate.
+ * @param[in] color Stone's color.
+ * @~japanese
+ * @brief モンテカルロ・シミュレーション用の石を置く処理
+ * @param[in, out] game 局面情報
+ * @param[in] pos 石を置く座標
+ * @param[in] color 置く石の色
+ */
 void
 PoPutStone( game_info_t *game, const int pos, const int color )
 {
@@ -1082,9 +1381,14 @@ PoPutStone( game_info_t *game, const int pos, const int color )
 }
 
 
-///////////////////////////
-//  隅のマガリ四目の確認  //
-///////////////////////////
+/**
+ * @~english
+ * @brief Check bent for in the corner.
+ * @param[in] game Board position data.
+ * @~japanese
+ * @brief 隅のマガリ四目の確認
+ * @param[in] game 局面情報
+ */
 void
 CheckBentFourInTheCorner( game_info_t *game )
 {
@@ -1118,13 +1422,13 @@ CheckBentFourInTheCorner( game_info_t *game )
               (neighbor_lib1 == lib2 && neighbor_lib2 == lib1)) {
             pos = string[neighbor].origin;
             while (pos != STRING_END) {
-              board[pos] = (char)color;
+              board[pos] = static_cast<char>(color);
               pos = string_next[pos];
             }
             pos = string[neighbor].lib[0];
-            board[pos] = (char)color;
+            board[pos] = static_cast<char>(color);
             pos = string[neighbor].lib[pos];
-            board[pos] = (char)color;
+            board[pos] = static_cast<char>(color);
           }
         }
       }
@@ -1133,12 +1437,18 @@ CheckBentFourInTheCorner( game_info_t *game )
 }
 
 
-////////////////
-//  地の計算  //
-////////////////
+/**
+ * @~english
+ * @brief Calculate score with Tromp-Taylor rules.
+ * @param[in] game Board position data.
+ * @return Score without komi adjustment
+ * @~japanese
+ * @brief 領地の計算
+ * @param[in] game 局面情報
+ * @return コミを考慮しない領地
+ */
 int
 CalculateScore( game_info_t *game )
-// game_info_t *game : 盤面の情報を示すポインタ
 {
   const char *board = game->board;
   int color;

@@ -1,3 +1,11 @@
+/**
+ * @file src/board/DynamicKomi.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Dynamic komi.
+ * @~japanese
+ * @brief ダイナミックコミ
+ */
 #include <iomanip>
 #include <iostream>
 
@@ -5,26 +13,31 @@
 #include "board/GoBoard.hpp"
 #include "common/Message.hpp"
 
-using namespace std;
 
-
-////////////
-//  変数  //
-////////////
-
-// 置き石の数
+/**
+ * @~english
+ * @brief The number of handicap stones.
+ * @~japanese
+ * @brief 置き石の個数
+ */
 static int handicap_num = 0;
 
-// テスト対局用
+/**
+ * @~english
+ * @brief The number of handicap stones for testing.
+ * @~japanese
+ * @brief 置き石の個数 (テスト用)
+ */
 static int const_handicap_num = 0;
 
-// Dynamic Komiのモード
+/**
+ * @~english
+ * @brief Dynamic komi mode.
+ * @~japanese
+ * @brief ダイナミックコミのモード
+ */
 static enum DYNAMIC_KOMI_MODE dk_mode = DK_OFF;
 
-
-////////////
-//  関数  //
-////////////
 
 // コミの値を直線的に減らすDynamic Komi
 static void LinearHandicap( const game_info_t *game );
@@ -33,9 +46,14 @@ static void LinearHandicap( const game_info_t *game );
 static void ValueSituational( const uct_node_t *root, const int color );
 
 
-////////////////////////
-//  置き石の数の設定  //
-////////////////////////
+/**
+ * @~english
+ * @brief Set the number of handicap stones for testing.
+ * @param[in] num The number of handicap stones.
+ * @~japanese
+ * @brief テスト用の置き石の個数の設定
+ * @param[in] num 置き石の個数
+ */
 void
 SetConstHandicapNum( const int num )
 {
@@ -43,9 +61,14 @@ SetConstHandicapNum( const int num )
 }
 
 
-////////////////////////
-//  置き石の数の設定  //
-////////////////////////
+/**
+ * @~english
+ * @brief Set the number of handicap stones.
+ * @param[in] num The number of handicap stones.
+ * @~japanese
+ * @brief 置き石の個数の設定
+ * @param[in] num 置き石の個数
+ */
 void
 SetHandicapNum( const int num )
 {
@@ -63,9 +86,18 @@ SetHandicapNum( const int num )
 }
 
 
-////////////////////
-//  Dynamic Komi  //
-////////////////////
+/**
+ * @~english
+ * @brief Update dynamic komi.
+ * @param[in] game Board position data.
+ * @param[in] root MCTS root node.
+ * @param[in] color Player's color.
+ * @~japanese
+ * @brief ダイナミックコミの更新
+ * @param[in] game 局面情報
+ * @param[in] root ルートノード
+ * @param[in] color 手番の色
+ */
 void
 DynamicKomi( const game_info_t *game, const uct_node_t *root, const int color )
 {
@@ -84,18 +116,23 @@ DynamicKomi( const game_info_t *game, const uct_node_t *root, const int color )
 }
 
 
-////////////////////////////////////////////////////
-//  最初にコミを多めに見積もって徐々に減らしていく  //
-////////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Update dynamic komi with linear decreasing.
+ * @param[in] game Board position data.
+ * @~japanese
+ * @brief 線形で減少するダイナミックコミの更新
+ * @param[in] game 局面情報
+ */
 static void
 LinearHandicap( const game_info_t *game )
 {
   if (game->moves > LINEAR_THRESHOLD - 15) {
   // 手数が進んだらコミを変動しない
-    dynamic_komi[0] = (double)handicap_num + 0.5;
+    dynamic_komi[0] = static_cast<double>(handicap_num) + 0.5;
   } else {
     // 新しいコミの値の計算
-    dynamic_komi[0] = HANDICAP_WEIGHT * handicap_num * (1.0 - ((double)game->moves / LINEAR_THRESHOLD));
+    dynamic_komi[0] = HANDICAP_WEIGHT * handicap_num * (1.0 - (static_cast<double>(game->moves) / LINEAR_THRESHOLD));
   }
   // 新しいコミの値を代入
   dynamic_komi[S_BLACK] = dynamic_komi[0] + 1;
@@ -105,13 +142,20 @@ LinearHandicap( const game_info_t *game )
 }
 
 
-//////////////////////////////////
-//  勝率に応じてコミの値を変動  //
-//////////////////////////////////
+/**
+ * @~english
+ * @brief Update dynamic komi considering winning ratio on a root node.
+ * @param[in] root MCTS root node.
+ * @param[in] color Player's color.
+ * @~japanese
+ * @brief ルードノードでの勝率を考慮したダイナミックコミの更新
+ * @param[in] root ルートノード
+ * @param[in] color 手番の色
+ */
 static void
 ValueSituational( const uct_node_t *root, const int color )
 {
-  double win_rate = (double)root->win / root->move_count;
+  const double win_rate = static_cast<double>(root->win) / root->move_count;
 
   // 次の探索の時のコミを求める
   if (color == S_BLACK) {

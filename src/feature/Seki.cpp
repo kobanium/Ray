@@ -1,3 +1,11 @@
+/**
+ * @file src/feature/Seki.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Seki checker.
+ * @~japanese
+ * @brief セキの判定処理
+ */
 #include <iostream>
 
 #include "board/GoBoard.hpp"
@@ -6,9 +14,16 @@
 #include "feature/Semeai.hpp"
 
 
-//////////////////
-//  セキの判定  //
-//////////////////
+/**
+ * @~english
+ * @brief Check seki status.
+ * @param[in] game Current board position.
+ * @param[out] seki Judgment of seki status.
+ * @~japanese
+ * @brief セキの判定
+ * @param[in] game 現在の局面情報
+ * @param[out] seki セキの判定結果
+ */
 void
 CheckSeki( const game_info_t *game, bool seki[] )
 {

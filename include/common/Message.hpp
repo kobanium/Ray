@@ -1,3 +1,11 @@
+/**
+ * @file include/common/Message.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Console message.
+ * @~japanese
+ * @brief コンソールメッセージ出力
+ */
 #ifndef _MESSAGE_HPP_
 #define _MESSAGE_HPP_
 
@@ -22,9 +30,6 @@ void PrintStringID( const game_info_t *game );
 
 //  連リストの繋がりを表示(Debug用)
 void PrintStringNext( const game_info_t *game );
-
-//  合法手である候補手を表示 
-void PrintLegal( const game_info_t *game, const int color );
 
 //  オーナーの表示
 void PrintOwner( const uct_node_t *root, const statistic_t *statistic, const int color, double *own );

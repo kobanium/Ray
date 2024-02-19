@@ -1,3 +1,11 @@
+/**
+ * @file include/board/String.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Operation for stones string.
+ * @~japanese
+ * @brief 連の操作
+ */
 #ifndef _STRING_HPP_
 #define _STRING_HPP_
 

@@ -1,12 +1,20 @@
+/**
+ * @file src/mcts/Rating.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Move rating for Monte-Carlo simulation.
+ * @~japanese
+ * @brief モンテカルロ・シミュレーション用の着手評価
+ */
+#include <algorithm>
+#include <climits>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <iomanip>
-#include <climits>
-#include <algorithm>
 #include <functional>
+#include <iomanip>
+#include <iostream>
 #include <string>
 
 #include "board/Point.hpp"
@@ -18,54 +26,138 @@
 #include "util/Utility.hpp"
 
 
-////////////////
-//    変数    //
-////////////////
-
-// 3x3パターンのγ値
+/**
+ * @~english
+ * @brief 3x3 pattern gamma values.
+ * @~japanese
+ * @brief 3x3パターンのγ値
+ */
 static float po_pat3[PAT3_MAX];
-// MD2のパターンのγ値
+
+/**
+ * @~english
+ * @brief MD2 pattern gamma values.
+ * @~japanese
+ * @brief MD2のパターンのγ値
+ */
 static float po_md2[MD2_MAX];
-// 3x3とMD2のパターンのγ値の積
+
+/**
+ * @~english
+ * @brief Pattern gamma values.
+ * @~japanese
+ * @brief 配石パターンのγ値の積
+ */
 static float po_pattern[MD2_MAX];
 
-// 学習した着手距離の特徴 
+/**
+ * @~english
+ * @brief Move distance original gamma values.
+ * @~japanese
+ * @brief 学習した着手距離の特徴 
+ */
 static float po_neighbor_orig[PREVIOUS_DISTANCE_MAX];
-// 補正した着手距離の特徴
+
+/**
+ * @~english
+ * @brief Move distance gamma values.
+ * @~japanese
+ * @brief 補正した着手距離の特徴
+ */
 static float po_previous_distance[PREVIOUS_DISTANCE_MAX];
-// MD2パターンが届く範囲
+
+/**
+ * @~english
+ * @brief Neighbor intersections must be updated.
+ * @~japanese
+ * @brief MD2パターンが届く範囲
+ */
 static int neighbor[UPDATE_NUM];
 
-// 戦術的特徴
+/**
+ * @~english
+ * @brief Capture feature gamma values.
+ * @~japanese
+ * @brief 戦術的特徴(トリ)
+ */
 static float sim_capture[SIM_CAPTURE_MAX];
+
+/**
+ * @~english
+ * @brief Extension feature gamma values.
+ * @~japanese
+ * @brief 戦術的特徴(アタリにされた石のノビ)
+ */
 static float sim_save_extension[SIM_SAVE_EXTENSION_MAX];
+
+/**
+ * @~english
+ * @brief Atari feature gamma values.
+ * @~japanese
+ * @brief 戦術的特徴(アタリ)
+ */
 static float sim_atari[SIM_ATARI_MAX];
+
+/**
+ * @~english
+ * @brief Extension feature gamma values.
+ * @~japanese
+ * @brief 戦術的特徴(ノビ)
+ */
 static float sim_extension[SIM_EXTENSION_MAX];
+
+/**
+ * @~english
+ * @brief Dame feature gamma values.
+ * @~japanese
+ * @brief 戦術的特徴(ダメを詰める手)
+ */
 static float sim_dame[SIM_DAME_MAX];
+
+/**
+ * @~english
+ * @brief Throw-in feature gamma values.
+ * @~japanese
+ * @brief 戦術的特徴(ホウリコミ)
+ */
 static float sim_throw_in[SIM_THROW_IN_MAX];
 
-// 着手距離2, 3のγ値の補正
+/**
+ * @~english
+ * @brief Bias value for move distance = 2, 3.
+ * @~japanese
+ * @brief 着手距離2, 3のγ値の補正
+ */
 static double neighbor_bias = NEIGHBOR_BIAS;
-// 着手距離4のγ値の補正
+
+/**
+ * @~english
+ * @brief Bias value for move distance = 4.
+ * @~japanese
+ * @brief 着手距離4のγ値の補正
+ */
 static double jump_bias = JUMP_BIAS;
 
 
-//////////////////
-//  関数の宣言  //
-//////////////////
-
+// 近傍の座標を取得
 static void Neighbor12( const int previous_move, int distance_2[], int distance_3[], int distance_4[] );
 
 //  γ読み込み
 static void LoadFeatureParameters( void );
 
+// MD2パターン用のパラメータ読み込み
 static void LoadMD2Parameter( const char *filename, float params[] );
 
+// パラメータ読み込み
 static void LoadParameter( const char *file, float params[], const int array_size );
 
-/////////////////
-// 近傍の設定  //
-/////////////////
+
+/**
+ * @~english
+ * @brief Set nerghbor positions.
+ * @~japanese
+ * @brief 近傍の座標の設定
+ */
 void
 SetNeighbor( void )
 {
@@ -86,9 +178,13 @@ SetNeighbor( void )
   SetCrossPosition();
 }
 
-//////////////
-//  初期化  //
-//////////////
+
+/**
+ * @~english
+ * @brief Initialization.
+ * @~japanese
+ * @brief 初期化
+ */
 void
 InitializeRating( void )
 {
@@ -96,6 +192,17 @@ InitializeRating( void )
   LoadFeatureParameters();
 }
 
+
+/**
+ * @~english
+ * @brief Calculate gamma value of tactical features.
+ * @param[in] features Tactical features indice.
+ * @return Gamma value of tactical features.
+ * @~japanese
+ * @brief 戦術的特徴のスコアの計算
+ * @param[in] features 戦術的特徴のインデックス
+ * @return 戦術的特徴のγ値
+ */
 inline double
 CalculateTacticalFeatures( unsigned char *features )
 {
@@ -111,9 +218,20 @@ CalculateTacticalFeatures( unsigned char *features )
 }
 
 
-//////////////////////
-//  着手( rating )  // 
-//////////////////////
+/**
+ * @~english
+ * @brief Generate next move using rating.
+ * @param[in] game Board position data.
+ * @param[in] color Player color.
+ * @param[in] mt Random number generator.
+ * @return Next move.
+ * @~japanese
+ * @brief 次の着手の生成
+ * @param[in] game 局面データ
+ * @param[in] color 手番の色
+ * @param[in] mt 乱数生成器
+ * @return 次の着手
+ */
 int
 RatingMove( game_info_t *game, int color, std::mt19937_64 &mt )
 {
@@ -127,7 +245,7 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 &mt )
   PartialRating(game, color, sum_rate, sum_rate_row, rate);
 
   // 合法手を選択するまでループ
-  while (true){
+  while (true) {
     if (*sum_rate == 0) return PASS;
 
     rand_num = (mt() % (*sum_rate)) + 1;
@@ -161,9 +279,20 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 &mt )
 }
 
 
-////////////////////////////
-//  12近傍の座標を求める  //
-////////////////////////////
+/**
+ * @~english
+ * @brief Get 12 intersections less than or equal to move distance 4 from previous move.
+ * @param[in] previous_move Previous move intersection.
+ * @param[out] distance_2 Intersections equal to move distance 2 from previous move.
+ * @param[out] distance_3 Intersections equal to move distance 3 from previous move.
+ * @param[out] distance_4 Intersections equal to move distance 4 from previous move.
+ * @~japanese
+ * @brief 着手距離4以下の12近傍の座標の導出
+ * @param[in] previous_move 直前の着手の座標
+ * @param[out] distance_2 直前の着手からの着手距離が2の座標
+ * @param[out] distance_3 直前の着手からの着手距離が3の座標
+ * @param[out] distance_4 直前の着手からの着手距離が4の座標
+ */
 static void
 Neighbor12( const int previous_move, int distance_2[], int distance_3[], int distance_4[] )
 {
@@ -187,9 +316,28 @@ Neighbor12( const int previous_move, int distance_2[], int distance_3[], int dis
 }
 
 
-//////////////////////////////
-//  直前の着手の周辺の更新  //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Update neighbor intesections from previous move.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @param[in] update Update point.
+ * @param[in, out] flag Already updated flag.
+ * @param[in] index Specific process index.
+ * @~japanese
+ * @brief 直前の着手の周辺の更新
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ * @param[in] update 更新箇所
+ * @param[in, out] flag 更新済フラグ
+ * @param[in] index 特別処理インデックス
+ */
 void
 NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int *update, bool *flag, int index )
 {
@@ -232,7 +380,7 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
         gamma = po_pattern[MD2(game->pat, pos)] * po_previous_distance[index];
         gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         gamma *= bias[i];
-        rate[pos] = (long long)(gamma) + 1;
+        rate[pos] = static_cast<long long>(gamma) + 1;
 
         // 新たに計算したレートを代入
         *sum_rate += rate[pos];
@@ -246,9 +394,30 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
 }
 
 
-//////////////////////////
-//  ナカデの急所の更新  //
-//////////////////////////
+/**
+ * @~english
+ * @brief Update critical intesections.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @param[in] nakade_pos Update point.
+ * @param[in] nakade_num The number of update points.
+ * @param[in, out] flag Already updated flag.
+ * @param[in] pm1 Previous move's coordinate.
+ * @~japanese
+ * @brief 重要な箇所のレートの更新
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ * @param[in] nakade_pos 更新箇所
+ * @param[in] nakade_num 更新箇所の個数
+ * @param[in, out] flag 更新済フラグ
+ * @param[in] pm1 直前の着手の座標
+ */
 void
 NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int *nakade_pos, int nakade_num, bool *flag, int pm1 )
 {
@@ -277,7 +446,7 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
         }
         gamma *= po_pattern[MD2(game->pat, pos)];
         gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
-        rate[pos] = (long long)(gamma) + 1;
+        rate[pos] = static_cast<long long>(gamma) + 1;
         // 新たに計算したレートを代入      
         *sum_rate += rate[pos];
         sum_rate_row[board_y[pos]] += rate[pos];     
@@ -290,9 +459,28 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
 }
 
 
-////////////////////
-//  レートの更新  //
-////////////////////
+/**
+ * @~english
+ * @brief Update intesections' rating.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @param[in] update Update point.
+ * @param[in] update_num The number of update points.
+ * @param[in, out] flag Already updated flag.
+ * @~japanese
+ * @brief レートの更新
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ * @param[in] update 更新箇所
+ * @param[in] update_num 更新箇所の個数
+ * @param[in, out] flag 更新済フラグ
+ */
 void
 OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int update_num, int *update, bool *flag )
 {
@@ -318,7 +506,7 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
         CheckCaptureAndAtariForSimulation(game, color, pos);
         gamma = po_pattern[MD2(game->pat, pos)];
         gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
-        rate[pos] = (long long)(gamma) + 1;
+        rate[pos] = static_cast<long long>(gamma) + 1;
 
         // 新たに計算したレートを代入
         *sum_rate += rate[pos];
@@ -333,9 +521,28 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
 }
 
 
-/////////////////////////////////
-//  MD2パターンの範囲内の更新  //
-/////////////////////////////////
+/**
+ * @~english
+ * @brief Update intesections' rating within MD2.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @param[in] update_num The number of update points.
+ * @param[in] update Update point.
+ * @param[in, out] flag Already updated flag.
+ * @~japanese
+ * @brief MD2パターンの範囲内のレートの更新
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ * @param[in] update_num 更新箇所の個数
+ * @param[in] update 更新箇所
+ * @param[in, out] flag 更新済フラグ
+ */
 void
 Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int update_num, int *update, bool *flag )
 {
@@ -362,7 +569,7 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
           CheckCaptureAndAtariForSimulation(game, color, pos);
           gamma = po_pattern[MD2(game->pat, pos)];
           gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
-          rate[pos] = (long long)(gamma) + 1;
+          rate[pos] = static_cast<long long>(gamma) + 1;
 
           // 新たに計算したレートを代入
           *sum_rate += rate[pos];
@@ -378,9 +585,22 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
 }
 
 
-////////////////
-//  部分更新  //
-////////////////
+/**
+ * @~english
+ * @brief Update rating value for intersections must be updated.
+ * @param[in, out] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @~japanese
+ * @brief レートの部分更新
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ */
 void
 PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate )
 {
@@ -444,9 +664,22 @@ PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum
 }
 
 
-////////////////////
-//  レーティング  //
-////////////////////
+/**
+ * @~english
+ * @brief Update rating value for all intersections..
+ * @param[in, out] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @~japanese
+ * @brief 全ての合法手のレートの計算
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ */
 void
 Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate )
 {
@@ -484,7 +717,7 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
             gamma *= po_previous_distance[dis - 2];
           }
         }
-        rate[pos] = (long long)(gamma) + 1;
+        rate[pos] = static_cast<long long>(gamma) + 1;
       }
 
       *sum_rate += rate[pos];
@@ -496,9 +729,12 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 }
 
 
-/////////////////
-//  γ読み込み  //
-/////////////////
+/**
+ * @~english
+ * @brief Read all parameters for Monte-Carlo simulation.
+ * @~japanese
+ * @brief モンテカルロ・シミュレーション用のパラメータ読み込み
+ */
 static void
 LoadFeatureParameters( void )
 {
@@ -554,7 +790,18 @@ LoadFeatureParameters( void )
 }
 
 
-
+/**
+ * @~english
+ * @brief Read parameters.
+ * @param[in] filename Parameter file name.
+ * @param[out] params Parameters.
+ * @param[in] array_size The number of parameters.
+ * @~japanese
+ * @brief パラメータ読み込み
+ * @param[in] filename パラメータファイル名
+ * @param[out] params 読み込んだパラメータ
+ * @param[in] array_size 読み込むパラメータ数
+ */
 static void
 LoadParameter( const char *filename, float params[], const int array_size )
 {
@@ -589,10 +836,16 @@ LoadParameter( const char *filename, float params[], const int array_size )
 }
 
 
-
-///////////////////////////////
-//  パラメータ読み込み(MD2)  //
-///////////////////////////////
+/**
+ * @~english
+ * @brief Read parameters for MD2 pattern.
+ * @param[in] filename Parameter file name.
+ * @param[out] params MD2 pattern's parameters.
+ * @~japanese
+ * @brief MD2パターン用のパラメータ読み込み
+ * @param[in] filename パラメータファイル名
+ * @param[out] params 読み込んだパラメータ
+ */
 static void
 LoadMD2Parameter( const char *filename, float params[] )
 {
@@ -635,6 +888,18 @@ LoadMD2Parameter( const char *filename, float params[] )
 }
 
 
+/**
+ * @~english
+ * @brief Calculate all move's rating value.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[out] rate Rating value for all intersections.
+ * @~japanese
+ * @brief 各着手のレート値の計算
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[out] rate 各交点のレート値
+ */
 void
 AnalyzePoRating( game_info_t *game, int color, double rate[] )
 {

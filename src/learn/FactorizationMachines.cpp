@@ -1,5 +1,14 @@
+/**
+ * @file src/learn/FactorizationMachines.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Supervised learning using Factorization Machines with Bradley-Terry model.
+ * @~japanese
+ * @brief Factrozation Machinesを利用したBTモデルの教師あり学習
+ */
 #include <algorithm>
 #include <atomic>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -8,8 +17,6 @@
 #include <random>
 #include <thread>
 #include <vector>
-
-#include <cstring>
 
 #include "board/GoBoard.hpp"
 #include "board/Point.hpp"
@@ -22,68 +29,436 @@
 #include "util/Utility.hpp"
 
 
+/**
+ * @~english
+ * @brief Use flag of the second terms.
+ * @~japanese
+ * @brief 2次の項の使用フラグ
+ */
 constexpr bool has_interaction = true;
 
+/**
+ * @~english
+ * @brief Index conversion for 3x3 pattern.
+ * @~japanese
+ * @brief 3x3パターンの添字変換
+ */
 static std::vector<int> pat3_index;
+
+/**
+ * @~english
+ * @brief Index conversion for MD2 pattern.
+ * @~japanese
+ * @brief MD2パターンの添字変換
+ */
 static std::vector<int> md2_index;
+
+/**
+ * @~english
+ * @brief Index conversion for MD3 pattern.
+ * @~japanese
+ * @brief MD3パターンの添字変換
+ */
 static std::vector<index_hash_t> md3_index;
+
+/**
+ * @~english
+ * @brief Index conversion for MD4 pattern.
+ * @~japanese
+ * @brief MD4パターンの添字変換
+ */
 static std::vector<index_hash_t> md4_index;
+
+/**
+ * @~english
+ * @brief Index conversion for MD5 pattern.
+ * @~japanese
+ * @brief MD5パターンの添字変換
+ */
 static std::vector<index_hash_t> md5_index;
 
+/**
+ * @~english
+ * @brief Features of 3x3 stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンの学習情報(3x3)
+ */
 static std::vector<btfm_t> pat3;
+
+/**
+ * @~english
+ * @brief Features of MD2 stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンの学習情報(MD2)
+ */
 static std::vector<btfm_t> md2;
+
+/**
+ * @~english
+ * @brief Features of MD3 stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンの学習情報(MD3)
+ */
 static std::vector<btfm_t> md3;
+
+/**
+ * @~english
+ * @brief Features of MD4 stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンの学習情報(MD4)
+ */
 static std::vector<btfm_t> md4;
+
+/**
+ * @~english
+ * @brief Features of MD5 stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンの学習情報(MD5)
+ */
 static std::vector<btfm_t> md5;
+
+/**
+ * @~english
+ * @brief Intersection feature.
+ * @~japanese
+ * @brief 碁盤の位置の学習情報
+ */
 static std::vector<btfm_t> pos_id;
+
+/**
+ * @~english
+ * @brief Capture features.
+ * @~japanese
+ * @brief トリの学習情報
+ */
 static std::vector<btfm_t> capture;
+
+/**
+ * @~english
+ * @brief Save extension features.
+ * @~japanese
+ * @brief アタリから逃げる手の学習情報
+ */
 static std::vector<btfm_t> save_extension;
+
+/**
+ * @~english
+ * @brief Atari features.
+ * @~japanese
+ * @brief アタリの学習情報
+ */
 static std::vector<btfm_t> atari;
+
+/**
+ * @~english
+ * @brief Extension features.
+ * @~japanese
+ * @brief ノビの学習情報
+ */
 static std::vector<btfm_t> extension;
+
+/**
+ * @~english
+ * @brief Dame features.
+ * @~japanese
+ * @brief ダメを詰める手の特徴
+ */
 static std::vector<btfm_t> dame;
+
+/**
+ * @~english
+ * @brief Connection features.
+ * @~japanese
+ * @brief ツギの特徴
+ */
 static std::vector<btfm_t> connect;
+
+/**
+ * @~english
+ * @brief Throw-in features.
+ * @~japanese
+ * @brief ホウリコミの特徴
+ */
 static std::vector<btfm_t> throw_in;
+
+/**
+ * @~english
+ * @brief Previous move distance features.
+ * @~japanese
+ * @brief 着手距離の学習情報(1手前)
+ */
 static std::vector<btfm_t> move_distance_1;
+
+/**
+ * @~english
+ * @brief Move distance features.
+ * @~japanese
+ * @brief 着手距離の学習情報(2手前)
+ */
 static std::vector<btfm_t> move_distance_2;
+
+/**
+ * @~english
+ * @brief Move distance features.
+ * @~japanese
+ * @brief 着手距離の学習情報(3手前)
+ */
 static std::vector<btfm_t> move_distance_3;
+
+/**
+ * @~english
+ * @brief Move distance features.
+ * @~japanese
+ * @brief 着手距離の学習情報(4手前)
+ */
 static std::vector<btfm_t> move_distance_4;
+
+/**
+ * @~english
+ * @brief Pass feature.
+ * @~japanese
+ * @brief パスの学習情報
+ */
 static std::vector<btfm_t> pass;
+
+/**
+ * @~english
+ * @brief Ko existence feature.
+ * @~japanese
+ * @brief 劫があるときの特徴の学習情報
+ */
 static std::vector<btfm_t> ko_exist;
 
+/**
+ * @~english
+ * @brief Array index for MD2 feature.
+ * @~japanese
+ * @brief MD2パターンの配列のインデックス
+ */
 static std::vector<unsigned int> md2_list;
+
+/**
+ * @~english
+ * @brief Array index for MD3 feature.
+ * @~japanese
+ * @brief MD3パターンの配列のインデックス
+ */
 static std::vector<unsigned int> md3_list;
+
+/**
+ * @~english
+ * @brief Array index for MD4 feature.
+ * @~japanese
+ * @brief MD4パターンの配列のインデックス
+ */
 static std::vector<unsigned int> md4_list;
+
+/**
+ * @~english
+ * @brief Array index for MD5 feature.
+ * @~japanese
+ * @brief MD5パターンの配列のインデックス
+ */
 static std::vector<unsigned int> md5_list;
 
+/**
+ * @~english
+ * @brief Training target flags for MD2 feature.
+ * @~japanese
+ * @brief 学習対象のMD2パターン
+ */
 static std::vector<bool> md2_target;
+
+/**
+ * @~english
+ * @brief Training target flags for MD3 feature.
+ * @~japanese
+ * @brief 学習対象のMD3パターン
+ */
 static std::vector<bool> md3_target;
+
+/**
+ * @~english
+ * @brief Training target flags for MD4 feature.
+ * @~japanese
+ * @brief 学習対象のMD4パターン
+ */
 static std::vector<bool> md4_target;
+
+/**
+ * @~english
+ * @brief Training target flags for MD5 feature.
+ * @~japanese
+ * @brief 学習対象のMD5パターン
+ */
 static std::vector<bool> md5_target;
 
+/**
+ * @~english
+ * @brief Symmetrical patterns of 3x3 patterns.
+ * @~japanese
+ * @brief 3x3パターンの対称形
+ */
 static std::vector<unsigned int> same_pat3;
 
+/**
+ * @~english
+ * @brief The number of learning samples.
+ * @~japanese
+ * @brief 学習サンプル数
+ */
 static std::atomic<int> all_moves;
+
+/**
+ * @~english
+ * @brief The number of learning samples.
+ * @~japanese
+ * @brief 学習サンプル数
+ */
 static std::atomic<int> counter;
 
+/**
+ * @~english
+ * @brief Learning rate.
+ * @~japanese
+ * @brief 学習率
+ */
 static double learning_rate = 0.01;
+
+/**
+ * @~english
+ * @brief Rank of predictions.
+ * @~japanese
+ * @brief 予測した手のランク
+ */
 static std::atomic<int> prediction[PURE_BOARD_MAX + 1];
+
+/**
+ * @~english
+ * @brief Likelihood.
+ * @~japanese
+ * @brief 尤度
+ */
 static double likelihood;
+
+/**
+ * @~english
+ * @brief Mutual exclusion variables for all features.
+ * @~japanese
+ * @brief 全ての学習特徴のミューテックス
+ */
 static std::mutex *mutex_terms;
+
+/**
+ * @~english
+ * @brief Mutex for likelihood.
+ * @~japanese
+ * @brief 尤度のミューテックス
+ */
 static std::mutex mutex_likelihood;
+
+/**
+ * @~english
+ * @brief The number of worker threads.
+ * @~japanese
+ * @brief ワーカスレッドの数
+ */
 static int thread_num = TRAIN_THREAD_NUM;
+
+/**
+ * @~english
+ * @brief Learning rate schedule.
+ * @~japanese
+ * @brief 学習率のスケジューリング
+ */
 static std::map<int, double> lr_schedule;
 
+/**
+ * @~english
+ * @brief Optimizer parameter.
+ * @~japanese
+ * @brief オプティマイザのパラメータ
+ */
 static constexpr double minW = 0.00001;
+
+/**
+ * @~english
+ * @brief Optimizer parameter.
+ * @~japanese
+ * @brief オプティマイザのパラメータ
+ */
 static constexpr double minV = 0.00001;
+
+/**
+ * @~english
+ * @brief Optimizer parameter.
+ * @~japanese
+ * @brief オプティマイザのパラメータ
+ */
 static constexpr double lambda = 0.001;
+
+/**
+ * @~english
+ * @brief Optimizer parameter.
+ * @~japanese
+ * @brief オプティマイザのパラメータ
+ */
 static constexpr double lambdaV = lambda * 2;
 
+/**
+ * @~english
+ * @brief File names for saving capture features paramters.
+ * @~japanese
+ * @brief トリの特徴値の保存ファイル名
+ */
 static std::map<UCT_CAPTURE_FEATURE, std::string> capture_file_name;
+
+/**
+ * @~english
+ * @brief File names for saving save extension features paramters.
+ * @~japanese
+ * @brief アタリから逃げる手の特徴値の保存ファイル名
+ */
 static std::map<UCT_SAVE_EXTENSION_FEATURE, std::string> save_extension_file_name;
+
+/**
+ * @~english
+ * @brief File names for saving atari features paramters.
+ * @~japanese
+ * @brief アタリの特徴値の保存ファイル名
+ */
 static std::map<UCT_ATARI_FEATURE, std::string> atari_file_name;
+
+/**
+ * @~english
+ * @brief File names for saving extension features paramters.
+ * @~japanese
+ * @brief ノビの特徴値の保存ファイル名
+ */
 static std::map<UCT_EXTENSION_FEATURE, std::string> extension_file_name;
+
+/**
+ * @~english
+ * @brief File names for saving dame features paramters.
+ * @~japanese
+ * @brief ダメを詰める手の特徴値の保存ファイル名
+ */
 static std::map<UCT_DAME_FEATURE, std::string> dame_file_name;
+
+/**
+ * @~english
+ * @brief File names for saving connection features paramters.
+ * @~japanese
+ * @brief ツギの特徴値の保存ファイル名
+ */
 static std::map<UCT_CONNECT_FEATURE, std::string> connect_file_name;
+
+/**
+ * @~english
+ * @brief File names for saving throw-in features paramters.
+ * @~japanese
+ * @brief ホウリコミの特徴値の保存ファイル名
+ */
 static std::map<UCT_THROW_IN_FEATURE, std::string> throw_in_file_name;
 
 
@@ -107,6 +482,12 @@ static void EvaluateMovePrediction( game_info_t *game, const int expert_move, co
 static void TestingLoop( train_thread_arg_t *arg );
 
 
+/**
+ * @~english
+ * @brief Train 2nd order Bradley-Terry model.
+ * @~japanese
+ * @brief 2次のBTモデルの学習
+ */
 void
 TrainBTModelWithFactorizationMachines( void )
 {
@@ -117,6 +498,22 @@ TrainBTModelWithFactorizationMachines( void )
 }
 
 
+/**
+ * @~english
+ * @brief Initialize training data.
+ * @param[in, out] data
+ * @param[in] size
+ * @param[in] mt Random number generator.
+ * @param[in] dist Random number distribution.
+ * @param[in, out] data_id Data index.
+ * @~japanese
+ * @brief 特徴データの初期化
+ * @param[in, out] data 特徴のデータ
+ * @param[in] size 特徴の個数
+ * @param[in] mt 乱数生成器
+ * @param[in] dist 乱数の分布
+ * @param[in, out] data_id データID
+ */
 static void
 InitializeWeights( std::vector<btfm_t> &data, const int size, std::mt19937_64 &mt, std::normal_distribution<> &dist, int &data_id )
 {
@@ -132,6 +529,12 @@ InitializeWeights( std::vector<btfm_t> &data, const int size, std::mt19937_64 &m
 }
 
 
+/**
+ * @~english
+ * @brief Initialize Learning settings.
+ * @~japanese
+ * @brief 学習の初期設定
+ */
 static void
 InitializeLearning( void )
 {
@@ -224,6 +627,18 @@ InitializeLearning( void )
 }
 
 
+/**
+ * @~english
+ * @brief Calculate first order parameter.
+ * @param[in] t Feature data.
+ * @param[in] n The number of features.
+ * @return First order parameter value.
+ * @~japanese
+ * @brief 1次の項の計算
+ * @param[in] t 特徴のデータ
+ * @param[in] n 特徴の個数
+ * @return 1次の項の値
+ */
 static double
 CalculateFirstTerm( const std::vector<btfm_t*> &t, const int n )
 {
@@ -237,6 +652,20 @@ CalculateFirstTerm( const std::vector<btfm_t*> &t, const int n )
 }
 
 
+/**
+ * @~english
+ * @brief Calculate second order paramater.
+ * @param[in] t Feature data.
+ * @param[in] i Feature index.
+ * @param[in] j Feature index.
+ * @return Second order parameter value.
+ * @~japanese
+ * @brief 2次の項の計算
+ * @param[in] t 特徴のデータ
+ * @param[in] i 特徴のインデックス
+ * @param[in] j 特徴のインデックス
+ * @return 2次の項の値
+ */
 static double
 CalculateSecondTerm( const std::vector<btfm_t*> &t, const int i, const int j )
 {
@@ -249,8 +678,22 @@ CalculateSecondTerm( const std::vector<btfm_t*> &t, const int i, const int j )
 }
 
 
-
-
+/**
+ * @~english
+ * @brief Calculate move score.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate.
+ * @param[in] tactical_features Tactical features.
+ * @param[in] distance_index Move distance feature's index.
+ * @return Move score.
+ * @~japanese
+ * @brief 着手スコアの計算
+ * @param[in] game 局面情報
+ * @param[in] pos 着手スコアを計算する座標
+ * @param[in] tactical_features 戦術的特徴
+ * @param[in] distance_index 着手距離の特徴のインデックス
+ * @return 着手のスコア
+ */
 static double
 CalculateMoveScore( game_info_t *game, const int pos, const unsigned int tactical_features[], const int distance_index )
 {
@@ -350,7 +793,22 @@ CalculateMoveScore( game_info_t *game, const int pos, const unsigned int tactica
 
 
 
-
+/**
+ * @~english
+ * @brief Update first order parameter by Adam optimizer.
+ * @param[in] feature Feature data.
+ * @param[in] alpha Learning rate.
+ * @param[in] lambda Weight decay rate.
+ * @param[in] minW Clip paramater.
+ * @param[in] id Feature ID.
+ * @~japanese
+ * @brief 1次の項の更新 (Adam)
+ * @param[in] feature 特徴データ
+ * @param[in] alpha 学習率
+ * @param[in] lambda 重み減衰率
+ * @param[in] minW クリップパラメータ
+ * @param[in] id 特徴ID
+ */
 static void
 UpdateFirstTermAdam( btfm_t *feature, const double alpha, const double lambda, const double minW, const int id )
 {
@@ -378,7 +836,22 @@ UpdateFirstTermAdam( btfm_t *feature, const double alpha, const double lambda, c
 }
 
 
-
+/**
+ * @~english
+ * @brief Update second order parameter by Adam optimizer.
+ * @param[in] feature Feature data.
+ * @param[in] alpha Learning rate.
+ * @param[in] lambda Weight decay rate.
+ * @param[in] minV Clip paramater.
+ * @param[in] id Feature ID.
+ * @~japanese
+ * @brief 2次の項の更新 (Adam)
+ * @param[in] feature 特徴データ
+ * @param[in] alpha 学習率
+ * @param[in] lambda 重み減衰率
+ * @param[in] minV クリップパラメータ
+ * @param[in] id 特徴ID
+ */
 static void
 UpdateSecondTermAdam( btfm_t *feature, const double alpha, const double lambda, const double minV, const int id )
 {
@@ -406,6 +879,20 @@ UpdateSecondTermAdam( btfm_t *feature, const double alpha, const double lambda, 
 }
 
 
+/**
+ * @~english
+ * @brief Process training data.
+ * @param[in] game Current board position.
+ * @param[in] expertMove Expert move point.
+ * @param[in] color Player's color.
+ * @param[in] thread_id Thread ID
+ * @~japanese
+ * @brief 学習データの処理
+ * @param[in] game 局面のデータ
+ * @param[in] expertMove 教師データの着手
+ * @param[in] color 手番の色
+ * @param[in] thread_id スレッドID
+ */
 static void
 ProcessPosition( game_info_t *game, const int expertMove, const int color, const int thread_id )
 {
@@ -600,6 +1087,13 @@ ProcessPosition( game_info_t *game, const int expertMove, const int color, const
   all_moves.fetch_add(1);
 }
 
+
+/**
+ * @~english
+ * @brief Train all features with 2nd order Bradley-Terry model.
+ * @~japanese
+ * @brief 2次のBTモデルによる学習処理
+ */
 static void
 LearningSecondOrderBradleyTerryModel( void  )
 {
@@ -682,6 +1176,15 @@ LearningSecondOrderBradleyTerryModel( void  )
   }
 }
 
+
+/**
+ * @~english
+ * @brief Training worker.
+ * @param[in] targ Argument for training thread.
+ * @~japanese
+ * @brief 学習ワーカ
+ * @param[in] targ 学習スレッドの引数
+ */
 static void
 LearningLoop( train_thread_arg_t *targ )
 {
@@ -707,6 +1210,14 @@ LearningLoop( train_thread_arg_t *targ )
 }
 
 
+/**
+ * @~english
+ * @brief Testing worker.
+ * @param[in] targ Argument for testing thread.
+ * @~japanese
+ * @brief テストワーカ
+ * @param[in] targ テストスレッドの引数
+ */
 static void
 TestingLoop( train_thread_arg_t *targ )
 {
@@ -731,6 +1242,19 @@ TestingLoop( train_thread_arg_t *targ )
   FreeGame(init_game);
 }
 
+
+/**
+ * @~english
+ * @brief Playback a game for correcting data.
+ * @param[in] game Board position data.
+ * @param[in] filename File name of training data.
+ * @param[in] id Thread ID.
+ * @~japanese
+ * @brief 学習データを集めるための棋譜再生
+ * @param[in] game 局面データ
+ * @param[in] filename 再生するファイル名
+ * @param[in] id スレッドID
+ */
 static void
 PlaybackGame( game_info_t *game, const char *filename, const int id )
 {
@@ -757,6 +1281,16 @@ PlaybackGame( game_info_t *game, const char *filename, const int id )
 }
 
 
+/**
+ * @~english
+ * @brief Playback a game for move prediction evaluation.
+ * @param[in] game Board position data.
+ * @param[in] filename File name of training data.
+ * @~japanese
+ * @brief 学習データを集めるための棋譜再生
+ * @param[in] game 局面データ
+ * @param[in] filename 再生するファイル名
+ */
 static void
 PlaybackGameForEvaluation( game_info_t *game, const char *filename )
 {
@@ -777,6 +1311,20 @@ PlaybackGameForEvaluation( game_info_t *game, const char *filename )
 }
 
 
+/**
+ * @~english
+ * @brief Correct features for all intersections..
+ * @param[in] game Current position.
+ * @param[in] color Player's color.
+ * @param[in, out] featureList Feature list for all intersections.
+ * @param[in, out] featureMap Appearance features map.
+ * @~japanese
+ * @brief 全て交点のの特徴の収集
+ * @param[in] game 現在の局面
+ * @param[in] color 手番の色
+ * @param[in, out] featureList 各交点の特徴のリスト
+ * @param[in, out] featureMap 出現した特徴のマップ
+ */
 static void
 CorrectAllFeatures( game_info_t *game, int color, std::vector<btfm_t*> featureList[], std::map<int, btfm_t*> &featureMap )
 {
@@ -890,6 +1438,18 @@ CorrectAllFeatures( game_info_t *game, int color, std::vector<btfm_t*> featureLi
 }
 
 
+/**
+ * @~english
+ * @brief Evaluate current move prediction accuracy.
+ * @param[in] game Board position data.
+ * @param[in] expert_move Expert's move.
+ * @param[in] color Player's color.
+ * @~japanese
+ * @brief Evaluate current move prediction accuracy.
+ * @param[in] game 局面情報
+ * @param[in] expert_move 正解の手
+ * @param[in] color 手番の色
+ */
 static void
 EvaluateMovePrediction( game_info_t *game, const int expert_move, const int color )
 {
@@ -941,8 +1501,24 @@ EvaluateMovePrediction( game_info_t *game, const int expert_move, const int colo
 }
 
 
-
-
+/**
+ * @~english
+ * @brief Correct tactical feature.
+ * @param[out] feature_list All features for intersections.
+ * @param[out] feature_map Appearance feature map.
+ * @param[in] feature Tactical feature data.
+ * @param[in] tactical_features Tactical features list.
+ * @param[in] feature_index Tactical feature index.
+ * @param[in] pos Point of intersection.
+ * @~japanese
+ * @brief 戦術的特徴の収集
+ * @param[out] feature_list 各交点の特徴のリスト
+ * @param[out] feature_map 出現する特徴のマップ
+ * @param[in] feature 戦術的特徴の学習データ
+ * @param[in] tactical_features 戦術的特徴のリスト
+ * @param[in] feature_index 戦術的特徴のインデックス
+ * @param[in] pos 交点
+ */
 static void
 CorrectTacticalFeature( std::vector<btfm_t*> feature_list[],
                         std::map<int, btfm_t*> &feature_map,
@@ -961,7 +1537,24 @@ CorrectTacticalFeature( std::vector<btfm_t*> feature_list[],
 }
 
 
-
+/**
+ * @~english
+ * @brief Correct move distance feature.
+ * @param[out] feature_list All features for intersections.
+ * @param[out] feature_map Appearance feature map.
+ * @param[in] move_distance_feature Move distance feature data.
+ * @param[in] pos Point of intersection.
+ * @param[in] previous_move Previous move intersection.
+ * @param[in] shift Shift parameter for move distance feature.
+ * @~japanese
+ * @brief 着手距離の特徴の収集
+ * @param[out] feature_list 各交点の特徴のリスト
+ * @param[out] feature_map 出現する特徴のマップ
+ * @param[in] move_distance_feature 着手距離の特徴の学習データ
+ * @param[in] pos 交点
+ * @param[in] previous_move 直前の着手
+ * @param[in] shift 着手距離の特徴のシフトパラメータ
+ */
 static void
 CorrectMoveDistanceFeature( std::vector<btfm_t*> feature_list[],
                             std::map<int, btfm_t*> &feature_map,
@@ -985,6 +1578,12 @@ CorrectMoveDistanceFeature( std::vector<btfm_t*> feature_list[],
 }
 
 
+/**
+ * @~english
+ * @brief Output all parameters.
+ * @~japanese
+ * @brief 全てのパラメータの出力
+ */
 static void
 Output( void )
 {
@@ -1067,7 +1666,14 @@ Output( void )
 }
 
 
-
+/**
+ * @~english
+ * @brief Output parameters for backup.
+ * @param[in] k The number of epochs.
+ * @~japanese
+ * @brief 学習経過のパラメータの出力
+ * @param[in] k エポック数
+ */
 static void
 Backup( const int k )
 {
@@ -1112,6 +1718,16 @@ Backup( const int k )
 }
 
 
+/**
+ * @~english
+ * @brief Append parameters.
+ * @param[in] filename Output file name.
+ * @param[in] t Parameter data.
+ * @~japanese
+ * @brief パラメータの追記
+ * @param[in] filename 出力ファイル名
+ * @param[in] t 出力パラメータのデータ
+ */
 static void
 OutputFMAdd( std::string filename, btfm_t &t )
 {
@@ -1130,6 +1746,12 @@ OutputFMAdd( std::string filename, btfm_t &t )
 }
 
 
+/**
+ * @~english
+ * @brief Initlaize output file name map.
+ * @~japanese
+ * @brief 出力ファイル名のマップ生成
+ */
 static void
 InitializeOutputFileMap( void )
 {

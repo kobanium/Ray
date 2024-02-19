@@ -1,3 +1,11 @@
+/**
+ * @file src/sgf/SgfExtractor.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief SGF file loader.
+ * @~japanese
+ * @brief SGFファイルローダ
+ */
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -28,13 +36,33 @@ static int GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cu
 static int SkipData( const char *sgf_text, const int cursor );
 
 
-static inline bool IsSgfSpace(char c) {
+/**
+ * @~english
+ * @brief Check skipped charactor for SGF.
+ * @param[in] c Input charactor.
+ * @return Skipped charactor flag.
+ * @~japanese
+ * @brief 空白文字かを判定
+ * @param[in] c 入力文字
+ * @return 空白文字判定結果
+ */
+static inline bool IsSgfSpace( const char c ) {
   return c == '\n' || c == '\r' || c == ' ' || c == '\t';
 }
 
-//////////////////
-//  着手の抽出  //
-//////////////////
+
+/**
+ * @~english
+ * @brief Get move from kifu data.
+ * @param[in] kifu Kifu data.
+ * @param[in] n Index
+ * @return Coordinate of move.
+ * @~japanese
+ * @brief 棋譜データから着手の座標を取得
+ * @param[in] kifu 棋譜データ
+ * @param[in] n 手番
+ * @return 着手の座標
+ */
 int
 GetKifuMove( const SGF_record_t *kifu, const int n )
 {
@@ -46,9 +74,18 @@ GetKifuMove( const SGF_record_t *kifu, const int n )
 }
 
 
-////////////////////
-//  置き石の抽出  //
-////////////////////
+/**
+ * @~english
+ * @brief Get handicap move from kifu data.
+ * @param[in] kifu Kifu data.
+ * @param[in] n Index
+ * @return Coordinate of a handicap stone.
+ * @~japanese
+ * @brief 棋譜データから置き石の座標を取得
+ * @param[in] kifu 棋譜データ
+ * @param[in] n 手番
+ * @return 置き石の座標
+ */
 int
 GetHandicapStone( const SGF_record_t *kifu, const int n )
 {
@@ -60,9 +97,16 @@ GetHandicapStone( const SGF_record_t *kifu, const int n )
 }
 
 
-////////////////////////////
-//  SGFファイルの読み込み  //
-////////////////////////////
+/**
+ * @~english
+ * @brief Read SGF file.
+ * @param[in] file_name SGF file name.
+ * @param[out] kifu Kifu data.
+ * @~japanese
+ * @brief SGFファイルの読み込み
+ * @param[in] file_name SGFファイル名
+ * @param[out] kifu 棋譜データ
+ */
 int
 ExtractKifu( const char *file_name, SGF_record_t *kifu )
 {
@@ -177,9 +221,20 @@ ExtractKifu( const char *file_name, SGF_record_t *kifu )
 }
 
 
-///////////////////////
-//  盤の大きさの抽出  //
-///////////////////////
+/**
+ * @~english
+ * @brief Get board size.
+ * @param[in] kifu Kifu data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief 盤の大きさの抽出
+ * @param[in] kifu 棋譜データ
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @return 次のカーソルの位置
+ */
 static int
 GetSize( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
@@ -201,9 +256,20 @@ GetSize( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 }
 
 
-/////////////////
-//  結果の抽出  //
-/////////////////
+/**
+ * @~english
+ * @brief Get game result.
+ * @param[in] kifu Kifu data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief 結果の抽出
+ * @param[in] kifu 棋譜データ
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @return 次のカーソルの位置
+ */
 static int
 GetResult( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
@@ -232,9 +298,20 @@ GetResult( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 }
 
 
-/////////////////
-//  着手の抽出  //
-/////////////////
+/**
+ * @~english
+ * @brief Get move coordinate.
+ * @param[in] kifu Kifu data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief 着手の抽出
+ * @param[in] kifu 棋譜データ
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @return 次のカーソルの位置
+ */
 static int
 GetMove( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
@@ -267,9 +344,20 @@ GetMove( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 }
 
 
-///////////////////////
-//  置き石の数の抽出  //
-///////////////////////
+/**
+ * @~english
+ * @brief Get the number of handicap stones.
+ * @param[in] kifu Kifu data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief 置き石の個数の抽出
+ * @param[in] kifu 棋譜データ
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @return 次のカーソルの位置
+ */
 static int
 GetHandicaps( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
@@ -290,9 +378,22 @@ GetHandicaps( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 }
 
 
-/////////////////////////
-//  置き石の座標の抽出  //
-/////////////////////////
+/**
+ * @~english
+ * @brief Get handicap's coordinate.
+ * @param[in] kifu Kifu data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @param[in] color Stone color.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief 置き石の座標の抽出
+ * @param[in] kifu 棋譜データ
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @param[in] color 石の色
+ * @return 次のカーソルの位置
+ */
 static int
 GetHandicapPosition( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color )
 {
@@ -332,9 +433,21 @@ GetHandicapPosition( SGF_record_t *kifu, const char *sgf_text, const int cursor,
   return cursor + tmp_cursor;
 }
 
-//////////////////
-//  コミの抽出  //
-//////////////////
+
+/**
+ * @~english
+ * @brief Get komi value.
+ * @param[in] kifu Kifu data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief コミの値の抽出
+ * @param[in] kifu 棋譜データ
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @return 次のカーソルの位置
+ */
 static int
 GetKomi( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 {
@@ -356,9 +469,22 @@ GetKomi( SGF_record_t *kifu, const char *sgf_text, const int cursor )
 }
 
 
-////////////////////
-//  対局名の抽出  //
-////////////////////
+/**
+ * @~english
+ * @brief Get match name.
+ * @param[in] kifu Kifu data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @param[in] color Player's color.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief 対局の名前の抽出
+ * @param[in] kifu 棋譜データ
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @param[in] color 手番の色
+ * @return 次のカーソルの位置
+ */
 static int
 GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cursor, const int color )
 {
@@ -384,9 +510,19 @@ GetPlayerName( SGF_record_t *kifu, const char *sgf_text, const int cursor, const
   return cursor + tmp_cursor;
 }
 
-///////////////////////////////
-//  無視する情報を飛ばす処理  //
-///////////////////////////////
+
+/**
+ * @~english
+ * @brief Skip ignored data.
+ * @param[in] sgf_text SGF text.
+ * @param[in] cursor Current cursor for SGF text.
+ * @return Next cursor position.
+ * @~japanese
+ * @brief 無視する情報を飛ばす処理
+ * @param[in] sgf_text SGFファイルを読み込んだテキスト
+ * @param[in] cursor 現在のカーソルの位置
+ * @return 次のカーソルの位置
+ */
 static int
 SkipData( const char *sgf_text, const int cursor )
 {
@@ -401,9 +537,16 @@ SkipData( const char *sgf_text, const int cursor )
 }
 
 
-////////////////////////////
-//  SGFの座標を数値に変換  //
-////////////////////////////
+/**
+ * @~english
+ * @brief Convert SGF style coordinate to internal expression.
+ * @param[in] c Charactor of coordinate.
+ * @return Coordinate with internal expression. 
+ * @~japanese
+ * @brief SGFの座標を数値に変換
+ * @param[in] c SGF形式の座標
+ * @return 内部表現の座標
+ */
 static int
 ParsePosition( const char c )
 {

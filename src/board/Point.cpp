@@ -1,3 +1,11 @@
+/**
+ * @file src/board/Point.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Converter of coordinate.
+ * @~japanese
+ * @brief 座標の変換
+ */
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -7,14 +15,34 @@
 #include "board/GoBoard.hpp"
 #include "board/Point.hpp"
 
-constexpr char lz_pass[] = "pass";
-constexpr char pass[] = "PASS";
+
+/**
+ * @~english
+ * @brief Pass string
+ * @~japanese
+ * @brief パスを表現する文字列
+ */
+constexpr char pass[] = "pass";
+
+/**
+ * @~english
+ * @brief Resignation.
+ * @~japanese
+ * @brief 投了を表現する文字列
+ */
 constexpr char resign[] = "resign";
 
 
-////////////////////////////////////
-//  2次元表記から1次元表記へ変換  //
-////////////////////////////////////
+/**
+ * @~english
+ * @brief Return coordinate with internal representation.
+ * @param[in] cpos Coordinate.
+ * @return Coordinate with internal representation.
+ * @~japanese
+ * @brief 内部表現の座標を返す
+ * @param[in] cpos 座標
+ * @return 内部表現の座標
+ */
 int
 StringToInteger( const char *cpos )
 {
@@ -39,23 +67,17 @@ StringToInteger( const char *cpos )
   return pos;
 }
 
-void
-LzIntegerToString( const int pos, char *cpos )
-{
-  if (pos == PASS) {
-#if defined (_WIN32)
-    sprintf_s(cpos, 5, "%s", lz_pass);
-#else
-    snprintf(cpos, 5, "%s", lz_pass);
-#endif
-  } else {
-    IntegerToString(pos, cpos);
-  }
-}
 
-////////////////////////////////////
-//  1次元表記から2次元表記へ変換  //
-////////////////////////////////////
+/**
+ * @~english
+ * @brief Return coordinate in GTP format.
+ * @param[in] pos Coordinate.
+ * @param[out] cpos Coordinate string in GTP representation.
+ * @~japanese
+ * @brief 座標の文字列を返す
+ * @param[in] pos 座標
+ * @param[out] cpos GTP形式の座標の文字列
+ */
 void
 IntegerToString( const int pos, char *cpos )
 {
@@ -78,30 +100,52 @@ IntegerToString( const int pos, char *cpos )
     y = pure_board_size - (Y(pos) - OB_SIZE);
     cpos[0] = gogui_x[x];
     if (y / 10 == 0) {
-      cpos[1] = (char)('0' + y % 10);
+      cpos[1] = static_cast<char>('0' + y % 10);
       cpos[2] = '\0';
     } else {
-      cpos[1] = (char)('0' + y / 10);
-      cpos[2] = (char)('0' + y % 10);
+      cpos[1] = static_cast<char>('0' + y / 10);
+      cpos[2] = static_cast<char>('0' + y % 10);
       cpos[3] = '\0';
     }
   }
 }
 
 
+/**
+ * @~english
+ * @brief Return coordinate string.
+ * @param[in] pos Coordinate.
+ * @return Coordinate string.
+ * @~japanese
+ * @brief 座標の文字列を返す
+ * @param[in] pos 座標
+ * @return 座標の文字列
+ */
 std::string
 ParsePoint( const int pos )
 {
   if (pos == PASS) {
-    return std::string("PASS");
+    return std::string(pass);
   } else if (pos == RESIGN) {
-    return std::string("RESIGN");
+    return std::string(resign);
   } else {
     return std::string(1, GOGUI_X(pos)) + std::to_string(GOGUI_Y(pos));
   }
 }
 
 
+/**
+ * @~english
+ * @brief Return coordinate string with SGF.
+ * @param[in] x X-axis coordinate.
+ * @param[in] y Y-axis coordinate.
+ * @return Coordinate string with SGF.
+ * @~japanese
+ * @brief SGF形式の座標の文字列を返す
+ * @param[in] x x座標
+ * @param[in] y y座標
+ * @return SGF形式の座標の文字列
+ */
 std::string
 ParseSgfPoint( const int x, const int y )
 {

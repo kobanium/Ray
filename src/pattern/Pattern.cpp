@@ -1,3 +1,11 @@
+/**
+ * @file src/pattern/Pattern.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Pattern operation for neighborhood stones
+ * @~japanese
+ * @brief 近傍の配石パターンの操作
+ */
 #include <iostream>
 #include <sstream>
 #include <cstring>
@@ -6,42 +14,168 @@
 #include "pattern/Pattern.hpp"
 
 
-//  ビット列操作
+/**
+ * @def REV18(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV18(p) (((p) >> 36) | (((p) & 0x3) << 36))
+
+/**
+ * @def REV16(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV16(p) (((p) >> 32) | (((p) & 0x3) << 32))
+
+/**
+ * @def REV14(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV14(p) (((p) >> 28) | (((p) & 0x3) << 28))
+
+/**
+ * @def REV12(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV12(p) (((p) >> 24) | (((p) & 0x3) << 24))
+
+/**
+ * @def REV10(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV10(p) (((p) >> 20) | (((p) & 0x3) << 20))
+/**
+ * @def REV8(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV8(p) (((p) >> 16) | (((p) & 0x3) << 16))
+/**
+ * @def REV6(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV6(p) (((p) >> 12) | (((p) & 0x3) << 12))
+/**
+ * @def REV4(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV4(p) (((p) >> 8) | (((p) & 0x3) << 8))
+/**
+ * @def REV2(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV2(p) (((p) >> 4) | (((p) & 0x3) << 4))
 
+/**
+ * @def REV3(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV3(p) (((p) >> 4) | ((p) & 0xC) | (((p) & 0x3) << 4))
+
+/**
+ * @def REV(p)
+ * @brief \~english Bit string operation.
+ *        \~japanese ビット列操作
+ */
 #define REV(p) (((p) >> 2) | (((p) & 0x3) << 2))
 
-//  近傍の座標
+/**
+ * @def N
+ * @brief \~english Upper intersection's coordinate.
+ *        \~japanese 上の座標
+ */
 #define N   (-board_size)
+
+/**
+ * @def S
+ * @brief \~english Bottom intersection's coordinate.
+ *        \~japanese 下の座標
+ */
 #define S   (board_size)
+
+/**
+ * @def E
+ * @brief \~english Right intersection's coordinate.
+ *        \~japanese 右の座標
+ */
 #define E   (1)
+
+/**
+ * @def W
+ * @brief \~english Left intersection's coordinate.
+ *        \~japanese 左の座標
+ */
 #define W   (-1)
+
+/**
+ * @def NN
+ * @brief \~english Upper intersection's coordinate from upper intersection.
+ *        \~japanese 2つ上の座標
+ */
 #define NN  (N+N)
+/**
+ * @def NE
+ * @brief \~english Upper right intersection's coordinate.
+ *        \~japanese 右上の座標
+ */
 #define NE  (N+E)
+/**
+ * @def NW
+ * @brief \~english Upper left intersection's coordinate.
+ *        \~japanese 左上の座標
+ */
 #define NW  (N+W)
+
+/**
+ * @def SS
+ * @brief \~english Bottom intersection's coordinate from bottom intersection.
+ *        \~japanese 2つ下の座標
+ */
 #define SS  (S+S)
+
+/**
+ * @def SE
+ * @brief \~english Bottom right intersection's coordinate.
+ *        \~japanese 右下の座標
+ */
 #define SE  (S+E)
+
+/**
+ * @def SW
+ * @brief \~english Bottom left intersection's coordinate.
+ *        \~japanese 左下の座標
+ */
 #define SW  (S+W)
+
+/**
+ * @def WW
+ * @brief \~english Left intersection's coordinate from left intersection.
+ *        \~japanese 2つ左の座標
+ */
 #define WW  (W+W)
+
+/**
+ * @def EE
+ * @brief \~english Right intersection's coordinate from right intersection.
+ *        \~japanese 2つ右の座標
+ */
 #define EE  (E+E)
 
 
-//////////////////////
-//  グローバル変数  //
-//////////////////////
-
-
-
-//  更新用ビットマスク
+/**
+ * @~english
+ * @brief Bit mask for updating pattern.
+ * @~japanese
+ * @brief 配石パターン更新用ビットマスク
+ */
 static constexpr unsigned int update_mask[40][3] = {
   //  3x3
   { 0, 0x00004000, 0x00008000 }, //  1->8
@@ -92,8 +226,12 @@ static constexpr unsigned int update_mask[40][3] = {
   { 0, 0x00004000, 0x00008000 }, // 40->32
 };
 
-
-
+/**
+ * @~english
+ * @brief Bit mask for updating large pattern.
+ * @~japanese
+ * @brief 大きい配石パターン更新用ビットマスク
+ */
 static const unsigned long long large_mask[][3] = {
   // md5 
   { 0, 0x0000000000100000, 0x0000000000200000 },
@@ -119,9 +257,14 @@ static const unsigned long long large_mask[][3] = {
 };
 
 
-////////////////
-//  初期設定  //
-////////////////
+/**
+ * @~english
+ * @brief Initialize stones pattern.
+ * @param[in] pat Instance of stones pattern.
+ * @~japanese
+ * @brief 配石パターンの初期化
+ * @param[in] pat 配石パターンのインスタンス
+ */
 void
 ClearPattern( pattern_t *pat )
 {
@@ -217,11 +360,16 @@ ClearPattern( pattern_t *pat )
 }
 
 
-//////////////////////
-//  パターンの更新  //
-//////////////////////
-
-//  3x3
+/**
+ * @~english
+ * @brief Update 3x3 patterns (removing stone).
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position of removing stone
+ * @~japanese
+ * @brief 3x3パターンの更新 (石の除去)
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos 石を取り除く箇所
+ */
 void
 UpdatePat3Empty( pattern_t *pat, const int pos )
 {
@@ -235,6 +383,19 @@ UpdatePat3Empty( pattern_t *pat, const int pos )
   pat[pos + SE].list[MD_2] &= 0xFFFFFC;
 }
 
+
+/**
+ * @~english
+ * @brief Update 3x3 patterns (adding stone).
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] color Color of the stone placed.
+ * @param[in] pos Position of placing stone.
+ * @~japanese
+ * @brief 3x3パターンの更新 (石の追加)
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] color 置いた石の色
+ * @param[in] pos 石を置いた箇所
+ */
 void
 UpdatePat3Stone( pattern_t *pat, const int color, const int pos )
 {
@@ -248,7 +409,17 @@ UpdatePat3Stone( pattern_t *pat, const int color, const int pos )
   pat[pos + SE].list[MD_2] |= update_mask[7][color];
 }
 
-//  md2
+
+/**
+ * @~english
+ * @brief Update MD2 patterns (removing stone).
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position of removing stone
+ * @~japanese
+ * @brief MD2パターンの更新 (石の除去)
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos 石を取り除く箇所
+ */
 void
 UpdateMD2Empty( pattern_t *pat, const int pos )
 {
@@ -266,6 +437,19 @@ UpdateMD2Empty( pattern_t *pat, const int pos )
   pat[pos + WW].list[MD_2] &= 0xF3FFFF;
 }
 
+
+/**
+ * @~english
+ * @brief Update MD2 patterns (adding stone).
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] color Color of the stone placed.
+ * @param[in] pos Position of placing stone.
+ * @~japanese
+ * @brief MD2パターンの更新 (石の追加)
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] color 置いた石の色
+ * @param[in] pos 石を置いた箇所
+ */
 void
 UpdateMD2Stone( pattern_t *pat, const int color, const int pos )
 {
@@ -283,7 +467,17 @@ UpdateMD2Stone( pattern_t *pat, const int color, const int pos )
   pat[pos + WW].list[MD_2] |= update_mask[11][color];
 }
 
-//  全部
+
+/**
+ * @~english
+ * @brief Update all patterns (removing stone).
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position of removing stone
+ * @~japanese
+ * @brief 全てのパターンの更新 (石の除去)
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos 石を取り除く箇所
+ */
 void
 UpdatePatternEmpty( pattern_t *pat, const int pos )
 {
@@ -358,6 +552,19 @@ UpdatePatternEmpty( pattern_t *pat, const int pos )
   pat[pos + NN + NN + W].large_list[MD_5] &= 0xFFFFF3FFFF;
 }
 
+
+/**
+ * @~english
+ * @brief Update all patterns (adding stone).
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] color Color of the stone placed.
+ * @param[in] pos Position of placing stone.
+ * @~japanese関数
+ * @brief 配石パターンの更新 (石の追加)
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] color 置いた石の色
+ * @param[in] pos 石を置いた箇所
+ */
 void
 UpdatePatternStone( pattern_t *pat, const int color, const int pos )
 {
@@ -433,11 +640,16 @@ UpdatePatternStone( pattern_t *pat, const int color, const int pos )
 }
 
 
-//////////////////////////
-//  同一パターンを返す  //
-//////////////////////////
-
-//  3x3
+/**
+ * @~english
+ * @brief Return 8 symmetrical 3x3 patterns.
+ * @param[in] pat3 3x3 pattern.
+ * @param[out] transp symmetrical 3x3 patterns.
+ * @~japanese
+ * @brief 8対称の3x3パターンの取得
+ * @param[in] pat3 3x3パターン
+ * @param[out] transp 8対称形の3x3パターン
+ */
 void
 Pat3Transpose8( const unsigned int pat3, unsigned int *transp )
 {
@@ -451,6 +663,17 @@ Pat3Transpose8( const unsigned int pat3, unsigned int *transp )
   transp[7] = Pat3Rotate90(transp[3]);
 }
 
+
+/**
+ * @~english
+ * @brief Return 8 symmetrical 3x3 patterns with color inversion.
+ * @param[in] pat3 3x3 pattern.
+ * @param[out] transp symmetrical 3x3 patterns.
+ * @~japanese
+ * @brief 8対称の3x3パターンの取得 (色反転含む)
+ * @param[in] pat3 3x3パターン
+ * @param[out] transp 対称形の3x3パターン
+ */
 void
 Pat3Transpose16( const unsigned int pat3, unsigned int *transp )
 {
@@ -460,7 +683,17 @@ Pat3Transpose16( const unsigned int pat3, unsigned int *transp )
   }
 }
 
-//  md2
+
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD2 patterns.
+ * @param[in] md2 MD2 pattern.
+ * @param[out] transp symmetrical MD2 patterns.
+ * @~japanese
+ * @brief 8対称のMD2パターンの取得
+ * @param[in] md2 MD2パターン
+ * @param[out] transp 対称形のMD2パターン
+ */
 void
 MD2Transpose8( const unsigned int md2, unsigned int *transp )
 {
@@ -474,6 +707,17 @@ MD2Transpose8( const unsigned int md2, unsigned int *transp )
   transp[7] = MD2Rotate90(transp[3]);
 }
 
+
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD2 patterns with color inversion.
+ * @param[in] md2 MD2 pattern.
+ * @param[out] transp symmetrical MD2 patterns.
+ * @~japanese
+ * @brief 8対称のMD2パターンの取得 (色反転含む)
+ * @param[in] md2 MD2パターン
+ * @param[out] transp 対称形のMD2パターン
+ */
 void
 MD2Transpose16( const unsigned int md2, unsigned int *transp )
 {
@@ -483,7 +727,17 @@ MD2Transpose16( const unsigned int md2, unsigned int *transp )
   }
 }
 
-//  md3
+
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD3 patterns.
+ * @param[in] md3 MD3 pattern.
+ * @param[out] transp symmetrical MD3 patterns.
+ * @~japanese
+ * @brief 8対称のMD3パターンの取得
+ * @param[in] md3 MD3パターン
+ * @param[out] transp 対称形のMD3パターン
+ */
 void
 MD3Transpose8( const unsigned int md3, unsigned int *transp )
 {
@@ -497,6 +751,17 @@ MD3Transpose8( const unsigned int md3, unsigned int *transp )
   transp[7] = MD3Rotate90(transp[3]);
 }
 
+
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD3 patterns with color inversion.
+ * @param[in] md3 MD3 pattern.
+ * @param[out] transp symmetrical MD3 patterns.
+ * @~japanese
+ * @brief 8対称のMD3パターンの取得 (色反転含む)
+ * @param[in] md3 MD3パターン
+ * @param[out] transp 対称形のMD3パターン
+ */
 void
 MD3Transpose16( const unsigned int md3, unsigned int *transp )
 {
@@ -507,7 +772,16 @@ MD3Transpose16( const unsigned int md3, unsigned int *transp )
 }
 
 
-//  md4
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD4 patterns.
+ * @param[in] md4 MD4 pattern.
+ * @param[out] transp symmetrical MD4 patterns.
+ * @~japanese
+ * @brief 8対称のMD4パターンの取得
+ * @param[in] md4 MD4パターン
+ * @param[out] transp 対称形のMD4パターン
+ */
 void
 MD4Transpose8( const unsigned int md4, unsigned int *transp )
 {
@@ -521,6 +795,17 @@ MD4Transpose8( const unsigned int md4, unsigned int *transp )
   transp[7] = MD4Rotate90(transp[3]);
 }
 
+
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD4 patterns with color inversion.
+ * @param[in] md4 MD4 pattern.
+ * @param[out] transp symmetrical MD4 patterns.
+ * @~japanese
+ * @brief 8対称のMD4パターンの取得 (色反転含む)
+ * @param[in] md4 MD4パターン
+ * @param[out] transp 対称形のMD4パターン
+ */
 void
 MD4Transpose16( const unsigned int md4, unsigned int *transp )
 {
@@ -531,7 +816,16 @@ MD4Transpose16( const unsigned int md4, unsigned int *transp )
 }
 
 
-//  md5
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD5 patterns.
+ * @param[in] md5 MD5 pattern.
+ * @param[out] transp symmetrical MD5 patterns.
+ * @~japanese
+ * @brief 8対称のMD5パターンの取得
+ * @param[in] md5 MD5パターン
+ * @param[out] transp 対称形のMD5パターン
+ */
 void
 MD5Transpose8( const unsigned long long md5, unsigned long long *transp )
 {
@@ -545,6 +839,17 @@ MD5Transpose8( const unsigned long long md5, unsigned long long *transp )
   transp[7] = MD5Rotate90(transp[3]);
 }
 
+
+/**
+ * @~english
+ * @brief Return 8 symmetrical MD5 patterns with color inversion.
+ * @param[in] md5 MD5 pattern.
+ * @param[out] transp symmetrical MD5 patterns.
+ * @~japanese
+ * @brief 8対称のMD5パターンの取得 (色反転含む)
+ * @param[in] md5 MD5パターン
+ * @param[out] transp 対称形のMD5パターン
+ */
 void
 MD5Transpose16( const unsigned long long md5, unsigned long long *transp )
 {
@@ -555,39 +860,84 @@ MD5Transpose16( const unsigned long long md5, unsigned long long *transp )
 }
 
 
-////////////////
-//  色の反転  //
-////////////////
-
-//  3x3
+/**
+ * @~english
+ * @brief Return 3x3 pattern with inverted colors.
+ * @param[in] pat3 3x3 pattern.
+ * @return inverted colors 3x3 pattern.
+ * @~japanese
+ * @brief 色を反転した3x3パターンの取得
+ * @param[in] pat3 3x3パターン
+ * @return 色を反転した3x3パターン
+ */
 unsigned int
 Pat3Reverse( const unsigned int pat3 )
 {
   return ((pat3 >> 1) & 0x5555) | ((pat3 & 0x5555) << 1);
 }
 
-//  md2
+
+/**
+ * @~english
+ * @brief Return MD2 pattern with inverted colors.
+ * @param[in] md2 MD2 pattern.
+ * @return inverted colors MD2 pattern.
+ * @~japanese
+ * @brief 色を反転したMD2パターンの取得
+ * @param[in] md2 MDパターン
+ * @return 色を反転したMD2パターン
+ */
 unsigned int
 MD2Reverse( const unsigned int md2 )
 {
   return ((md2 >> 1) & 0x555555) | ((md2 & 0x555555) << 1);
 }
 
-//  md3
+
+/**
+ * @~english
+ * @brief Return MD3 pattern with inverted colors.
+ * @param[in] md3 MD3 pattern.
+ * @return inverted colors MD3 pattern.
+ * @~japanese
+ * @brief 色を反転したMD3パターンの取得
+ * @param[in] md3 MD3パターン
+ * @return 色を反転したMD3パターン
+ */
 unsigned int
 MD3Reverse( const unsigned int md3 )
 {
   return ((md3 >> 1) & 0x555555) | ((md3 & 0x555555) << 1);
 }
 
-//  md4
+
+/**
+ * @~english
+ * @brief Return MD4 pattern with inverted colors.
+ * @param[in] md4 MD4 pattern.
+ * @return inverted colors MD4 pattern.
+ * @~japanese
+ * @brief 色を反転したMD4パターンの取得
+ * @param[in] md4 MD4パターン
+ * @return 色を反転したMD4パターン
+ */
 unsigned int
 MD4Reverse( const unsigned int md4 )
 {
   return ((md4 >> 1) & 0x55555555) | ((md4 & 0x55555555) << 1);
 }
 
-//  md5
+
+/**
+ * @~english
+ * @brief Return MD5 pattern with inverted colors.
+ * @param[in] md5 MD5 pattern.
+ * @return inverted colors MD5 pattern.
+ * @~japanese
+ * @brief 色を反転したMD5パターンの取得
+ * @param[in] md5 MD5パターン
+ * @return 色を反転したMD5パターン
+ */
 unsigned long long
 MD5Reverse( const unsigned long long md5 )
 {
@@ -595,18 +945,33 @@ MD5Reverse( const unsigned long long md5 )
 }
 
 
-////////////////
-//  上下対称  //
-////////////////
-
-//  3x3
+/**
+ * @~english
+ * @brief Return vertically symmetrical 3x3 pattern.
+ * @param[in] pat3 3x3 pattern.
+ * @return Vertically symmetrical 3x3 pattern.
+ * @~japanese
+ * @brief 上下対称の3x3パターンの取得
+ * @param[in] pat3 3x3パターン
+ * @return 上下反転した3x3パターン
+ */
 unsigned int
 Pat3VerticalMirror( const unsigned int pat3 )
 {
   return ((pat3 & 0xFC00) >> 10) | (pat3 & 0x03C0) | ((pat3 & 0x003F) << 10);
 }
 
-//  md2
+
+/**
+ * @~english
+ * @brief Return vertically symmetrical MD2 pattern.
+ * @param[in] md2 MD2 pattern.
+ * @return Vertically symmetrical MD2 pattern.
+ * @~japanese
+ * @brief 上下対称のMD2パターンの取得
+ * @param[in] md2 MD2パターン
+ * @return 上下反転したMD2パターン
+ */
 unsigned int
 MD2VerticalMirror( const unsigned int md2 )
 {
@@ -615,7 +980,17 @@ MD2VerticalMirror( const unsigned int md2 )
     | (md2 & 0xCC0000);
 }
 
-//  md3
+
+/**
+ * @~english
+ * @brief Return vertically symmetrical MD3 pattern.
+ * @param[in] md3 MD3 pattern.
+ * @return Vertically symmetrical MD3 pattern.
+ * @~japanese
+ * @brief 上下対称のMD3パターンの取得
+ * @param[in] md3 MD3パターン
+ * @return 上下反転したMD3パターン
+ */
 unsigned int
 MD3VerticalMirror( const unsigned int md3 )
 {
@@ -628,7 +1003,16 @@ MD3VerticalMirror( const unsigned int md3 )
 }
 
 
-//  md4
+/**
+ * @~english
+ * @brief Return vertically symmetrical MD4 pattern.
+ * @param[in] md4 MD4 pattern.
+ * @return Vertically symmetrical MD4 pattern.
+ * @~japanese
+ * @brief 上下対称のMD4パターンの取得
+ * @param[in] md4 MD4パターン
+ * @return 上下反転したMD4パターン
+ */
 unsigned int
 MD4VerticalMirror( const unsigned int md4 )
 {
@@ -642,7 +1026,17 @@ MD4VerticalMirror( const unsigned int md4 )
     | (md4 & 0x03000300);
 }
 
-//  md5
+
+/**
+ * @~english
+ * @brief Return vertically symmetrical MD5 pattern.
+ * @param[in] md5 MD5 pattern.
+ * @return Vertically symmetrical MD5 pattern.
+ * @~japanese
+ * @brief 上下対称のMD5パターンの取得
+ * @param[in] md5 MD5パターン
+ * @return 上下反転したMD5パターン
+ */
 unsigned long long
 MD5VerticalMirror( const unsigned long long md5 )
 {
@@ -658,11 +1052,17 @@ MD5VerticalMirror( const unsigned long long md5 )
     | (md5 & 0x00C0000C00);
 }
 
-////////////////
-//  左右対称  //
-////////////////
 
-//  3x3
+/**
+ * @~english
+ * @brief Return horizontally symmetrical 3x3 pattern.
+ * @param[in] pat3 3x3 pattern.
+ * @return Horizontally symmetrical 3x3 pattern.
+ * @~japanese
+ * @brief 左右対称の3x3パターンの取得
+ * @param[in] pat3 3x3パターン
+ * @return 左右反転した3x3パターン
+ */
 unsigned int
 Pat3HorizontalMirror( const unsigned int pat3 )
 {
@@ -671,7 +1071,17 @@ Pat3HorizontalMirror( const unsigned int pat3 )
     | REV3((pat3 & 0x003F));
 }
 
-//  md2
+
+/**
+ * @~english
+ * @brief Return horizontally symmetrical MD2 pattern.
+ * @param[in] md2 MD2 pattern.
+ * @return Horizontally symmetrical MD2 pattern.
+ * @~japanese
+ * @brief 左右対称のMD2パターンの取得
+ * @param[in] md2 MD2パターン
+ * @return 左右反転したMD2パターン
+ */
 unsigned int
 MD2HorizontalMirror( const unsigned int md2 )
 {
@@ -682,7 +1092,17 @@ MD2HorizontalMirror( const unsigned int md2 )
     | (md2 & 0x330000);
 }
 
-//  md3
+
+/**
+ * @~english
+ * @brief Return horizontally symmetrical MD3 pattern.
+ * @param[in] md3 MD3 pattern.
+ * @return Horizontally symmetrical MD3 pattern.
+ * @~japanese
+ * @brief 左右対称のMD3パターンの取得
+ * @param[in] md3 MD3パターン
+ * @return 左右反転したMD3パターン
+ */
 unsigned int
 MD3HorizontalMirror( const unsigned int md3 )
 {
@@ -694,7 +1114,17 @@ MD3HorizontalMirror( const unsigned int md3 )
     | (REV2((md3 & 0x00CC00) >> 10) << 10); // 18<->20
 }
 
-//  md4 
+
+/**
+ * @~english
+ * @brief Return horizontally symmetrical MD4 pattern.
+ * @param[in] md4 MD4 pattern.
+ * @return Horizontally symmetrical MD4 pattern.
+ * @~japanese
+ * @brief 左右対称のMD4パターンの取得
+ * @param[in] md4 MD4パターン
+ * @return 左右反転したMD4パターン
+ */
 unsigned int
 MD4HorizontalMirror( const unsigned int md4 )
 {
@@ -708,7 +1138,17 @@ MD4HorizontalMirror( const unsigned int md4 )
     | (REV2((md4 & 0x000CC000) >> 14) << 14); // 32<->34
 }
 
-//  md5 
+
+/**
+ * @~english
+ * @brief Return horizontally symmetrical MD5 pattern.
+ * @param[in] md5 MD5 pattern.
+ * @return Horizontally symmetrical MD5 pattern.
+ * @~japanese
+ * @brief 左右対称のMD5パターンの取得
+ * @param[in] md5 MD5パターン
+ * @return 左右反転したMD5パターン
+ */
 unsigned long long
 MD5HorizontalMirror( const unsigned long long md5 )
 {
@@ -725,11 +1165,16 @@ MD5HorizontalMirror( const unsigned long long md5 )
 }
 
 
-////////////////
-//  90度回転  //
-////////////////
-
-// 　3x3
+/**
+ * @~english
+ * @brief Return 90 degrees rotation 3x3 pattern.
+ * @param[in] pat3 3x3 pattern.
+ * @return 90 degrees rotated 3x3 pattern.
+ * @~japanese
+ * @brief 90度回転した3x3パターンの取得
+ * @param[in] pat3 3x3パターン
+ * @return 90度回転した3x3パターン
+ */
 unsigned int
 Pat3Rotate90( const unsigned int pat3 )
 {
@@ -745,7 +1190,17 @@ Pat3Rotate90( const unsigned int pat3 )
     | ((pat3 & 0xC000) >> 10);
 }
 
-//  md2 
+
+/**
+ * @~english
+ * @brief Return 90 degrees rotation MD2 pattern.
+ * @param[in] md2 MD2 pattern.
+ * @return 90 degrees rotated MD2 pattern.
+ * @~japanese
+ * @brief 90度回転したMD2パターンの取得
+ * @param[in] md2 MD2パターン
+ * @return 90度回転したMD2パターン
+ */
 unsigned int
 MD2Rotate90( const unsigned int md2 )
 {
@@ -758,7 +1213,17 @@ MD2Rotate90( const unsigned int md2 )
     | ((md2 & 0xFC0000) >> 2);
 }
 
-//  md3
+
+/**
+ * @~english
+ * @brief Return 90 degrees rotation MD3 pattern.
+ * @param[in] md3 MD3 pattern.
+ * @return 90 degrees rotated MD3 pattern.
+ * @~japanese
+ * @brief 90度回転したMD3パターンの取得
+ * @param[in] md3 MD3パターン
+ * @return 90度回転したMD3パターン
+ */
 unsigned int
 MD3Rotate90( const unsigned int md3 )
 {
@@ -766,7 +1231,17 @@ MD3Rotate90( const unsigned int md3 )
     | ((md3 & 0xFFFFC0) >> 6);
 }
 
-//  md4
+
+/**
+ * @~english
+ * @brief Return 90 degrees rotation MD4 pattern.
+ * @param[in] md4 MD4 pattern.
+ * @return 90 degrees rotated MD4 pattern.
+ * @~japanese
+ * @brief 90度回転したMD4パターンの取得
+ * @param[in] md4 MD4パターン
+ * @return 90度回転したMD4パターン
+ */
 unsigned int
 MD4Rotate90( const unsigned int md4 )
 {
@@ -774,7 +1249,17 @@ MD4Rotate90( const unsigned int md4 )
     | ((md4 & 0xFFFFFF00) >> 8);
 }
 
-//  md5
+
+/**
+ * @~english
+ * @brief Return 90 degrees rotation MD5 pattern.
+ * @param[in] md5 MD5 pattern.
+ * @return 90 degrees rotated MD5 pattern.
+ * @~japanese
+ * @brief 90度回転したMD5パターンの取得
+ * @param[in] md5 MD5パターン
+ * @return 90度回転したMD5パターン
+ */
 unsigned long long
 MD5Rotate90( const unsigned long long md5 )
 {
@@ -782,25 +1267,57 @@ MD5Rotate90( const unsigned long long md5 )
     | ((md5 & 0xFFFFFFFC00) >> 10);
 }
 
-//////////////////////
-//  パターンを返す  //
-//////////////////////
 
-//  3x3 
+/**
+ * @~english
+ * @brief Return 3x3 pattern.
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position to get pattern.
+ * @return 3x3 pattern.
+ * @~japanese
+ * @brief 3x3パターンの取得
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos パターンを取得する箇所
+ * @return 3x3パターン
+ */
 unsigned int
 Pat3( const pattern_t *pat, const int pos )
 {
   return (pat[pos].list[MD_2] & 0xFFFF);
 }
 
-//  md2
+
+/**
+ * @~english
+ * @brief Return MD2 pattern.
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position to get pattern.
+ * @return MD2 pattern.
+ * @~japanese
+ * @brief MD2パターンの取得
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos パターンを取得する箇所
+ * @return MD2パターン
+ */
 unsigned int
 MD2( const pattern_t *pat, const int pos )
 {
   return (pat[pos].list[MD_2]);
 }
 
-//  md3
+
+/**
+ * @~english
+ * @brief Return MD3 pattern.
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position to get pattern.
+ * @return MD3 pattern.
+ * @~japanese
+ * @brief MD3パターンの取得
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos パターンを取得する箇所
+ * @return MD3パターン
+ */
 unsigned int
 MD3( const pattern_t *pat, const int pos )
 {
@@ -808,24 +1325,56 @@ MD3( const pattern_t *pat, const int pos )
 }
 
 
-//  md4
+/**
+ * @~english
+ * @brief Return MD4 pattern.
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position to get pattern.
+ * @return MD4 pattern.
+ * @~japanese
+ * @brief MD4パターンの取得
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos パターンを取得する箇所
+ * @return MD4パターン
+ */
 unsigned int
 MD4( const pattern_t *pat, const int pos )
 {
   return (pat[pos].list[MD_4]);
 }
 
-//  md5
+
+/**
+ * @~english
+ * @brief Return MD5 pattern.
+ * @param[in] pat Instance of stones pattern.
+ * @param[in] pos Position to get pattern.
+ * @return MD5 pattern.
+ * @~japanese
+ * @brief MD5パターンの取得
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[in] pos パターンを取得する箇所
+ * @return MD5パターン
+ */
 unsigned long long
 MD5( const pattern_t *pat, const int pos )
 {
   return (pat[pos].large_list[MD_5]);
 }
 
-////////////////
-//  表示する  //
-////////////////
 
+/**
+ * @~english
+ * @brief Get stone charactor.
+ * @param[in] pat Pattern.
+ * @param[in] shift Bit shift.
+ * @return Stone charactor.
+ * @~japanese
+ * @brief 石を表現する文字を取得
+ * @param[in] pat 配石パターン
+ * @param[in] shift ビットシフト
+ * @return 石を表現する文字
+ */
 static char
 Stone( const unsigned int pat, const int shift )
 {
@@ -835,8 +1384,14 @@ Stone( const unsigned int pat, const int shift )
 }
 
 
-
-//  3x3
+/**
+ * @~english
+ * @brief Display 3x3 pattern.
+ * @param[in] pat3 3x3 pattern.
+ * @~japanese
+ * @brief 3x3パターンの表示
+ * @param[in] pat3 3x3パターン
+ */
 void
 DisplayInputPat3( const unsigned int pat3 )
 {
@@ -849,7 +1404,15 @@ DisplayInputPat3( const unsigned int pat3 )
   std::cerr << oss.str() << std::flush;
 }
 
-//  md2
+
+/**
+ * @~english
+ * @brief Display MD2 pattern.
+ * @param[in] md2 MD2 pattern.
+ * @~japanese
+ * @brief MD2パターンの表示
+ * @param[in] md2 MD2パターン
+ */
 void
 DisplayInputMD2( const unsigned int md2 )
 {
@@ -864,7 +1427,15 @@ DisplayInputMD2( const unsigned int md2 )
   std::cerr << oss.str() << std::flush;
 }
 
-//  md3
+
+/**
+ * @~english
+ * @brief Display MD3 pattern.
+ * @param[in] md3 MD3 pattern.
+ * @~japanese
+ * @brief MD3パターンの表示
+ * @param[in] md3 MD3パターン
+ */
 void
 DisplayInputMD3( const unsigned int md3 )
 {
@@ -881,7 +1452,15 @@ DisplayInputMD3( const unsigned int md3 )
   std::cerr << oss.str() << std::endl;
 }
 
-//  md4
+
+/**
+ * @~english
+ * @brief Display MD4 pattern.
+ * @param[in] md4 MD4 pattern.
+ * @~japanese
+ * @brief MD4パターンの表示
+ * @param[in] md4 MD4パターン
+ */
 void
 DisplayInputMD4( const unsigned int md4 )
 {
@@ -900,7 +1479,15 @@ DisplayInputMD4( const unsigned int md4 )
   std::cerr << oss.str() << std::endl;
 }
 
-//  md5
+
+/**
+ * @~english
+ * @brief Display MD5 pattern.
+ * @param[in] md5 MD5 pattern.
+ * @~japanese
+ * @brief MD5パターンの表示
+ * @param[in] md5 MD5パターン
+ */
 void
 DisplayInputMD5( const unsigned long long md5 )
 {
@@ -922,9 +1509,18 @@ DisplayInputMD5( const unsigned long long md5 )
 }
 
 
-//  Pattern
+/**
+ * @~english
+ * @brief Display pattern.
+ * @param[in] pattern Instance of stones pattern.
+ * @param[in] size Size of displaying pattern
+ * @~japanese
+ * @brief パターンの表示
+ * @param[in] pattern 配石パターンのインスタンス
+ * @param[in] size 表示するパターンのサイズ
+ */
 void
-DisplayInputPattern( pattern_t *pattern, int size )
+DisplayInputPattern( const pattern_t *pattern, const int size )
 {
   std::ostringstream oss;
   unsigned int md2 = pattern->list[MD_2];
@@ -933,7 +1529,6 @@ DisplayInputPattern( pattern_t *pattern, int size )
   unsigned long long md5 = pattern->large_list[MD_5];
 
   oss << "\n";
-  
 
   if (size == 5) {
     oss << "     " << Stone(md5,  0) << "     \n";
