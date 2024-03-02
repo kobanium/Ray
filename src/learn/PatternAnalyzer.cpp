@@ -1,3 +1,11 @@
+/**
+ * @file src/learn/PatternAnalyzer.cpp
+ * @author Yuki Kobayashi.
+ * @~english
+ * @brief Stones pattern analysis for supervised learning.
+ * @~japanese
+ * @brief 教師あり学習用の配石パターンの抽出処理
+ */
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -27,12 +35,15 @@ static void RemoveData( std::unique_ptr<hash_table_t> &hash_table );
 
 static void AddData( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash, pattern_t *pat );
 
-static void OutputTargetPattern( std::unique_ptr<int[]> &md2_count,
-                                 std::unique_ptr<hash_table_t> &md3_count,
-                                 std::unique_ptr<hash_table_t> &md4_count,
-                                 std::unique_ptr<hash_table_t> &md5_count );
+static void OutputTargetPattern( std::unique_ptr<int[]> &md2_count, std::unique_ptr<hash_table_t> &md3_count, std::unique_ptr<hash_table_t> &md4_count, std::unique_ptr<hash_table_t> &md5_count );
 
 
+/**
+ * @~english
+ * @brief Correct stones pattern.
+ * @~japanese
+ * @brief 配石パターンの収集
+ */
 void
 AnalyzePattern( void )
 {
@@ -104,6 +115,14 @@ AnalyzePattern( void )
 }
 
 
+/**
+ * @~english
+ * @brief Initialize pattern analysis data.
+ * @param[in, out] count Pattern analysis data.
+ * @~japanese
+ * @brief 配石パターン収集用データの初期化
+ * @param[in, out] count 配石パターン収集用データ
+ */
 static void
 ClearAllHashData( std::unique_ptr<hash_table_t> &count )
 {
@@ -121,6 +140,18 @@ ClearAllHashData( std::unique_ptr<hash_table_t> &count )
 }
 
 
+/**
+ * @~english
+ * @brief Count up stones pattern.
+ * @param[in, out] hash_table Pattern analysis data.
+ * @param[in] hash Hash value.
+ * @param[in] pat Stones pattern.
+ * @~japanese
+ * @brief 配石パターンの収集
+ * @param[in, out] hash_table 配石パターン収集用データ
+ * @param[in] hash ハッシュ値
+ * @param[in] pat 配石パターン
+ */
 static void
 Count( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash, pattern_t *pat )
 {
@@ -137,6 +168,16 @@ Count( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash, patte
 }
 
 
+/**
+ * @~english
+ * @brief Search stones pattern data.
+ * @param[in] hash_table Stones pattern data.
+ * @param[in] hash Hash value.
+ * @~japanese
+ * @brief 配石パターンデータの検索
+ * @param[in] hash_table 配石パターンデータ
+ * @param[in] hash ハッシュ値
+ */
 static int
 SearchData( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash )
 {
@@ -159,6 +200,14 @@ SearchData( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash )
 }
 
 
+/**
+ * @~english
+ * @brief Remove stones pattern data.
+ * @param[in, out] hash_table Stones pattern data.
+ * @~japanese
+ * @brief 配石パターンデータの削除
+ * @param[in, out] hash_table 配石パターンデータ
+ */
 static void
 RemoveData( std::unique_ptr<hash_table_t> &hash_table )
 {
@@ -178,6 +227,18 @@ RemoveData( std::unique_ptr<hash_table_t> &hash_table )
 }
 
 
+/**
+ * @~english
+ * @brief Add pattern data to stones pattern data.
+ * @param[in, out] hash_table Stones pattern data.
+ * @param[in] hash Hash value.
+ * @param[in] pat Stones pattern.
+ * @~japanese
+ * @brief 配石パターンデータの追加
+ * @param[in, out] hash_table 配石パターンデータ
+ * @param[in] hash ハッシュ値
+ * @param[in] pat 配石パターン
+ */
 static void
 AddData( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash, pattern_t *pat )
 {
@@ -196,6 +257,18 @@ AddData( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash, pat
 }
 
 
+/**
+ * @~english
+ * @brief Search empty data index.
+ * @param[in] hash_table Stones pattern data.
+ * @param[in] hash Hash value.
+ * @return Empty data index.
+ * @~japanese
+ * @brief 空のデータのインデックスの取得
+ * @param[in] hash_table 配石パターンデータ
+ * @param[in] hash ハッシュ値
+ * @return からのデータのインデックス
+ */
 static int
 SearchEmpty( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash )
 {
@@ -216,6 +289,20 @@ SearchEmpty( std::unique_ptr<hash_table_t> &hash_table, unsigned long long hash 
 }
 
 
+/**
+ * @~english
+ * @brief Output stones pattern's appearance count.
+ * @param[in] md2_count MD2 pattern data.
+ * @param[in] md3_count MD3 pattern data.
+ * @param[in] md4_count MD4 pattern data.
+ * @param[in] md5_count MD5 pattern data.
+ * @~japanese
+ * @brief パターンの出現回数の出力
+ * @param[in] md2_count MD2パターンのデータ
+ * @param[in] md3_count MD3パターンのデータ
+ * @param[in] md4_count MD4パターンのデータ
+ * @param[in] md5_count MD5パターンのデータ
+ */
 static void
 OutputTargetPattern( std::unique_ptr<int[]> &md2_count,
                      std::unique_ptr<hash_table_t> &md3_count,

@@ -1,3 +1,11 @@
+/**
+ * @file include/mcts/UctSearch.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Monte-Carlo tree search with upper confidence bound.
+ * @~japanese
+ * @brief UCBを利用したモンテカルロ木探索
+ */
 #ifndef _UCT_SEARCH_HPP_
 #define _UCT_SEARCH_HPP_
 
@@ -10,42 +18,123 @@
 #include "mcts/SearchManager.hpp"
 #include "mcts/Statistic.hpp"
 
-////////////
-//  定数  //
-////////////
 
-const int THREAD_MAX = 64;              // 使用するスレッド数の最大値
+/**
+ * @~english
+ * @brief Maximum number of worker threads.
+ * @~japanese
+ * @brief 使用するスレッド数の最大値
+ */
+constexpr int THREAD_MAX = 64;
 
-// CriticalityとOwnerを計算する間隔
-const int CRITICALITY_INTERVAL = 100;
+/**
+ * @~english
+ * @brief Update interval for calculating criticality and ownership.
+ * @~japanese
+ * @brief CriticalityとOwnerを計算する間隔
+ */
+constexpr int CRITICALITY_INTERVAL = 100;
 
-// Progressive Widening
-const double PROGRESSIVE_WIDENING = 1.8;
+/**
+ * @~english
+ * @brief Progressive widening parameter.
+ * @~japanese
+ * @brief Progressive Wideningの指数パラメータ
+ */
+constexpr double PROGRESSIVE_WIDENING = 1.8;
 
-// ノード展開の閾値
-const int EXPAND_THRESHOLD_9  = 20;
-const int EXPAND_THRESHOLD_13 = 25;
-const int EXPAND_THRESHOLD_19 = 40;
+/**
+ * @~english
+ * @brief Search count threshold for expanding a leaf node (9x9).
+ * @~japanese
+ * @brief ノード展開の閾値 (9路)
+ */
+constexpr int EXPAND_THRESHOLD_9  = 20;
 
-//////////////
-//  構造体  //
-//////////////
+/**
+ * @~english
+ * @brief Search count threshold for expanding a leaf node (13x13).
+ * @~japanese
+ * @brief ノード展開の閾値 (13路)
+ */
+constexpr int EXPAND_THRESHOLD_13 = 25;
+
+/**
+ * @~english
+ * @brief Search count threshold for expanding a leaf node (19x19).
+ * @~japanese
+ * @brief ノード展開の閾値 (19路)
+ */
+constexpr int EXPAND_THRESHOLD_19 = 40;
+
+
+/**
+ * @struct thread_arg_t
+ * @~english
+ * @brief Arguments for MCTS worker thread.
+ * @~japanese
+ * @brief MCTSワーカスレッド用の引数
+ */
 struct thread_arg_t {
-  game_info_t *game; // 探索対象の局面
-  int thread_id;   // スレッド識別番号
-  int color;       // 探索する手番
+  /**
+   * @~english
+   * @brief Root position for MCTS.
+   * @~japanese
+   * @brief 探索開始局面
+   */
+  game_info_t *game;
+
+  /**
+   * @~english
+   * @brief Search worker thread ID.
+   * @~japanese
+   * @brief 探索スレッドID
+   */
+  int thread_id;
+
+  /**
+   * @~english
+   * @brief Player's color at root position.
+   * @~japanese
+   * @brief 探索開始局面の手番
+   */
+  int color;
+
+  /**
+   * @~english
+   * @brief Display interval for lz-analyze.
+   * @~japanese
+   * @brief lz-analyzeコマンドの表示間隔
+   */
   int lz_analysis_cs;
 };
 
+
+/**
+ * @struct rate_order_t
+ * @~english
+ * @brief Data for move reordering.
+ * @~japanese
+ * @brief 着手の並び替えのためのデータ
+ */
 struct rate_order_t {
-  int index;    // ノードのインデックス
-  double rate;  // その手のレート
+  /**
+   * @~english
+   * @brief UCT node index.
+   * @~japanese
+   * @brief ノードのインデックス
+   */
+  int index;
+
+  /**
+   * @~english
+   * @brief Move rate.
+   * @~japanese
+   * @brief 着手のレート値
+   */
+  double rate;
 };
 
-
-//////////////////////
-//  グローバル変数  //
-//////////////////////
 
 // UCTのノード
 extern uct_node_t *uct_node;
@@ -53,20 +142,18 @@ extern uct_node_t *uct_node;
 // 現在のルートのインデックス
 extern int current_root;
 
+// 予測読みの有効化フラグ
 extern bool pondering_mode;
 
-////////////
-//  関数  //
-////////////
 
 // 予測読みを止める
 void StopPondering( void );
 
 // 予測読みのモードの設定
-void SetPonderingMode( bool flag );
+void SetPonderingMode( const bool flag );
 
 // 使用するスレッド数の指定
-void SetThread( int new_thread );
+void SetThread( const int new_threads );
 
 // パラメータの設定
 void SetParameter( void );

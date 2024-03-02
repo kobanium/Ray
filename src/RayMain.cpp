@@ -1,3 +1,11 @@
+/**
+ * @file src/RayMain.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Entry point for Ray.
+ * @~japanese
+ * @brief Rayのエントリーポイント
+ */
 #include <cstring>
 #include <cstdio>
 #if defined (_WIN32)
@@ -18,6 +26,18 @@
 #include "util/Command.hpp"
 
 
+/**
+ * @~english
+ * @brief Main function.
+ * @param[in] argc The number of arguments.
+ * @param[in] argv Command line arguments.
+ * @return Return code.
+ * @~japanese
+ * @brief メイン関数
+ * @param[in] argc コマンドライン引数の個数
+ * @param[in] argv コマンドライン引数
+ * @return 終了コード
+ */
 int
 main( int argc, char **argv )
 {

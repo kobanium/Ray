@@ -1,8 +1,36 @@
+/**
+ * @file include/feature/Semeai.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Semeai checker.
+ * @~japanese
+ * @brief 攻め合いの確認
+ */
 #ifndef _SEMEAI_HPP_
 #define _SEMEAI_HPP_
 
 #include "board/GoBoard.hpp"
 
+
+/**
+ * @enum LIBERTY_STATE
+ * @~english
+ * @brief Change in the number of liberties.
+ * @var L_DECREASE
+ * Decrease liberty.
+ * @var L_EVEN
+ * Unchange liberty.
+ * @var L_INCREASE
+ * Increase liberty.
+ * @~japanese
+ * @brief 呼吸点の数の変化
+ * @var L_DECREASE
+ * 呼吸点が減少
+ * @var L_EVEN
+ * 呼吸点変化なし
+ * @var L_INCREASE
+ * 呼吸点が増加
+ */
 enum LIBERTY_STATE {
   L_DECREASE,
   L_EVEN,

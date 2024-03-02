@@ -1,3 +1,11 @@
+/**
+ * @file src/mcts/UctSearch.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Monte-Carlo tree search with upper confidence bound.
+ * @~japanese
+ * @brief UCBを利用したモンテカルロ木探索
+ */
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -36,78 +44,191 @@
 #include <sys/time.h>
 #endif
 
-#define LOCK_NODE(var) mutex_nodes[(var)].lock()
-#define UNLOCK_NODE(var) mutex_nodes[(var)].unlock()
-#define LOCK_EXPAND mutex_expand.lock();
-#define UNLOCK_EXPAND mutex_expand.unlock();
 
-////////////////
-//  大域変数  //
-////////////////
-
-// UCTのノード
+/**
+ * @~english
+ * @brief UCT nodes.
+ * @~japanese
+ * @brief UCTノード
+ */
 uct_node_t *uct_node;
 
-// Progressive Widening の閾値
+/**
+ * @~english
+ * @brief Progressive widening threshold for node pruning.
+ * @~japanese
+ * @brief Progressive Widening の枝刈り探索回数閾値
+ */
 static int pw[PURE_BOARD_MAX + 1];  
 
-// ノード展開の閾値
+/**
+ * @~english
+ * @brief Node expansion threshold.
+ * @~japanese
+ * @brief ノード展開の閾値
+ */
 static int expand_threshold = EXPAND_THRESHOLD_19;
 
-// 現在のルートのインデックス
+/**
+ * @~english
+ * @brief Current root's index.
+ * @~japanese
+ * @brief 現在のルートのインデックス
+ */
 int current_root;
-// 各ノードの排他処理のためのmutex
+
+/**
+ * @~english
+ * @brief Mutex variable for UCT nodes.
+ * @~japanese
+ * @brief UCTノード用のミューテックス変数
+ */
 static std::mutex *mutex_nodes;
-// ノード展開を排他処理するためのmutex
+
+/**
+ * @~english
+ * @brief Mutex variable for node expansion.
+ * @~japanese
+ * @brief ノード展開を排他処理するためのミューテックス変数
+ */
 static std::mutex mutex_expand;       
 
-// 使用するスレッド数
+/**
+ * @~english
+ * @brief The number of search worker threads.
+ * @~japanese
+ * @brief 探索スレッド数
+ */
 static int threads = 1;
 
-// 各スレッドに渡す引数
+/**
+ * @~english
+ * @brief Arguments for search worker threads.
+ * @~japanese
+ * @brief 各スレッドに渡す引数
+ */
 static thread_arg_t t_arg[THREAD_MAX];
 
-// プレイアウトの統計情報
+/**
+ * @~english
+ * @brief Statistic information of Monte-Carlo simulation.
+ * @~japanese
+ * @brief プレイアウトの統計情報
+ */
 static statistic_t statistic[BOARD_MAX];  
-// 盤上の各点のCriticality
+
+/**
+ * @~english
+ * @brief Criticality value.
+ * @~japanese
+ * @brief 盤上の各点のCriticality
+ */
 static double criticality[BOARD_MAX];  
-// 盤上の各点のOwner(0-100%)
+
+/**
+ * @~english
+ * @brief Ownership value.
+ * @~japanese
+ * @brief 盤上の各点のOwner(0-100%)
+ */
 static double owner[BOARD_MAX];  
 
-// 現在のオーナーのインデックス
+/**
+ * @~english
+ * @brief Indices for ownership feature.
+ * @~japanese
+ * @brief 現在のオーナーのインデックス
+ */
 static int owner_index[BOARD_MAX];   
-// 現在のクリティカリティのインデックス
+
+/**
+ * @~english
+ * @brief Indices for criticality feature.
+ * @~japanese
+ * @brief 現在のクリティカリティのインデックス
+ */
 static int criticality_index[BOARD_MAX];  
 
-// 候補手のフラグ
-static bool candidates[BOARD_MAX];  
-
-bool pondering_mode = false;
-
-static bool ponder = false;
-
-static bool pondering_stop = false;
-
-static bool pondered = false;
-
-static std::thread *handle[THREAD_MAX];    // スレッドのハンドル
-
-// 乱数生成器
-static std::mt19937_64 mt[THREAD_MAX];
-
-// Criticalityの上限値
+/**
+ * @~english
+ * @brief Upper bound value for criticality.
+ * @~japanese
+ * @brief Criticalityの上限値
+ */
 static int criticality_max = CRITICALITY_MAX;
 
-// サブツリーを再利用するフラグ
+/**
+ * @~english
+ * @brief Move candidate flags.
+ * @~japanese
+ * @brief 候補手のフラグ
+ */
+static bool candidates[BOARD_MAX];  
+
+/**
+ * @~english
+ * @brief Pondering activation flag.
+ * @~japanese
+ * @brief 予測読みするかどうかのフラグ
+ */
+bool pondering_mode = false;
+
+/**
+ * @~english
+ * @brief Pondering flag.
+ * @~japanese
+ * @brief 予測読み中であることを表すフラグ
+ */
+static bool ponder = false;
+
+/**
+ * @~english
+ * @brief Pondering stopping flag.
+ * @~japanese
+ * @brief 予測読みを止めるためのフラグ
+ */
+static bool pondering_stop = false;
+
+/**
+ * @~english
+ * @brief Pondering is executed.
+ * @~japanese
+ * @brief 予測読みを実行したかどうかを表すフラグ
+ */
+static bool pondered = false;
+
+/**
+ * @~english
+ * @brief Search worker thread.
+ * @~japanese
+ * @brief 探索ワーカスレッド
+ */
+static std::thread *worker[THREAD_MAX];
+
+/**
+ * @~english
+ * @brief Random number generator for Monte-Carlo simulation.
+ * @~japanese
+ * @brief 乱数生成器
+ */
+static std::mt19937_64 mt[THREAD_MAX];
+
+/**
+ * @~english
+ * @brief Reuse subtree flag.
+ * @~japanese
+ * @brief 探索木の再利用のフラグ
+ */
 static bool reuse_subtree = false;
 
-// 自分の手番の色
+/**
+* @~english
+* @brief Ray's stone color.
+* @~japanese
+* @brief 自分の手番の色
+*/
 static int my_color;
 
-
-////////////
-//  関数  //
-////////////
 
 // Criticaliityの計算
 static void CalculateCriticality( int color );
@@ -154,6 +275,16 @@ static int UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int cur
 static int GetExpandThreshold( const game_info_t *game );
 
 
+/**
+ * @~english
+ * @brief Get node's data.
+ * @param[in] index Index for node.
+ * @return Node's data.
+ * @~japanese
+ * @brief 指定したインデックスのノードのデータの取得
+ * @param[in] index ノードのインデックス
+ * @return 指定したインデックスのノードのデータ
+ */
 uct_node_t&
 GetNode( const int index )
 {
@@ -161,6 +292,14 @@ GetNode( const int index )
 }
 
 
+/**
+ * @~english
+ * @brief Get current root node's data.
+ * @return Current root node's data.
+ * @~japanese
+ * @brief 現在のルートノードのデータの取得
+ * @return 現在のルートノードのデータ
+ */
 uct_node_t&
 GetRootNode( void )
 {
@@ -168,29 +307,44 @@ GetRootNode( void )
 }
 
 
-/////////////////////
-//  予測読みの設定  //
-/////////////////////
+/**
+ * @~english
+ * @brief Set pondering mode.
+ * @param[in] flag Pondering mode.
+ * @~japanese
+ * @brief 予測読みの設定
+ * @param[in] flag 予測読みのモード
+ */
 void
-SetPonderingMode( bool flag )
+SetPonderingMode( const bool flag )
 {
   pondering_mode = flag;
 }
 
 
-////////////////////////////////
-//  使用するスレッド数の指定  //
-////////////////////////////////
+/**
+ * @~english
+ * @brief Set the number of search worker threads.
+ * @param[in] new_threads The number of search worker threads.
+ * @~japanese
+ * @brief 使用するスレッド数の指定
+ * @param[in] new_threads 使用するスレッド数
+ */
 void
-SetThread( int new_thread )
+SetThread( const int new_threads )
 {
-  threads = new_thread;
+  threads = new_threads;
 }
 
 
-//////////////////////////
-//  ノード再利用の設定  //
-//////////////////////////
+/**
+ * @~english
+ * @brief Set reuse subtre mode.
+ * @param[in] flag Reuse subtree mode.
+ * @~japanese
+ * @brief 探索木再利用の設定
+ * @param[in] flag 探索木再利用のモード
+ */
 void
 SetReuseSubtree( bool flag )
 {
@@ -198,9 +352,12 @@ SetReuseSubtree( bool flag )
 }
 
 
-////////////////////////////////////////////
-//  盤の大きさに合わせたパラメータの設定  //
-////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Set parameters for search settings.
+ * @~japanese
+ * @brief 探索用パラメータの設定
+ */
 void
 SetParameter( void )
 {
@@ -216,9 +373,12 @@ SetParameter( void )
 }
 
 
-/////////////////////////
-//  UCT探索の初期設定  //
-/////////////////////////
+/**
+ * @~english
+ * @brief Initialization for tree search.
+ * @~japanese
+ * @brief 木探索の初期設定
+ */
 void
 InitializeUctSearch( void )
 {
@@ -227,7 +387,7 @@ InitializeUctSearch( void )
   // Progressive Wideningの初期化  
   pw[0] = 0;
   for (i = 1; i <= PURE_BOARD_MAX; i++) {  
-    pw[i] = pw[i - 1] + (int)(40 * pow(PROGRESSIVE_WIDENING, i - 1));
+    pw[i] = pw[i - 1] + static_cast<int>(40 * pow(PROGRESSIVE_WIDENING, i - 1));
     if (pw[i] > 10000000) break;
   }
   for (i = i + 1; i <= PURE_BOARD_MAX; i++) { 
@@ -252,9 +412,12 @@ InitializeUctSearch( void )
 }
 
 
-////////////////////////
-//  探索設定の初期化  //
-////////////////////////
+/**
+ * @~english
+ * @brief Initialization for search settings.
+ * @~japanese
+ * @brief 探索設定の初期化
+ */
 void
 InitializeSearchSetting( void )
 {
@@ -280,6 +443,12 @@ InitializeSearchSetting( void )
 }
 
 
+/**
+ * @~english
+ * @brief Stop pondering.
+ * @~japanese
+ * @brief 予測読みの停止
+ */
 void
 StopPondering( void )
 {
@@ -290,8 +459,8 @@ StopPondering( void )
   if (ponder) {
     pondering_stop = true;
     for (int i = 0; i < threads; i++) {
-      handle[i]->join();
-      delete handle[i];
+      worker[i]->join();
+      delete worker[i];
     }
     ponder = false;
     pondered = true;
@@ -300,9 +469,20 @@ StopPondering( void )
 }
 
 
-/////////////////////////////////////
-//  UCTアルゴリズムによる着手生成  //
-/////////////////////////////////////
+/**
+ * @~english
+ * @brief Generate next move by UCT search.
+ * @param[in] game Current board position data.
+ * @param[in] color Player's color.
+ * @param[in] lz_analysis_cs Update interval for lz-analyze.
+ * @return Coordinate of next move.
+ * @~japanese
+ * @brief UCT探索による着手生成
+ * @param[in] game 現在の局面情報
+ * @param[in] color 手番の色
+ * @param[in] lz_analysis_cs lz-analyzeコマンドの更新間隔
+ * @return 次の着手の座標
+ */
 int
 UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
 {
@@ -375,11 +555,11 @@ UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
   do {
     ExtendSearchTime(mag[mag_count]);
     for (int i = 0; i < threads; i++) {
-      handle[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
+      worker[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
     }
     for (int i = 0; i < threads; i++) {
-      handle[i]->join();
-      delete handle[i];
+      worker[i]->join();
+      delete worker[i];
     }
     mag_count++;
   } while (mag_count < 3 && ExtendTime(uct_node[current_root], game->moves));
@@ -405,9 +585,20 @@ UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
 }
 
 
-///////////////
-//  予測読み  //
-///////////////
+/**
+ * @~english
+ * @brief Ponder by UCT search.
+ * @param[in] game Current board position data.
+ * @param[in] color Player's color.
+ * @param[in] lz_analysis_cs Update interval for lz-analyze.
+ * @return Coordinate of next move.
+ * @~japanese
+ * @brief UCT探索による予測読み
+ * @param[in] game 現在の局面情報
+ * @param[in] color 手番の色
+ * @param[in] lz_analysis_cs lz-analyzeコマンドの更新間隔
+ * @return 次の着手の座標
+ */
 void
 UctSearchPondering( game_info_t *game, int color, int lz_analysis_cs )
 {
@@ -456,16 +647,25 @@ UctSearchPondering( game_info_t *game, int color, int lz_analysis_cs )
     t_arg[i].game = game;
     t_arg[i].color = color;
     t_arg[i].lz_analysis_cs = lz_analysis_cs;
-    handle[i] = new std::thread(ParallelUctSearchPondering, &t_arg[i]);
+    worker[i] = new std::thread(ParallelUctSearchPondering, &t_arg[i]);
   }
 
   return;
 }
 
 
-/////////////////////////
-//  ルートノードの展開  //
-/////////////////////////
+/**
+ * @~english
+ * @brief Expand a root node.
+ * @param[in] game Current board position data.
+ * @param[in] color Player's color.
+ * @return Index of a root node.
+ * @~japanese
+ * @brief ルートノードの展開
+ * @param[in] game 現在の局面情報
+ * @param[in] color 手番の色
+ * @return ルートノードのインデックス
+ */
 static int
 ExpandRoot( game_info_t *game, int color )
 {
@@ -564,10 +764,20 @@ ExpandRoot( game_info_t *game, int color )
 }
 
 
-
-///////////////////
-//  ノードの展開  //
-///////////////////
+/**
+ * @~english
+ * @brief Expand a node.
+ * @param[in] game Current board position data.
+ * @param[in] color Player's color.
+ * @param[in] current Current index of MCTS node.
+ * @return Index of a node.
+ * @~japanese
+ * @brief ノードの展開
+ * @param[in] game 現在の局面情報
+ * @param[in] color 手番の色
+ * @param[in] current 現在のノードのインデックス
+ * @return ノードのインデックス
+ */
 static int
 ExpandNode( game_info_t *game, int color, int current )
 {
@@ -652,10 +862,18 @@ ExpandNode( game_info_t *game, int color, int current )
 }
 
 
-//////////////////////////////////////
-//  ノードのレーティング             //
-//  (Progressive Wideningのために)  //
-//////////////////////////////////////
+/**
+ * @~english
+ * @brief Calculate all candidates' move score.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] index Node index.
+ * @~japanese
+ * @brief 着手のスコアの計算
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] index ノードのインデックス
+ */
 static void
 RatingNode( game_info_t *game, int color, int index )
 {
@@ -728,10 +946,14 @@ RatingNode( game_info_t *game, int color, int index )
 }
 
 
-/////////////////////////////////
-//  並列処理で呼び出す関数     //
-//  UCTアルゴリズムを反復する  //
-/////////////////////////////////
+/**
+ * @~english
+ * @brief Search worker.
+ * @param[in] arg Arguments for a search worker thread.
+ * @~japanese
+ * @brief 探索ワーカ
+ * @param[in] arg 探索ワーカスレッドの引数
+ */
 static void
 ParallelUctSearch( thread_arg_t *arg )
 {
@@ -798,10 +1020,14 @@ ParallelUctSearch( thread_arg_t *arg )
 }
 
 
-/////////////////////////////////
-//  並列処理で呼び出す関数     //
-//  UCTアルゴリズムを反復する  //
-/////////////////////////////////
+/**
+ * @~english
+ * @brief Pondering worker.
+ * @param[in] arg Arguments for a search worker thread.
+ * @~japanese
+ * @brief 予測読みワーカ
+ * @param[in] arg 予測読みワーカスレッドの引数
+ */
 static void
 ParallelUctSearchPondering( thread_arg_t *arg )
 {
@@ -858,10 +1084,24 @@ ParallelUctSearchPondering( thread_arg_t *arg )
 }
 
 
-//////////////////////////////////////////////
-//  UCT探索を行う関数                        //
-//  1回の呼び出しにつき, 1プレイアウトする    //
-//////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Search by UCT algorithm.
+ * @param[in] game Current board position data.
+ * @param[in] color Player's color.
+ * @param[in] mt Random number generator.
+ * @param[in] current Index of current node.
+ * @param[in] winner Search result data.
+ * @return Monte-Carlo simulation's result.
+ * @~japanese
+ * @brief UCTアルゴリズムによる探索
+ * @param[in] game 現在の局面情報
+ * @param[in] color 手番の色
+ * @param[in] mt 乱数生成器
+ * @param[in] current 現在のノードのインデックス
+ * @param[in] winner 探索結果
+ * @return モンテカルロ・シミュレーションの結果
+ */
 static int 
 UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &winner )
 {
@@ -870,7 +1110,7 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
   child_node_t *uct_child = uct_node[current].child;  
 
   // 現在見ているノードをロック
-  LOCK_NODE(current);
+  mutex_nodes[current].lock();
   // UCB値最大の手を求める
   next_index = SelectMaxUcbChild(current, color, mt);
   // 選んだ手を着手
@@ -884,7 +1124,7 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
     memcpy(game->seki, uct_node[current].seki, sizeof(bool) * BOARD_MAX);
     
     // 現在見ているノードのロックを解除
-    UNLOCK_NODE(current);
+    mutex_nodes[current].unlock();
 
     // 終局まで対局のシミュレーション
     Simulation(game, color, mt);
@@ -921,14 +1161,14 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
     // ノードの展開の確認
     if (uct_child[next_index].index == -1) {
       // ノードの展開中はロック
-      LOCK_EXPAND;
+      mutex_expand.lock();
       // ノードの展開
       uct_child[next_index].index = ExpandNode(game, color, current);
       // ノード展開のロックの解除
-      UNLOCK_EXPAND;
+      mutex_expand.unlock();
     }
     // 現在見ているノードのロックを解除
-    UNLOCK_NODE(current);
+    mutex_nodes[current].unlock();
     // 手番を入れ替えて1手深く読む
     result = UctSearch(game, color, mt, uct_child[next_index].index, winner);
   }
@@ -944,9 +1184,18 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
 }
 
 
-//////////////////////////
-//  ノードの並び替え用  //
-//////////////////////////
+/**
+ * @~english
+ * @brief Comparator by move evaluation value.
+ * @param[in] a Left-hand value.
+ * @param[in] b Right-hand value.
+ * @return Order judgment.
+ * @~japanese
+ * @brief 着手評価の大小比較
+ * @param[in] a 左辺値
+ * @param[in] b 右辺値
+ * @return 並び順の判定
+ */
 static int
 RateComp( const void *a, const void *b )
 {
@@ -962,9 +1211,20 @@ RateComp( const void *a, const void *b )
 }
 
 
-/////////////////////////////////////////////////////
-//  UCBが最大となる子ノードのインデックスを返す関数  //
-/////////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Select next move.
+ * @param[in] current MCTS node index.
+ * @param[in] color Player's color.
+ * @param[in] mt Random number generator.
+ * @return Node index for next move.
+ * @~japanese
+ * @brief 次の着手の選択
+ * @param[in] current MCTSノードインデックス
+ * @param[in] color 手番の色
+ * @param[in] mt 乱数生成器
+ * @return 次の手に対応するノードのインデックス
+ */
 static int
 SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
 {
@@ -1024,9 +1284,16 @@ SelectMaxUcbChild( int current, int color, std::mt19937_64 &mt )
 }
 
 
-///////////////////////////////////////////////////////////
-//  OwnerやCriiticalityを計算するための情報を記録する関数  //
-///////////////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Update statistic information.
+ * @param[in] game Board position data.
+ * @param[in] winner Winner's color.
+ * @~japanese
+ * @brief 統計情報の更新
+ * @param[in] game 局面情報
+ * @param[in] winner 勝った手番の色
+ */
 static void
 Statistic( game_info_t *game, int winner )
 {
@@ -1046,16 +1313,27 @@ Statistic( game_info_t *game, int winner )
 }
 
 
-//////////////////////////////////
-//  各ノードのCriticalityの計算  //
-//////////////////////////////////
+/**
+ * @~english
+ * @brief Calculate criticality feature index.
+ * @param[in] node UCT node.
+ * @param[in] node_statistic Statistic information for UCT node.
+ * @param[in] color Player's color.
+ * @param[in] index Criticality feature index.
+ * @~japanese
+ * @brief Criticalityの特徴インデックスの計算
+ * @param[in] node UCTノード
+ * @param[in] node_statistic UCTノードの統計情報
+ * @param[in] color 手番の色
+ * @param[in] index Criticalityの特徴インデックス
+ */
 static void
 CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index )
 {
   const int other = GetOppositeColor(color);
   const int count = node->move_count;
   const int child_num = node->child_num;
-  const double win = (double)node->win / node->move_count;
+  const double win = static_cast<double>(node->win) / node->move_count;
   const double lose = 1.0 - win;
   double tmp;
 
@@ -1073,9 +1351,15 @@ CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int co
   }
 }
 
-////////////////////////////////////
-//  Criticalityの計算をする関数   // 
-////////////////////////////////////
+
+/**
+ * @~english
+ * @brief Calculate criticality.
+ * @param[in] color Player's color.
+ * @~japanese
+ * @brief Criticalityの計算
+ * @param[in] color 手番の色
+ */
 static void
 CalculateCriticality( int color )
 {
@@ -1100,9 +1384,20 @@ CalculateCriticality( int color )
 }
 
 
-//////////////////////////////
-//  Ownerの計算をする関数   //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Calculate ownership feature index.
+ * @param[in] node UCT node.
+ * @param[in] node_statistic Statistic information for UCT node.
+ * @param[in] color Player's color
+ * @param[in] index Ownership feature index.
+ * @~japanese
+ * @brief Ownershipの特徴インデックスの計算
+ * @param[in] node UCTノード
+ * @param[in] node_statistic UCTノードの統計情報
+ * @param[in] color 手番の色
+ * @param[in] index Ownerの特徴インデックス
+ */
 static void
 CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index )
 {
@@ -1120,9 +1415,16 @@ CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, i
 }
 
 
-//////////////////////////////
-//  Ownerの計算をする関数   //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Calculate ownership feature index.
+ * @param[in] color Player's color.
+ * @param[in] count Playout count.
+ * @~japanese
+ * @brief Ownershipの特徴インデックスの計算
+ * @param[in] color 手番の色
+ * @param[in] count プレイアウト回数
+ */
 static void
 CalculateOwner( int color, int count )
 {
@@ -1135,13 +1437,22 @@ CalculateOwner( int color, int count )
 }
 
 
-/////////////////////////////////////
-//  UCTアルゴリズムによる局面解析  //
-/////////////////////////////////////
+/**
+ * @~english
+ * @brief Analyze current position by UCT algorithm.
+ * @param[in] game Current board position data.
+ * @param[in] color Player's color.
+ * @return Current black player's score.
+ * @~japanese
+ * @brief UCTアルゴリズムによる局面解析
+ * @param[in] game 現在の局面情報
+ * @param[in] color 手番の色
+ * @return 黒番の地
+ */
 int
 UctAnalyze( game_info_t *game, int color )
 {
-  std::thread *handle[THREAD_MAX];
+  std::thread *worker[THREAD_MAX];
 
   // 探索情報をクリア
   for (int i = 0; i < board_max; i++) {
@@ -1164,12 +1475,12 @@ UctAnalyze( game_info_t *game, int color )
     t_arg[i].game = game;
     t_arg[i].color = color;
     t_arg[i].lz_analysis_cs = -1;
-    handle[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
+    worker[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
   }
 
   for (int i = 0; i < threads; i++) {
-    handle[i]->join();
-    delete handle[i];
+    worker[i]->join();
+    delete worker[i];
   }
 
   int black = 0, white = 0;
@@ -1177,7 +1488,7 @@ UctAnalyze( game_info_t *game, int color )
   for (int y = board_start; y <= board_end; y++) {
     for (int x = board_start; x <= board_end; x++) {
       const int pos = POS(x, y);
-      const double ownership_value = (double)statistic[pos].colors[S_BLACK] / uct_node[current_root].move_count;
+      const double ownership_value = static_cast<double>(statistic[pos].colors[S_BLACK]) / uct_node[current_root].move_count;
       if (ownership_value > 0.5) {
         black++;
       } else {
@@ -1192,22 +1503,32 @@ UctAnalyze( game_info_t *game, int color )
 }
 
 
-/////////////////////////
-//  Ownerをコピーする  //
-/////////////////////////
+/**
+ * @~english
+ * @brief Copy ownership values.
+ * @param[out] dest Copy destination.
+ * @~japanese
+ * @brief Ownerの値のコピー
+ * @param[out] dest コピー先
+ */
 void
 OwnerCopy( int *dest )
 {
   for (int i = 0; i < pure_board_max; i++) {
     const int pos = onboard_pos[i];
-    dest[pos] = (int)((double)statistic[pos].colors[my_color] / uct_node[current_root].move_count * 100);
+    dest[pos] = static_cast<int>(static_cast<double>(statistic[pos].colors[my_color]) / uct_node[current_root].move_count * 100);
   }
 }
 
 
-///////////////////////////////
-//  Criticalityをコピーする  //
-///////////////////////////////
+/**
+ * @~english
+ * @brief Copy criticality value.
+ * @param[out] dest Copy destination.
+ * @~japanese
+ * @brief Criticalityの値のコピー
+ * @param[out] dest コピー先
+ */
 void
 CopyCriticality( double *dest )
 {
@@ -1217,6 +1538,15 @@ CopyCriticality( double *dest )
   }
 }
 
+
+/**
+ * @~english
+ * @brief Copy statistic information of Monte-Carlo simulation.
+ * @param[out] dest Copy destination.
+ * @~japanese
+ * @brief 統計情報のコピー
+ * @param[out] dest コピー先
+ */
 void
 CopyStatistic( statistic_t *dest )
 {
@@ -1226,15 +1556,24 @@ CopyStatistic( statistic_t *dest )
 }
 
 
-////////////////////////////////////////////////////////
-//  UCTアルゴリズムによる着手生成(KGS Clean Up Mode)  //
-////////////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Generate next move by UCT search for KGS clean up mode.
+ * @param[in] game Current board position data.
+ * @param[in] color Player's color.
+ * @return Coordinate of next move.
+ * @~japanese
+ * @brief UCT探索による着手生成 (KGSの終局処理用)
+ * @param[in] game 現在の局面情報
+ * @param[in] color 手番の色
+ * @return 次の着手の座標
+ */
 int
 UctSearchGenmoveCleanUp( game_info_t *game, int color )
 {
   int pos;
   double wp;
-  std::thread *handle[THREAD_MAX];
+  std::thread *worker[THREAD_MAX];
 
   for (int i = 0; i < board_max; i++) {
     statistic[i].clear();
@@ -1268,12 +1607,12 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
     t_arg[i].game = game;
     t_arg[i].color = color;
     t_arg[i].lz_analysis_cs = -1;
-    handle[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
+    worker[i] = new std::thread(ParallelUctSearch, &t_arg[i]);
   }
 
   for (int i = 0; i < threads; i++) {
-    handle[i]->join();
-    delete handle[i];
+    worker[i]->join();
+    delete worker[i];
   }
 
   child_node_t *uct_child = uct_node[current_root].child;
@@ -1320,9 +1659,16 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
 }
 
 
-///////////////////////////////////
-//  子ノードのインデックスの収集  //
-///////////////////////////////////
+/**
+ * @~english
+ * @brief Correct descendent node indices.
+ * @param[in, out] indexes Descendent node indices.
+ * @param[in] index Node index.
+ * @~japanese
+ * @brief 子孫ノードのインデックスの収集
+ * @param[in, out] indexes 子孫ノードのインデックス
+ * @param[in] index 現在のインデックス
+ */
 static void
 CorrectDescendentNodes( std::vector<int> &indexes, int index )
 {
@@ -1339,6 +1685,16 @@ CorrectDescendentNodes( std::vector<int> &indexes, int index )
 }
 
 
+/**
+ * @~english
+ * @brief Get visits threshold for node expansion.
+ * @param[in] game Board position data.
+ * @return Visit threshold for node expansion.
+ * @~japanese
+ * @brief ノードを展開する探索回数の閾値の取得
+ * @param[in] game 局面情報
+ * @return ノードを展開する探索回数の閾値
+ */
 static int
 GetExpandThreshold( const game_info_t *game )
 {

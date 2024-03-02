@@ -1,3 +1,11 @@
+/**
+ * @file MoveSelection.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Move selection from search result.
+ * @~japanese
+ * @brief 着手選択処理
+ */
 #include <iostream>
 
 #include "common/Message.hpp"
@@ -6,11 +14,31 @@
 #include "mcts/UctSearch.hpp"
 
 
+/**
+ * @~english
+ * @brief Winning rate threshold for resignation.
+ * @~japanese
+ * @brief 投了する勝率の閾値
+ */
 static double resign_threshold = RESIGN_THRESHOLD;
 
+/**
+ * @~english
+ * @brief Capturing all opponent's dead stones mode.
+ * @~japanese
+ * @brief 相手の全ての死に石を打ち上げるモード
+ */
 static bool capture_all_mode = false;
 
 
+/**
+ * @~english
+ * @brief Set capturing all opponent's dead stones mode.
+ * @param[in] flag Activation flag.
+ * @~japanese
+ * @brief 相手の全ての死に石を打ち上げるモードの設定
+ * @param[in] flag 有効化フラグ
+ */
 void
 SetCaptureAllMode( const bool flag )
 {
@@ -18,6 +46,14 @@ SetCaptureAllMode( const bool flag )
 }
 
 
+/**
+ * @~english
+ * @brief Set Winning rate threshold for resignation.
+ * @param[in] threshold Winning rate threshold for resignation.
+ * @~japanese
+ * @brief 投了する勝率の閾値の設定
+ * @param[in] threshold 投了する勝率の閾値
+ */
 void
 SetResignThreshold( const double threshold )
 {
@@ -32,6 +68,16 @@ SetResignThreshold( const double threshold )
 }
 
 
+/**
+ * @~english
+ * @brief Select move from max visited move.
+ * @param[in] root Root node.
+ * @return Next move.
+ * @~japanese
+ * @brief 探索回数最大の手を選択
+ * @param[in] root ルート
+ * @return 次の着手
+ */
 int
 SelectMaxVisitChild( const uct_node_t &root )
 {
@@ -50,6 +96,22 @@ SelectMaxVisitChild( const uct_node_t &root )
 }
 
 
+/**
+ * @~english
+ * @brief Select move from search result.
+ * @param[in] game Board position data.
+ * @param[in] root Root node.
+ * @param[in] color Player's color.
+ * @param[out] best_wp Best winning percentage of Monte-Carlo simulation.
+ * @return Next move.
+ * @~japanese
+ * @brief 探索の結果から着手を選択
+ * @param[in] game 局面情報
+ * @param[in] root ルート
+ * @param[in] color 手番の色
+ * @param[out] best_wp シミュレーション勝率の最大値
+ * @return 次の着手
+ */
 int
 SelectMove( const game_info_t *game, const uct_node_t &root, const int color, double &best_wp )
 {

@@ -1,3 +1,11 @@
+/**
+ * @file include/mcts/MCTSNode.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Node definition for Monte-Carlo Tree Search
+ * @~japanese
+ * @brief モンテカルロ木探索のノードの定義
+ */
 #ifndef _MCTS_NODE_HPP_
 #define _MCTS_NODE_HPP_
 
@@ -8,43 +16,192 @@
 #include <mutex>
 
 
-
-// 探索手の最大数(盤上全体 + パス)
+/**
+ * @~english
+ * @brief The maximum number of move candidates.
+ * @~japanese
+ * @brief 候補手の最大数(盤上全体 + パス)
+ */
 constexpr int UCT_CHILD_MAX = PURE_BOARD_MAX + 1;
 
-// 未展開のノードのインデックス
+/**
+ * @~english
+ * @brief Index for unexpanded node.
+ * @~japanese
+ * @brief 未展開ノードのインデックス
+ */
 constexpr int NOT_EXPANDED = -1;
 
-// パスの手のインデックス
+/**
+ * @~english
+ * @brief Index for pass.
+ * @~japanese
+ * @brief パスのインデックス
+ */
 constexpr int PASS_INDEX = 0;
 
-// Virtual Loss
+/**
+ * @~english
+ * @brief Virtual loss.
+ * @~japanese
+ * @brief Virtual Loss
+ */
 constexpr int VIRTUAL_LOSS = 1;
 
 
+/**
+ * @struct child_node_t
+ * @~english
+ * @brief Child node data.
+ * @~japanese
+ * @brief 子ノードの情報
+ */
 struct child_node_t {
-  short pos;                    // 着手する座標
-  std::atomic<int> move_count;  // 探索回数
-  std::atomic<int> win;         // 勝った回数
-  int index;                    // 次のノードのインデックス
-  float rate;                   // 着手の評価値
-  unsigned char mask;           // マスク
-  bool pw;                      // Progressive Wideningのフラグ
-  bool open;                    // 常に探索候補に入れるかどうかのフラグ
-  bool ladder;                  // シチョウのフラグ
+  /**
+   * @~english
+   * @brief Move coordinate.
+   * @~japanese
+   * @brief 着手する座標
+   */
+  short pos;
+
+  /**
+   * @~english
+   * @brief Search count.
+   * @~japanese
+   * @brief 探索回数
+   */
+  std::atomic<int> move_count;
+
+  /**
+   * @~english
+   * @brief The number of winning situations by Monte-Carlo simulation.
+   * @~japanese
+   * @brief モンテカルロ・シミュレーションの勝った回数
+   */
+  std::atomic<int> win;
+
+  /**
+   * @~english
+   * @brief Index to child node.
+   * @~japanese
+   * @brief 子ノードのインデックス
+   */
+  int index;
+
+  /**
+   * @~english
+   * @brief Move score (or Policy).
+   * @~japanese
+   * @brief 着手のレート
+   */
+  float rate;
+
+  /**
+   * @~english
+   * @brief Progressive widening opening flag.
+   * @~japanese
+   * @brief Progressive Wideningで展開されたフラグ
+   */
+  bool pw;
+
+  /**
+   * @~english
+   * @brief Forced opening flag.
+   * @~japanese
+   * @brief 強制的に手を読むフラグ
+   */
+  bool open;
+
+  /**
+   * @~english
+   * @brief Flag to be captured by ladder.
+   * @~japanese
+   * @brief シチョウで逃げる手のフラグ
+   */
+  bool ladder;
 };
 
 
+/**
+ * @struct uct_node_t
+ * @~english
+ * @brief UCT node data.
+ * @~japanese
+ * @brief UCTノードデータ
+ */
 struct uct_node_t {
-  int previous_move1;                 // 1手前の着手
-  int previous_move2;                 // 2手前の着手
-  std::atomic<int> move_count;        // 探索回数
-  std::atomic<int> win;               // 勝った回数
-  int width;                          // 探索幅
-  int child_num;                      // 子ノードの個数
-  child_node_t child[UCT_CHILD_MAX];  // 子ノードの情報
-  bool seki[BOARD_MAX];               // セキの判定
-  double ownership[BOARD_MAX];        // Onwership
+  /**
+   * @~english
+   * @brief Previous move.
+   * @~japanese
+   * @brief 1手前の着手箇所
+   */
+  int previous_move1;
+
+  /**
+   * @~english
+   * @brief Move before previous move.
+   * @~japanese
+   * @brief 2手前の着手箇所
+   */
+  int previous_move2;
+
+  /**
+   * @~english
+   * @brief Search count.
+   * @~japanese
+   * @brief ノードの探索回数
+   */
+  std::atomic<int> move_count;
+
+  /**
+   * @~english
+   * @brief The number of winning situations by Monte-Carlo simulation.
+   * @~japanese
+   * @brief モンテカルロ・シミュレーションの勝った回数
+   */
+  std::atomic<int> win;
+
+  /**
+   * @~english
+   * @brief The number of search candidates.
+   * @~japanese
+   * @brief 探索する手の幅
+   */
+  int width;
+
+  /**
+   * @~english
+   * @brief The number of child nodes.
+   * @~japanese
+   * @brief 子ノードの個数
+   */
+  int child_num;
+
+  /**
+   * @~english
+   * @brief Children node information.
+   * @~japanese
+   * @brief 子ノードの情報
+   */
+  child_node_t child[UCT_CHILD_MAX];
+
+  /**
+   * @~english
+   * @brief Seki point.
+   * @~japanese
+   * @brief セキの評価結果
+   */
+  bool seki[BOARD_MAX];
+
+  /**
+   * @~english
+   * @brief Ownership of Monte-Carlo simulation.
+   * @~japanese
+   * @brief Ownership
+   */
+  double ownership[BOARD_MAX];
 };
 
 

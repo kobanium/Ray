@@ -1,3 +1,11 @@
+/**
+ * @file include/board/GoBoard.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Operation of game position.
+ * @~japanese
+ * @brief 対局情報の管理.
+ */
 #ifndef _GO_BOARD_HPP_
 #define _GO_BOARD_HPP_
 
@@ -5,40 +13,162 @@
 
 #include "board/BoardData.hpp"
 
-//////////////////
-//  マクロ関数  //
-//////////////////
-#define POS(x, y) ((x) + (y) * board_size)  // (x, y)から座標を導出
-#define X(pos)        ((pos) % board_size)  // posのx座標の導出
-#define Y(pos)        ((pos) / board_size)  // posのy座標の導出
 
-#define CORRECT_X(pos) ((pos) % board_size - OB_SIZE + 1)  // 実際の盤上のx座標
-#define CORRECT_Y(pos) ((pos) / board_size - OB_SIZE + 1)  // 実際の盤上のy座標
+/**
+ * @def POS(x, y)
+ * @~english 
+ * @brief Convert x,y-coordinate to internal expression.
+ * @~japanese
+ * @brief (x, y)から座標を導出
+ */
+#define POS(x, y) ((x) + (y) * board_size)
 
-#define NORTH(pos) ((pos) - board_size)  // posの上の座標
-#define  WEST(pos) ((pos) - 1)           // posの左の座標
-#define  EAST(pos) ((pos) + 1)           // posの右の座標
-#define SOUTH(pos) ((pos) + board_size)  // posの下の座標
+/**
+ * @def X(pos)
+ * @~english
+ * @brief Get x-axis coordinate with internal expression.
+ * @~japanese
+ * @brief posのx座標の取得
+ */
+#define X(pos)        ((pos) % board_size)
 
-#define DX(pos1, pos2)  (abs(board_x[(pos1)] - board_x[(pos2)]))     // x方向の距離
-#define DY(pos1, pos2)  (abs(board_y[(pos1)] - board_y[(pos2)]))     // y方向の距離
-#define DIS(pos1, pos2) (move_dis[DX(pos1, pos2)][DY(pos1, pos2)])   // 着手距離
+/**
+ * @def Y(pos)
+ * @~english
+ * @brief Get y-axis coordinate with internal expression.
+ * @~japanese
+ * @brief posのy座標の取得
+ */
+#define Y(pos)        ((pos) / board_size)
+
+/**
+ * @def CORRECT_X(pos)
+ * @~english
+ * @brief Get x-axis coordinate.
+ * @~japanese
+ * @brief 実際の盤上のx座標の取得
+ */
+#define CORRECT_X(pos) ((pos) % board_size - OB_SIZE + 1)
+
+/**
+ * @def CORRECT_Y(pos)
+ * @~english
+ * @brief Get y-axis coordinate.
+ * @~japanese
+ * @brief 実際の盤上のy座標の取得
+ */
+#define CORRECT_Y(pos) ((pos) / board_size - OB_SIZE + 1)
+
+/**
+ * @def NORTH(pos)
+ * @~english
+ * @brief Get upper coordinate.
+ * @~japanese
+ * @brief posの上の座標の取得
+ */
+#define NORTH(pos) ((pos) - board_size)
+
+/**
+ * @def WEST(pos)
+ * @~english
+ * @brief Get left coordinate.
+ * @~japanese
+ * @brief posの左の座標の取得
+ */
+#define  WEST(pos) ((pos) - 1)
+
+/**
+ * @def EAST(pos)
+ * @~english
+ * @brief Get right coordinate.
+ * @~japanese
+ * @brief posの右の座標の取得
+ */
+#define  EAST(pos) ((pos) + 1)
+
+/**
+ * @def SOUTH(pos)
+ * @~english
+ * @brief Get bottom coordinate.
+ * @~japanese
+ * @brief posの下の座標の取得
+ */
+#define SOUTH(pos) ((pos) + board_size)
+
+/**
+ * @def DX(pos1, pos2)
+ * @~english
+ * @brief X-axis coordinate distance.
+ * @~japanese
+ * @brief x方向の距離の算出
+ */
+#define DX(pos1, pos2)  (abs(board_x[(pos1)] - board_x[(pos2)]))
 
 
+/**
+ * @def DY(pos1, pos2)
+ * @~english
+ * @brief Y-axis coordinate distance.
+ * @~japanese
+ * @brief y方向の距離の算出
+ */
+#define DY(pos1, pos2)  (abs(board_y[(pos1)] - board_y[(pos2)]))
+
+/**
+ * @def DIS(pos1, pos2)
+ * @~english
+ * @brief Get move distance.
+ * @~japanese
+ * @brief 着手距離の取得
+ */
+#define DIS(pos1, pos2) (move_dis[DX(pos1, pos2)][DY(pos1, pos2)])
+
+
+/**
+ * @enum eye_condition_t
+ * @~english
+ * @brief Eye shape condition.
+ * @var E_NOT_EYE
+ * Not eye.
+ * @var E_COMPLETE_HALF_EYE
+ * Complete half eye.
+ * @var E_HALF_3_EYE
+ * Half eye which is needed 3 moves to become complete eye.
+ * @var E_HALF_2_EYE
+ * Half eye which is needed 2 moves to become complete eye.
+ * @var E_HALF_1_EYE
+ * Half eye which is needed 1 move to become complete eye.
+ * @var E_COMPLETE_ONE_EYE
+ * Complete eye.
+ * @var E_MAX
+ * Sentinel.
+ * @~japanese
+ * @brief 眼の状態
+ * @var E_NOT_EYE
+ * 眼でない
+ * @var E_COMPLETE_HALF_EYE
+ * 完全に欠け眼(8近傍に打って1眼にできない)
+ * @var E_HALF_3_EYE
+ * 欠け眼であるが, 3手で1眼にできる
+ * @var E_HALF_2_EYE
+ * 欠け眼であるが, 2手で1眼にできる
+ * @var E_HALF_1_EYE
+ * 欠け眼であるが, 1手で1眼にできる
+ * @var E_COMPLETE_ONE_EYE
+ * 完全な1眼
+ * @var E_MAX
+ * 番兵
+ */
 enum eye_condition_t : unsigned char {
-  E_NOT_EYE,           // 眼でない
-  E_COMPLETE_HALF_EYE, // 完全に欠け眼(8近傍に打って1眼にできない)
-  E_HALF_3_EYE,        // 欠け眼であるが, 3手で1眼にできる
-  E_HALF_2_EYE,        // 欠け眼であるが, 2手で1眼にできる
-  E_HALF_1_EYE,        // 欠け眼であるが, 1手で1眼にできる
-  E_COMPLETE_ONE_EYE,  // 完全な1眼
+  E_NOT_EYE,
+  E_COMPLETE_HALF_EYE,
+  E_HALF_3_EYE,
+  E_HALF_2_EYE,
+  E_HALF_1_EYE,
+  E_COMPLETE_ONE_EYE,
   E_MAX,
 };
 
-
-////////////////
-//    変数    //
-////////////////
 
 // 碁盤の大きさ
 extern int pure_board_size;
@@ -103,9 +233,6 @@ extern int onboard_pos[PURE_BOARD_MAX];
 // 初手の候補手
 extern int first_move_candidate[PURE_BOARD_MAX];
 
-//////////////
-//   関数   //
-//////////////
 
 // 超劫の設定
 void SetSuperKo( const bool flag );

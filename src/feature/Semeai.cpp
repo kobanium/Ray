@@ -1,3 +1,11 @@
+/**
+ * @file src/feature/Semeai.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Semeai checker.
+ * @~japanese
+ * @brief 攻め合いの確認
+ */
 #include <memory>
 
 #include "board/GoBoard.hpp"
@@ -10,9 +18,22 @@
 #include "mcts/UctRating.hpp"
 
 
-/////////////////////////
-//  1手で取れるか確認  //
-/////////////////////////
+/**
+ * @~english
+ * @brief Check capturable atari with only one move.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate to move.
+ * @param[in] color Player's color.
+ * @param[in] opponent_pos Coordinate of opponent's string.
+ * @return Check result.
+ * @~japanese
+ * @brief 1手で取れるかを確認
+ * @param[in] game 局面情報
+ * @param[in] pos 着手する座標
+ * @param[in] color 手番の色
+ * @param[in] opponent_pos 相手の連の座標
+ * @return 確認結果
+ */
 bool
 IsCapturableAtari( const game_info_t *game, const int pos, const int color, const int opponent_pos )
 {
@@ -56,10 +77,22 @@ IsCapturableAtari( const game_info_t *game, const int pos, const int color, cons
 }
 
 
-////////////////////////////////
-//  オイオトシかどうかを確認  //
-////////////////////////////////
-// 返り値がintとboolの違いだけでIsCapturableAtari関数と同じ
+/**
+ * @~english
+ * @brief Check capturable atari with only one move.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate to move.
+ * @param[in] color Player's color.
+ * @param[in] opponent_pos Coordinate of opponent's string.
+ * @return The number of capturable stones.
+ * @~japanese
+ * @brief 1手で取れるかを確認
+ * @param[in] game 局面情報
+ * @param[in] pos 着手する座標
+ * @param[in] color 手番の色
+ * @param[in] opponent_pos 相手の連の座標
+ * @return 取れる石の個数
+ */
 int
 CheckOiotoshi( const game_info_t *game, const int pos, const int color, const int opponent_pos )
 {
@@ -100,9 +133,18 @@ CheckOiotoshi( const game_info_t *game, const int pos, const int color, const in
 }
 
 
-//////////////////////////////////////////////
-//  石をすぐに捕獲できそうな候補手を求める  //
-//////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Get capturable move candidate.
+ * @param[in] game Board position data.
+ * @param[in] id String ID.
+ * @return Coordinate of capturable move. 
+ * @~japanese
+ * @brief 取れるアタリの座標候補の取得
+ * @param[in] game 局面情報
+ * @param[in] id 連ID
+ * @return 取れるアタリの座標候補
+ */
 int
 CapturableCandidate( const game_info_t *game, const int id )
 {
@@ -131,9 +173,20 @@ CapturableCandidate( const game_info_t *game, const int id )
 }
 
 
-////////////////////////////////////
-//  すぐに捕まる手かどうかを判定  //
-////////////////////////////////////
+/**
+ * @~english
+ * @brief Check already captured extension move.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] id String ID.
+ * @return Check result.
+ * @~japanese
+ * @brief 逃げても無駄な連か判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] id 確認する連ID
+ * @return 判定結果
+ */
 bool
 IsDeadlyExtension( const game_info_t *game, const int color, const int id )
 {
@@ -158,13 +211,25 @@ IsDeadlyExtension( const game_info_t *game, const int color, const int id )
 }
 
 
-/////////////////////////////////
-//  自己アタリになるトリか判定  //
-/////////////////////////////////
+/**
+ * @~english
+ * @brief Check snap-back capture.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate.
+ * @param[in] color Player's color.
+ * @param[in] id String ID.
+ * @return Check result.
+ * @~japanese
+ * @brief ウッテガエシで取られるトリの判定
+ * @param[in] game 局面情報
+ * @param[in] pos 確認する座標
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @return 判定結果
+ */
 bool
 IsSelfAtariCapture( const game_info_t *game, const int pos, const int color, const int id )
 {
-
   if (!IsLegal(game, pos, color)) {
     return false;
   }
@@ -185,9 +250,23 @@ IsSelfAtariCapture( const game_info_t *game, const int pos, const int color, con
   }
 }
 
-////////////////////////////////////////
-//  呼吸点がどのように変化するかを確認  //
-////////////////////////////////////////
+
+/**
+ * @~english
+ * @brief Check liberty state after move.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate to move.
+ * @param[in] color Player's color.
+ * @param[in] id String ID.
+ * @return Liberty state.
+ * @~japanese
+ * @brief 打った後の呼吸点の数の状態の確認
+ * @param[in] game 局面情報
+ * @param[in] pos 打つ座標
+ * @param[in] color 手番の色
+ * @param[in] id 確認する連ID
+ * @return 呼吸点の数の状態
+ */
 int
 CheckLibertyState( const game_info_t *game, const int pos, const int color, const int id )
 {
@@ -217,9 +296,22 @@ CheckLibertyState( const game_info_t *game, const int pos, const int color, cons
 }
 
 
-///////////////////////////////////////////////
-//  1手で取れるかを判定(シミュレーション用)  //
-///////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check capturable atari for Monte-Carlo simulation.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate.
+ * @param[in] color Player's color.
+ * @param[in] id String ID
+ * @return Check result.
+ * @~japanese
+ * @brief 石を取れるアタリかを判定 (モンテカルロ・シミュレーション用)
+ * @param[in] game 局面情報
+ * @param[in] pos 確認する座標
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @return 判定結果
+ */
 bool
 IsCapturableAtariForSimulation( const game_info_t *game, const int pos, const int color, const int id )
 {
@@ -322,6 +414,22 @@ IsCapturableAtariForSimulation( const game_info_t *game, const int pos, const in
 }
 
 
+/**
+ * @~english
+ * @brief Check self atari after capturing for Monte-Carlo simulation.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate.
+ * @param[in] color Player's color.
+ * @param[in] lib Coordinate of a liberty.
+ * @return Check result.
+ * @~japanese
+ * @brief 石を取った後に自己アタリになる手か判定 (モンテカルロ・シミュレーション用)
+ * @param[in] game 局面情報
+ * @param[in] pos 確認する座標
+ * @param[in] color 手番の色
+ * @param[in] lib 呼吸点の座標
+ * @return 判定結果
+ */
 bool
 IsSelfAtariCaptureForSimulation( const game_info_t *game, const int pos, const int color, const int lib )
 {
@@ -392,6 +500,21 @@ IsSelfAtariCaptureForSimulation( const game_info_t *game, const int pos, const i
   return true;
 }
 
+
+/**
+ * @~english
+ * @brief Check self atari.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] pos Coordinate.
+ * @return Check result.
+ * @~japanese
+ * @brief 自己アタリの判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] pos 確認する座標
+ * @return 判定結果
+ */
 bool
 IsSelfAtari( const game_info_t *game, const int color, const int pos )
 {
@@ -547,6 +670,22 @@ IsSelfAtari( const game_info_t *game, const int color, const int pos )
 }
 
 
+/**
+ * @~english
+ * @brief Check already captured string.
+ * @param[in] game Board position data.
+ * @param[in] id String ID.
+ * @param[in] player_id IDs of Player's string.
+ * @param[in] player_ids The number of IDS of Player's string.
+ * @return Check result.
+ * @~japanese
+ * @brief 既に取れているか判定
+ * @param[in] game 局面座標
+ * @param[in] id 連ID
+ * @param[in] player_id 手番の連のID
+ * @param[in] player_ids 手番の連のIDの個数
+ * @return 判定結果
+ */
 bool 
 IsAlreadyCaptured( const game_info_t *game, const int id, int player_id[], int player_ids )
 {
@@ -600,7 +739,20 @@ IsAlreadyCaptured( const game_info_t *game, const int id, int player_id[], int p
 }
 
 
-
+/**
+ * @~english
+ * @brief Check meaningful self atari.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] pos Coordinate.
+ * @return Check result.
+ * @~japanese
+ * @brief 意味のある自己アタリかどうかを判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] pos 確認する座標
+ * @return 判定結果
+ */
 bool
 IsMeaningfulSelfAtari( const game_info_t *game, const int color, const int pos )
 {

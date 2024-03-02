@@ -1,3 +1,8 @@
+/**
+ * @file include/mcts/AnalysisData.hpp
+ * @brief \~english Data manager for cgos_genmove-analyze.
+ *        \~japanese CGOS読み筋表示用のデータ管理
+ */
 #ifndef _ANALYSIS_DATA_HPP_
 #define _ANALYSIS_DATA_HPP_
 
@@ -12,16 +17,76 @@
 #include "util/Utility.hpp"
 
 
+/**
+ * @class PrincipalVariationData
+ * @~english
+ * @brief Data management class for principal variation.
+ * @~japanese
+ * @brief 読み筋管理クラス
+ */
 class PrincipalVariationData {
 private:
+  /**
+   * @~english
+   * @brief Coordinate of a move.
+   * @~japanese
+   * @brief 着手の座標
+   */
   int move;
+
+  /**
+   * @~english
+   * @brief Winning ratio of Monte-Carlo simulations.
+   * @~japanese
+   * @brief モンテカルロ・シミュレーションの勝率
+   */
   double playout_win_rate;
+
+  /**
+   * @~english
+   * @brief Policy (Prior value).
+   * @~japanese
+   * @brief 着手評価値
+   */
   double prior;
+
+  /**
+   * @~english
+   * @brief The number of visits.
+   * @~japanese
+   * @brief 探索回数
+   */
   int visits;
+
+  /**
+   * @~english
+   * @brief Upper length limit of PV list.
+   * @~japanese
+   * @brief PVリストの長さ上限
+   */
   int pv_depth_limit;
+
+  /**
+   * @~english
+   * @brief List of principal variation.
+   * @~japanese
+   * @brief PVリスト
+   */
   std::vector<std::string> pv;
 
 public:
+  /**
+   * @~english
+   * @brief Constructor of PrincipalVariationData class.
+   * @param[in] root Root node of a current position.
+   * @param[in] child_index Index of a selected child node.
+   * @param[in] depth_limit Depth limiation for principal variation.
+   * @~japanese
+   * @brief PrincipalVariationDataクラスのコンストラクタ
+   * @param[in] root 現局面のルートノード
+   * @param[in] child_index 選択した手のインデックス
+   * @param[in] depth_limit PVの深さ制限
+   */
   PrincipalVariationData( const uct_node_t &root, const int child_index, const int depth_limit = 100 )
     : move(root.child[child_index].pos), playout_win_rate(CalculateWinningRate(root.child[child_index])),
       prior(root.child[child_index].rate), visits(root.child[child_index].move_count.load()), pv_depth_limit(depth_limit)
@@ -56,12 +121,30 @@ public:
     }
   }
 
+  /**
+   * @~english
+   * @brief Comparison operator.
+   * @param[in] data Right hand value.
+   * @return Comparison result
+   * @~japanese
+   * @brief 比較演算子
+   * @param[in] data 右辺値
+   * @return 比較結果
+   */
   bool
   operator>( const PrincipalVariationData &data ) const
   {
     return visits > data.visits;
   }
 
+  /**
+   * @~english
+   * @brief Get JSON-formatted string.
+   * @return JSON-formated string.
+   * @~japanese
+   * @brief JSON形式の文字列を取得する
+   * @return JSON形式の文字列
+   */
   std::string
   GetJsonData( void ) const
   {
@@ -80,16 +163,74 @@ public:
 };
 
 
+/**
+ * @class CgosAnalyzeData
+ * @~english
+ * @brief Data management class for CGOS.
+ * @~japanese
+ * @brief CGOS用の読み筋管理クラス
+ */
 class CgosAnalyzeData {
 private:
+  /**
+   * @~english
+   * @brief The number of a current position's visits.
+   * @~japanese
+   * @brief 現局面の探索回数
+   */
   const int visits;
+
+  /**
+   * @~english
+   * @brief Winning ration of a current position.
+   * @~japanese
+   * @brief 現局面の勝率
+   */
   double win_rate;
+
+  /**
+   * @~english
+   * @brief Data of principal variations.
+   * @~japanese
+   * @brief 読み筋の情報
+   */
   std::vector<PrincipalVariationData> pv_data;
+
+  /**
+   * @~english
+   * @brief Charactors for ownership.
+   * @~japanese
+   * @brief Ownershipを表現するための文字列
+   */
   const char owner_char[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+";
+
+  /**
+   * @~english
+   * @brief Decoded ownership data.
+   * @~japanese
+   * @brief デコードしたOwnershipのデータ
+   */
   std::string ownership;
+
+  /**
+   * @~english
+   * @brief Comment.
+   * @~japanese
+   * @brief コメント
+   */
   std::string comment;
 
 public:
+  /**
+   * @~english
+   * @brief Constructor of CgosAnalyzeData class.
+   * @param[in] root Root node.
+   * @param[in] color Player's color.
+   * @~japanese
+   * @brief CgosAnalyzeDataクラスのコンストラクタ
+   * @param[in] root ルート
+   * @param[in] color 手番の色
+   */
   CgosAnalyzeData( const uct_node_t &root, const int color )
     : visits(root.move_count)
   {
@@ -122,7 +263,14 @@ public:
 
   }
 
-
+  /**
+   * @~english
+   * @brief Get JSON-formatted string.
+   * @return JSON-formated string.
+   * @~japanese
+   * @brief JSON形式の文字列を取得する
+   * @return JSON形式の文字列
+   */
   std::string
   GetJsonData( void ) const
   {
@@ -144,8 +292,6 @@ public:
 
     return oss.str();
   }
-
 };
-
 
 #endif

@@ -1,3 +1,11 @@
+/**
+ * @file Simulation.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Monte Carlo simulation.
+ * @~japanese
+ * @brief モンテカルロシミュレーション
+ */
 #include <random>
 
 #include "board/GoBoard.hpp"
@@ -7,9 +15,18 @@
 #include "mcts/Simulation.hpp"
 
 
-////////////////////////////////
-//  終局までシミュレーション  //
-////////////////////////////////
+/**
+ * @~english
+ * @brief Simulate a match with Monte Carlo method.
+ * @param[in] game Board situation.
+ * @param[in] starting_color First playing color.
+ * @param[in] mt Random number generator.
+ * @~japanese
+ * @brief モンテカルロ法による対局のシミュレーション
+ * @param[in] game 局面の情報
+ * @param[in] starting_color シミュレーション開始手番
+ * @param[in] mt 乱数生成器
+ */
 void
 Simulation( game_info_t *game, int starting_color, std::mt19937_64 &mt )
 {

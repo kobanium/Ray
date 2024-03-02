@@ -1,3 +1,11 @@
+/**
+ * @file include/learn/LearningUtility.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Utility functions for Learning.
+ * @~japanese
+ * @brief 学習用の処理
+ */
 #ifndef _LEARNING_UTILITY_HPP_
 #define _LEARNING_UTILITY_HPP_
 
@@ -10,9 +18,6 @@
 
 // 通常のデータの出力
 void OutputGamma( const std::string filename, const std::vector<mm_t> &data );
-
-// MD2パターン用の出力
-void OutputGamma( const std::string filename, const std::vector<mm_t> &data, const unsigned int index_list[], const int data_size );
 
 // MD2パターン用の出力
 void OutputGamma( const std::string filename, const std::vector<mm_t> &data, const std::vector<unsigned int> &index_list );
@@ -28,9 +33,6 @@ void OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> 
 
 // 学習したパラメータの出力
 void OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> &data, const std::vector<unsigned int> &list, const std::vector<index_hash_t> &index, const std::vector<bool> &target );
-
-// 学習対象のMD2パターンの読み込み
-void InputMD2Target( const std::string filename, int md2_index[], unsigned int md2_list[], bool md2_target[], int &md2_target_num, const int data_length );
 
 // 学習対象のMD2パターンの読み込み
 void InputMD2Target( const std::string filename, std::vector<int> &md2_index, std::vector<unsigned int> &md2_list, std::vector<bool> &md2_target );

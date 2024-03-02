@@ -1,3 +1,11 @@
+/**
+ * @file src/feature/Ladder.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Ladder checker.
+ * @~japanese
+ * @brief シチョウの確認
+ */
 #include <iostream>
 #include <memory>
 
@@ -7,15 +15,39 @@
 #include "feature/Ladder.hpp"
 
 
-#define ALIVE true
-#define DEAD  false
+/**
+ * @~english
+ * @brief Escapable ladder.
+ * @~japanese
+ * @brief 逃げられるシチョウ
+ */
+constexpr bool ALIVE = true;
+
+/**
+ * @~english
+ * @brief Capturable ladder.
+ * @~japanese
+ * @brief 取られるシチョウ
+ */
+constexpr bool DEAD = false;
+
 
 // シチョウ探索
 static bool IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, const int turn_color );
 
-////////////////////////////////
-//  現在の局面のシチョウ探索  //
-////////////////////////////////
+
+/**
+ * @~english
+ * @brief Search capturable ladder.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[out] ladder_pos Judgment of ladder capturable intersections.
+ * @~japanese
+ * @brief シチョウで取られる手の探索
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[out] ladder_pos シチョウで取られる箇所の判定
+ */
 void
 LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 {
@@ -74,9 +106,22 @@ LadderExtension( game_info_t *game, int color, bool *ladder_pos )
 }
 
 
-////////////////////
-//  シチョウ探索  //
-////////////////////
+/**
+ * @~english
+ * @brief Ladder search.
+ * @param[in] depth Search depth.
+ * @param[in] game Fast board position data.
+ * @param[in] ren_xy String coordinate.
+ * @param[in] turn_color Player's color.
+ * @return Ladder capturable flag.
+ * @~japanese
+ * @brief シチョウ探索
+ * @param[in] depth 探索深さ
+ * @param[in] game 局面情報
+ * @param[in] ren_xy 逃げる連の座標
+ * @param[in] turn_color 手番の色
+ * @return シチョウで取られるか否かのフラグ
+ */
 static bool
 IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, const int turn_color )
 {
@@ -154,9 +199,20 @@ IsLadderCaptured( const int depth, search_game_info_t *game, const int ren_xy, c
 }
 
 
-//////////////////////////////////////////
-//  助からないシチョウを逃げる手か判定  //
-//////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check capturable ladder escape.
+ * @param[in] game Board position data.
+ * @param[in] pos Intersection coordinate.
+ * @param[in] color Player's color.
+ * @return Ladder capturable flag.
+ * @~japanese
+ * @brief 助からないシチョウを逃げる手か判定
+ * @param[in] game 局面情報
+ * @param[in] pos 確認する座標
+ * @param[in] color 手番の色
+ * @return シチョウで取られるか否かのフラグ
+ */
 bool
 CheckLadderExtension( const game_info_t *game, const int color, const int pos )
 {
