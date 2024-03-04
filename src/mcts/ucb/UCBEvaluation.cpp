@@ -70,8 +70,9 @@ CalculateMoveScoreBonus( const child_node_t &child, const double move_score_bonu
 double
 CalculateUCB1Value( const child_node_t &child, const int total_visits )
 {
-  const double exploitation_term = static_cast<double>(child.win) / child.move_count;
-  const double exploration_term = std::sqrt(2.0 * std::log(total_visits) / child.move_count);
+  const int move_count = child.move_count + child.virtual_loss.load();
+  const double exploitation_term = static_cast<double>(child.win) / move_count;
+  const double exploration_term = std::sqrt(2.0 * std::log(total_visits) / move_count);
 
   return exploitation_term + ucb_c * exploration_term;
 }
@@ -92,6 +93,7 @@ CalculateUCB1Value( const child_node_t &child, const int total_visits )
 double
 CalculateUCB1TunedValue( const child_node_t &child, const int total_visits )
 {
+  const int move_conut = child.move_count + child.virtual_loss.load();
   const double p = static_cast<double>(child.win) / child.move_count;
   const double div = std::log(total_visits) / child.move_count;
   const double v = p - p * p + std::sqrt(2.0 * div);
@@ -116,7 +118,7 @@ int
 SelectBestChildIndexByUCB1( const uct_node_t &node, std::mt19937_64 &mt )
 {
   const int child_num = node.child_num;
-  const int sum = node.move_count;
+  const int sum = node.move_count + node.virtual_loss.load();
   const double move_score_bonus_weight = bonus_weight * sqrt(bonus_equivalence / (sum + bonus_equivalence));
   const child_node_t *child = node.child;
   int max_child = 0;
@@ -124,8 +126,9 @@ SelectBestChildIndexByUCB1( const uct_node_t &node, std::mt19937_64 &mt )
 
   for (int i = 0; i < child_num; i++) {
     if (child[i].pw || child[i].open) {
+      const int move_count = child[i].move_count + child[i].virtual_loss.load();
       double ucb_value = 0.0;
-      if (child[i].move_count == 0) {
+      if (move_count == 0) {
         ucb_value = FPU + 0.0001 * (mt() % 10000);
       } else {
         ucb_value = CalculateUCB1TunedValue(child[i], sum) + CalculateMoveScoreBonus(child[i], move_score_bonus_weight);

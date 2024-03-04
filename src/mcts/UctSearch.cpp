@@ -1118,7 +1118,7 @@ UctSearch( game_info_t *game, int color, std::mt19937_64 &mt, int current, int &
   // 色を入れ替える
   color = GetOppositeColor(color);
 
-  if (uct_child[next_index].move_count < GetExpandThreshold(game)) {
+  if ((uct_child[next_index].move_count + uct_child[next_index].virtual_loss) < GetExpandThreshold(game)) {
     AddVirtualLoss(uct_node[current], uct_child[next_index]);
 
     memcpy(game->seki, uct_node[current].seki, sizeof(bool) * BOARD_MAX);
