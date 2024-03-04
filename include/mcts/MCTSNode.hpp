@@ -48,6 +48,13 @@ constexpr int PASS_INDEX = 0;
  */
 constexpr int VIRTUAL_LOSS = 1;
 
+/**
+ * @~english
+ * @brief Vritual loss weight.
+ * @~japanese
+ * @brief Virtual Lossの重み
+ */
+constexpr double VIRTUAL_LOSS_WEIGHT = 1.0;
 
 /**
  * @struct child_node_t
@@ -72,6 +79,14 @@ struct child_node_t {
    * @brief 探索回数
    */
   std::atomic<int> move_count;
+
+  /**
+   * @~english
+   * @brief Vritual loss counter.
+   * @~japanese
+   * @brief Virtual Lossのカウンタ
+   */
+  std::atomic<int> virtual_loss;
 
   /**
    * @~english
@@ -162,6 +177,14 @@ struct uct_node_t {
    * @brief モンテカルロ・シミュレーションの勝った回数
    */
   std::atomic<int> win;
+
+  /**
+   * @~english
+   * @brief Virtual loss counter.
+   * @~japanese
+   * @brief Virtual Lossのカウンタ
+   */
+  std::atomic<int> virtual_loss;
 
   /**
    * @~english

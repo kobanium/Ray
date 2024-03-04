@@ -28,6 +28,7 @@ InitializeNode( uct_node_t &node, const int pm1, const int pm2 )
   node.previous_move2 = pm2;
   node.move_count = 0;
   node.win = 0;
+  node.virtual_loss = 0;
   node.width = 0;
   node.child_num = 0;
   std::fill_n(node.seki, BOARD_MAX, false);
@@ -55,6 +56,7 @@ InitializeCandidate( child_node_t &child, int &child_num, const int pos, const b
   child.pos = pos;
   child.move_count = 0;
   child.win = 0;
+  child.virtual_loss = 0;
   child.index = NOT_EXPANDED;
   child.rate = 0.0;
   child.pw = false;
@@ -79,8 +81,8 @@ InitializeCandidate( child_node_t &child, int &child_num, const int pos, const b
 void
 AddVirtualLoss( uct_node_t &node, child_node_t &child )
 {
-  atomic_fetch_add(&node.move_count, VIRTUAL_LOSS);
-  atomic_fetch_add(&child.move_count, VIRTUAL_LOSS);
+  node.virtual_loss++;
+  child.virtual_loss++;
 }
 
 
@@ -99,10 +101,13 @@ AddVirtualLoss( uct_node_t &node, child_node_t &child )
 void
 UpdateResult( uct_node_t &node, child_node_t &child, const int result )
 {
-  atomic_fetch_add(&node.win, result);
-  atomic_fetch_add(&node.move_count, 1 - VIRTUAL_LOSS);
-  atomic_fetch_add(&child.win, result);
-  atomic_fetch_add(&child.move_count, 1 - VIRTUAL_LOSS);
+  node.win += result;
+  node.move_count++;
+  node.virtual_loss--;
+
+  child.win += result;
+  child.move_count++;
+  child.virtual_loss--;
 }
 
 
