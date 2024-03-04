@@ -94,8 +94,8 @@ double
 CalculateUCB1TunedValue( const child_node_t &child, const int total_visits )
 {
   const int move_conut = child.move_count + child.virtual_loss.load();
-  const double p = static_cast<double>(child.win) / child.move_count;
-  const double div = std::log(total_visits) / child.move_count;
+  const double p = static_cast<double>(child.win) / move_count;
+  const double div = std::log(total_visits) / move_count;
   const double v = p - p * p + std::sqrt(2.0 * div);
 
   return p + std::sqrt(div * ((0.25 < v) ? 0.25 : v));
