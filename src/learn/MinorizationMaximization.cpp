@@ -466,10 +466,10 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
     ClearTacticalFeatures(&tactical_features[pos * ALL_MAX]);
   }
   
-  CheckFeaturesForSimulation(game, color, update_pos, &update_num);
-  CheckRemove2StonesForSimulation(game, color, update_pos, &update_num);
+  CheckFeaturesForSimulation(game, color, update_pos, update_num);
+  CheckRemove2StonesForSimulation(game, color, update_pos, update_num);
   if (game->ko_move == game->moves - 2) {
-    CheckCaptureAfterKoForSimulation(game, color, update_pos, &update_num);
+    CheckCaptureAfterKoForSimulation(game, color, update_pos, update_num);
   }
 
   for (int i = 0; i < pure_board_max; i++) {
@@ -856,10 +856,10 @@ CheckAccuracy( game_info_t *game, const std::string filename )
 
     update_num = 0;
 
-    CheckFeaturesForSimulation(game, color, update_pos, &update_num);
-    CheckRemove2StonesForSimulation(game, color, update_pos, &update_num);
+    CheckFeaturesForSimulation(game, color, update_pos, update_num);
+    CheckRemove2StonesForSimulation(game, color, update_pos, update_num);
     if (game->ko_move == game->moves - 2) {
-      CheckCaptureAfterKoForSimulation(game, color, update_pos, &update_num);
+      CheckCaptureAfterKoForSimulation(game, color, update_pos, update_num);
     }
 
     for (int j = 0; j < pure_board_max; j++) {

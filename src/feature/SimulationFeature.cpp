@@ -21,13 +21,13 @@ static int cross[4];
 
 
 //  呼吸点が1つの連に対する特徴の判定
-static void CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num );
+static void CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id, int update[], int &update_num );
 
 //  呼吸点が2つの連に対する特徴の判定
-static void CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num );
+static void CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id, int update[], int &update_num );
 
 //  呼吸点が3つの連に対する特徴の判定
-static void CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num );
+static void CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id, int update[], int &update_num );
 
 
 /**
@@ -63,7 +63,7 @@ SetCrossPosition( void )
  * @param[in, out] update_num 更新箇所の数
  */
 static void
-CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num )
+CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id, int update[], int &update_num )
 {
   const int other = GetOppositeColor(color);
   const char *board = game->board;
@@ -103,7 +103,7 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
   }
 
   // レートの更新対象に入れる
-  update[(*update_num)++] = lib;
+  update[update_num++] = lib;
 
   // 敵連を取ることによって連を助ける手の特徴の判定
   // 自分の連の大きさと敵の連の大きさで特徴を判定
@@ -118,7 +118,7 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
         } else {
           CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_1_3);
         }
-        update[(*update_num)++] = lib;
+        update[update_num++] = lib;
       }
       neighbor = string[id].neighbor[neighbor];
     }
@@ -137,7 +137,7 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
         } else {
           CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_2_3);
         }
-        update[(*update_num)++] = lib;
+        update[update_num++] = lib;
       }
       neighbor = string[id].neighbor[neighbor];
     }
@@ -156,7 +156,7 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
         } else {
           CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_SAVE_CAPTURE_3_3);
         }
-        update[(*update_num)++] = lib;
+        update[update_num++] = lib;
       }
       neighbor = string[id].neighbor[neighbor];
     }
@@ -181,7 +181,7 @@ CheckFeatureLib1ForSimulation( game_info_t *game, const int color, const int id,
  * @param[in, out] update_num 更新箇所の数
  */
 static void
-CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num )
+CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id, int update[], int &update_num )
 {
   const int *string_id = game->string_id;
   const string_t *string = game->string;
@@ -225,8 +225,8 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
   }
 
   // レートの更新対象に入れる
-  update[(*update_num)++] = lib1;
-  update[(*update_num)++] = lib2;
+  update[update_num++] = lib1;
+  update[update_num++] = lib2;
 
   // 呼吸点が2つになった連の周囲の敵連を調べる
   // 1. 呼吸点が1つの敵連
@@ -235,7 +235,7 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       lib1 = string[neighbor].lib[0];
-      update[(*update_num)++] = lib1;
+      update[update_num++] = lib1;
       if (string[neighbor].size <= 2) {
         CompareSwapFeature(game->tactical_features, lib1, CAPTURE, SIM_2POINT_CAPTURE_SMALL);
       } else {
@@ -244,8 +244,8 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
     } else if (string[neighbor].libs == 2) {
       lib1 = string[neighbor].lib[0];
       lib2 = string[neighbor].lib[lib1];
-      update[(*update_num)++] = lib1;
-      update[(*update_num)++] = lib2;
+      update[update_num++] = lib1;
+      update[update_num++] = lib2;
       capturable1 = IsCapturableAtariForSimulation(game, lib1, color, neighbor);
       capturable2 = IsCapturableAtariForSimulation(game, lib2, color, neighbor);
       if (string[neighbor].size <= 2) {
@@ -294,7 +294,7 @@ CheckFeatureLib2ForSimulation( game_info_t *game, const int color, const int id,
  * @param[in, out] update_num 更新箇所の数
  */
 static void
-CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id, int *update, int *update_num )
+CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id, int update[], int &update_num )
 {
   const int *string_id = game->string_id;
   const string_t *string = game->string;
@@ -354,9 +354,9 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
   }
 
   // レートの更新対象に入れる
-  update[(*update_num)++] = lib1;
-  update[(*update_num)++] = lib2;
-  update[(*update_num)++] = lib3;
+  update[update_num++] = lib1;
+  update[update_num++] = lib2;
+  update[update_num++] = lib3;
 
   // 呼吸点が3つになった連の周囲の敵連を調べる
   // 1. 呼吸点が1つの敵連
@@ -366,7 +366,7 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
   while (neighbor != NEIGHBOR_END) {
     if (string[neighbor].libs == 1) {
       lib1 = string[neighbor].lib[0];
-      update[(*update_num)++] = lib1;
+      update[update_num++] = lib1;
       if (string[neighbor].size <= 2) {
         CompareSwapFeature(game->tactical_features, lib1, CAPTURE, SIM_3POINT_CAPTURE_SMALL);
       } else {
@@ -374,9 +374,9 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
       }
     } else if (string[neighbor].libs == 2) {
       lib1 = string[neighbor].lib[0];
-      update[(*update_num)++] = lib1;
+      update[update_num++] = lib1;
       lib2 = string[neighbor].lib[lib1];
-      update[(*update_num)++] = lib2;
+      update[update_num++] = lib2;
       capturable1 = IsCapturableAtariForSimulation(game, lib1, color, neighbor);
       capturable2 = IsCapturableAtariForSimulation(game, lib2, color, neighbor);
       if (string[neighbor].size <= 2) {
@@ -406,9 +406,9 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
       lib1 = string[neighbor].lib[0];
       lib2 = string[neighbor].lib[lib1];
       lib3 = string[neighbor].lib[lib2];
-      update[(*update_num)++] = lib1;
-      update[(*update_num)++] = lib2;
-      update[(*update_num)++] = lib3;
+      update[update_num++] = lib1;
+      update[update_num++] = lib2;
+      update[update_num++] = lib3;
       if (string[neighbor].size <= 2) {
         CompareSwapFeature(game->tactical_features, lib1, DAME, SIM_3POINT_DAME_SMALL);
         CompareSwapFeature(game->tactical_features, lib2, DAME, SIM_3POINT_DAME_SMALL);
@@ -441,7 +441,7 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
  * @return 特徴の状態
  */
 void
-CheckFeaturesForSimulation( game_info_t *game, const int color, int *update, int *update_num )
+CheckFeaturesForSimulation( game_info_t *game, const int color, int update[], int &update_num )
 {
   const string_t *string = game->string;
   const char *board = game->board;
@@ -528,7 +528,7 @@ CheckFeaturesForSimulation( game_info_t *game, const int color, int *update, int
  * @param[in, out] update_num 更新箇所の個数
  */
 void
-CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *update, int *update_num )
+CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int update[], int &update_num )
 {
   const string_t *string = game->string;
   const char *board = game->board;
@@ -543,7 +543,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     id = string_id[NORTH(previous_move_2)];
     if (string[id].libs == 1) {
       lib = string[id].lib[0];
-      update[(*update_num)++] = lib;
+      update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
     check[checked++] = id;
@@ -554,7 +554,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     id = string_id[EAST(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id) {
       lib = string[id].lib[0];
-      update[(*update_num)++] = lib;
+      update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
     check[checked++] = id;
@@ -565,7 +565,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     id = string_id[SOUTH(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id && check[1] != id) {
       lib = string[id].lib[0];
-      update[(*update_num)++] = lib;
+      update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
     check[checked++] = id;
@@ -576,7 +576,7 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *updat
     id = string_id[WEST(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id && check[1] != id && check[2] != id) {
       lib = string[id].lib[0];
-      update[(*update_num)++] = lib;
+      update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
   }
@@ -859,21 +859,21 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
  * @return 特徴の状態
  */
 void
-CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update, int *update_num )
+CheckRemove2StonesForSimulation( game_info_t *game, const int color, int update[], int &update_num )
 {
   const int other = GetOppositeColor(color);
-  int i, rm1, rm2, check;
+  int i, check;
 
-  if (game->capture_num[other] != 2) {
+  if (game->capture_num[other - 1] != 2) {
     return;
   }
 
-  rm1 = game->capture_pos[other][0];
-  rm2 = game->capture_pos[other][1];
+  const int rm1 = game->capture_pos[other - 1][0];
+  const int rm2 = game->capture_pos[other - 1][1];
 
   if (rm1 - rm2 != 1 &&
-            rm2 - rm1 != 1 &&
-            rm1 - rm2 != board_size &&
+      rm2 - rm1 != 1 &&
+      rm1 - rm2 != board_size &&
       rm2 - rm1 != board_size) {
     return;
   }
@@ -886,7 +886,7 @@ CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update
 
   if (check >= 2) {
     CompareSwapFeature(game->tactical_features, rm1, THROW_IN, SIM_THROW_IN_2);
-    update[(*update_num)++] = rm1;
+    update[update_num++] = rm1;
   }
 
   for (i = 0, check = 0; i < 4; i++) {
@@ -897,6 +897,6 @@ CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update
 
   if (check >= 2) {
     CompareSwapFeature(game->tactical_features, rm2, THROW_IN, SIM_THROW_IN_2);
-    update[(*update_num)++] = rm2;
+    update[update_num++] = rm2;
   }
 }

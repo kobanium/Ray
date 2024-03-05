@@ -255,7 +255,7 @@ struct game_info_t {
    * @~japanese
    * @brief 前の着手で打ち上げた石の個数
    */
-  int capture_num[S_OB];
+  int capture_num[2];
 
   /**
    * @~english
@@ -263,7 +263,7 @@ struct game_info_t {
    * @~japanese
    * @brief 前の着手で石を打ち上げた座標
    */
-  int capture_pos[S_OB][PURE_BOARD_MAX];
+  int capture_pos[2][PURE_BOARD_MAX];
 
   /**
    * @~english
@@ -271,7 +271,7 @@ struct game_info_t {
    * @~japanese
    * @brief 戦術的特徴が更新された座標の個数
    */
-  int update_num[S_OB];
+  int update_num[2];
 
   /**
    * @~english
@@ -279,7 +279,7 @@ struct game_info_t {
    * @~japanese
    * @brief 戦術的特徴が更新された座標
    */
-  int update_pos[S_OB][PURE_BOARD_MAX];
+  int update_pos[2][PURE_BOARD_MAX];
 
   /**
    * @~english

@@ -694,8 +694,8 @@ SearchNakade( const game_info_t *game, int *nakade_num, int *nakade_pos )
 int
 CheckRemovedStoneNakade( const game_info_t *game, const int color )
 {
-  const int capture_num = game->capture_num[GetOppositeColor(color)];
-  const int *capture_pos = game->capture_pos[GetOppositeColor(color)];
+  const int capture_num = game->capture_num[GetOppositeColor(color) - 1];
+  const int *capture_pos = game->capture_pos[GetOppositeColor(color) - 1];
   unsigned long long hash = 0;
   int reviser;
 

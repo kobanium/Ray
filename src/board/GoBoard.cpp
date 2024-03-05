@@ -306,7 +306,9 @@ SetBoardSize( const int size )
   for (int y = 0; y < pure_board_size; y++) {
     for (int x = 0; x < pure_board_size; x++) {
       move_dis[x][y] = x + y + ((x > y) ? x : y);
-      if (move_dis[x][y] >= MOVE_DISTANCE_MAX) move_dis[x][y] = MOVE_DISTANCE_MAX - 1;
+      if (move_dis[x][y] >= MOVE_DISTANCE_MAX) {
+        move_dis[x][y] = MOVE_DISTANCE_MAX - 1;
+      }
     }
   }
 
@@ -435,12 +437,12 @@ InitializeBoard( game_info_t *game )
   memset(game->record, 0, sizeof(record_t) * MAX_RECORDS);
   memset(game->pat,    0, sizeof(pattern_t) * board_max);
 
-  std::fill_n(game->board, board_max, 0);              
+  std::fill_n(game->board, board_max, 0);
+  std::fill_n(game->update_num, 2, 0);
+  std::fill(game->update_pos[0], game->update_pos[2], 0);
+  std::fill_n(game->capture_num, 2, 0);
+  std::fill(game->capture_pos[0], game->capture_pos[2], 0);
   std::fill_n(game->tactical_features, board_max * ALL_MAX, 0);
-  std::fill_n(game->update_num,  static_cast<int>(S_OB), 0);
-  std::fill_n(game->capture_num, static_cast<int>(S_OB), 0);
-  std::fill(game->update_pos[0],  game->update_pos[S_OB], 0);
-  std::fill(game->capture_pos[0], game->capture_pos[S_OB], 0);
   
   game->current_hash = 0;
   game->previous1_hash = 0;
@@ -467,8 +469,7 @@ InitializeBoard( game_info_t *game )
 
   for (int y = board_start; y <= board_end; y++) {
     for (int x = board_start; x <= board_end; x++) {
-      int pos = POS(x, y);
-      game->candidates[pos] = true;
+      game->candidates[POS(x, y)] = true;
     }
   }
 
@@ -503,8 +504,8 @@ CopyGame( game_info_t *dst, const game_info_t *src )
   memcpy(dst->string_id,          src->string_id,          sizeof(int) * STRING_POS_MAX);
   memcpy(dst->string_next,        src->string_next,        sizeof(int) * STRING_POS_MAX);
   memcpy(dst->candidates,         src->candidates,         sizeof(bool) * board_max); 
-  memcpy(dst->capture_num,        src->capture_num,        sizeof(int) * S_OB);
-  memcpy(dst->update_num,         src->update_num,         sizeof(int) * S_OB);
+  memcpy(dst->capture_num,        src->capture_num,        sizeof(int) * 2);
+  memcpy(dst->update_num,         src->update_num,         sizeof(int) * 2);
 
   std::fill_n(dst->tactical_features, board_max * ALL_MAX, 0);
 
@@ -1077,7 +1078,6 @@ IsLegalNotEye( game_info_t *game, const int pos, const int color )
   if (game->board[pos] != S_EMPTY) {
     // 候補手から除外
     game->candidates[pos] = false;
-
     return false;
   }
 
@@ -1088,9 +1088,9 @@ IsLegalNotEye( game_info_t *game, const int pos, const int color )
   // 眼
   if (eye[Pat3(game->pat, pos)] != color ||
       string[string_id[NORTH(pos)]].libs == 1 ||
+      string[string_id[ WEST(pos)]].libs == 1 ||
       string[string_id[ EAST(pos)]].libs == 1 ||
-      string[string_id[SOUTH(pos)]].libs == 1 ||
-      string[string_id[ WEST(pos)]].libs == 1){
+      string[string_id[SOUTH(pos)]].libs == 1){
 
     // 自殺手かどうか
     if (nb4_empty[Pat3(game->pat, pos)] == 0 &&
@@ -1190,7 +1190,7 @@ PutStone( game_info_t *game, const int pos, const int color )
   int neighbor[4], connect[4] = { 0 };
 
   // この手番の着手で打ち上げた石の数を0にする
-  game->capture_num[color] = 0;
+  game->capture_num[color - 1] = 0;
 
   // 着手箇所の戦術的特徴を全て消す
   ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
@@ -1198,7 +1198,8 @@ PutStone( game_info_t *game, const int pos, const int color )
   game->previous2_hash = game->previous1_hash;
   game->previous1_hash = game->current_hash;
 
-  if (game->ko_move != 0 && game->ko_move == game->moves - 1) {
+  if (game->ko_move != 0 &&
+      game->ko_move == game->moves - 1) {
     game->current_hash ^= hash_bit[game->ko_pos][HASH_KO];
   }
 
@@ -1223,7 +1224,7 @@ PutStone( game_info_t *game, const int pos, const int color )
   }
 
   // 石を置く
-  board[pos] = (char)color;
+  board[pos] = static_cast<char>(color);
 
   // 候補手から除外
   game->candidates[pos] = false;
@@ -1303,9 +1304,11 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   string_t *string = game->string;
   int connection = 0, prisoner = 0;
   int neighbor[4], connect[4] = { 0 };
+  int *update_pos = game->update_pos[color - 1];
+  int &update_num = game->update_num[color - 1];
 
-  // この手番で取った石の個数を0に
-  game->capture_num[color] = 0;
+  // この手番の着手で打ち上げた石の数を0にする
+  game->capture_num[color - 1] = 0;
 
   // 着手制限の限界を超えていなければ記録
   if (game->moves < MAX_RECORDS) {
@@ -1320,13 +1323,10 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   }
 
   // 碁盤に石を置く
-  board[pos] = (char)color;
+  board[pos] = static_cast<char>(color);
 
   // 候補酒から除外
   game->candidates[pos] = false;
-
-  // 着手箇所の戦術的特徴を全て消す
-  ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
 
   // 着手箇所のレートを0に戻す
   game->sum_rate[0] -= game->rate[0][pos];
@@ -1335,6 +1335,9 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   game->sum_rate[1] -= game->rate[1][pos];
   game->sum_rate_row[1][board_y[pos]] -= game->rate[1][pos];
   game->rate[1][pos] = 0;
+
+  // 着手箇所の戦術的特徴を全て消す
+  ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
 
   // パターンの更新(MD2)  
   UpdateMD2Stone(game->pat, color, pos);
@@ -1376,6 +1379,14 @@ PoPutStone( game_info_t *game, const int pos, const int color )
     ConnectString(game, pos, color, connection, connect);
   }
 
+  if (string[string_id[pos]].libs < 3) {
+    int lib = string[string_id[pos]].lib[0];
+    while (lib != LIBERTY_END) {
+      update_pos[update_num++] = lib;
+      lib = string[string_id[pos]].lib[lib];
+    }
+  }
+
   // 手数を進める
   game->moves++;
 }
@@ -1396,18 +1407,18 @@ CheckBentFourInTheCorner( game_info_t *game )
   const int *string_id = game->string_id;
   const int *string_next = game->string_next;
   char *board = game->board;
-  int pos, id, neighbor, color, lib1, lib2, neighbor_lib1, neighbor_lib2;
+  int pos, neighbor;
 
   // 四隅について隅のマガリ四目が存在するか確認し
   // 存在すれば地を訂正する
   for (int i = 0; i < 4; i++) {
-    id = string_id[corner[i]];
+    const int id = string_id[corner[i]];
     if (string[id].size == 3 &&
         string[id].libs == 2 &&
         string[id].neighbors == 1) {
-      color = string[id].color;
-      lib1 = string[id].lib[0];
-      lib2 = string[id].lib[lib1];
+      const int color = string[id].color;
+      const int lib1 = string[id].lib[0];
+      const int lib2 = string[id].lib[lib1];
       if ((board[corner_neighbor[i][0]] == S_EMPTY ||
           board[corner_neighbor[i][0]] == color) &&
           (board[corner_neighbor[i][1]] == S_EMPTY ||
@@ -1416,8 +1427,8 @@ CheckBentFourInTheCorner( game_info_t *game )
         if (string[neighbor].libs == 2 &&
             string[neighbor].size > 6) {
           // 呼吸点を共有しているかの確認
-          neighbor_lib1 = string[neighbor].lib[0];
-          neighbor_lib2 = string[neighbor].lib[neighbor_lib1];
+          const int neighbor_lib1 = string[neighbor].lib[0];
+          const int neighbor_lib2 = string[neighbor].lib[neighbor_lib1];
           if ((neighbor_lib1 == lib1 && neighbor_lib2 == lib2) ||
               (neighbor_lib1 == lib2 && neighbor_lib2 == lib1)) {
             pos = string[neighbor].origin;
@@ -1463,5 +1474,5 @@ CalculateScore( game_info_t *game )
   }
 
   //  黒−白を返す(コミなし)
-  return(scores[S_BLACK] - scores[S_WHITE]);
+  return (scores[S_BLACK] - scores[S_WHITE]);
 }
