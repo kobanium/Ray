@@ -457,6 +457,7 @@ RemoveString( game_info_t *game, string_t *string, const int color )
   int removed_color = board[pos];
   int *capture_pos = game->capture_pos[color - 1];
   int &capture_num = game->capture_num[color - 1];
+  int head = 0;
 
   do {
     // 空点に戻す
@@ -466,7 +467,7 @@ RemoveString( game_info_t *game, string_t *string, const int color )
     candidates[pos] = true;
 
     // 打ち上げた石の記録
-    capture_pos[capture_num++] = pos;
+    head = AddCapture(capture_pos, pos, head);
 
     // パターンの更新
     UpdatePatternEmpty(game->pat, pos);
@@ -499,6 +500,8 @@ RemoveString( game_info_t *game, string_t *string, const int color )
     RemoveNeighborString(&str[neighbor], rm_id);
     neighbor = string->neighbor[neighbor];
   }
+
+  capture_num += string->size;
 
   // 連の存在フラグをオフ
   string->flag = false;
@@ -536,7 +539,7 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
   int &capture_num = game->capture_num[color - 1];
   int *update_pos = game->update_pos[color - 1];
   int &update_num = game->update_num[color - 1];
-  int lib;
+  int lib, head = 0;
 
   // 隣接する連の呼吸点を更新の対象に加える
   neighbor = string->neighbor[0];
@@ -559,7 +562,7 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     candidates[pos] = true;
 
     // レーティング更新対象に追加
-    capture_pos[capture_num++] = pos;
+    head = AddCapture(capture_pos, pos, head);
 
     // 3x3のパターンの更新
     UpdateMD2Empty(game->pat, pos);
@@ -589,6 +592,8 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     RemoveNeighborString(&str[neighbor], rm_id);
     neighbor = string->neighbor[neighbor];
   }
+
+  capture_num += string->size;
 
   // 連の存在フラグをオフ
   string->flag = false;

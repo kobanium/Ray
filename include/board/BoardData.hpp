@@ -259,11 +259,19 @@ struct game_info_t {
 
   /**
    * @~english
+   * @brief The number of captured strings by previous move.
+   * @~japanese
+   * @brief 前の着手で打ち上げた連の個数
+   */
+  int capture_dir[2];
+
+  /**
+   * @~english
    * @brief Coordinates of captured stone by previous move.
    * @~japanese
    * @brief 前の着手で石を打ち上げた座標
    */
-  int capture_pos[2][PURE_BOARD_MAX];
+  int capture_pos[2][CAPTURE_MAX];
 
   /**
    * @~english

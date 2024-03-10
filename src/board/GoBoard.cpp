@@ -439,10 +439,13 @@ InitializeBoard( game_info_t *game )
 
   std::fill_n(game->board, board_max, 0);
   std::fill_n(game->update_num, 2, 0);
-  std::fill(game->update_pos[0], game->update_pos[2], 0);
   std::fill_n(game->capture_num, 2, 0);
+  std::fill_n(game->capture_dir, 2, 0);
+  std::fill(game->update_pos[0], game->update_pos[2], 0);
   std::fill(game->capture_pos[0], game->capture_pos[2], 0);
   std::fill_n(game->tactical_features, board_max * ALL_MAX, 0);
+
+  game->capture_pos[0][0] = game->capture_pos[1][0] = CAPTURE_END;
   
   game->current_hash = 0;
   game->previous1_hash = 0;
@@ -505,6 +508,8 @@ CopyGame( game_info_t *dst, const game_info_t *src )
   memcpy(dst->string_next,        src->string_next,        sizeof(int) * STRING_POS_MAX);
   memcpy(dst->candidates,         src->candidates,         sizeof(bool) * board_max); 
   memcpy(dst->capture_num,        src->capture_num,        sizeof(int) * 2);
+  memcpy(dst->capture_dir,        src->capture_dir,        sizeof(int) * 2);
+  memcpy(dst->capture_pos,        src->capture_pos,        sizeof(int) * 2 * CAPTURE_MAX);
   memcpy(dst->update_num,         src->update_num,         sizeof(int) * 2);
 
   std::fill_n(dst->tactical_features, board_max * ALL_MAX, 0);
@@ -1188,9 +1193,19 @@ PutStone( game_info_t *game, const int pos, const int color )
   string_t *string = game->string;
   int connection = 0, prisoner = 0;
   int neighbor[4], connect[4] = { 0 };
+  int *capture_pos = game->capture_pos[color - 1];
+
+  int tmp = capture_pos[0];
+  while (tmp < CAPTURE_END) {
+    const int next = capture_pos[tmp];
+    capture_pos[tmp] = 0;
+    tmp = next;
+  }
 
   // この手番の着手で打ち上げた石の数を0にする
+  game->capture_pos[color - 1][0] = CAPTURE_END;
   game->capture_num[color - 1] = 0;
+  game->capture_dir[color - 1] = 0;
 
   // 着手箇所の戦術的特徴を全て消す
   ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
@@ -1249,6 +1264,7 @@ PutStone( game_info_t *game, const int pos, const int color )
       RemoveLiberty(game, &string[string_id[neighbor[i]]], pos);
       if (string[string_id[neighbor[i]]].libs == 0) {
         prisoner += RemoveString(game, &string[string_id[neighbor[i]]], color);
+        game->capture_dir[color - 1]++;
       }
     }
   }
@@ -1308,7 +1324,9 @@ PoPutStone( game_info_t *game, const int pos, const int color )
   int &update_num = game->update_num[color - 1];
 
   // この手番の着手で打ち上げた石の数を0にする
+  game->capture_pos[color - 1][0] = CAPTURE_END;
   game->capture_num[color - 1] = 0;
+  game->capture_dir[color - 1] = 0;
 
   // 着手制限の限界を超えていなければ記録
   if (game->moves < MAX_RECORDS) {

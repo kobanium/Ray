@@ -710,8 +710,10 @@ CheckRemovedStoneNakade( const game_info_t *game, const int color )
   reviser = start - capture_pos[0];
 
   // ハッシュ値の計算
-  for (int i = 0; i < capture_num; i++) {
-    hash ^= shape_bit[capture_pos[i] + reviser];
+  int pos = capture_pos[0];
+  while (pos < CAPTURE_END) {
+    hash ^= shape_bit[pos + reviser];
+    pos = capture_pos[pos];
   }
 
   // ナカデになっていれば, その座標を返す

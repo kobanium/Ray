@@ -811,7 +811,7 @@ CheckRemove2StonesForTree( const game_info_t *game, const int color, unsigned in
   }
 
   const int rm1 = game->capture_pos[other - 1][0];
-  const int rm2 = game->capture_pos[other - 1][1];
+  const int rm2 = game->capture_pos[other - 1][rm1];
 
   if (rm1 - rm2 != 1 &&
       rm2 - rm1 != 1 &&

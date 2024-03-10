@@ -374,8 +374,8 @@ CheckFeatureLib3ForSimulation( game_info_t *game, const int color, const int id,
       }
     } else if (string[neighbor].libs == 2) {
       lib1 = string[neighbor].lib[0];
-      update[update_num++] = lib1;
       lib2 = string[neighbor].lib[lib1];
+      update[update_num++] = lib1;
       update[update_num++] = lib2;
       capturable1 = IsCapturableAtariForSimulation(game, lib1, color, neighbor);
       capturable2 = IsCapturableAtariForSimulation(game, lib2, color, neighbor);
@@ -535,14 +535,14 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int update
   const int *string_id = game->string_id;
   const int other = GetOppositeColor(color);
   const int previous_move_2 = game->record[game->moves - 2].pos;
-  int id ,lib, checked = 0;
+  int checked = 0;
   int check[4] = { 0 };
 
   //  上
   if (board[NORTH(previous_move_2)] == other) {
-    id = string_id[NORTH(previous_move_2)];
+    const int id = string_id[NORTH(previous_move_2)];
     if (string[id].libs == 1) {
-      lib = string[id].lib[0];
+      const int lib = string[id].lib[0];
       update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
@@ -551,9 +551,9 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int update
 
   //  右
   if (board[EAST(previous_move_2)] == other) {
-    id = string_id[EAST(previous_move_2)];
+    const int id = string_id[EAST(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id) {
-      lib = string[id].lib[0];
+      const int lib = string[id].lib[0];
       update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
@@ -562,9 +562,9 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int update
 
   //  下
   if (board[SOUTH(previous_move_2)] == other) {
-    id = string_id[SOUTH(previous_move_2)];
+    const int id = string_id[SOUTH(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id && check[1] != id) {
-      lib = string[id].lib[0];
+      const int lib = string[id].lib[0];
       update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
@@ -573,9 +573,9 @@ CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int update
 
   //  左
   if (board[WEST(previous_move_2)] == other) {
-    id = string_id[WEST(previous_move_2)];
+    const int id = string_id[WEST(previous_move_2)];
     if (string[id].libs == 1 && check[0] != id && check[1] != id && check[2] != id) {
-      lib = string[id].lib[0];
+      const int lib = string[id].lib[0];
       update[update_num++] = lib;
       CompareSwapFeature(game->tactical_features, lib, CAPTURE, SIM_CAPTURE_AFTER_KO);
     }
@@ -790,13 +790,12 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   const string_t *string = game->string;
   const int *string_id = game->string_id;
   const int other = GetOppositeColor(color);
-  int libs;
 
   // 上を調べる
   // 1. 敵の石
   // 2. 呼吸点が1つ
   if (board[NORTH(pos)] == other) {
-    libs = string[string_id[NORTH(pos)]].libs;
+    const int libs = string[string_id[NORTH(pos)]].libs;
     if (libs == 1) {
       CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
@@ -808,7 +807,7 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   // 1. 敵の石
   // 2. 呼吸点が1つ
   if (board[WEST(pos)] == other) {
-    libs = string[string_id[WEST(pos)]].libs;
+    const int libs = string[string_id[WEST(pos)]].libs;
     if (libs == 1) {
       CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
@@ -820,7 +819,7 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   // 1. 敵の石
   // 2. 呼吸点が1つ
   if (board[EAST(pos)] == other) {
-    libs = string[string_id[EAST(pos)]].libs;
+    const int libs = string[string_id[EAST(pos)]].libs;
     if (libs == 1) {
       CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
@@ -832,7 +831,7 @@ CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int
   // 1. 敵の石
   // 2. 呼吸点が1つ
   if (board[SOUTH(pos)] == other) {
-    libs = string[string_id[SOUTH(pos)]].libs;
+    const int libs = string[string_id[SOUTH(pos)]].libs;
     if (libs == 1) {
       CompareSwapFeature(game->tactical_features, pos, CAPTURE, SIM_CAPTURE);
     } else if (libs == 2) {
@@ -869,7 +868,7 @@ CheckRemove2StonesForSimulation( game_info_t *game, const int color, int update[
   }
 
   const int rm1 = game->capture_pos[other - 1][0];
-  const int rm2 = game->capture_pos[other - 1][1];
+  const int rm2 = game->capture_pos[other - 1][rm1];
 
   if (rm1 - rm2 != 1 &&
       rm2 - rm1 != 1 &&
