@@ -429,9 +429,9 @@ PrintPlayoutInformation( const uct_node_t *root, const int po_speed, const doubl
   std::cerr << "All Playouts       :  " << std::setw(7) << root->move_count << std::endl;
   std::cerr << "Pre Simulated      :  " << std::setw(7) << pre_simulated << std::endl;
   std::cerr << "Win                :  " << std::setw(7) << root->win << std::endl;
-  std::cerr << "Thinking Time      :  " << std::setw(7) << finish_time << " sec" << std::endl;
-  std::cerr << "Winning Percentage :  " << std::setw(7) << (winning_percentage * 100) << "%" << std::endl;
-  std::cerr << "Playout Speed      :  " << std::setw(7) << po_speed << " PO/sec " << std::endl;
+  std::cerr << "Thinking Time      :  " << std::setw(7) << finish_time << " seconds" << std::endl;
+  std::cerr << "Winning Percentage :  " << std::setw(7) << (winning_percentage * 100) << " %" << std::endl;
+  std::cerr << "Playout Speed      :  " << std::setw(7) << po_speed << " PO/s" << std::endl;
 }
 
 
@@ -665,4 +665,34 @@ PrintLeelaZeroAnalyze( const uct_node_t *root )
   }
   fprintf(STD_STREAM, "\n");
   fflush(STD_STREAM);
+}
+
+
+/**
+ * @~english
+ * @brief Print rating values for all moves.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @~japanese
+ * @brief 全ての手に対するレート値の出力
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ */
+void
+PrintRate( const game_info_t *game, const int color )
+{
+  std::ostringstream oss;
+
+  oss << "Sum : " << game->sum_rate[color - 1] << "\n";
+
+  for (int y = board_start; y <= board_end; y++) {
+    oss << std::setw(6) << game->sum_rate_row[color - 1][y] << " | ";
+    for (int x = board_start; x <= board_end; x++) {
+      const int pos = POS(x, y);
+      oss << std::setw(5) << game->rate[color - 1][pos] << " ";
+    }
+    oss << "\n";
+  }
+
+  std::cerr << oss.str() << std::endl;
 }

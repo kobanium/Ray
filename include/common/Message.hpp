@@ -61,4 +61,6 @@ void PrintResignThresholdIsTooSmall( const double threshold );
 
 void PrintLeelaZeroAnalyze( const uct_node_t *root );
 
+void PrintRate( const game_info_t *game, const int color );
+
 #endif

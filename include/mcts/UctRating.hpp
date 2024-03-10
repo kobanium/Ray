@@ -74,7 +74,7 @@ constexpr double CRITICALITY_INIT = 0.765745;
  * @~japanese
  * @brief Criticalityの特徴の係数
  */
-constexpr double CRITICALITY_BIAS = 0.35;
+constexpr double CRITICALITY_BIAS = 0.32;
 
 /**
  * @~english
@@ -82,7 +82,7 @@ constexpr double CRITICALITY_BIAS = 0.35;
  * @~japanese
  * @brief Ownerの特徴の定数
  */
-constexpr double OWNER_K = 6.6;
+constexpr double OWNER_K = 1.8;
 
 /**
  * @~english
@@ -90,7 +90,7 @@ constexpr double OWNER_K = 6.6;
  * @~japanese
  * @brief Ownerの特徴の係数
  */
-constexpr double OWNER_BIAS = 1.8;
+constexpr double OWNER_BIAS = 6.6;
 
 
 /**

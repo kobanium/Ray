@@ -246,7 +246,10 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 &mt )
 
   // 合法手を選択するまでループ
   while (true) {
-    if (*sum_rate == 0) return PASS;
+    if (*sum_rate == 0) {
+      pos = PASS;
+      break;
+    }
 
     rand_num = (mt() % (*sum_rate)) + 1;
 
@@ -258,7 +261,7 @@ RatingMove( game_info_t *game, int color, std::mt19937_64 &mt )
 
     // 横方向の位置を求める
     pos = POS(board_start, y);
-    do{
+    do {
       rand_num -= rate[pos];
       if (rand_num <= 0) break;
       pos++;
@@ -338,18 +341,14 @@ Neighbor12( const int previous_move, int distance_2[], int distance_3[], int dis
  * @param[in, out] flag 更新済フラグ
  * @param[in] index 特別処理インデックス
  */
-void
-NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int *update, bool *flag, int index )
+static void
+UpdateAroundPreviousMove( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int *update, bool *flag, int index )
 {
-  int pos;
-  double gamma, bias[4];
-  bool self_atari_flag;
-
-  bias[0] = bias[1] = bias[2] = bias[3] = 1.0;
+  double bias[4] = {1.0, 1.0, 1.0, 1.0};
 
   // 盤端での特殊処理
   if (index == 1) {
-    pos = game->record[game->moves - 1].pos;
+    const int pos = game->record[game->moves - 1].pos;
     if ((border_dis_x[pos] == 1 && border_dis_y[pos] == 2) ||
         (border_dis_x[pos] == 2 && border_dis_y[pos] == 1)) {
       for (int i = 0; i < 4; i++) {
@@ -363,10 +362,10 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
   }
 
   for (int i = 0; i < 4; i++) {
-    pos = update[i];
+    const int pos = update[i];
     if (game->candidates[pos]){
       if (flag[pos] && bias[i] == 1.0) continue;
-      self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
+      const bool self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
 
       // 元あったレートを消去
       *sum_rate -= rate[pos];
@@ -376,19 +375,18 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
         rate[pos] = 0;
       } else {
         CheckCaptureAndAtariForSimulation(game, color, pos);
-
-        gamma = po_pattern[MD2(game->pat, pos)] * po_previous_distance[index];
-        gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
-        gamma *= bias[i];
+        const double gamma = po_pattern[MD2(game->pat, pos)]
+          * po_previous_distance[index]
+          * CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX])
+          * bias[i];
         rate[pos] = static_cast<long long>(gamma) + 1;
 
         // 新たに計算したレートを代入
         *sum_rate += rate[pos];
         sum_rate_row[board_y[pos]] += rate[pos];
       }
-
-      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     }
+    ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     flag[pos] = true;
   }
 }
@@ -402,8 +400,8 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
  * @param[in, out] sum_rate Total rate value.
  * @param[in, out] sum_rate_row Total rate value for each rows.
  * @param[in, out] rate Rate value for each coordinates.
- * @param[in] nakade_pos Update point.
- * @param[in] nakade_num The number of update points.
+ * @param[in] update_pos Update point.
+ * @param[in] update_num The number of update points.
  * @param[in, out] flag Already updated flag.
  * @param[in] pm1 Previous move's coordinate.
  * @~japanese
@@ -413,22 +411,20 @@ NeighborUpdate( game_info_t *game, int color, long long *sum_rate, long long *su
  * @param[in, out] sum_rate レートの合計値
  * @param[in, out] sum_rate_row 各行のレートの合計値
  * @param[in, out] rate 各座標のレート
- * @param[in] nakade_pos 更新箇所
- * @param[in] nakade_num 更新箇所の個数
+ * @param[in] update_pos 更新箇所
+ * @param[in] update_num 更新箇所の個数
  * @param[in, out] flag 更新済フラグ
  * @param[in] pm1 直前の着手の座標
  */
-void
-NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int *nakade_pos, int nakade_num, bool *flag, int pm1 )
+static void
+UpdateCriticalPoint( game_info_t *game, int color, long long *sum_rate, long long sum_rate_row[], long long rate[], int update_pos[], int update_num, bool *flag, int pm1 )
 {
-  int pos, dis;
   double gamma;
-  bool self_atari_flag;
 
-  for (int i = 0; i < nakade_num; i++) {
-    pos = nakade_pos[i];
+  for (int i = 0; i < update_num; i++) {
+    const int pos = update_pos[i];
     if (pos != NOT_NAKADE && game->candidates[pos]){
-      self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
+      const bool self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
 
       // 元あったレートを消去
       *sum_rate -= rate[pos];
@@ -438,7 +434,7 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
         rate[pos] = 0;
       } else {
         CheckCaptureAndAtariForSimulation(game, color, pos);
-        dis = DIS(pm1, pos);
+        const int dis = DIS(pm1, pos);
         if (dis < 5) {
           gamma = 10000.0 * po_previous_distance[dis - 2];
         } else {
@@ -447,11 +443,11 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
         gamma *= po_pattern[MD2(game->pat, pos)];
         gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         rate[pos] = static_cast<long long>(gamma) + 1;
+
         // 新たに計算したレートを代入      
         *sum_rate += rate[pos];
         sum_rate_row[board_y[pos]] += rate[pos];     
       }
-
       ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
       flag[pos] = true;
     }
@@ -481,19 +477,15 @@ NakadeUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_
  * @param[in] update_num 更新箇所の個数
  * @param[in, out] flag 更新済フラグ
  */
-void
-OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int update_num, int *update, bool *flag )
+static void
+OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long sum_rate_row[], long long rate[], int update_num, int update[], bool flag[] )
 {
-  int pos;
-  double gamma;
-  bool self_atari_flag;
-
   for (int i = 0; i < update_num; i++) {
-    pos = update[i];
+    const int pos = update[i];
     if (flag[pos]) continue;
 
     if (game->candidates[pos]) {
-      self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
+      const bool self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
 
       // 元あったレートを消去
       *sum_rate -= rate[pos];
@@ -504,17 +496,16 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
         rate[pos] = 0;
       } else {
         CheckCaptureAndAtariForSimulation(game, color, pos);
-        gamma = po_pattern[MD2(game->pat, pos)];
-        gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
+        const double gamma = po_pattern[MD2(game->pat, pos)]
+          * CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         rate[pos] = static_cast<long long>(gamma) + 1;
 
         // 新たに計算したレートを代入
         *sum_rate += rate[pos];
         sum_rate_row[board_y[pos]] += rate[pos];
       }
-
-      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     }
+    ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     // 更新済みフラグを立てる
     flag[pos] = true;
   }
@@ -543,20 +534,16 @@ OtherUpdate( game_info_t *game, int color, long long *sum_rate, long long *sum_r
  * @param[in] update 更新箇所
  * @param[in, out] flag 更新済フラグ
  */
-void
-Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate, int update_num, int *update, bool *flag )
+static void
+UpdateNeighborCoordinates( game_info_t *game, int color, long long *sum_rate, long long sum_rate_row[], long long rate[], int update_num, int update[], bool flag[] )
 {
-  int pos;
-  double gamma;
-  bool self_atari_flag;
-
   for (int i = 0; i < update_num; i++) {
     for (int j = 0; j < UPDATE_NUM; j++) {
-      pos = update[i] + neighbor[j];
+      const int pos = update[i] + neighbor[j];
       if (flag[pos]) continue;
 
       if (game->candidates[pos]) {
-        self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
+        const bool self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
 
         // 元あったレートを消去
         *sum_rate -= rate[pos];
@@ -567,8 +554,8 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
           rate[pos] = 0;
         } else {
           CheckCaptureAndAtariForSimulation(game, color, pos);
-          gamma = po_pattern[MD2(game->pat, pos)];
-          gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
+          const double gamma = po_pattern[MD2(game->pat, pos)]
+            * CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
           rate[pos] = static_cast<long long>(gamma) + 1;
 
           // 新たに計算したレートを代入
@@ -576,11 +563,131 @@ Neighbor12Update( game_info_t *game, int color, long long *sum_rate, long long *
           sum_rate_row[board_y[pos]] += rate[pos];
         }
 
-        ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
       }
+      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
       // 更新済みフラグを立てる
       flag[pos] = true;
     }
+  }
+}
+
+
+/**
+ * @~english
+ * @brief Update intesections' rating within MD2.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @param[in] update Update point.
+ * @param[in, out] flag Already updated flag.
+ * @~japanese
+ * @brief MD2パターンの範囲内のレートの更新
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ * @param[in] update 更新箇所
+ * @param[in, out] flag 更新済フラグ
+ */
+static void
+CaptureUpdateColor( game_info_t *game, const int color, long long *sum_rate, long long sum_rate_row[], long long rate[], int update[], bool flag[] )
+{
+  int update_pos = update[0];
+
+  while (update_pos < CAPTURE_END) {
+    for (int i = 0; i < UPDATE_NUM; i++) {
+      const int pos = update_pos + neighbor[i];
+      if (flag[pos]) continue;
+
+      if (game->candidates[pos]) {
+        const bool self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
+
+        // 元あったレートを消去
+        *sum_rate -= rate[pos];
+        sum_rate_row[board_y[pos]] -= rate[pos];
+
+        // パターン、戦術的特徴、距離のγ値
+        if (!self_atari_flag) {
+          rate[pos] = 0;
+        } else {
+          CheckCaptureAndAtariForSimulation(game, color, pos);
+          const double gamma = po_pattern[MD2(game->pat, pos)] * CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
+          rate[pos] = static_cast<long long>(gamma) + 1;
+
+          // 新たに計算したレートを代入
+          *sum_rate += rate[pos];
+          sum_rate_row[board_y[pos]] += rate[pos];
+        }
+      }
+      // 更新済みフラグを立てる
+      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
+      flag[pos] = true;
+    }
+    const int next_pos = update[update_pos];
+    update[update_pos] = 0;
+    update_pos = next_pos;
+  }
+}
+
+
+/**
+ * @~english
+ * @brief Update intesections' rating within MD2.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] sum_rate Total rate value.
+ * @param[in, out] sum_rate_row Total rate value for each rows.
+ * @param[in, out] rate Rate value for each coordinates.
+ * @param[in] update Update point.
+ * @param[in, out] flag Already updated flag.
+ * @~japanese
+ * @brief MD2パターンの範囲内のレートの更新
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] sum_rate レートの合計値
+ * @param[in, out] sum_rate_row 各行のレートの合計値
+ * @param[in, out] rate 各座標のレート
+ * @param[in] update 更新箇所
+ * @param[in, out] flag 更新済フラグ
+ */
+static void
+CaptureUpdateOther( game_info_t *game, const int color, long long *sum_rate, long long sum_rate_row[], long long rate[], int update[], bool flag[] )
+{
+  int update_pos = update[0];
+
+  while (update_pos < CAPTURE_END) {
+    for (int i = 0; i < UPDATE_NUM; i++) {
+      const int pos = update_pos + neighbor[i];
+      if (flag[pos]) continue;
+
+      if (game->candidates[pos]) {
+        const bool self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
+
+        // 元あったレートを消去
+        *sum_rate -= rate[pos];
+        sum_rate_row[board_y[pos]] -= rate[pos];
+
+        // パターン、戦術的特徴、距離のγ値
+        if (!self_atari_flag) {
+          rate[pos] = 0;
+        } else {
+          CheckCaptureAndAtariForSimulation(game, color, pos);
+          const double gamma = po_pattern[MD2(game->pat, pos)] * CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
+          rate[pos] = static_cast<long long>(gamma) + 1;
+
+          // 新たに計算したレートを代入
+          *sum_rate += rate[pos];
+          sum_rate_row[board_y[pos]] += rate[pos];
+        }
+      }
+      // 更新済みフラグを立てる
+      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
+      flag[pos] = true;
+    }
+    update_pos = update[update_pos];
   }
 }
 
@@ -608,18 +715,18 @@ PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum
   int pm1 = PASS, pm2 = PASS, pm3 = PASS;
   int distance_2[4], distance_3[4], distance_4[4];
   bool flag[BOARD_MAX] = { false };  
-  int *update_pos = game->update_pos[color];
-  int *update_num = &game->update_num[color];
+  int *update_pos = game->update_pos[color - 1];
+  int &update_num = game->update_num[color - 1];
   int nakade_pos[4] = { 0 };
   int nakade_num = 0;
-  int prev_feature = game->update_num[color];
+  const int prev_feature = game->update_num[color - 1];
   int prev_feature_pos[PURE_BOARD_MAX];
 
   for (int i = 0; i < prev_feature; i++){
     prev_feature_pos[i] = update_pos[i];
   }
 
-  *update_num = 0;
+  game->update_num[color - 1] = 0;
 
   pm1 = game->record[game->moves - 1].pos;
   if (game->moves > 2) pm2 = game->record[game->moves - 2].pos;
@@ -635,31 +742,30 @@ PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum
     CheckRemove2StonesForSimulation(game, color, update_pos, update_num);
 
     SearchNakade(game, &nakade_num, nakade_pos);
-    NakadeUpdate(game, color, sum_rate, sum_rate_row, rate, nakade_pos, nakade_num, flag, pm1);
+    UpdateCriticalPoint(game, color, sum_rate, sum_rate_row, rate, nakade_pos, nakade_num, flag, pm1);
     // 着手距離2の更新
-    NeighborUpdate(game, color, sum_rate, sum_rate_row, rate, distance_2, flag, 0);
+    UpdateAroundPreviousMove(game, color, sum_rate, sum_rate_row, rate, distance_2, flag, 0);
     // 着手距離3の更新
-    NeighborUpdate(game, color, sum_rate, sum_rate_row, rate, distance_3, flag, 1);
+    UpdateAroundPreviousMove(game, color, sum_rate, sum_rate_row, rate, distance_3, flag, 1);
     // 着手距離4の更新
-    NeighborUpdate(game, color, sum_rate, sum_rate_row, rate, distance_4, flag, 2);
-
+    UpdateAroundPreviousMove(game, color, sum_rate, sum_rate_row, rate, distance_4, flag, 2);
   }
 
   // 2手前の着手の12近傍の更新
-  if (pm2 != PASS) Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, 1, &pm2, flag);
+  if (pm2 != PASS) UpdateNeighborCoordinates(game, color, sum_rate, sum_rate_row, rate, 1, &pm2, flag);
   // 3手前の着手の12近傍の更新
-  if (pm3 != PASS) Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, 1, &pm3, flag);
+  if (pm3 != PASS) UpdateNeighborCoordinates(game, color, sum_rate, sum_rate_row, rate, 1, &pm3, flag);
 
   // 以前の着手で戦術的特徴が現れた箇所の更新
   OtherUpdate(game, color, sum_rate, sum_rate_row, rate, prev_feature, prev_feature_pos, flag);
   // 最近の自分の着手の時に戦術的特徴が現れた箇所の更新
-  OtherUpdate(game, color, sum_rate, sum_rate_row, rate, game->update_num[color], game->update_pos[color], flag);
+  OtherUpdate(game, color, sum_rate, sum_rate_row, rate, game->update_num[color - 1], game->update_pos[color - 1], flag);
   // 最近の相手の着手の時に戦術的特徴が現れた箇所の更新
-  OtherUpdate(game, color, sum_rate, sum_rate_row, rate, game->update_num[other], game->update_pos[other], flag);
+  OtherUpdate(game, color, sum_rate, sum_rate_row, rate, game->update_num[other - 1], game->update_pos[other - 1], flag);
   // 自分の着手で石を打ち上げた箇所のとその周囲の更新
-  Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, game->capture_num[color], game->capture_pos[color], flag);
+  CaptureUpdateColor(game, color, sum_rate, sum_rate_row, rate, game->capture_pos[color - 1], flag);
   // 相手の着手で石を打ち上げられた箇所とその周囲の更新
-  Neighbor12Update(game, color, sum_rate, sum_rate_row, rate, game->capture_num[other], game->capture_pos[other], flag);
+  CaptureUpdateOther(game, color, sum_rate, sum_rate_row, rate, game->capture_pos[other - 1], flag);
 
 }
 
@@ -683,36 +789,33 @@ PartialRating( game_info_t *game, int color, long long *sum_rate, long long *sum
 void
 Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_row, long long *rate )
 {
-  int pos, dis, pm1 = PASS, update_num = 0;
+  const int pm1 = game->record[game->moves - 1].pos;
+  int update_num = 0;
   int update_pos[PURE_BOARD_MAX];  
-  double gamma;
-  bool self_atari_flag;
-
-  pm1 = game->record[game->moves - 1].pos;
 
   for (int i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+    const int pos = onboard_pos[i];
     ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
   }
   
-  CheckFeaturesForSimulation(game, color, update_pos, &update_num);
+  CheckFeaturesForSimulation(game, color, update_pos, update_num);
   if (game->ko_move == game->moves - 2) {
-    CheckCaptureAfterKoForSimulation(game, color, update_pos, &update_num);
+    CheckCaptureAfterKoForSimulation(game, color, update_pos, update_num);
   }
 
   for (int i = 0; i < pure_board_max; i++) {
-    pos = onboard_pos[i];
+    const int pos = onboard_pos[i];
     if (game->candidates[pos] && IsLegalNotEye(game, pos, color)) {
-      self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
+      const bool self_atari_flag = CheckSelfAtariForSimulation(game, color, pos);
       CheckCaptureAndAtariForSimulation(game, color, pos);
 
       if (!self_atari_flag) {
         rate[pos] = 0;
       } else {
-        gamma = po_pattern[MD2(game->pat, pos)];
+        double gamma = po_pattern[MD2(game->pat, pos)];
         gamma *= CalculateTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
         if (pm1 != PASS) {
-          dis = DIS(pos, pm1);
+          const int dis = DIS(pos, pm1);
           if (dis < 5) {
             gamma *= po_previous_distance[dis - 2];
           }
@@ -722,9 +825,8 @@ Rating( game_info_t *game, int color, long long *sum_rate, long long *sum_rate_r
 
       *sum_rate += rate[pos];
       sum_rate_row[board_y[pos]] += rate[pos];
-
-      ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
     }
+    ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
   }
 }
 
@@ -785,7 +887,6 @@ LoadFeatureParameters( void )
     } else {
       po_pattern[i] = static_cast<float>(po_pat3[(i & 0xffff)] * 10.0);
     }
-    //po_pattern[i] = (float)(po_md2[i] * po_pat3[i & 0xFFFF] * 100.0);
   }
 }
 
@@ -855,7 +956,7 @@ LoadMD2Parameter( const char *filename, float params[] )
   unsigned int transp[16];
 
   for (int i = 0; i < MD2_MAX; i++) {
-    params[i] = 0.0;
+    params[i] = -1.0;
   }
 #if defined (_WIN32)
   errno_t err;
@@ -913,10 +1014,10 @@ AnalyzePoRating( game_info_t *game, int color, double rate[] )
     ClearTacticalFeatures(&game->tactical_features[pos * ALL_MAX]);
   }
   
-  CheckFeaturesForSimulation(game, color, update_pos, &update_num);
-  CheckRemove2StonesForSimulation(game, color, update_pos, &update_num);
+  CheckFeaturesForSimulation(game, color, update_pos, update_num);
+  CheckRemove2StonesForSimulation(game, color, update_pos, update_num);
   if (game->ko_move == moves - 2) {
-    CheckCaptureAfterKoForSimulation(game, color, update_pos, &update_num);
+    CheckCaptureAfterKoForSimulation(game, color, update_pos, update_num);
   }
   
   for (int i = 0; i < pure_board_max; i++) {

@@ -424,7 +424,7 @@ PoRemoveLiberty( game_info_t *game, string_t *string, const int pos, const int c
   // 呼吸点が2つならば, レートの更新対象に加える
   if (string->libs == 1) {
     game->candidates[string->lib[0]] = true;
-    game->update_pos[color][game->update_num[color]++] = string->lib[0];
+    game->update_pos[color - 1][game->update_num[color - 1]++] = string->lib[0];
     game->seki[string->lib[0]] = false;
   }
 }
@@ -455,8 +455,9 @@ RemoveString( game_info_t *game, string_t *string, const int color )
   bool *candidates = game->candidates;
   int neighbor, rm_id = string_id[string->origin];
   int removed_color = board[pos];
-  int *capture_pos = game->capture_pos[color];
-  int *capture_num = &game->capture_num[color];
+  int *capture_pos = game->capture_pos[color - 1];
+  int &capture_num = game->capture_num[color - 1];
+  int head = 0;
 
   do {
     // 空点に戻す
@@ -466,7 +467,7 @@ RemoveString( game_info_t *game, string_t *string, const int color )
     candidates[pos] = true;
 
     // 打ち上げた石の記録
-    capture_pos[(*capture_num)++] = pos;
+    head = AddCapture(capture_pos, pos, head);
 
     // パターンの更新
     UpdatePatternEmpty(game->pat, pos);
@@ -500,6 +501,8 @@ RemoveString( game_info_t *game, string_t *string, const int color )
     neighbor = string->neighbor[neighbor];
   }
 
+  capture_num += string->size;
+
   // 連の存在フラグをオフ
   string->flag = false;
 
@@ -532,11 +535,11 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
   char *board = game->board;
   bool *candidates = game->candidates;
   int neighbor, rm_id = string_id[string->origin];
-  int *capture_pos = game->capture_pos[color];
-  int *capture_num = &game->capture_num[color];
-  int *update_pos = game->update_pos[color];
-  int *update_num = &game->update_num[color];
-  int lib;
+  int *capture_pos = game->capture_pos[color - 1];
+  int &capture_num = game->capture_num[color - 1];
+  int *update_pos = game->update_pos[color - 1];
+  int &update_num = game->update_num[color - 1];
+  int lib, head = 0;
 
   // 隣接する連の呼吸点を更新の対象に加える
   neighbor = string->neighbor[0];
@@ -544,7 +547,7 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     if (str[neighbor].libs < 3) {
       lib = str[neighbor].lib[0];
       while (lib != LIBERTY_END) {
-        update_pos[(*update_num)++] = lib;
+        update_pos[update_num++] = lib;
         game->seki[lib] = false;
         lib = str[neighbor].lib[lib];
       }
@@ -559,7 +562,7 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     candidates[pos] = true;
 
     // レーティング更新対象に追加
-    capture_pos[(*capture_num)++] = pos;
+    head = AddCapture(capture_pos, pos, head);
 
     // 3x3のパターンの更新
     UpdateMD2Empty(game->pat, pos);
@@ -589,6 +592,8 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     RemoveNeighborString(&str[neighbor], rm_id);
     neighbor = string->neighbor[neighbor];
   }
+
+  capture_num += string->size;
 
   // 連の存在フラグをオフ
   string->flag = false;
@@ -684,7 +689,7 @@ RemoveNeighborString( string_t *string, const int id )
 static int
 AddCapture( int capture[], const int pos, const int head )
 {
-  int cap = head;;
+  int cap = head;
 
   if (capture[pos] != 0) return pos;
 

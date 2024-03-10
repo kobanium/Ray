@@ -28,7 +28,7 @@ constexpr double FPU = 5.0;
  * @~japanese
  * @brief 着手評価ボーナスの重み
  */
-constexpr double BONUS_WEIGHT = 0.20;
+constexpr double BONUS_WEIGHT = 0.25;
 
 /**
  * @~english

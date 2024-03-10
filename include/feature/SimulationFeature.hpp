@@ -575,10 +575,10 @@ CompareSwapFeature( unsigned char *tactical_features, const int pos, const int t
 void SetCrossPosition( void );
 
 // 直前の着手の周辺の特徴の判定
-void CheckFeaturesForSimulation( game_info_t *game, const int color, int *update, int *update_num );
+void CheckFeaturesForSimulation( game_info_t *game, const int color, int update[], int &update_num );
 
 // 劫を解消するトリの判定
-void CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int *update, int *update_num );
+void CheckCaptureAfterKoForSimulation( game_info_t *game, const int color, int update[], int &update_num );
 
 // 自己アタリの判定
 bool CheckSelfAtariForSimulation( game_info_t *game, const int color, const int pos );
@@ -587,7 +587,7 @@ bool CheckSelfAtariForSimulation( game_info_t *game, const int color, const int 
 void CheckCaptureAndAtariForSimulation( game_info_t *game, const int color, const int pos );
 
 // 2目の抜き跡に対するホウリコミ
-void CheckRemove2StonesForSimulation( game_info_t *game, const int color, int *update, int *update_num );
+void CheckRemove2StonesForSimulation( game_info_t *game, const int color, int update[], int &update_num );
 
 #endif
 

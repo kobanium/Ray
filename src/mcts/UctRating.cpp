@@ -610,12 +610,12 @@ InputBTFMParameter( const char *filename, fm_t params[], const int n )
     exit(1);
   }
   for (int i = 0; i < n; i++) {
-    if (fscanf_s(fp, "%lf", &params[i].w) == EOF) {
+    if (fscanf_s(fp, "%le", &params[i].w) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
     for (int j = 0; j < BTFM_DIMENSION; j++) {
-      if (fscanf_s(fp, "%lf", &params[i].v[j]) == EOF) {
+      if (fscanf_s(fp, "%le", &params[i].v[j]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -628,12 +628,12 @@ InputBTFMParameter( const char *filename, fm_t params[], const int n )
     exit(1);
   }
   for (int i = 0; i < n; i++) {
-    if (fscanf(fp, "%lf", &params[i].w) == EOF) {
+    if (fscanf(fp, "%le", &params[i].w) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
     for (int j = 0; j < BTFM_DIMENSION; j++) {
-      if (fscanf(fp, "%lf", &params[i].v[j]) == EOF) {
+      if (fscanf(fp, "%le", &params[i].v[j]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -669,13 +669,13 @@ InputPat3( const char *filename, fm_t params[] )
     exit(1);
   }
   for (unsigned int pat3 = 0; pat3 < static_cast<unsigned int>(PAT3_MAX); pat3++) {
-    if (fscanf_s(fp, "%lf", &weight) == EOF) {
+    if (fscanf_s(fp, "%le", &weight) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
     params[pat3].w = weight;   
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf_s(fp, "%lf", &params[pat3].v[i]) == EOF) {
+      if (fscanf_s(fp, "%le", &params[pat3].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -688,13 +688,13 @@ InputPat3( const char *filename, fm_t params[] )
     exit(1);
   }
   for (unsigned int pat3 = 0; pat3 < static_cast<unsigned int>(PAT3_MAX); pat3++) {
-    if (fscanf(fp, "%lf", &weight) == EOF) {
+    if (fscanf(fp, "%le", &weight) == EOF) {
       std::cerr << "Read Error : " << filename << std::endl;
       exit(1);
     }
     params[pat3].w = weight;
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf(fp, "%lf", &params[pat3].v[i]) == EOF) {
+      if (fscanf(fp, "%le", &params[pat3].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -733,9 +733,9 @@ InputMD2( const char *filename, fm_t params[] )
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
 
-  while (fscanf_s(fp, "%d%lf", &index, &params[counter].w) != EOF) {
+  while (fscanf_s(fp, "%d%le", &index, &params[counter].w) != EOF) {
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf_s(fp, "%lf", &params[counter].v[i]) == EOF) {
+      if (fscanf_s(fp, "%le", &params[counter].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -754,9 +754,9 @@ InputMD2( const char *filename, fm_t params[] )
     std::cerr << "can not open -" << filename << "-" << std::endl;
   }
 
-  while (fscanf(fp, "%d%lf", &index, &params[counter].w) != EOF) {
+  while (fscanf(fp, "%d%le", &index, &params[counter].w) != EOF) {
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf(fp, "%lf", &params[counter].v[i]) == EOF) {
+      if (fscanf(fp, "%le", &params[counter].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -805,12 +805,12 @@ InputLargePattern( const char *filename, fm_t params[], index_hash_t pat_index[]
     std::cerr << "can not open -" << filename << "-" << std::endl;
     exit(1);
   }
-  while (fscanf_s(fp, "%d%llu%lf", &index, &hash, &weight) != EOF) {
+  while (fscanf_s(fp, "%d%llu%le", &index, &hash, &weight) != EOF) {
     pat_index[index].hash = hash;
     pat_index[index].index = idx;
     params[idx].w = weight;
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf_s(fp, "%lf", &params[idx].v[i]) == EOF) {
+      if (fscanf_s(fp, "%le", &params[idx].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }
@@ -823,12 +823,12 @@ InputLargePattern( const char *filename, fm_t params[], index_hash_t pat_index[]
     std::cerr << "can not open -" << filename << "-" << std::endl;
     exit(1);
   }
-  while (fscanf(fp, "%d%llu%lf", &index, &hash, &weight) != EOF) {
+  while (fscanf(fp, "%d%llu%le", &index, &hash, &weight) != EOF) {
     pat_index[index].hash = hash;
     pat_index[index].index = idx;
     params[idx].w = weight;
     for (int i = 0; i < BTFM_DIMENSION; i++) {
-      if (fscanf(fp, "%lf", &params[idx].v[i]) == EOF) {
+      if (fscanf(fp, "%le", &params[idx].v[i]) == EOF) {
         std::cerr << "Read Error : " << filename << std::endl;
         exit(1);
       }

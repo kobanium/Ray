@@ -694,8 +694,8 @@ SearchNakade( const game_info_t *game, int *nakade_num, int *nakade_pos )
 int
 CheckRemovedStoneNakade( const game_info_t *game, const int color )
 {
-  const int capture_num = game->capture_num[GetOppositeColor(color)];
-  const int *capture_pos = game->capture_pos[GetOppositeColor(color)];
+  const int capture_num = game->capture_num[GetOppositeColor(color) - 1];
+  const int *capture_pos = game->capture_pos[GetOppositeColor(color) - 1];
   unsigned long long hash = 0;
   int reviser;
 
@@ -710,8 +710,10 @@ CheckRemovedStoneNakade( const game_info_t *game, const int color )
   reviser = start - capture_pos[0];
 
   // ハッシュ値の計算
-  for (int i = 0; i < capture_num; i++) {
-    hash ^= shape_bit[capture_pos[i] + reviser];
+  int pos = capture_pos[0];
+  while (pos < CAPTURE_END) {
+    hash ^= shape_bit[pos + reviser];
+    pos = capture_pos[pos];
   }
 
   // ナカデになっていれば, その座標を返す

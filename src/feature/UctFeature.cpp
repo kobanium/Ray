@@ -806,16 +806,16 @@ CheckRemove2StonesForTree( const game_info_t *game, const int color, unsigned in
   const int cross[4] = {- board_size - 1, - board_size + 1, board_size - 1, board_size + 1};
   int i, connect;
 
-  if (game->capture_num[other] != 2) {
+  if (game->capture_num[other - 1] != 2) {
     return;
   }
 
-  const int rm1 = game->capture_pos[other][0];
-  const int rm2 = game->capture_pos[other][1];
+  const int rm1 = game->capture_pos[other - 1][0];
+  const int rm2 = game->capture_pos[other - 1][rm1];
 
   if (rm1 - rm2 != 1 &&
-            rm2 - rm1 != 1 &&
-            rm1 - rm2 != board_size &&
+      rm2 - rm1 != 1 &&
+      rm1 - rm2 != board_size &&
       rm2 - rm1 != board_size) {
     return;
   }
