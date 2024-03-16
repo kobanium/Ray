@@ -119,6 +119,14 @@ static statistic_t statistic[BOARD_MAX];
 
 /**
  * @~english
+ * @brief
+ * @~japanese
+ * @brief
+ */
+static std::atomic<int> statistic_count;
+
+/**
+ * @~english
  * @brief Criticality value.
  * @~japanese
  * @brief 盤上の各点のCriticality
@@ -493,6 +501,7 @@ UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
     for (int i = 0; i < board_max; i++) {
       statistic[i].clear();
     }
+    statistic_count = 0;
     std::fill_n(criticality_index, board_max, 0);
     for (int i = 0; i < board_max; i++) {
       criticality[i] = 0.0;
@@ -552,6 +561,7 @@ UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
   // 時間延長を行う設定になっていて,
   // 探索時間延長をすべきときは
   // 探索回数を1.5倍, 2.0倍に増やす
+
   do {
     ExtendSearchTime(mag[mag_count]);
     for (int i = 0; i < threads; i++) {
@@ -570,7 +580,7 @@ UctSearchGenmove( game_info_t *game, int color, int lz_analysis_cs )
   const double finish_time = CalculateElapsedTime();
 
   // 各地点の領地になる確率の出力
-  PrintOwner(&uct_node[current_root], statistic, color, owner);
+  PrintOwner(&uct_node[current_root], statistic, color, statistic_count.load(), owner);
   
   const int po_speed = static_cast<int>(CalculatePlayoutSpeed(finish_time, threads));
 
@@ -610,6 +620,7 @@ UctSearchPondering( game_info_t *game, int color, int lz_analysis_cs )
   for (int i = 0; i < board_max; i++) {
     statistic[i].clear();
   }
+  statistic_count = 0;
   std::fill_n(criticality_index, board_max, 0);  
   for (int i = 0; i < board_max; i++) {
     criticality[i] = 0.0;    
@@ -1303,13 +1314,16 @@ Statistic( game_info_t *game, int winner )
     const int pos = onboard_pos[i];
     int color = board[pos];
 
-    if (color == S_EMPTY) color = territory[Pat3(game->pat, pos)];
+    if (color == S_EMPTY) {
+      color = territory[Pat3(game->pat, pos)];
+    }
 
     std::atomic_fetch_add(&statistic[pos].colors[color], 1);
     if (color == winner) {
-      std::atomic_fetch_add(&statistic[pos].colors[0], 1);
+      std::atomic_fetch_add(&statistic[pos].colors[static_cast<int>(StatisticInformation::Win)], 1);
     }
   }
+  std::atomic_fetch_add(&statistic_count, 1);
 }
 
 
@@ -1331,7 +1345,7 @@ static void
 CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index )
 {
   const int other = GetOppositeColor(color);
-  const int count = node->move_count;
+  const double inv_count = (statistic_count.load() > 0) ? 1.0 / statistic_count.load() : 1.0;
   const int child_num = node->child_num;
   const double win = static_cast<double>(node->win) / node->move_count;
   const double lose = 1.0 - win;
@@ -1342,11 +1356,11 @@ CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int co
   for (int i = 1; i < child_num; i++) {
     const int pos = node->child[i].pos;
 
-    tmp = ((double)node_statistic[pos].colors[0] / count) -
-      ((((double)node_statistic[pos].colors[color] / count) * win)
-       + (((double)node_statistic[pos].colors[other] / count) * lose));
+    tmp = node_statistic[pos].colors[static_cast<int>(StatisticInformation::Win)] * inv_count
+      - ((node_statistic[pos].colors[color] * inv_count) * win
+         + (node_statistic[pos].colors[other] * inv_count) * lose);
     if (tmp < 0) tmp = 0;
-    index[i] = (int)(tmp * CRITICALITY_TERM);
+    index[i] = static_cast<int>(tmp * CRITICALITY_TERM);
     if (index[i] > criticality_max - 1) index[i] = criticality_max - 1;
   }
 }
@@ -1364,6 +1378,7 @@ static void
 CalculateCriticality( int color )
 {
   const int other = GetOppositeColor(color);
+  const double inv_count = (statistic_count.load() > 0) ? 1.0 / statistic_count.load() : 1.0;
   const double win = static_cast<double>(uct_node[current_root].win) / uct_node[current_root].move_count;
   const double lose = 1.0 - win;
   double tmp;
@@ -1372,13 +1387,13 @@ CalculateCriticality( int color )
   for (int i = 0; i < pure_board_max; i++) {
     const int pos = onboard_pos[i];
 
-    tmp = (static_cast<float>(statistic[pos].colors[0]) / count) -
-      (((static_cast<float>(statistic[pos].colors[color]) / count) * win)
-       + ((static_cast<float>(statistic[pos].colors[other]) / count) * lose));
+    tmp = statistic[pos].colors[static_cast<int>(StatisticInformation::Win)] * inv_count
+      - ((statistic[pos].colors[color] * inv_count) * win
+         + (statistic[pos].colors[other] * inv_count) * lose);
 
     criticality[pos] = tmp;
     if (tmp < 0) tmp = 0;
-    criticality_index[pos] = static_cast<int>(tmp * 40);
+    criticality_index[pos] = static_cast<int>(tmp * CRITICALITY_TERM);
     if (criticality_index[pos] > criticality_max - 1) criticality_index[pos] = criticality_max - 1;
   }
 }
@@ -1401,14 +1416,14 @@ CalculateCriticality( int color )
 static void
 CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index )
 {
-  const int count = node->move_count;
+  const double inv_count = (statistic_count.load() > 0) ? 1.0 / statistic_count.load() : 1.0;
   const int child_num = node->child_num;
 
   index[0] = 0;
 
   for (int i = 1; i < child_num; i++){
     const int pos = node->child[i].pos;
-    index[i] = static_cast<int>(static_cast<double>(node_statistic[pos].colors[color]) * 10.0 / count + 0.5);
+    index[i] = static_cast<int>(static_cast<double>(node_statistic[pos].colors[color]) * 10.0 * inv_count + 0.5);
     if (index[i] > OWNER_MAX - 1) index[i] = OWNER_MAX - 1;
     if (index[i] < 0)             index[i] = 0;
   }
@@ -1428,9 +1443,11 @@ CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, i
 static void
 CalculateOwner( int color, int count )
 {
+  const double inv_count = (statistic_count.load() > 0) ? 1.0 / statistic_count.load() : 1.0;
+
   for (int i = 0; i < pure_board_max; i++){
     const int pos = onboard_pos[i];
-    owner_index[pos] = static_cast<int>(static_cast<double>(statistic[pos].colors[color]) * 10.0 / count + 0.5);
+    owner_index[pos] = static_cast<int>(static_cast<double>(statistic[pos].colors[color]) * 10.0 * inv_count + 0.5);
     if (owner_index[pos] > OWNER_MAX - 1) owner_index[pos] = OWNER_MAX - 1;
     if (owner_index[pos] < 0)             owner_index[pos] = 0;
   }
@@ -1458,6 +1475,7 @@ UctAnalyze( game_info_t *game, int color )
   for (int i = 0; i < board_max; i++) {
     statistic[i].clear();
   }
+  statistic_count = 0;
   std::fill_n(criticality_index, board_max, 0);  
   for (int i = 0; i < board_max; i++) {
     criticality[i] = 0.0;
@@ -1485,10 +1503,11 @@ UctAnalyze( game_info_t *game, int color )
 
   int black = 0, white = 0;
 
+  const int inv_count = 1.0 / statistic_count.load();
   for (int y = board_start; y <= board_end; y++) {
     for (int x = board_start; x <= board_end; x++) {
       const int pos = POS(x, y);
-      const double ownership_value = static_cast<double>(statistic[pos].colors[S_BLACK]) / uct_node[current_root].move_count;
+      const double ownership_value = static_cast<double>(statistic[pos].colors[S_BLACK]) * inv_count;
       if (ownership_value > 0.5) {
         black++;
       } else {
@@ -1497,7 +1516,7 @@ UctAnalyze( game_info_t *game, int color )
     }
   }
 
-  PrintOwner(&uct_node[current_root], statistic, color, owner);
+  PrintOwner(&uct_node[current_root], statistic, color, statistic_count.load(), owner);
 
   return black - white;
 }
@@ -1578,6 +1597,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
   for (int i = 0; i < board_max; i++) {
     statistic[i].clear();
   }
+  statistic_count = 0;
   std::fill_n(criticality_index, board_max, 0); 
   for (int i = 0; i < board_max; i++) {
     criticality[i] = 0.0;
@@ -1626,7 +1646,7 @@ UctSearchGenmoveCleanUp( game_info_t *game, int color )
   const int po_speed = static_cast<int>(CalculatePlayoutSpeed(finish_time, threads));
 
   PrintPlayoutInformation(&uct_node[current_root], po_speed, finish_time, 0);
-  PrintOwner(&uct_node[current_root], statistic, color, owner);
+  PrintOwner(&uct_node[current_root], statistic, color, statistic_count.load(), owner);
 
   PrintBestSequence(game, uct_node, current_root, color);
 

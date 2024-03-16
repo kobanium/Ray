@@ -246,11 +246,12 @@ PrintStringNext( const game_info_t *game )
  * @param[out] own Owner
  */
 void
-PrintOwner( const uct_node_t *root, const statistic_t *statistic, const int color, double *own )
+PrintOwner( const uct_node_t *root, const statistic_t *statistic, const int color, const int count, double *own )
 {
   int player = 0, opponent = 0;
   double owner, score;
   std::ostringstream oss;
+  const double inv_count = (count > 0) ? 1.0 / count : 1.0;
 
   if (!debug_message) return;
 
@@ -269,7 +270,7 @@ PrintOwner( const uct_node_t *root, const statistic_t *statistic, const int colo
     oss << std::setw(2) << (pure_board_size + 1 - i) << ":|";
     for (int x = board_start; x <= board_end; x++) {
       const int pos = POS(x, y);
-      owner = static_cast<double>(statistic[pos].colors[color]) / root->move_count;
+      owner = static_cast<double>(statistic[pos].colors[color]) * inv_count;
       if (owner > 0.5) {
         player++;
       } else {
