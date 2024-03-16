@@ -11,6 +11,17 @@
 
 #include <atomic>
 
+
+enum class StatisticInformation : int {
+  Empty = 0,
+  Black,
+  White,
+  Win,
+  Max,
+};
+
+
+
 /**
  * @struct statistic_t
  * @~english
@@ -25,7 +36,7 @@ struct statistic_t {
    * @~japanese
    * @brief 領地にした回数
    */
-  std::atomic<int> colors[3];
+  std::atomic<int> colors[static_cast<int>(StatisticInformation::Max)];
 
   /**
    * @~english
@@ -34,9 +45,9 @@ struct statistic_t {
    * @brief 統計情報のクリア
    */
   void
-  clear()
+  clear( void )
   {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < static_cast<int>(StatisticInformation::Max); i++) {
       colors[i] = 0;
     }
   }
@@ -54,7 +65,7 @@ struct statistic_t {
   statistic_t&
   operator=( const statistic_t& v )
   {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < static_cast<int>(StatisticInformation::Max); i++) {
       colors[i] = v.colors[i].load();
     }
     return *this;

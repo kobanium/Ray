@@ -74,7 +74,7 @@ constexpr double CRITICALITY_INIT = 0.765745;
  * @~japanese
  * @brief Criticalityの特徴の係数
  */
-constexpr double CRITICALITY_BIAS = 0.32;
+constexpr double CRITICALITY_BIAS = 0.35;
 
 /**
  * @~english
