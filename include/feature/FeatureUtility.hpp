@@ -1,9 +1,28 @@
+/**
+ * @file include/feature/FeatureUtility.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Feature utility.
+ * @~japanese
+ * @brief 特徴のユーティリティ
+ */
 #ifndef _FEATURE_UTILITY_HPP_
 #define _FEATURE_UTILITY_HPP_
 
-
+/**
+ * @~english
+ * @brief The number of bit masks.
+ * @~japanese
+ * @brief ビットマスクの個数
+ */
 constexpr int FEATURE_BIT_MAX = 64;
 
+/**
+ * @~english
+ * @brief Bit mask.
+ * @~japanese
+ * @brief ビットマスク
+ */
 constexpr unsigned long long bit_mask[FEATURE_BIT_MAX] = {
   0x0000000000000001, 0x0000000000000002, 0x0000000000000004, 0x0000000000000008,
   0x0000000000000010, 0x0000000000000020, 0x0000000000000040, 0x0000000000000080,

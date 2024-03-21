@@ -1,3 +1,11 @@
+/**
+ * @file src/util/Command.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Implementatio of command line options.
+ * @~japanese
+ * @brief コマンドラインオプションの実装
+ */
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -13,11 +21,12 @@
 #include "util/Command.hpp"
 
 
-////////////
-//  定数  //
-////////////
-
-//  コマンド
+/**
+ * @~english
+ * @brief Command line options.
+ * @~japanese
+ * @brief コマンドラインオプション
+ */
 const std::string command[COMMAND_MAX] = {
   "--playout",
   "--time",
@@ -35,7 +44,12 @@ const std::string command[COMMAND_MAX] = {
   "--cgos",
 };
 
-//  コマンドの説明
+/**
+ * @~english
+ * @brief Descriptions for Command line options.
+ * @~japanese
+ * @brief コマンドラインオプションの説明
+ */
 const std::string errmessage[COMMAND_MAX] = {
   "Set playouts",
   "Set all thinking time",
@@ -54,9 +68,16 @@ const std::string errmessage[COMMAND_MAX] = {
 };
 
 
-//////////////////////
-//  コマンドの処理  //
-//////////////////////
+/**
+ * @~english
+ * @brief Process for command line options.
+ * @param[in] argc The number of command line arguments.
+ * @param[in] argv Command line arguments.
+ * @~japanese
+ * @brief コマンドラインオプションの処理
+ * @param[in] argc コマンドライン引数の個数
+ * @param[in] argv コマンドライン引数
+ */
 void
 AnalyzeCommand( int argc, char **argv )
 {
@@ -119,7 +140,7 @@ AnalyzeCommand( int argc, char **argv )
         break;
       case COMMAND_TREE_SIZE:
         // UCTのノードの個数の設定
-        SetHashSize((unsigned int)atoi(argv[++i]));
+        SetHashSize(static_cast<unsigned int>(atoi(argv[++i])));
         break;
       case COMMAND_SUPERKO:
         // 超劫のh判定の設定

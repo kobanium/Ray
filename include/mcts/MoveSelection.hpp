@@ -1,3 +1,11 @@
+/**
+ * @file MoveSelection.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Move selection from search result.
+ * @~japanese
+ * @brief 着手選択
+ */
 #ifndef _MOVE_SELECTION_HPP_
 #define _MOVE_SELECTION_HPP_
 
@@ -5,10 +13,20 @@
 #include "mcts/MCTSNode.hpp"
 
 
-// パスする勝率の閾値
+/**
+ * @~english
+ * @brief Winning rate threshold for pass validity.
+ * @~japanese
+ * @brief パスを許可する勝率の閾値
+ */
 constexpr double PASS_THRESHOLD = 0.90;
 
-// 投了する閾値
+/**
+ * @~english
+ * @brief Monte-Carlo simulation's winning rate threshold for resignation.
+ * @~japanese
+ * @brief 投了する勝率の閾値(Playout)
+ */
 constexpr double RESIGN_THRESHOLD = 0.20;
 
 

@@ -1,3 +1,11 @@
+/**
+ * @file include/feature/Ladder.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Ladder checker.
+ * @~japanese
+ * @brief シチョウの確認
+ */
 #ifndef _LADDER_HPP_
 #define _LADDER_HPP_
 
@@ -7,4 +15,5 @@
 void LadderExtension( game_info_t *game, int color, bool *ladder_pos );
 // 戦術的特徴用の関数
 bool CheckLadderExtension( const game_info_t *game, const int color, const int pos );
+
 #endif

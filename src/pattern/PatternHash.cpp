@@ -1,14 +1,24 @@
+/**
+ * @file src/pattern/PatternHash.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Zobrist hash for neighborhood stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンを表現するZobrist Hash
+ */
 #include <cstdio>
 #include <iostream>
 
 #include "pattern/PatternHash.hpp"
 
-////////////
-//  変数  //
-////////////
 
-// bit
-const unsigned long long random_bitstrings[BIT_MAX][S_MAX] = {
+/**
+ * @~english
+ * @brief Bit mask for zobrist hash
+ * @~japanese
+ * @brief Zobrist Hash用のビットマスク
+ */
+constexpr unsigned long long random_bitstrings[BIT_MAX][S_MAX] = {
   { 0xc96d191cf6f6aea6LLU, 0x401f7ac78bc80f1cLLU, 0xb5ee8cb6abe457f8LLU, 0xf258d22d4db91392LLU },
   { 0x04eef2b4b5d860ccLLU, 0x67a7aabe10d172d6LLU, 0x40565d50e72b4021LLU, 0x05d07b7d1e8de386LLU },
   { 0x8548dea130821accLLU, 0x583c502c832e0a3aLLU, 0x4631aede2e67ffd1LLU, 0x8f9fccba4388a61fLLU },
@@ -71,19 +81,24 @@ const unsigned long long random_bitstrings[BIT_MAX][S_MAX] = {
   { 0xffb5a3079c5f3418LLU, 0x3373d7f543f1ab0dLLU, 0x8d84012afc9aa746LLU, 0xb287a6f25e5acdf8LLU },
 };
 
-////////////
-//  関数  //
-////////////
+
 //  パターンのハッシュ関数
 static unsigned long long MD2Hash( const unsigned int md2 );
 static unsigned long long MD3Hash( const unsigned int md3 );
 static unsigned long long MD4Hash( const unsigned int md4 );
-static unsigned long long MD5Hash( const unsigned long long int md5 );
+static unsigned long long MD5Hash( const unsigned long long md5 );
 
 
-/////////////////////////////
-//  パターンのハッシュ関数  //
-/////////////////////////////
+/**
+ * @~english
+ * @brief Calculate hash value of pattern.
+ * @param[in] pat Instance of stones pattern.
+ * @param[out] hash_pat Hash value of pattern.
+ * @~japanese
+ * @brief パターンのハッシュ値の算出
+ * @param[in] pat 配石パターンのインスタンス
+ * @param[out] hash_pat パターンのハッシュ値
+ */
 void
 PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat )
 {
@@ -102,7 +117,7 @@ PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat )
 
   min2 = md2_transp[0];
   min3 = md3_transp[0] + md2_transp[0];
-  min4 = (unsigned long long)md4_transp[0] + md3_transp[0] + md2_transp[0];
+  min4 = static_cast<unsigned long long>(md4_transp[0]) + md3_transp[0] + md2_transp[0];
   min5 = md5_transp[0] + md4_transp[0] + md3_transp[0] + md2_transp[0];
 
   for (int i = 1; i < 16; i++) {
@@ -116,7 +131,7 @@ PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat )
       index3 = i;
       min3 = tmp3;
     }
-    tmp4 = (unsigned long long)md4_transp[i] + md3_transp[i] + md2_transp[i];
+    tmp4 = static_cast<unsigned long long>(md4_transp[i]) + md3_transp[i] + md2_transp[i];
     if (min4 > tmp4) {
       index4 = i;
       min4 = tmp4;
@@ -135,9 +150,16 @@ PatternHash( const pattern_t *pat, pattern_hash_t *hash_pat )
 }
 
 
-/////////////////////////////
-//  パターンのハッシュ関数  //
-/////////////////////////////
+/**
+ * @~english
+ * @brief Return hash value of MD2 pattern.
+ * @param[in] md2 MD2 pattern.
+ * @return Hash value of MD2 pattern.
+ * @~japanese
+ * @brief MD2パターンのハッシュ値の算出
+ * @param[in] md2 MD2パターン
+ * @return MD2パターンのハッシュ値
+ */
 static unsigned long long
 MD2Hash( const unsigned int md2 )
 {
@@ -150,6 +172,17 @@ MD2Hash( const unsigned int md2 )
   return hash;
 }
 
+
+/**
+ * @~english
+ * @brief Return hash value of MD3 pattern.
+ * @param[in] md3 MD3 pattern.
+ * @return Hash value of MD3 pattern.
+ * @~japanese
+ * @brief MD3パターンのハッシュ値の算出
+ * @param[in] md3 MD3パターン
+ * @return MD3パターンのハッシュ値
+ */
 static unsigned long long
 MD3Hash( const unsigned int md3 )
 {
@@ -163,6 +196,16 @@ MD3Hash( const unsigned int md3 )
 }
 
 
+/**
+ * @~english
+ * @brief Return hash value of MD4 pattern.
+ * @param[in] md4 MD4 pattern.
+ * @return Hash value of MD4 pattern.
+ * @~japanese
+ * @brief MD4パターンのハッシュ値の算出
+ * @param[in] md4 MD4パターン
+ * @return MD4パターンのハッシュ値
+ */
 static unsigned long long
 MD4Hash( const unsigned int md4 )
 {
@@ -175,6 +218,17 @@ MD4Hash( const unsigned int md4 )
   return hash;
 }
 
+
+/**
+ * @~english
+ * @brief Return hash value of MD5 pattern.
+ * @param[in] md5 MD5 pattern.
+ * @return Hash value of MD5 pattern.
+ * @~japanese
+ * @brief MD5パターンのハッシュ値の算出
+ * @param[in] md5 MD5パターン
+ * @return MD5パターンのハッシュ値
+ */
 static unsigned long long
 MD5Hash( const unsigned long long md5 )
 {
@@ -188,9 +242,18 @@ MD5Hash( const unsigned long long md5 )
 }
 
 
-////////////////////
-//  データを探索  //
-////////////////////
+/**
+ * @~english
+ * @brief Return the index with the same hash value.
+ * @param[in] index Instance of hash table
+ * @param[in] hash Hash value
+ * @return Index with hash hit.
+ * @~japanese
+ * @brief 同じハッシュ値を持つインデックスの取得
+ * @param[in] index ハッシュテーブルのインスタンス
+ * @param[in] hash ハッシュ値
+ * @return ハッシュヒットしたインデックス
+ */
 int
 SearchIndex( const index_hash_t *index, const unsigned long long hash )
 {

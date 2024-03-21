@@ -1,52 +1,123 @@
+/**
+ * @file include/gtp/Gtp.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Go text protocol client.
+ * @~japanese
+ * @brief Go Text Protocolクライアント
+ */
 #ifndef _GTP_HPP_
 #define _GTP_HPP_
 
-/////////////
-//  定数  //
-/////////////
 
-//  GTPコマンドの文字数の上限
-const int GTP_COMMAND_SIZE = 64;
+/**
+ * @~english
+ * @brief Maximum size of GTP command.
+ * @~japanese
+ * @brief GTPコマンドの文字数の上限
+ */
+constexpr int GTP_COMMAND_SIZE = 64;
 
-//  GTPコマンド入力文字列の上限
-const int BUF_SIZE = 256;
+/**
+ * @~english
+ * @brief Maximum length of GTP command input string.
+ * @~japanese
+ * @brief GTPコマンド入力文字列の上限
+ */
+constexpr int BUF_SIZE= 256;
 
-//  コマンドの区切り文字(空白文字)
-#define DELIM  " "
+/**
+ * @~english
+ * @brief Delimiter.
+ * @~japanese
+ * @brief コマンドの区切り文字(空白文字)
+ */
+constexpr char DELIM[] = " ";
 
-//  プログラム名
-#define PROGRAM_NAME  "Ray"
+/**
+ * @~english
+ * @brief Program name.
+ * @~japanese
+ * @brief プログラム名
+ */
+constexpr char PROGRAM_NAME[] = "Ray";
 
-//  プログラムのバージョン
-#define PROGRAM_VERSION  "11.0.0"
+/**
+ * @~english
+ * @brief Program version.
+ * @~japanese
+ * @brief プログラムのバージョン
+ */
+constexpr char PROGRAM_VERSION[] = "11.1.0";
 
-//  GTPのバージョン
-#define PROTOCOL_VERSION  "2"
+/**
+ * @~english
+ * @brief Go Text Protocol version.
+ * @~japanese
+ * @brief Go Text Protocolのバージョン
+ */
+constexpr char PROTOCOL_VERSION[] = "2";
 
 
-//////////////
-//  構造体  //
-//////////////
-
-//  GTPコマンド処理用の構造体
+/**
+ * @struct GTP_command_t
+ * @~english
+ * @brief GTP command string and function.
+ * @~japanese
+ * @brief GTPコマンド文字列と関数
+ */
 struct GTP_command_t {
+  /**
+   * @~english
+   * @brief GTP command string.
+   * @~japanese
+   * @brief GTPコマンド文字列
+   */
   char command[GTP_COMMAND_SIZE];
+
+  /**
+   * @~english
+   * @brief Function pointer to GTP command function.
+   * @~japanese
+   * @brief GTPコマンドに対応する関数へのポインタ
+   */
   void (*function)();
 };
 
 
-////////////
-//  関数  //
-////////////
-
+/**
+ * @def STRCPY(dst, size, src)
+ * @~english
+ * @brief Wrapper for strcpy function.
+ * @~japanese
+ * @brief strcpy関数のラッパー
+ */
 #if defined (_WIN32)
 #define STRCPY(dst, size, src) strcpy_s((dst), (size), (src))
-#define STRTOK(src, token, next) strtok_s((src), (token), (next))
 #else
 #define STRCPY(dst, size, src) strcpy((dst), (src))
+#endif
+
+/**
+ * @def STRTOK(src, token, next)
+ * @~english
+ * @brief Wrapper for strtok function
+ * @~japanese
+ * @brief strtok関数のラッパー
+ */
+#if defined (_WIN32)
+#define STRTOK(src, token, next) strtok_s((src), (token), (next))
+#else
 #define STRTOK(src, token, next) strtok((src), (token))
 #endif
 
+/**
+ * @def CHOMP(command)
+ * @~english
+ * @brief Remove last new line charactor.
+ * @~japanese
+ * @brief 末尾の改行の削除
+ */
 #define CHOMP(command) if(command[strlen(command)-1] == '\n') command[strlen(command)-1] = '\0'
 
 // gtp本体

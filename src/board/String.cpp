@@ -1,3 +1,11 @@
+/**
+ * @file src/board/String.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Operation of stones string.
+ * @~japanese
+ * @brief 連の管理
+ */
 #include "board/GoBoard.hpp"
 #include "board/String.hpp"
 #include "board/ZobristHash.hpp"
@@ -22,9 +30,18 @@ static void RemoveNeighborString( string_t *string, const int id );
 static int AddCapture( int capture[], const int pos, const int head );
 
 
-//////////////////////
-//  新しい連の作成  //
-////////////////////// 
+/**
+ * @~english
+ * @brief Make new string.
+ * @param[in, out] game Board position data.
+ * @param[in] pos Intersection.
+ * @param[in] color Stone's color.
+ * @~japanese
+ * @brief 新しい連の作成
+ * @param[in, out] game 局面情報
+ * @param[in] pos 石を置いた座標
+ * @param[in] color 石の色
+ */
 void
 MakeString( game_info_t *game, const int pos, const int color )
 {
@@ -47,7 +64,7 @@ MakeString( game_info_t *game, const int pos, const int color )
   new_string->lib[0] = LIBERTY_END;
   new_string->neighbor[0] = NEIGHBOR_END;
   new_string->libs = 0;
-  new_string->color = (char)color;
+  new_string->color = static_cast<char>(color);
   new_string->origin = pos;
   new_string->size = 1;
   new_string->neighbors = 0;
@@ -75,15 +92,22 @@ MakeString( game_info_t *game, const int pos, const int color )
 }
 
 
-///////////////////////////
-//  連に石を1つ追加する  //
-///////////////////////////
+/**
+ * @~english
+ * @brief Add one stone to existing string.
+ * @param[in, out] game Board position data.
+ * @param[in, out] string String data.
+ * @param[in] pos Intersection.
+ * @param[in] head Starting index.
+ * @~japanese
+ * @brief 連に石を1つ追加
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 石の追加する先の連
+ * @param[in] pos 追加する石の座標
+ * @param[in] head 開始点のインデックス
+ */
 static void
 AddStoneToString( game_info_t *game, string_t *string, const int pos, const int head )
-// game_info_t *game : 盤面の情報を示すポインタ
-// string_t *string  : 石の追加先の連
-// int pos         : 追加する石の座標
-// int head        : 高速処理のための変数
 {
   int *string_next = game->string_next;
   int str_pos;
@@ -111,15 +135,22 @@ AddStoneToString( game_info_t *game, string_t *string, const int pos, const int 
 }
 
 
-////////////////////////
-//  連に石を追加する  //
-//////////////////////// 
+/**
+ * @~english
+ * @brief Process for add stone to string.
+ * @param[in, out] game Board position data.
+ * @param[in] pos Intersection.
+ * @param[in] color Stone's color.
+ * @param[in] id String ID.
+ * @~japanese
+ * @brief 連に石を追加
+ * @param[in, out] game 局面情報
+ * @param[in] pos 置いた石の座標
+ * @param[in] color 置いた石の色
+ * @param[in] id 石を追加する先の連ID
+ */
 void
 AddStone( game_info_t *game, const int pos, const int color, const int id )
-// game_info_t *game : 盤面の情報を示すポインタ
-// int pos           : 置いた石の座標
-// int color         : 置いた石の色
-// int id            : 石を追加する先の連のID
 {
   const int other = GetOppositeColor(color);
   string_t *string = game->string;
@@ -155,16 +186,24 @@ AddStone( game_info_t *game, const int pos, const int color, const int id )
 }
 
 
-//////////////////////////
-//  連同士の結合の判定  //
-//////////////////////////
+/**
+ * @~english
+ * @brief String connection process.
+ * @param[in, out] game Board position data.
+ * @param[in] pos Intersection.
+ * @param[in] color Stone's color.
+ * @param[in] connection The number of string connection candidates.
+ * @param[in] id String ID.
+ * @~japanese
+ * @brief 連同士の結合処理
+ * @param[in, out] game 局面情報
+ * @param[in] pos 置いた石の座標
+ * @param[in] color 置いた石の色
+ * @param[in] connection 隣接する連の候補の個数
+ * @param[in] id 隣接する連の候補のID
+ */
 void
 ConnectString( game_info_t *game, const int pos, const int color, const int connection, const int id[] )
-// game_info_t *game : 盤面の情報を示すポインタ
-// int pos           : 置いた石の座標
-// int color         : 置いた石の色
-// int connection    : 接続する連の候補の個数
-// int id[]          : 接続する連の候補のID
 {
   int min = id[0];
   string_t *string = game->string;
@@ -202,15 +241,22 @@ ConnectString( game_info_t *game, const int pos, const int color, const int conn
 }
 
 
-////////////////
-//  連の結合  //
-//////////////// 
+/**
+ * @~english
+ * @brief Connect strings.
+ * @param[in, out] game Board position data.
+ * @param[out] dst Connection destination string.
+ * @param[in] src Connecting strings.
+ * @param[in] n The number of connecting strings.
+ * @~japanese
+ * @brief 連を結合
+ * @param[in, out] game
+ * @param[out] dst 結合先の連
+ * @param[in] src 結合させる連
+ * @param[in] n 結合する連の個数
+ */
 static void
 MergeString( game_info_t *game, string_t *dst, string_t *src[3], const int n )
-// game_info_t *game : 盤面の情報を示すポインタ
-// string_t *dst     : マージ先の連
-// string_t *src[3]  : マージ元の連(最大3つ)
-// int n             : マージする連の個数
 {
   int tmp, pos, prev, neighbor;
   int *string_next = game->string_next;
@@ -258,14 +304,22 @@ MergeString( game_info_t *game, string_t *dst, string_t *src[3], const int n )
 }
 
 
-////////////////////
-//  呼吸点の追加  //
-////////////////////
+/**
+ * @~english
+ * @brief Process to add a liberty.
+ * @param[in, out] string String will be updated.
+ * @param[in] pos Liberty coordinate.
+ * @param[in] head Search index.
+ * @return Liberty intersection. 
+ * @~japanese
+ * @brief 呼吸点の追加
+ * @param[in, out] string 呼吸点を追加する対象の連
+ * @param[in] pos 追加する呼吸点の座標
+ * @param[in] head 探索対象の先頭のインデックス
+ * @return 追加した呼吸点の座標
+ */
 static int
 AddLiberty( string_t *string, const int pos, const int head )
-// string_t *string : 呼吸点を追加する対象の連
-// int pos        : 追加する呼吸点の座標
-// int head       : 探索対象の先頭のインデックス
 {
   int lib;
 
@@ -282,7 +336,7 @@ AddLiberty( string_t *string, const int pos, const int head )
 
   // 呼吸点の座標を追加する
   string->lib[pos] = string->lib[lib];
-  string->lib[lib] = (short)pos;
+  string->lib[lib] = static_cast<short>(pos);
 
   // 呼吸点の数を1つ増やす
   string->libs++;
@@ -292,14 +346,20 @@ AddLiberty( string_t *string, const int pos, const int head )
 }
 
 
-////////////////////
-//  呼吸点の除去  //
-////////////////////
+/**
+ * @~english
+ * @brief Remove a liberty.
+ * @param[in, out] game Board position data.
+ * @param[in, out] string String will be removed a liberty.
+ * @param[in] pos Liberty intersection.
+ * @~japanese
+ * @brief 呼吸点の除去
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 呼吸点を取り除く対象の連
+ * @param[in] pos 取り除かれる呼吸点の座標
+ */
 void
 RemoveLiberty( game_info_t *game, string_t *string, const int pos )
-// game_info_t *game : 盤面の情報を示すポインタ
-// string_t *string  : 呼吸点を取り除く対象の連
-// int pos         : 取り除かれる呼吸点
 {
   int lib = 0;
 
@@ -313,7 +373,7 @@ RemoveLiberty( game_info_t *game, string_t *string, const int pos )
 
   // 呼吸点の座標の情報を取り除く
   string->lib[lib] = string->lib[string->lib[lib]];
-  string->lib[pos] = (short)0;
+  string->lib[pos] = static_cast<short>(0);
 
   // 連の呼吸点の数を1つ減らす
   string->libs--;
@@ -325,16 +385,22 @@ RemoveLiberty( game_info_t *game, string_t *string, const int pos )
 }
 
 
-//////////////////////
-//  呼吸点の除去    //
-// (プレイアウト用) //
-//////////////////////
+/**
+ * @~english
+ * @brief Remove a liberty for Monte-Carlo simulation.
+ * @param[in, out] game Board position data.
+ * @param[in, out] string String will be removed a liberty.
+ * @param[in] pos Liberty intersection.
+ * @param[in] color Player's color.
+ * @~japanese
+ * @brief 呼吸点の除去 (モンテカルロ・シミュレーション用)
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 呼吸点を取り除く対象の連
+ * @param[in] pos 取り除かれる呼吸点の座標
+ * @param[in] color 手番の色
+ */
 void
 PoRemoveLiberty( game_info_t *game, string_t *string, const int pos, const int color )
-// game_info_t *game : 盤面の情報を示すポインタ
-// string_t *string  : 呼吸点を取り除く対象の連
-// int pos         : 取り除かれる呼吸点
-// int color       : その手番の色
 {
   int lib = 0;
 
@@ -358,19 +424,28 @@ PoRemoveLiberty( game_info_t *game, string_t *string, const int pos, const int c
   // 呼吸点が2つならば, レートの更新対象に加える
   if (string->libs == 1) {
     game->candidates[string->lib[0]] = true;
-    game->update_pos[color][game->update_num[color]++] = string->lib[0];
+    game->update_pos[color - 1][game->update_num[color - 1]++] = string->lib[0];
     game->seki[string->lib[0]] = false;
   }
 }
 
 
-////////////////
-//  連の除去  //
-////////////////
+/**
+ * @~english
+ * @brief Remove string.
+ * @param[in, out] game Board position data.
+ * @param[in, out] string String must be removed.
+ * @param[in] color Player's color.
+ * @return The number of removed stones.
+ * @~japanese
+ * @brief 連の除去の処理
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 取り除く対象の連
+ * @param[in] color 手番の色
+ * @return 打ち上げた石の個数
+ */
 int
 RemoveString( game_info_t *game, string_t *string, const int color )
-// game_info_t *game : 盤面の情報を示すポインタ
-// string_t *string  : 取り除く対象の連
 {
   string_t *str = game->string;
   int *string_next = game->string_next;
@@ -380,8 +455,9 @@ RemoveString( game_info_t *game, string_t *string, const int color )
   bool *candidates = game->candidates;
   int neighbor, rm_id = string_id[string->origin];
   int removed_color = board[pos];
-  int *capture_pos = game->capture_pos[color];
-  int *capture_num = &game->capture_num[color];
+  int *capture_pos = game->capture_pos[color - 1];
+  int &capture_num = game->capture_num[color - 1];
+  int head = 0;
 
   do {
     // 空点に戻す
@@ -391,7 +467,7 @@ RemoveString( game_info_t *game, string_t *string, const int color )
     candidates[pos] = true;
 
     // 打ち上げた石の記録
-    capture_pos[(*capture_num)++] = pos;
+    head = AddCapture(capture_pos, pos, head);
 
     // パターンの更新
     UpdatePatternEmpty(game->pat, pos);
@@ -425,6 +501,8 @@ RemoveString( game_info_t *game, string_t *string, const int color )
     neighbor = string->neighbor[neighbor];
   }
 
+  capture_num += string->size;
+
   // 連の存在フラグをオフ
   string->flag = false;
 
@@ -433,14 +511,22 @@ RemoveString( game_info_t *game, string_t *string, const int color )
 }
 
 
-////////////////
-//  連の除去  //
-////////////////
+/**
+ * @~english
+ * @brief Remove string for Monte-Carlo simulation.
+ * @param[in, out] game Board postion data.
+ * @param[in, out] string String must be removed.
+ * @param[in] color Player's color.
+ * @return The number of removed stones.
+ * @~japanese
+ * @brief 連の除去の処理 (モンテカルロ・シミュレーション用)
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 取り除く対象の連
+ * @param[in] color 手番の色
+ * @return 打ち上げた石の個数
+ */
 int
 PoRemoveString( game_info_t *game, string_t *string, const int color )
-// game_info_t *game : 盤面の情報を示すポインタ
-// string_t *string  : 取り除く対象の連
-// int color       : 手番の色(連を構成する色とは違う色)
 {
   string_t *str = game->string;
   int *string_next = game->string_next;
@@ -449,11 +535,11 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
   char *board = game->board;
   bool *candidates = game->candidates;
   int neighbor, rm_id = string_id[string->origin];
-  int *capture_pos = game->capture_pos[color];
-  int *capture_num = &game->capture_num[color];
-  int *update_pos = game->update_pos[color];
-  int *update_num = &game->update_num[color];
-  int lib;
+  int *capture_pos = game->capture_pos[color - 1];
+  int &capture_num = game->capture_num[color - 1];
+  int *update_pos = game->update_pos[color - 1];
+  int &update_num = game->update_num[color - 1];
+  int lib, head = 0;
 
   // 隣接する連の呼吸点を更新の対象に加える
   neighbor = string->neighbor[0];
@@ -461,7 +547,7 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     if (str[neighbor].libs < 3) {
       lib = str[neighbor].lib[0];
       while (lib != LIBERTY_END) {
-        update_pos[(*update_num)++] = lib;
+        update_pos[update_num++] = lib;
         game->seki[lib] = false;
         lib = str[neighbor].lib[lib];
       }
@@ -476,7 +562,7 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     candidates[pos] = true;
 
     // レーティング更新対象に追加
-    capture_pos[(*capture_num)++] = pos;
+    head = AddCapture(capture_pos, pos, head);
 
     // 3x3のパターンの更新
     UpdateMD2Empty(game->pat, pos);
@@ -507,6 +593,8 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
     neighbor = string->neighbor[neighbor];
   }
 
+  capture_num += string->size;
+
   // 連の存在フラグをオフ
   string->flag = false;
 
@@ -515,14 +603,20 @@ PoRemoveString( game_info_t *game, string_t *string, const int color )
 }
 
 
-////////////////////////////////////
-//  隣接する連IDの追加(重複確認)  //
-////////////////////////////////////
+/**
+ * @~english
+ * @brief Add neighbor string ID with duplication check.
+ * @param[in, out] string String must be updated.
+ * @param[in] id Neighbor string ID.
+ * @param[in] head Starting index.
+ * @~japanese
+ * @brief 隣接する連IDの追加(重複確認)
+ * @param[in, out] string 隣接情報を追加する連
+ * @param[in] id 追加する連ID
+ * @param[in] head 開始点のインデックス
+ */
 static void
 AddNeighbor( string_t *string, const int id, const int head )
-// string_t *string : 隣接情報を追加する連
-// int id         : 追加される連ID
-// int head       : 探索対象の先頭のインデックス
 {
   int neighbor = 0;
 
@@ -539,20 +633,25 @@ AddNeighbor( string_t *string, const int id, const int head )
 
   // 隣接する連IDを追加する
   string->neighbor[id] = string->neighbor[neighbor];
-  string->neighbor[neighbor] = (short)id;
+  string->neighbor[neighbor] = static_cast<short>(id);
 
   // 隣接する連の数を1つ増やす
   string->neighbors++;
 }
 
 
-//////////////////////////
-//  隣接する連IDの除去  //
-//////////////////////////
+/**
+ * @~english
+ * @brief Remove neighbor string ID.
+ * @param[in, out] string String must be updated.
+ * @param[in] id Remove string ID.
+ * @~japanese
+ * @brief 隣接する連IDの除去
+ * @param[in, out] string 隣接する連IDを取り除く対象の連
+ * @param[in] id 取り除く連ID
+ */
 static void
 RemoveNeighborString( string_t *string, const int id )
-// string_t *string : 隣接する連のIDを取り除く対象の連
-// int id         : 取り除く連のID
 {
   int neighbor = 0;
 
@@ -573,10 +672,24 @@ RemoveNeighborString( string_t *string, const int id )
 }
 
 
+/**
+ * @~english
+ * @brief Update captured stones information.
+ * @param[out] capture Captured stones information.
+ * @param[in] pos Update liberty intersection.
+ * @param[in] head Search index.
+ * @return
+ * @~japanese
+ * @brief 取られた石の座標の追加処理
+ * @param[out] capture 着手によって取られた石の座標の記録
+ * @param[in] pos 追加する呼吸点の座標
+ * @param[in] head 探索対象の先頭のインデックス
+ * @return
+ */
 static int
 AddCapture( int capture[], const int pos, const int head )
 {
-  int cap = head;;
+  int cap = head;
 
   if (capture[pos] != 0) return pos;
 

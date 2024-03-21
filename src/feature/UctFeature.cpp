@@ -1,20 +1,39 @@
+/**
+ * @file src/feature/UctFeature.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Features for tree search to order moves.
+ * @~japanese
+ * @brief 木探索の着手評価用の特徴
+ */
 #include "feature/Ladder.hpp"
 #include "feature/Nakade.hpp"
 #include "feature/Semeai.hpp"
 #include "feature/UctFeature.hpp"
 
 
-//game_info_t snapback_game;
-
-
-
-
+//  呼吸点が1つの連に対する特徴の判定
 static void CheckFeaturesLib1ForTree( const game_info_t *game, const int color, const int id, const bool ladder, unsigned int *tactical_features );
+//  呼吸点が2つの連に対する特徴の判定
 static void CheckFeaturesLib2ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features );
+//  呼吸点が3つの連に対する特徴の判定
 static void CheckFeaturesLib3ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features );
 
 
-
+/**
+ * @~english
+ * @brief Compare and swap tactical feature.
+ * @param[in, out] tactical_features Tactical features.
+ * @param[in] pos Coodrinate.
+ * @param[in] type Feature type.
+ * @param[in] new_feature New tactical feature index.
+ * @~japanese
+ * @brief 戦術的特徴の入れ替え処理
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ * @param[in] pos 座標
+ * @param[in] type 特徴の種類
+ * @param[in] new_feature 新しい戦術的特徴のインデックス
+ */
 static void
 CompareSwapFeature( unsigned int *tactical_features, const int pos, const int type, const unsigned int new_feature )
 {
@@ -26,11 +45,22 @@ CompareSwapFeature( unsigned int *tactical_features, const int pos, const int ty
 }
 
 
-
-
-/////////////////////////////////////////
-//  呼吸点が1つの連に対する特徴の判定  //
-/////////////////////////////////////////
+/**
+ * @~english
+ * @brief Correct tactical features (for string with 1 liberty)
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] id String ID
+ * @param[in] ladder Ladder capturable flag.
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 呼吸点が1つの連に対する特徴の判定処理
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @param[in] ladder シチョウで取られるフラグ
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 static void
 CheckFeaturesLib1ForTree( const game_info_t *game, const int color, const int id, const bool ladder, unsigned int *tactical_features )
 {
@@ -98,10 +128,20 @@ CheckFeaturesLib1ForTree( const game_info_t *game, const int color, const int id
 }
 
 
-
-/////////////////////////////////////////
-//  呼吸点が2つの連に対する特徴の判定  //
-/////////////////////////////////////////
+/**
+ * @~english
+ * @brief Correct tactical features (for string with 2 liberties)
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] id String ID
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 呼吸点が2つの連に対する特徴の判定処理
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 void
 CheckFeaturesLib2ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features )
 {
@@ -228,9 +268,21 @@ CheckFeaturesLib2ForTree( const game_info_t *game, const int color, const int id
   }
 }
 
-/////////////////////////////////////////
-//  呼吸点が3つの連に対する特徴の判定  //
-/////////////////////////////////////////
+
+/**
+ * @~english
+ * @brief Correct tactical features (for string with 3 liberties)
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in] id String ID
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 呼吸点が3つの連に対する特徴の判定処理
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] id 連ID
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 static void
 CheckFeaturesLib3ForTree( const game_info_t *game, const int color, const int id, unsigned int *tactical_features )
 {
@@ -401,9 +453,20 @@ CheckFeaturesLib3ForTree( const game_info_t *game, const int color, const int id
 }
 
 
-//////////////////
-//  特徴の判定  //
-//////////////////
+/**
+ * @~english
+ * @brief Correct features around previous move.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @param[in, out] tactical_features Tactical feature data.
+ * @return Feature index.
+ * @~japanese
+ * @brief 直前の着手の周辺の特徴の判定処理
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ * @return 特徴のインデックス
+ */
 int
 CheckFeaturesForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
 {
@@ -451,10 +514,18 @@ CheckFeaturesForTree( const game_info_t *game, const int color, unsigned int *ta
 }
 
 
-
-////////////////////////
-//  劫を解消するトリ  //
-////////////////////////
+/**
+ * @~english
+ * @brief Check solving ko by capture.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 劫を解消するトリの判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 void
 CheckCaptureAfterKoForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
 {
@@ -478,9 +549,20 @@ CheckCaptureAfterKoForTree( const game_info_t *game, const int color, unsigned i
 }
 
 
-//////////////////
-//  自己アタリ  //
-//////////////////
+/**
+ * @~english
+ * @brief Check self atari.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color
+ * @param[in] pos Coordinate.
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 自己アタリの判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] pos 座標
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 bool
 CheckSelfAtariForTree( const game_info_t *game, const int color, const int pos, unsigned int *tactical_features )
 {
@@ -567,10 +649,20 @@ CheckSelfAtariForTree( const game_info_t *game, const int color, const int pos, 
 }
 
 
-
-//////////////////
-//  トリの判定  //
-//////////////////
+/**
+ * @~english
+ * @brief Check capture.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color
+ * @param[in] pos Coordinate.
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief トリの判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] pos 座標
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 void
 CheckCaptureForTree( const game_info_t *game, const int color, const int pos, unsigned int *tactical_features )
 {
@@ -609,10 +701,20 @@ CheckCaptureForTree( const game_info_t *game, const int color, const int pos, un
 }
 
 
-
-////////////////////
-//  アタリの判定  //
-////////////////////
+/**
+ * @~english
+ * @brief Check atari.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color
+ * @param[in] pos Coordinate.
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief アタリの判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in] pos 座標
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 void
 CheckAtariForTree( const game_info_t *game, const int color, const int pos, unsigned int *tactical_features )
 {
@@ -635,9 +737,16 @@ CheckAtariForTree( const game_info_t *game, const int color, const int pos, unsi
 }
 
 
-////////////////
-//  劫の解消  //
-////////////////
+/**
+ * @~english
+ * @brief Check solving ko by connection.
+ * @param[in] game Board position data.
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 劫の解消の判定
+ * @param[in] game 局面情報
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 void
 CheckKoConnectionForTree( const game_info_t *game, unsigned int *tactical_features )
 {
@@ -647,6 +756,18 @@ CheckKoConnectionForTree( const game_info_t *game, unsigned int *tactical_featur
 }
 
 
+/**
+ * @~english
+ * @brief Check ko recapture.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 劫の取り返しの判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 void
 CheckKoRecaptureForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
 {
@@ -666,10 +787,18 @@ CheckKoRecaptureForTree( const game_info_t *game, const int color, unsigned int 
 }
 
 
-
-////////////////////////////////
-// 2目取られた後のホウリコミ  //
-////////////////////////////////
+/**
+ * @~english
+ * @brief Check remove 2 stones.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color
+ * @param[in, out] tactical_features Tactical feature data.
+ * @~japanese
+ * @brief 2目取られた後のホウリコミの判定
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @param[in, out] tactical_features 戦術的特徴のデータ
+ */
 void
 CheckRemove2StonesForTree( const game_info_t *game, const int color, unsigned int *tactical_features )
 {
@@ -677,16 +806,16 @@ CheckRemove2StonesForTree( const game_info_t *game, const int color, unsigned in
   const int cross[4] = {- board_size - 1, - board_size + 1, board_size - 1, board_size + 1};
   int i, connect;
 
-  if (game->capture_num[other] != 2) {
+  if (game->capture_num[other - 1] != 2) {
     return;
   }
 
-  const int rm1 = game->capture_pos[other][0];
-  const int rm2 = game->capture_pos[other][1];
+  const int rm1 = game->capture_pos[other - 1][0];
+  const int rm2 = game->capture_pos[other - 1][rm1];
 
   if (rm1 - rm2 != 1 &&
-            rm2 - rm1 != 1 &&
-            rm1 - rm2 != board_size &&
+      rm2 - rm1 != 1 &&
+      rm1 - rm2 != board_size &&
       rm2 - rm1 != board_size) {
     return;
   }

@@ -1,3 +1,11 @@
+/**
+ * @file src/learn/MovePredictionTest.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Accuracy calculator for move prediction.
+ * @~japanese
+ * @brief 着手予測の正解率計算
+ */
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -17,17 +25,60 @@
 #include "util/Utility.hpp"
 
 
+/**
+ * @~english
+ * @brief The number of appearance count.
+ * @~japanese
+ * @brief 出現回数
+ */
 static std::array<std::atomic<int>, PURE_BOARD_MAX + 1> appearance;
+
+/**
+ * @~english
+ * @brief First index.
+ * @~japanese
+ * @brief 最初のインデックス
+ */
 static constexpr int KIFU_START = 40001;
+
+/**
+ * @~english
+ * @brief Last index.
+ * @~japanese
+ * @brief 最後のインデックス
+ */
 static constexpr int KIFU_END = 70000;
-static constexpr char KIFU_PATH[] = "/home/yuki/SGF_Files/tygem-data/shuffle-tygem";
+
+/**
+ * @~english
+ * @brief Directory path to SGF files.
+ * @~japanese
+ * @brief SGFファイルを格納しているディレクトリへのパス
+ */
+static constexpr char KIFU_PATH[] = "/home/usr/sgf";
+
+/**
+ * @~english
+ * @brief The number of testing worker threads.
+ * @~japanese
+ * @brief テストワーカスレッド数
+ */
 static constexpr int TEST_WORKER_THREADS = 8;
 
+
+// 着手予測の精度測定
 static void CheckMovePrediction( game_info_t *game, const char *filename );
 
+// 正解率測定ワーカ
 static void PredictionTestWorker( const int thread_id );
 
 
+/**
+ * @~english
+ * @brief Evaluate move prediction accuracy.
+ * @~japanese
+ * @brief 着手予測精度の評価
+ */
 void
 EvaluateMovePrediction( void )
 {
@@ -57,6 +108,14 @@ EvaluateMovePrediction( void )
 }
 
 
+/**
+ * @~english
+ * @brief Testing move prediction worker
+ * @param[in] thread_id Worker thread ID.
+ * @~japanese
+ * @brief 正解率測定ワーカ
+ * @param[in] thread_id スレッドID
+ */
 static void
 PredictionTestWorker( const int thread_id )
 {
@@ -83,6 +142,16 @@ PredictionTestWorker( const int thread_id )
 }
 
 
+/**
+ * @~english
+ * @brief Check move prediction.
+ * @param[in] game Board position data.
+ * @param[in] filename SGF filename.
+ * @~japanese
+ * @brief 終局まで着手予測を集計
+ * @param[in] game 局面情報
+ * @param[in] filename SGFファイル名
+ */
 static void
 CheckMovePrediction( game_info_t *game, const char *filename )
 {

@@ -1,3 +1,11 @@
+/**
+ * @file src/learn/MinorizationMaximization.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Supervised learning using Minorization Maximization.
+ * @~japanese
+ * @brief Minorization Maximizationを利用したBTモデルの教師あり学習
+ */
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -9,7 +17,6 @@
 #include <utility>
 #include <vector>
 
-
 #include "board/GoBoard.hpp"
 #include "learn/BradleyTerryModel.hpp"
 #include "learn/LearningLog.hpp"
@@ -20,77 +27,211 @@
 #include "util/Utility.hpp"
 
 
+/**
+ * @~english
+ * @brief Index conversion for 3x3 pattern.
+ * @~japanese
+ * @brief 3x3パターンの添字変換
+ */
 static std::vector<int> pat3_index;
+
+/**
+ * @~english
+ * @brief Index conversion for MD2 pattern.
+ * @~japanese
+ * @brief MD2パターンの添字変換
+ */
 static std::vector<int> md2_index;
 
+/**
+ * @~english
+ * @brief Previous move distance features.
+ * @~japanese
+ * @brief 直前の着手からの着手距離の学習情報
+ */
 static std::vector<std::vector<mm_t> > previous_distance;
+
+/**
+ * @~english
+ * @brief Features of 3x3 stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンの学習情報(3x3)
+ */
 static std::vector<std::vector<mm_t> > pat3;
+
+/**
+ * @~english
+ * @brief Features of MD2 stones pattern.
+ * @~japanese
+ * @brief 近傍の配石パターンの学習情報(MD2)
+ */
 static std::vector<std::vector<mm_t> > md2;
+
+/**
+ * @~english
+ * @brief Capture features.
+ * @~japanese
+ * @brief トリの学習情報
+ */
 static std::vector<std::vector<mm_t> > capture;
+
+/**
+ * @~english
+ * @brief Save extension features.
+ * @~japanese
+ * @brief アタリから逃げる手の学習情報
+ */
 static std::vector<std::vector<mm_t> > save_extension;
+
+/**
+ * @~english
+ * @brief Atari features.
+ * @~japanese
+ * @brief アタリの学習情報
+ */
 static std::vector<std::vector<mm_t> > atari;
+
+/**
+ * @~english
+ * @brief Extension features.
+ * @~japanese
+ * @brief ノビの学習情報
+ */
 static std::vector<std::vector<mm_t> > extension;
+
+/**
+ * @~english
+ * @brief Dame features.
+ * @~japanese
+ * @brief ダメ詰めの学習情報
+ */
 static std::vector<std::vector<mm_t> > dame;
+
+/**
+ * @~english
+ * @brief Throw in features.
+ * @~japanese
+ * @brief ホウリコミの学習情報
+ */
 static std::vector<std::vector<mm_t> > throw_in;
 
+/**
+ * @~english
+ * @brief Array index for MD2 feature.
+ * @~japanese
+ * @brief MD2パターンの配列のインデックス
+ */
 static std::vector<unsigned int> md2_list;
 
+/**
+ * @~english
+ * @brief Training target flags for MD2 feature.
+ * @~japanese
+ * @brief 学習対象のMD2パターン
+ */
 static std::vector<bool> md2_target;
 
+/**
+ * @~english
+ * @brief The number of all training positions.
+ * @~japanese
+ * @brief 学習局面数
+ */
 static std::atomic<int> all_moves;
 
+/**
+ * @~english
+ * @brief Flag of first updating process.
+ * @~japanese
+ * @brief 初回更新時特別処理用のフラグ
+ */
 static bool first_flag = true;
 
+/**
+ * @~english
+ * @brief Counter for accuracy calculation.
+ * @~japanese
+ * @brief 正解率算出用のカウンタ
+ */
 std::array<std::atomic<int>, PURE_BOARD_MAX> counter;
 
 
+// 正解率を算出
 static void CheckAccuracy( game_info_t *game, const std::string filename );
 
+// Simgaのクリア
 static void ClearSigma( std::vector<std::vector<mm_t> > &data );
 
+// 着手予測精度の評価
 static void EvaluateMovePrediction( const int steps );
 
+// 戦術的特徴のGamma値を取得
 static double GetTacticalFeatureGamma( std::vector<mm_t> &data, unsigned char *features, const int pos, const int feature_type );
 
+// 戦術的特徴の打たれた回数を1だけ加算
 static void IncrementTacticalFeatureCount( std::vector<mm_t> &data, const unsigned char *features, const int pos, const int feature_type );
 
+// 学習情報の初期化
 static void InitializeLearningData( std::vector<std::vector<mm_t> > &data, const int threads, const int data_size );
 
+// 学習の初期設定
 static void InitializeLearning( void );
 
+// 全ての学習情報のSigmaのクリア
 static void InitializeSigma( void );
 
+// 1ステップ分の学習幅の計算
 static void LearningWorker( train_thread_arg_t *arg );
 
+// 特徴の抽出
 static void SamplingFeatures( game_info_t *game, const int color, const int id );
 
+// 学習対象の対局の再現
 static void ReplayMatch( game_info_t *game, const std::string filename, const int id );
 
+// 全ての学習情報のそれぞれのSigmaの合計値を算出
 static void SumSigma( const int threads );
 
+// 1つの学習情報のSigmaの合計値を算出
 static void SumUpSigma( std::vector<std::vector<mm_t> > &data, const int threads );
 
+// Cの値を加算
 static void SumUpTacticalFeatureTeamRating( std::vector<mm_t> &data, unsigned char *features, const int pos, const int feature_type, const double gamma );
 
+// 1種類の学習情報の打たれた回数の合計値を算出
 static void SumUpWinCount( std::vector<std::vector<mm_t> > &data, const int threads );
 
+// 全ての学習情報のそれぞれの打たれた回数の合計値を算出
 static void SumWin( const int threads );
 
+// 正解率算出のワーカ
 static void TestingWorker( train_thread_arg_t *targ );
 
+// 学習情報のGammaの値を更新
 static void UpdateGamma( std::vector<std::vector<mm_t> > &data );
 
+// Gammaの値を更新
 static void UpdateParameters( const int update_steps );
 
+// Sigmaの更新
 static void UpdateSigma( std::vector<mm_t> &data, const double Ej );
 
+// 学習経過の出力
 static void OutputLearningProgress( const int update_steps );
 
+// パラメータの出力
 static void OutputAllParameters( const int step );
 
+// Minorization Maximization法の学習
 static void MinorizationMaximization( void );
 
 
+/**
+ * @~english
+ * @brief Train by Minorization Maximization method.
+ * @~japanese
+ * @brief Minorization Maximization法の学習
+ */
 void
 TrainBTModelByMinorizationMaximization( void )
 {
@@ -100,6 +241,12 @@ TrainBTModelByMinorizationMaximization( void )
 }
 
 
+/**
+ * @~english
+ * @brief Initialize learning settings.
+ * @~japanese
+ * @brief 学習の初期設定
+ */
 static void
 InitializeLearning( void )
 {
@@ -134,6 +281,12 @@ InitializeLearning( void )
 }
 
 
+/**
+ * @~english
+ * @brief Train with Minorization-Maximization algorithm.
+ * @~japanese
+ * @brief Minorization Maximization法による学習
+ */
 static void
 MinorizationMaximization( void )
 {
@@ -180,8 +333,14 @@ MinorizationMaximization( void )
 }
 
 
-
-
+/**
+ * @~english
+ * @brief Tranining worker.
+ * @param[in] targ Arguments for training worker.
+ * @~japanese
+ * @brief 学習ワーカ
+ * @param[in] targ 学習ワーカ用の引数
+ */
 static void
 LearningWorker( train_thread_arg_t *targ )
 {
@@ -208,6 +367,18 @@ LearningWorker( train_thread_arg_t *targ )
 }
 
 
+/**
+ * @~english
+ * @brief Replay training data.
+ * @param[in] game Position data.
+ * @param[in] filename Training file name.
+ * @param[in] id Thread ID.
+ * @~japanese
+ * @brief 学習する棋譜の再生
+ * @param[in] game 局面のデータ
+ * @param[in] filename 学習する棋譜のファイル名
+ * @param[in] id スレッドID
+ */
 static void
 ReplayMatch( game_info_t *game, const std::string filename, const int id )
 {
@@ -265,7 +436,18 @@ ReplayMatch( game_info_t *game, const std::string filename, const int id )
 }
 
 
-
+/**
+ * @~english
+ * @brief Correct features.
+ * @param[in] game Position data.
+ * @param[in] color Player's color.
+ * @param[in] id Thread ID.
+ * @~japanese
+ * @brief 学習する特徴の抽出
+ * @param[in] game 局面のデータ
+ * @param[in] color 手番の色
+ * @param[in] id スレッドID
+ */
 static void
 SamplingFeatures( game_info_t *game, const int color, const int id )
 {
@@ -284,10 +466,10 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
     ClearTacticalFeatures(&tactical_features[pos * ALL_MAX]);
   }
   
-  CheckFeaturesForSimulation(game, color, update_pos, &update_num);
-  CheckRemove2StonesForSimulation(game, color, update_pos, &update_num);
+  CheckFeaturesForSimulation(game, color, update_pos, update_num);
+  CheckRemove2StonesForSimulation(game, color, update_pos, update_num);
   if (game->ko_move == game->moves - 2) {
-    CheckCaptureAfterKoForSimulation(game, color, update_pos, &update_num);
+    CheckCaptureAfterKoForSimulation(game, color, update_pos, update_num);
   }
 
   for (int i = 0; i < pure_board_max; i++) {
@@ -383,9 +565,14 @@ SamplingFeatures( game_info_t *game, const int color, const int id )
 }
 
 
-////////////////////////
-//  パラメータの更新  //
-////////////////////////
+/**
+ * @~english
+ * @brief Update feature parameters.
+ * @param[in] update_steps The number of update steps.
+ * @~japanese
+ * @brief パラメータの更新
+ * @param[in] update_steps 更新回数
+ */
 void
 UpdateParameters( const int update_steps )
 {
@@ -415,9 +602,14 @@ UpdateParameters( const int update_steps )
 }
 
 
-//////////////////////////////////
-//  パラメータの学習経過の出力  //
-//////////////////////////////////
+/**
+ * @~english
+ * @brief Output learning process.
+ * @param[in] update_steps The number of update steps.
+ * @~japanese
+ * @brief 学習の経過情報の出力
+ * @param[in] update_steps 更新回数
+ */
 static void
 OutputLearningProgress( const int update_steps )
 {
@@ -482,9 +674,14 @@ OutputLearningProgress( const int update_steps )
 }
 
 
-//////////////////////////////
-//  全てのパラメータの保存  //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Save all feature's parameters.
+ * @param[in] step The number of update steps.
+ * @~japanese
+ * @brief 全てのパラメータの保存
+ * @param[in] step 更新回数
+ */
 static void
 OutputAllParameters( const int step )
 {
@@ -525,9 +722,14 @@ OutputAllParameters( const int step )
 }
 
 
-//////////////////////////////
-//  着手予測の正解率の算出  //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Calculate accuracy of move predictions.
+ * @param[in] steps The number of update steps.
+ * @~japanese
+ * @brief 着手予測正解率の算出
+ * @param[in] steps 更新回数
+ */
 static void
 EvaluateMovePrediction( const int steps )
 {
@@ -578,9 +780,14 @@ EvaluateMovePrediction( const int steps )
 }
 
 
-//////////////////////////
-//  正解率集計用ワーカ  //
-//////////////////////////
+/**
+ * @~english
+ * @brief Testing worker.
+ * @param[in] targ Arguments for testing worker.
+ * @~japanese
+ * @brief テスト実行ワーカ
+ * @param[in] targ テスト実行ワーカ用の引数
+ */
 static void
 TestingWorker( train_thread_arg_t *targ )
 {
@@ -604,9 +811,16 @@ TestingWorker( train_thread_arg_t *targ )
 }
 
 
-////////////////////
-//  正解率の集計  //
-////////////////////
+/**
+ * @~english
+ * @brief Calculate accuracy for a file.
+ * @param[in] game Position data.
+ * @param[in] filename File name for calculating accuracy.
+ * @~japanese
+ * @brief 1つのファイルの正解率の集計
+ * @param[in] game 局面のデータ
+ * @param[in] filename 正解率計測用の棋譜ファイル名
+ */
 static void
 CheckAccuracy( game_info_t *game, const std::string filename )
 {
@@ -642,10 +856,10 @@ CheckAccuracy( game_info_t *game, const std::string filename )
 
     update_num = 0;
 
-    CheckFeaturesForSimulation(game, color, update_pos, &update_num);
-    CheckRemove2StonesForSimulation(game, color, update_pos, &update_num);
+    CheckFeaturesForSimulation(game, color, update_pos, update_num);
+    CheckRemove2StonesForSimulation(game, color, update_pos, update_num);
     if (game->ko_move == game->moves - 2) {
-      CheckCaptureAfterKoForSimulation(game, color, update_pos, &update_num);
+      CheckCaptureAfterKoForSimulation(game, color, update_pos, update_num);
     }
 
     for (int j = 0; j < pure_board_max; j++) {
@@ -709,9 +923,18 @@ CheckAccuracy( game_info_t *game, const std::string filename )
 }
 
 
-////////////////////////
-//  学習情報の初期化  //
-////////////////////////
+/**
+ * @~english
+ * @brief Initialize feature data.
+ * @param[in, out] data Feature data.
+ * @param[in] threads The number of training workers.
+ * @param[in] data_size The number of feature data.
+ * @~japanese
+ * @brief 特徴データの初期化
+ * @param[in, out] data 学習する特徴のデータ
+ * @param[in] threads 学習ワーカスレッド数
+ * @param[in] data_size 特徴データの個数
+ */
 static void
 InitializeLearningData( std::vector<std::vector<mm_t> > &data, const int threads, const int data_size )
 {
@@ -727,9 +950,12 @@ InitializeLearningData( std::vector<std::vector<mm_t> > &data, const int threads
 }
 
 
-//////////////////////////////
-//  各特徴の出現回数の集約  //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Initialize sigma value for all features..
+ * @~japanese
+ * @brief 全ての特徴のシグマ値の初期化
+ */
 static void
 InitializeSigma( void )
 {
@@ -745,9 +971,14 @@ InitializeSigma( void )
 }
 
 
-//////////////////////
-//  シグマのクリア  //
-//////////////////////
+/**
+ * @~english
+ * @brief Initialize sigma value.
+ * @param[in, out] data Feature data.
+ * @~japanese
+ * @brief シグマ値の初期化
+ * @param[in, out] data 学習する特徴のデータ
+ */
 static void
 ClearSigma( std::vector<std::vector<mm_t> > &data )
 {
@@ -759,9 +990,14 @@ ClearSigma( std::vector<std::vector<mm_t> > &data )
 }
 
 
-//////////////////////////////
-//  各特徴の出現回数の集約  //
-//////////////////////////////
+/**
+ * @~english
+ * @brief Sum up all feature's played count.
+ * @param[in] threads The number of training worker threads.
+ * @~japanese
+ * @brief 全ての特徴の打たれた回数の算出
+ * @param[in] threads 学習ワーカスレッド数
+ */
 static void
 SumWin( const int threads )
 {
@@ -777,9 +1013,16 @@ SumWin( const int threads )
 }
 
 
-//////////////////////
-//  出現回数の集約  //
-//////////////////////
+/**
+ * @~english
+ * @brief Sum up feature's played count.
+ * @param[in, out] data Feature data.
+ * @param[in] threads The number of training worker threads.
+ * @~japanese
+ * @brief 特徴を持つ手が打たれた回数の集計
+ * @param[in, out] data 学習する特徴のデータ
+ * @param[in] threads 学習ワーカスレッド数
+ */
 static void
 SumUpWinCount( std::vector<std::vector<mm_t> > &data, const int threads )
 {
@@ -793,9 +1036,14 @@ SumUpWinCount( std::vector<std::vector<mm_t> > &data, const int threads )
 }
 
 
-////////////////////////////
-//  各特徴のシグマの集約  //
-////////////////////////////
+/**
+ * @~english
+ * @brief Sum up sigma values for all features.
+ * @param[in] threads The number of training worker threads.
+ * @~japanese
+ * @brief 全特徴のシグマ値の合計値の算出
+ * @param[in] threads 学習ワーカスレッド数
+ */
 static void
 SumSigma( const int threads )
 {
@@ -811,9 +1059,16 @@ SumSigma( const int threads )
 }
 
 
-////////////////////
-//  シグマの集約  //
-////////////////////
+/**
+ * @~english
+ * @brief Sum up sigma values.
+ * @param[in, out] data Feature data.
+ * @param[in] threads The number of training worker threads.
+ * @~japanese
+ * @brief シグマ値の合計値の計算
+ * @param[in, out] data 特徴データ
+ * @param[in] threads 学習ワーカスレッド数
+ */
 static void
 SumUpSigma( std::vector<std::vector<mm_t> > &data, const int threads )
 {
@@ -827,9 +1082,14 @@ SumUpSigma( std::vector<std::vector<mm_t> > &data, const int threads )
 }
 
 
-////////////////////
-//  レートの更新  //
-////////////////////
+/**
+ * @~english
+ * @brief Update gamma values.
+ * @param[in, out] data Feature data.
+ * @~japanese
+ * @brief ガンマ値の更新
+ * @param[in, out] data 特徴データ
+ */
 static void
 UpdateGamma( std::vector<std::vector<mm_t> > &data )
 {
@@ -849,9 +1109,20 @@ UpdateGamma( std::vector<std::vector<mm_t> > &data )
 }
 
 
-//////////////////////////////////
-//  戦術的特徴の出現回数の加算  //
-//////////////////////////////////
+/**
+ * @~english
+ * @brief Add appearance count of tactical feature.
+ * @param[out] data Feature data for tactical features.
+ * @param[in] features Tactical features.
+ * @param[in] pos Point of intersections.
+ * @param[in] feature_type Tactical feature type.
+ * @~japanese
+ * @brief 戦術的特徴の出現回数の加算
+ * @param[out] data 戦術的特徴の学習データ
+ * @param[in] features 戦術的特徴
+ * @param[in] pos 交点の座標
+ * @param[in] feature_type 戦術的特徴の種別
+ */
 static void
 IncrementTacticalFeatureCount( std::vector<mm_t> &data, const unsigned char *features, const int pos, const int feature_type )
 {
@@ -861,9 +1132,22 @@ IncrementTacticalFeatureCount( std::vector<mm_t> &data, const unsigned char *fea
 }
 
 
-////////////////////////////////
-//  戦術的特徴のレートの取得  //
-////////////////////////////////
+/**
+ * @~english
+ * @brief Return gamma value of tactical feature.
+ * @param[in] data Feature data for tactical features.
+ * @param[in] features Tactical features.
+ * @param[in] pos Point of intersections.
+ * @param[in] feature_type Tactical feature type.
+ * @return Tactical feature's gamma value.
+ * @~japanese
+ * @brief 戦術的特徴のガンマ値の取得
+ * @param[in] data 戦術的特徴の学習データ
+ * @param[in] features 戦術的特徴
+ * @param[in] pos 交点の座標
+ * @param[in] feature_type 戦術的特徴の種別
+ * @return 戦術的特徴のガンマ値
+ */
 static double
 GetTacticalFeatureGamma( std::vector<mm_t> &data, unsigned char *features, const int pos, const int feature_type )
 {
@@ -875,9 +1159,22 @@ GetTacticalFeatureGamma( std::vector<mm_t> &data, unsigned char *features, const
 }
 
 
-//////////////////////////////////////
-//  戦術的特徴のチームの強さの加算  //
-//////////////////////////////////////
+/**
+ * @~english
+ * @brief Sum up team rating for tactical features.
+ * @param[out] data Feature data for tactical features.
+ * @param[in] features Tactical features.
+ * @param[in] pos Point of intersections.
+ * @param[in] feature_type Tactical feature type.
+ * @param[in] gamma Gamma value.
+ * @~japanese
+ * @brief チームのガンマの加算
+ * @param[out] data 戦術的特徴の学習データ
+ * @param[in] features 戦術的特徴
+ * @param[in] pos 交点の座標
+ * @param[in] feature_type 戦術的特徴の種別
+ * @param[in] gamma ガンマ値
+ */
 static void
 SumUpTacticalFeatureTeamRating( std::vector<mm_t> &data, unsigned char *features, const int pos, const int feature_type, const double gamma )
 {
@@ -887,9 +1184,16 @@ SumUpTacticalFeatureTeamRating( std::vector<mm_t> &data, unsigned char *features
 }
 
 
-////////////////////
-//  シグマの更新  //
-////////////////////
+/**
+ * @~english
+ * @brief Update sigma value for feature data.
+ * @param[in, out] data Feature data.
+ * @param[in] Ej Value of E_j
+ * @~japanese
+ * @brief 学習情報のシグマ値の更新
+ * @param[in, out] data 学習情報データ
+ * @param[in] Ej E_jの値
+ */
 static void
 UpdateSigma( std::vector<mm_t> &data, const double Ej )
 {

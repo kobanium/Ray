@@ -1,12 +1,70 @@
+/**
+ * @file include/pattern/Pattern.hpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Management of neighborhood stones' pattern.
+ * @~japanese
+ * @brief 近傍の石の配置のパターンの管理
+ */
 #ifndef _PATTERN_HPP_
 #define _PATTERN_HPP_
 
-const int MD2_MAX = 16777216;   // 2^24
-const int PAT3_MAX = 65536;     // 2^16
+/**
+ * @~english
+ * @brief The number of MD2 Patterns
+ * @~japanese
+ * @brief MD2パターンの最大数
+ */
+constexpr int MD2_MAX = 16777216;
 
-const int MD2_LIMIT = 1060624;
-const int PAT3_LIMIT = 4468;
+/**
+ * @~english
+ * @brief The number of 3x3 Patterns
+ * @~japanese
+ * @brief 3x3パターンの最大数
+ */
+constexpr int PAT3_MAX = 65536;
 
+/**
+ * @~english
+ * @brief The number of valid MD2 Patterns
+ * @~japanese
+ * @brief MD2パターンの数(有効なもののみ)
+ */
+constexpr int MD2_LIMIT = 1060624;
+
+/**
+ * @~english
+ * @brief The number of valid 3x3 Patterns 
+ * @~japanese
+ * @brief 3x3パターンの数(有効なもののみ)
+ */
+constexpr int PAT3_LIMIT = 4468;
+
+
+/**
+ * @enum MD
+ * @~english
+ * @brief Indexes of the data storing the pattern's bitstring.
+ * @var MD_2
+ * MD2 Pattern (including 3x3 Pattern)
+ * @var MD_3
+ * MD3 Pattern
+ * @var MD_4
+ * MD4 Pattern
+ * @var MD_MAX
+ * Sentinel Status
+ * @~japanese
+ * @brief パターンのビット列を格納しているデータのインデックス
+ * @var MD_2
+ * MD2パターン
+ * @var MD_3
+ * MD3パターン
+ * @var MD_4
+ * MD4パターン
+ * @var MD_MAX
+ * 番兵
+ */
 enum MD {
   MD_2,
   MD_3,
@@ -14,25 +72,51 @@ enum MD {
   MD_MAX
 };
 
+/**
+ * @enum LARGE_MD
+ * @~english
+ * @brief Indexes of the data storing the pattern's bitstring.
+ * @var MD_5
+ * MD5 Pattern
+ * @var MD_LARGE_MAX
+ * Sentinal status
+ * @~japanese
+ * @brief パターンのビット列を格納しているデータのインデックス
+ * @var MD_5
+ * MD5パターン
+ * @var MD_LARGE_MAX
+ * 番兵
+ */
 enum LARGE_MD {
   MD_5,
   MD_LARGE_MAX
 };
 
-//////////////
-//  構造体  //
-//////////////
 
-//  パターン
+/**
+ * @~english
+ * @brief Pattern of neighborhood stones.
+ * @~japanese
+ * @brief 近傍の石のパターン
+ */
 struct pattern_t {
+  /**
+   * @~english
+   * @brief Pattern data.
+   * @~japanese
+   * @brief 配石パターン
+  */
   unsigned int list[MD_MAX];
+
+  /**
+   * @~english
+   * @brief Large pattern data.
+   * @~japanese
+   * @brief 大きい配石パターン
+   */
   unsigned long long large_list[MD_LARGE_MAX];
 };
 
-
-////////////
-//  関数  //
-////////////
 
 //  初期設定
 void ClearPattern( pattern_t *pat );
@@ -100,4 +184,4 @@ void DisplayInputMD4( const unsigned int md4 );
 void DisplayInputMD5( const unsigned long long md5 );
 void DisplayInputPattern( const pattern_t *pattern, const int size );
 
-#endif  //  _PATTERN_H_
+#endif

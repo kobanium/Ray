@@ -1,3 +1,11 @@
+/**
+ * @file src/board/SearchBoard.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Fast position controller.
+ * @~japanese
+ * @brief 高速な盤面の処理
+ */
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
@@ -6,9 +14,6 @@
 
 #include "board/SearchBoard.hpp"
 
-////////////
-//  関数  //
-////////////
 
 //  呼吸点の追加 
 static int AddLiberty( string_t *string, const int pos, const int head );
@@ -58,9 +63,12 @@ static int RemoveString( search_game_info_t *game, string_t *string );
 static void RestoreChain( search_game_info_t *game, const int id, const int stone[], const int stones, const int color );
 
 
-///////////////////
-//  メモリの確保  //
-///////////////////
+/**
+ * @~english
+ * @brief Allocate fast board datay.
+ * @~japanese
+ * @brief 高速な局面データの確保
+ */
 search_game_info_t::search_game_info_t( const game_info_t *src )
 {
   memcpy(record,      src->record,      sizeof(record_t) * MAX_RECORDS);
@@ -89,9 +97,20 @@ search_game_info_t::search_game_info_t( const game_info_t *src )
 }
 
 
-//////////////////
-//  合法手判定  //
-//////////////////
+/**
+ * @~english
+ * @brief Check legal move.
+ * @param[in] game Fast board position data.
+ * @param[in] pos Move coordinate.
+ * @param[in] color Player's color.
+ * @return Move is legal or not.
+ * @~japanese
+ * @brief 合法手判定
+ * @param[in] game 局面情報
+ * @param[in] pos 着手する座標
+ * @param[in] color 手番の色
+ * @return 合法手か否かの判定
+ */
 bool
 IsLegalForSearch( const search_game_info_t *game, const int pos, const int color )
 {
@@ -116,9 +135,16 @@ IsLegalForSearch( const search_game_info_t *game, const int pos, const int color
 }
 
 
-///////////////////////////
-//  変化のあった連の記録  //
-///////////////////////////
+/**
+ * @~english
+ * @brief Record string history.
+ * @param[in, out] game Fast board position data.
+ * @param[in] id String ID.
+ * @~japanese
+ * @brief 変化のあった連の記録
+ * @param[in, out] game 局面情報
+ * @param[in] id 連ID
+ */
 static void
 RecordString( search_game_info_t *game, int id )
 {
@@ -141,9 +167,18 @@ RecordString( search_game_info_t *game, int id )
 }
 
 
-////////////////
-//  石を置く  //
-////////////////
+/**
+ * @~english
+ * @brief Set a stone to fast board.
+ * @param[in, out] game Fast board position data.
+ * @param[in] pos Stone's coordinate.
+ * @param[in] color Stone's color.
+ * @~japanese
+ * @brief 石を置く処理
+ * @param[in, out] game 局面情報
+ * @param[in] pos 石を置く座標
+ * @param[in] color 置く石の色
+ */
 void
 PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
 {
@@ -226,9 +261,20 @@ PutStoneForSearch( search_game_info_t *game, const int pos, const int color )
 }
 
 
-///////////////////
-//  呼吸点の追加  //
-///////////////////
+/**
+ * @~english
+ * @brief Process to add a liberty.
+ * @param[in, out] string String data.
+ * @param[in] pos Liberty coordinate.
+ * @param[in] head Search index.
+ * @return Liberty intersection.
+ * @~japanese
+ * @brief 呼吸点の追加
+ * @param[in, out] string 呼吸点を追加する対象の連
+ * @param[in] pos 追加する呼吸点の座標
+ * @param[in] head 探索対象の先頭のインデックス
+ * @return 追加した呼吸点の座標
+ */
 static int
 AddLiberty( string_t *string, const int pos, const int head )
 {
@@ -257,9 +303,16 @@ AddLiberty( string_t *string, const int pos, const int head )
 }
 
 
-/////////////////////////////
-//  隣接する敵連のIDの追加  //
-/////////////////////////////
+/**
+ * @~english
+ * @brief Add neighbor string ID with duplication check.
+ * @param[in, out] string String must be updated.
+ * @param[in] id Neighbor string ID.
+ * @~japanese
+ * @brief 隣接する連IDの追加(重複確認)
+ * @param[in, out] string 隣接情報を追加する連
+ * @param[in] id 追加する連ID
+ */
 static void
 AddNeighbor( string_t *string, const int id )
 {
@@ -282,9 +335,18 @@ AddNeighbor( string_t *string, const int id )
 }
 
 
-///////////////////
-//  連に石を追加  //
-///////////////////
+/**
+ * @~english
+ * @brief Add one stone to existing string.
+ * @param[in, out] game Fast board position data.
+ * @param[in, out] string String data.
+ * @param[in] pos Intersection.
+ * @~japanese
+ * @brief 連に石を1つ追加
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 石の追加する先の連
+ * @param[in] pos 追加する石の座標
+ */
 static void
 AddStoneToString( search_game_info_t *game, string_t *string, const int pos )
 {
@@ -310,9 +372,20 @@ AddStoneToString( search_game_info_t *game, string_t *string, const int pos )
 }
 
 
-////////////////
-//  石の追加  //
-////////////////
+/**
+ * @~english
+ * @brief Process for add stone to string.
+ * @param[in, out] game Fast board position data.
+ * @param[in] pos Intersection.
+ * @param[in] color Stone's color.
+ * @param[in] id String ID.
+ * @~japanese
+ * @brief 連に石を追加
+ * @param[in, out] game 局面情報
+ * @param[in] pos 置いた石の座標
+ * @param[in] color 置いた石の色
+ * @param[in] id 石を追加する先の連ID
+ */
 static void
 AddStone( search_game_info_t *game, const int pos, const int color, const int id )
 {
@@ -350,9 +423,22 @@ AddStone( search_game_info_t *game, const int pos, const int color, const int id
 }
 
 
-////////////////
-//  連の結合  //
-////////////////
+/**
+ * @~english
+ * @brief String connection process.
+ * @param[in, out] game Fast board position data.
+ * @param[in] pos Intersection.
+ * @param[in] color Stone's color.
+ * @param[in] connection The number of string connection candidates.
+ * @param[in] id String ID.
+ * @~japanese
+ * @brief 連同士の結合処理
+ * @param[in, out] game 局面情報
+ * @param[in] pos 置いた石の座標
+ * @param[in] color 置いた石の色
+ * @param[in] connection 隣接する連の候補の個数
+ * @param[in] id 隣接する連の候補のID
+ */
 static void
 ConnectString( search_game_info_t *game, const int pos, const int color, const int connection, const int id[] )
 {
@@ -400,9 +486,22 @@ ConnectString( search_game_info_t *game, const int pos, const int color, const i
 }
 
 
-////////////////////
-//  自殺手の判定  //
-///////////////////
+/**
+ * @~english
+ * @brief Check suicide move.
+ * @param[in] game Fast board position data.
+ * @param[in] string Stones string data.
+ * @param[in] color Player's color.
+ * @param[in] pos Intersection coordinate.
+ * @return Move is suicide move or not.
+ * @~japanese
+ * @brief 自殺手の判定
+ * @param[in] game 局面情報
+ * @param[in] string 連の情報
+ * @param[in] color 手番の色
+ * @param[in] pos 確認する交点の座標
+ * @return 自殺手か否かの判定
+ */
 static bool
 IsSuicide( const search_game_info_t *game, const string_t *string, const int color, const int pos )
 {
@@ -430,9 +529,18 @@ IsSuicide( const search_game_info_t *game, const string_t *string, const int col
 }
 
 
-/////////////////////
-//  新たな連の作成  //
-/////////////////////
+/**
+ * @~english
+ * @brief Make new string.
+ * @param[in, out] game Fast board position data.
+ * @param[in] pos Intersection.
+ * @param[in] color Stone's color.
+ * @~japanese
+ * @brief 新しい連の作成
+ * @param[in, out] game 局面情報
+ * @param[in] pos 石を置いた座標
+ * @param[in] color 石の色
+ */
 static void
 MakeString( search_game_info_t *game, const int pos, const int color )
 {
@@ -454,7 +562,7 @@ MakeString( search_game_info_t *game, const int pos, const int color )
   // 連のデータの初期化
   std::fill_n(new_string->lib, STRING_LIB_MAX, 0);
   std::fill_n(new_string->neighbor, MAX_NEIGHBOR, 0);
-  new_string->color = (char)color;
+  new_string->color = static_cast<char>(color);
   new_string->lib[0] = LIBERTY_END;
   new_string->neighbor[0] = NEIGHBOR_END;
   new_string->libs = 0;
@@ -485,9 +593,16 @@ MakeString( search_game_info_t *game, const int pos, const int color )
 }
 
 
-////////////////////
-//  呼吸点の結合  //
-////////////////////
+/**
+ * @~english
+ * @brief Connect liberties.
+ * @param[in, out] dst Connecting destination string.
+ * @param[in] src Connecting string.
+ * @~japanese
+ * @brief 呼吸点の結合
+ * @param[in, out] dst 結合先の連
+ * @param[in] src 結合させる連
+ */
 static void
 MergeLiberty( string_t *dst, string_t *src )
 {
@@ -511,9 +626,18 @@ MergeLiberty( string_t *dst, string_t *src )
 }
 
 
-////////////////
-//  石の結合  //
-////////////////
+/**
+ * @~english
+ * @brief Merge stones process for string connection.
+ * @param[in, out] game Board position data.
+ * @param[in] id String ID.
+ * @param[in] rm_id Remove string id.
+ * @~japanese
+ * @brief  石と連IDの結合処理
+ * @param[in, out] game 局面情報
+ * @param[in] id 処理対象の連ID
+ * @param[in] rm_id 除去する連ID
+ */
 static void
 MergeStones( search_game_info_t *game, const int id, const int rm_id )
 {
@@ -558,9 +682,20 @@ MergeStones( search_game_info_t *game, const int id, const int rm_id )
 }
 
 
-///////////////////
-//  連の結合処理  //
-///////////////////
+/**
+ * @~english
+ * @brief Connect strings.
+ * @param[in, out] game Fast board position data.
+ * @param[out] dst Connection destination string.
+ * @param[in] src Connecting strings.
+ * @param[in] n The number of connecting strings.
+ * @~japanese
+ * @brief 連を結合
+ * @param[in, out] game
+ * @param[out] dst 結合先の連
+ * @param[in] src 結合させる連
+ * @param[in] n 結合する連の個数
+ */
 static void
 MergeString( search_game_info_t *game, string_t *dst, string_t *src[3], const int n )
 {
@@ -583,9 +718,18 @@ MergeString( search_game_info_t *game, string_t *dst, string_t *src[3], const in
 }
 
 
-//////////////////////
-//  呼吸点を1つ除去  //
-//////////////////////
+/**
+ * @~english
+ * @brief Remove a liberty.
+ * @param[in, out] game Fast board position data.
+ * @param[in, out] string String will be removed a liberty.
+ * @param[in] pos Liberty intersection.
+ * @~japanese
+ * @brief 呼吸点の除去
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 呼吸点を取り除く対象の連
+ * @param[in] pos 取り除かれる呼吸点の座標
+ */
 static void
 RemoveLiberty( search_game_info_t *game, string_t *string, const int pos )
 {
@@ -601,7 +745,7 @@ RemoveLiberty( search_game_info_t *game, string_t *string, const int pos )
 
   // 呼吸点の座標の情報を取り除く
   string->lib[lib] = string->lib[string->lib[lib]];
-  string->lib[pos] = (short)0;
+  string->lib[pos] = static_cast<short>(0);
 
   // 連の呼吸点の数を1つ減らす
   string->libs--;
@@ -613,9 +757,22 @@ RemoveLiberty( search_game_info_t *game, string_t *string, const int pos )
 }
 
 
-/////////////////////////////
-//  隣接する敵連のIDを結合  //
-/////////////////////////////
+/**
+ * @~english
+ * @brief Merge neighbor stirng ID.
+ * @param[in, out] string String data.
+ * @param[in, out] dst String must be updated.
+ * @param[in] src Connecting neighbor string ID
+ * @param[in] id String ID.
+ * @param[in] rm_id String ID will be removed.
+ * @~japanese
+ * @brief 隣接する連IDの結合
+ * @param[in, out] string 連情報
+ * @param[in, out] dst 結合先の連
+ * @param[in] src 結合させる連
+ * @param[in] id 処理対象の連ID
+ * @param[in] rm_id 除去する連ID
+ */
 static void
 MergeNeighbor( string_t *string, string_t *dst, string_t *src, const int id, const int rm_id )
 {
@@ -648,9 +805,16 @@ MergeNeighbor( string_t *string, string_t *dst, string_t *src, const int id, con
 }
 
 
-///////////////////////////
-//  隣接する敵連IDの除去  //
-///////////////////////////
+/**
+ * @~english
+ * @brief Remove neighbor string ID.
+ * @param[in, out] string String must be updated.
+ * @param[in] id Remove string ID.
+ * @~japanese
+ * @brief 隣接する連IDの除去
+ * @param[in, out] string 隣接する連IDを取り除く対象の連
+ * @param[in] id 取り除く連ID
+ */
 static void
 RemoveNeighborString( string_t *string, const int id )
 {
@@ -673,9 +837,18 @@ RemoveNeighborString( string_t *string, const int id )
 }
 
 
-///////////////////////
-//  連を取り除く処理  //
-///////////////////////
+/**
+ * @~english
+ * @brief Remove string.
+ * @param[in, out] game Fast board position data.
+ * @param[in, out] string String must be removed.
+ * @return The number of removed stones.
+ * @~japanese
+ * @brief 連の除去の処理
+ * @param[in, out] game 局面情報
+ * @param[in, out] string 取り除く対象の連
+ * @return 打ち上げた石の個数
+ */
 static int
 RemoveString( search_game_info_t *game, string_t *string )
 {
@@ -731,9 +904,22 @@ RemoveString( search_game_info_t *game, string_t *string )
 }
 
 
-////////////////
-//  連の復元  //
-////////////////
+/**
+ * @~english
+ * @brief Restore string for undo move.
+ * @param[in, out] game Fast board position data.
+ * @param[in] id String ID.
+ * @param[in] stone Stone's intersections.
+ * @param[in] stones The number of stones.
+ * @param[in] color Stone's color.
+ * @~japanese
+ * @brief 連の復元
+ * @param[in, out] game 局面情報
+ * @param[in] id 連のID
+ * @param[in] stone 復元する連の石の座標
+ * @param[in] stones 復元する連の個数
+ * @param[in] color 連の色
+ */
 static void
 RestoreChain( search_game_info_t *game, const int id, const int stone[], const int stones, const int color )
 {
@@ -752,7 +938,7 @@ RestoreChain( search_game_info_t *game, const int id, const int stone[], const i
   // 連の初期化
   std::fill_n(new_string->lib, STRING_LIB_MAX, 0);
   std::fill_n(new_string->neighbor, MAX_NEIGHBOR, 0);
-  new_string->color = (char)color;
+  new_string->color = static_cast<char>(color);
   new_string->lib[0] = LIBERTY_END;
   new_string->neighbor[0] = NEIGHBOR_END;
   new_string->libs = 0;
@@ -762,7 +948,7 @@ RestoreChain( search_game_info_t *game, const int id, const int stone[], const i
 
   for (int i = 0; i < stones; i++) {
     pos = stone[i];
-    board[pos] = (char)color;
+    board[pos] = static_cast<char>(color);
     game->string_id[pos] = id;
     UpdateMD2Stone(game->pat, color, pos); 
   }
@@ -796,9 +982,14 @@ RestoreChain( search_game_info_t *game, const int id, const int stone[], const i
 }
 
 
-////////////////
-//  一手戻す  //
-////////////////
+/**
+ * @~english
+ * @brief Undo a move.
+ * @param[in, out] game Fast board position data.
+ * @~japanese
+ * @brief 一手戻す
+ * @param[in, out] game 局面情報
+ */
 void
 Undo( search_game_info_t *game )
 {
@@ -829,4 +1020,3 @@ Undo( search_game_info_t *game )
 
   game->moves--;
 }
-

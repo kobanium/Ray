@@ -1,11 +1,28 @@
+/**
+ * @file src/learn/LearningUtility.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Common function for learning process.
+ * @~japanese
+ * @brief 学習で利用する汎用処理
+ */
 #include <fstream>
 #include <iostream>
-
 
 #include "learn/LearningUtility.hpp"
 #include "pattern/Pattern.hpp"
 
 
+/**
+ * @~english
+ * @brief Output parameters trained by Minorization-Maximization method.
+ * @param[in] filename Output file name.
+ * @param[in] data Parameter data.
+ * @~japanese
+ * @brief Minorization-Maximization法で学習したパラメータの出力
+ * @param[in] filename 出力ファイル名
+ * @param[in] data パラメータ
+ */
 void
 OutputGamma( const std::string filename, const std::vector<mm_t> &data )
 {
@@ -22,6 +39,19 @@ OutputGamma( const std::string filename, const std::vector<mm_t> &data )
 }
 
 
+
+/**
+ * @~english
+ * @brief Output MD2 pattern parameters trained by Minorization-Maximization method.
+ * @param[in] filename Output file name.
+ * @param[in] data Parameter data.
+ * @param[in] index_list Pattern index map.
+ * @~japanese
+ * @brief Minorization-Maximization法で学習したMD2パターンのパラメータの出力
+ * @param[in] filename 出力ファイル名
+ * @param[in] data 学習したパラメータ
+ * @param[in] index_list パターンのインデックスマップ
+ */
 void
 OutputGamma( const std::string filename, const std::vector<mm_t> &data, const std::vector<unsigned int> &index_list )
 {
@@ -42,6 +72,16 @@ OutputGamma( const std::string filename, const std::vector<mm_t> &data, const st
 }
 
 
+/**
+ * @~english
+ * @brief Output parameters trained by Bradley-Terry model with Factorization Machines.
+ * @param[in] filename Output file name.
+ * @param[in] data Parameter data.
+ * @~japanese
+ * @brief Factorization Machinesを用いたBradley-Terryモデルで学習したパラメータの出力
+ * @param[in] filename 出力ファイル名
+ * @param[in] data 学習したパラメータ
+ */
 void
 OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> &data )
 {
@@ -62,6 +102,20 @@ OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> &data
 }
 
 
+/**
+ * @~english
+ * @brief Output MD2 pattern parameters trained by Bradley-Terry model with Factorization Machines.
+ * @param[in] filename Output file name.
+ * @param[in] data Parameter data.
+ * @param[in] index_list Pattern index map.
+ * @param[in] target Target pattern flags.
+ * @~japanese
+ * @brief Factorization Machinesを用いたBradley-Terryモデルで学習したMD2パターンのパラメータの出力
+ * @param[in] filename 出力ファイル名
+ * @param[in] data 学習したパラメータ
+ * @param[in] index_list インデックスマップ
+ * @param[in] target 学習対象パターンフラグ
+ */
 void
 OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> &data, const std::vector<unsigned int> &index_list, const std::vector<bool> &target )
 {
@@ -86,6 +140,22 @@ OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> &data
 }
 
 
+/**
+ * @~english
+ * @brief Output large pattern parameters trained by Bradley-Terry model with Factorization Machines.
+ * @param[in] filename Output file name.
+ * @param[in] data Parameter data.
+ * @param[in] list Pattern index map.
+ * @param[in] index Active pattern indice.
+ * @param[in] target Target pattern flags.
+ * @~japanese
+ * @brief Factorization Machinesを用いたBradley-Terryモデルで学習した大きなパターンのパラメータの出力
+ * @param[in] filename 出力ファイル名
+ * @param[in] data 学習したパラメータ
+ * @param[in] list インデックスのマップ
+ * @param[in] index 有効なパターンのインデックス
+ * @param[in] target 学習対象パターンフラグ
+ */
 void
 OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> &data, const std::vector<unsigned int> &list, const std::vector<index_hash_t> &index, const std::vector<bool> &target )
 {
@@ -110,6 +180,16 @@ OutputBTFMParameter( const std::string filename, const std::vector<btfm_t> &data
 }
 
 
+/**
+ * @~english
+ * @brief Append parameter trained by Minorization-Maximization method.
+ * @param[in] filename Output file name.
+ * @param[in] datum Parameter.
+ * @~japanese
+ * @brief Minorization-Maximization法で学習したパラメータの追記
+ * @param[in] filename 出力ファイル名
+ * @param[in] datum 学習したパラメータ
+ */
 void
 OutputGammaAdditionMode( const std::string filename, const mm_t &datum )
 {
@@ -124,7 +204,20 @@ OutputGammaAdditionMode( const std::string filename, const mm_t &datum )
 }
 
 
-
+/**
+ * @~english
+ * @brief Read MD2 pattern targets.
+ * @param[in] filename Target MD2 pattern's file name.
+ * @param[out] md2_index Active pattern indice.
+ * @param[out] md2_list Index list.
+ * @param[out] md2_target Target pattern flags.
+ * @~japanese
+ * @brief 学習対象のMD2パターンの読み込み
+ * @param[in] filename 学習対象パターンファイル名
+ * @param[out] md2_index 有効なパターンのインデックス
+ * @param[out] md2_list パターンのインデックスリスト
+ * @param[out] md2_target 学習対象パターンフラグ
+ */
 void
 InputMD2Target( const std::string filename, std::vector<int> &md2_index, std::vector<unsigned int> &md2_list, std::vector<bool> &md2_target )
 {
@@ -156,6 +249,20 @@ InputMD2Target( const std::string filename, std::vector<int> &md2_index, std::ve
 }
 
 
+/**
+ * @~english
+ * @brief Read large pattern targets.
+ * @param[in] filename Target pattern's file name.
+ * @param[out] index Pattern index map.
+ * @param[out] list Index list.
+ * @param[out] target Target pattern flags.
+ * @~japanese
+ * @brief 学習対象の大きなパターンの読み込み
+ * @param[in] filename 学習対象パターンファイル名
+ * @param[out] index パターンのインデックスマップ
+ * @param[out] list インデックスのリスト
+ * @param[out] target 学習対象パターンフラグ
+ */
 void
 InputLargePatternTarget( const std::string filename, std::vector<index_hash_t> &index, std::vector<unsigned int> &list, std::vector<bool> &target )
 {
@@ -197,7 +304,18 @@ InputLargePatternTarget( const std::string filename, std::vector<index_hash_t> &
 }
 
 
-
+/**
+ * @~english
+ * @brief Get unique patterns.
+ * @param[in, out] pattern Stones patterns.
+ * @param[in] array_size The number of patterns.
+ * @return The number of unique patterns.
+ * @~japanese
+ * @brief ユニークな配石パターンの取得
+ * @param[in, out] pattern 配石パターン
+ * @param[in] array_size 配石パターンの個数
+ * @return ユニークな配石パターンの個数
+ */
 int
 GetUniquePattern( unsigned int pattern[], const int array_size )
 {
@@ -220,6 +338,16 @@ GetUniquePattern( unsigned int pattern[], const int array_size )
 }
 
 
+/**
+ * @~english
+ * @brief Trim right side white spaces from string.
+ * @param[in] src Source string.
+ * @return String removed white spaces.
+ * @~japanese
+ * @brief 末尾の空白文字の削除
+ * @param[in] src 元の文字列
+ * @return 末尾の空白文字を削除した文字列
+ */
 std::string
 TrimRightSpace( const std::string &src )
 {

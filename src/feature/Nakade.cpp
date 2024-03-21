@@ -1,3 +1,11 @@
+/**
+ * @file src/feature/Nakade.cpp
+ * @author Yuki Kobayashi
+ * @~english
+ * @brief Nakade checker.
+ * @~japanese
+ * @brief ナカデの判定
+ */
 #include <algorithm>
 #include <cstring>
 #include <iostream>
@@ -9,33 +17,95 @@
 #include "pattern/Pattern.hpp"
 
 
-// 3目のナカデの形の個数
-static const int NAKADE_3 = 6;
-// 4目のナカデの形の個数
-static const int NAKADE_4 = 5;
-// 5目のナカデの形の個数
-static const int NAKADE_5 = 9;
-// 6目のナカデの形の個数
-static const int NAKADE_6 = 4;
+/**
+ * @~english
+ * @brief The number of 3 stones nakade.
+ * @~japanese
+ * @brief 3目のナカデの形の個数
+ */
+static constexpr int NAKADE_3 = 6;
 
-static const int NAKADE_PATTERNS[4] = {
+/**
+ * @~english
+ * @brief The number of 4 stones nakade.
+ * @~japanese
+ * @brief 4目のナカデの形の個数
+ */
+static constexpr int NAKADE_4 = 5;
+
+/**
+ * @~english
+ * @brief The number of 5 stones nakade.
+ * @~japanese
+ * @brief 5目のナカデの形の個数
+ */
+static constexpr int NAKADE_5 = 9;
+
+/**
+ * @~english
+ * @brief The number of 6 stones nakade.
+ * @~japanese
+ * @brief 6目のナカデの形の個数
+ */
+static constexpr int NAKADE_6 = 4;
+
+/**
+ * @~english
+ * @brief The number of nakade patterns.
+ * @~japanese
+ * @brief ナカデの形の個数
+ */
+static constexpr int NAKADE_PATTERNS[4] = {
   NAKADE_3, NAKADE_4, NAKADE_5, NAKADE_6
 };
 
-static const int NAKADE_MAX_SIZE = NAKADE_5;
+/**
+ * @~english
+ * @brief Maximum nakade size for Monte-Carlo simulation.
+ * @~japanese
+ * @brief モンテカルロ・シミュレーションで確認するナカデの最大サイズ
+ */
+static constexpr int NAKADE_MAX_SIZE = NAKADE_5;
 
-// 3目, 4目, 5目, 6目のナカデのパターンのハッシュ値
+/**
+ * @~english
+ * @brief Hash values for nakade patterns.
+ * @~japanese
+ * @brief 3目, 4目, 5目, 6目のナカデのパターンのハッシュ値
+ */
 static unsigned long long nakade_hash[4][NAKADE_MAX_SIZE];
-// 3目, 4目, 5目, 6目のナカデの急所
+
+/**
+ * @~english
+ * @brief Placement coordinate for nakade patterns.
+ * @~japanese
+ * @brief ナカデの急所の位置
+ */
 static int nakade_pos[4][NAKADE_MAX_SIZE];
 
+/**
+ * @~english
+ * @brief Starting coordinate for nakade check.
+ * @~japanese
+ * @brief ナカデ判定用の座標補正
+ */
 static int start = BOARD_MAX / 2;
 
-// ナカデの存在可否を判定するためのビットマスク
+/**
+ * @~english
+ * @brief Nakade existence checker bit mask.
+ * @~japanese
+ * @brief ナカデの存在可否を判定するためのビットマスク
+ */
 static unsigned int nakade_pat3_mask[PAT3_MAX];
 
-// ナカデが現れないパターン
-static const unsigned int nakade_none[134] = {
+/**
+ * @~english
+ * @brief Skipping nakade checking patterns.
+ * @~japanese
+ * @brief ナカデが現れないパターン
+ */
+static constexpr unsigned int nakade_none[134] = {
   0x0000, 0x0001, 0x0004, 0x0005, 0x0006, 0x0012, 0x0015, 0x0016, 0x003f, 0x0044,
   0x0045, 0x0046, 0x0048, 0x0049, 0x0054, 0x0055, 0x0056, 0x0060, 0x0061, 0x0064,
   0x0065, 0x0068, 0x0069, 0x006a, 0x007f, 0x0180, 0x0182, 0x0184, 0x0185, 0x0186,
@@ -52,8 +122,13 @@ static const unsigned int nakade_none[134] = {
   0x5dff, 0x6699, 0x66bf, 0x6eff, 
 };
 
-// ナカデが出現するパターンとその方向
-static const unsigned int nakade_mask[446][2] = {
+/**
+ * @~english
+ * @brief Nakade patterns and directions.
+ * @~japanese
+ * @brief ナカデが出現するパターンとその方向
+ */
+static constexpr unsigned int nakade_mask[446][2] = {
   {0x0011, 0x0004}, {0x0019, 0x0004}, {0x0050, 0x0004}, {0x0051, 0x0004}, {0x0052, 0x0004},
   {0x0058, 0x0004}, {0x0059, 0x0004}, {0x005a, 0x0004}, {0x0062, 0x0008}, {0x0066, 0x0008},
   {0x0140, 0x1004}, {0x0141, 0x1004}, {0x0142, 0x1004}, {0x0144, 0x1000}, {0x0145, 0x1000},
@@ -155,10 +230,6 @@ static const unsigned int nakade_mask[446][2] = {
 };
 
 
-////////////
-//  関数  //
-////////////
-
 // ナカデになっている座標を返す
 static int FindNakadePos( const game_info_t *game, const int pos, const int color );
 
@@ -168,9 +239,13 @@ static void Enqueue( nakade_queue_t *nq, int pos );
 static int Dequeue( nakade_queue_t *nq );
 static bool IsQueueEmpty( const nakade_queue_t *nq );
 
-//////////////
-//  初期化  //
-//////////////
+
+/**
+ * @~english
+ * @brief Initialize nakade patterns.
+ * @~japanese
+ * @brief ナカデのパターンの初期化
+ */
 void
 InitializeNakadeHash( void )
 {
@@ -313,10 +388,20 @@ InitializeNakadeHash( void )
 }
 
 
-////////////////////////////////////////////////
-//  自己アタリの形がナカデになっているか確認  //
-//  3目, 4目, 5目ナカデのみ確認する           //
-////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check self-atari nakade shape.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate.
+ * @param[in] color Player's color.
+ * @return Nakade shape or not.
+ * @~japanese
+ * @brief 自己アタリの形がナカデになっているか確認
+ * @param[in] game 局面情報
+ * @param[in] pos 確認する座標
+ * @param[in] color 手番の色
+ * @return ナカデの判定結果
+ */
 bool
 IsNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
 {
@@ -389,9 +474,20 @@ IsNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
 }
 
 
-//////////////////////////////////////////////////
-//  自己アタリがナカデの形になっているかを確認  //
-//////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check self-atari nakade shape.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate.
+ * @param[in] color Player's color.
+ * @return Nakade shape or not.
+ * @~japanese
+ * @brief 自己アタリの形がナカデになっているか確認
+ * @param[in] game 局面情報
+ * @param[in] pos 確認する座標
+ * @param[in] color 手番の色
+ * @return ナカデの判定結果
+ */
 bool
 IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
 {
@@ -403,7 +499,6 @@ IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
   unsigned long long hash = 0;
   int stones[10], checked[4] = { 0 };
   int n = 0, check = 0, my_stone, reviser, id;
-
 
   // 上下左右を確認し, 自分の連だったら, それぞれの石の座標を記録
   for (int i = 0 ; i < 4; i++) {
@@ -460,9 +555,20 @@ IsUctNakadeSelfAtari( const game_info_t *game, const int pos, const int color )
 }
 
 
-////////////////////////////////////////////////
-//  直前の着手でナカデの形が現れているか確認  //
-////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check nakade shape.
+ * @param[in] game Board position data.
+ * @param[in] pos Coordinate of previous move.
+ * @param[in] color Player's color.
+ * @return The number of nakade shapes.
+ * @~japanese
+ * @brief 直前の着手でナカデの形が現れているか確認
+ * @param[in] game Board position data.
+ * @param[in] pos 直前の着手箇所
+ * @param[in] color 手番の色
+ * @return The number of nakade shapes.
+ */
 static int
 FindNakadePos( const game_info_t *game, const int pos, const int color )
 {
@@ -535,9 +641,18 @@ FindNakadePos( const game_info_t *game, const int pos, const int color )
 }
 
 
-//////////////////////////////////////
-//  直前の着手でナカデがあるか確認  //
-//////////////////////////////////////
+/**
+ * @~english
+ * @brief Check nakade shape around previous move.
+ * @param[in] game Board position data.
+ * @param[out] nakade_num The number of nakade critical points.
+ * @param[out] nakade_pos Coordinates of nakade critical point.
+ * @~japanese
+ * @brief 直前の着手でナカデがあるか確認
+ * @param[in] game 局面情報
+ * @param[out] nakade_num ナカデの急所の個数
+ * @param[out] nakade_pos ナカデの急所の座標
+ */
 void
 SearchNakade( const game_info_t *game, int *nakade_num, int *nakade_pos )
 {
@@ -564,14 +679,23 @@ SearchNakade( const game_info_t *game, int *nakade_num, int *nakade_pos )
 }
 
 
-////////////////////////////////////////////////////
-//  石を取り除いた箇所がナカデになっているか確認  //
-////////////////////////////////////////////////////
+/**
+ * @~english
+ * @brief Check nakade shape of removed stones.
+ * @param[in] game Board position data.
+ * @param[in] color Player's color.
+ * @return Coordinate of nakade critical point.
+ * @~japanese
+ * @brief 石を取り除いた箇所がナカデになっているか確認
+ * @param[in] game 局面情報
+ * @param[in] color 手番の色
+ * @return ナカデの急所の座標
+ */
 int
 CheckRemovedStoneNakade( const game_info_t *game, const int color )
 {
-  const int capture_num = game->capture_num[GetOppositeColor(color)];
-  const int *capture_pos = game->capture_pos[GetOppositeColor(color)];
+  const int capture_num = game->capture_num[GetOppositeColor(color) - 1];
+  const int *capture_pos = game->capture_pos[GetOppositeColor(color) - 1];
   unsigned long long hash = 0;
   int reviser;
 
@@ -586,8 +710,10 @@ CheckRemovedStoneNakade( const game_info_t *game, const int color )
   reviser = start - capture_pos[0];
 
   // ハッシュ値の計算
-  for (int i = 0; i < capture_num; i++) {
-    hash ^= shape_bit[capture_pos[i] + reviser];
+  int pos = capture_pos[0];
+  while (pos < CAPTURE_END) {
+    hash ^= shape_bit[pos + reviser];
+    pos = capture_pos[pos];
   }
 
   // ナカデになっていれば, その座標を返す
@@ -607,6 +733,16 @@ CheckRemovedStoneNakade( const game_info_t *game, const int color )
 }
 
 
+/**
+ * @~english
+ * @brief Enqueue coordinate..
+ * @param[in, out] nq Queue.
+ * @param[in] pos Coordinate.
+ * @~japanese
+ * @brief キューにデータを挿入
+ * @param[in, out] nq キュー
+ * @param[in] pos 座標
+ */
 static void
 Enqueue( nakade_queue_t *nq, int pos )
 {
@@ -620,6 +756,16 @@ Enqueue( nakade_queue_t *nq, int pos )
 }
 
 
+/**
+ * @~english
+ * @brief Dequeue.
+ * @param[in, out] nq Queue.
+ * @return Coordinate.
+ * @~japanese
+ * @brief キューからデータを取り出し
+ * @param[in, out] nq キュー
+ * @return 座標
+ */
 static int
 Dequeue( nakade_queue_t *nq )
 {
@@ -638,6 +784,14 @@ Dequeue( nakade_queue_t *nq )
 }
 
 
+/**
+ * @~english
+ * @brief Initialize queue.
+ * @param[in, out] nq Queue.
+ * @~japanese
+ * @brief キューの初期化
+ * @param[in, out] nq キュー
+ */
 static void
 InitializeNakadeQueue( nakade_queue_t *nq )
 {
@@ -645,6 +799,16 @@ InitializeNakadeQueue( nakade_queue_t *nq )
 }
 
 
+/**
+ * @~english
+ * @brief Check queue empty.
+ * @param[in, out] nq Queue.
+ * @return Checking result.
+ * @~japanese
+ * @brief キューの空判定
+ * @param[in, out] nq キュー
+ * @return 判定結果
+ */
 static bool
 IsQueueEmpty( const nakade_queue_t *nq )
 {
