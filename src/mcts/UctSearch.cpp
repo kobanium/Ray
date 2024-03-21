@@ -119,9 +119,9 @@ static statistic_t statistic[BOARD_MAX];
 
 /**
  * @~english
- * @brief
+ * @brief Counter for statistic information of Monte-Carlo simulation.
  * @~japanese
- * @brief
+ * @brief プレイアウトの統計情報を収集した回数
  */
 static std::atomic<int> statistic_count;
 

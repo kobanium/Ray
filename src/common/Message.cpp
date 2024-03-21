@@ -237,13 +237,15 @@ PrintStringNext( const game_info_t *game )
  * @param[in] root MCTS root node.
  * @param[in] statistic Statistic information for Monte-Carlo simulation.
  * @param[in] color Player's color.
+ * @param[in] count Statistic information counter.
  * @param[out] own Ownership.
  * @~japanese
  * @brief Ownerの表示
  * @param[in] root MCTSルートノード
  * @param[in] statistic モンテカルロ・シミュレーションの統計情報
  * @param[in] color 手番の色
- * @param[out] own Owner
+ * @param[in] count 統計情報を収集した回数
+ * @param[out] own Ownership
  */
 void
 PrintOwner( const uct_node_t *root, const statistic_t *statistic, const int color, const int count, double *own )
