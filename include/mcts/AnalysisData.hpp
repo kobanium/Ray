@@ -242,7 +242,7 @@ public:
       }
       comment = u8"Ray selected pass immediately.";
     } else {
-      win_rate = root.win / root.move_count;
+      win_rate = static_cast<double>(root.win) / root.move_count;
 
       const child_node_t *children = root.child;
 
@@ -254,11 +254,11 @@ public:
       std::sort(pv_data.begin(), pv_data.end(), std::greater<PrincipalVariationData>());
       ownership = "";
       for (int i = 0; i < pure_board_max; i++) {
-        const double owner = root.ownership[onboard_pos[i]] / root.move_count;
+        const double owner = static_cast<double>(root.ownership[onboard_pos[i]]) / root.move_count;
         const int owner_index = static_cast<int>(owner * 62);
         ownership += owner_char[owner_index];
       }
-      comment = u8"This is the result of Monte-Carlo tree search.";
+      comment = u8"Ray selected the next move based on Monte-Carlo tree search.";
     }
 
   }
