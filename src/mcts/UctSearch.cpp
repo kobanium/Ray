@@ -245,7 +245,7 @@ static void CalculateCriticality( int color );
 static void CalculateCriticalityIndex( uct_node_t *node, statistic_t *node_statistic, int color, int *index );
 
 // Ownershipの計算
-static void CalculateOwner( int color, int count );
+static void CalculateOwner( int color );
 
 // Ownership
 static void CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistc, int color, int *index );
@@ -995,7 +995,7 @@ ParallelUctSearch( thread_arg_t *arg )
       enough_size = CheckRemainingHashSize();
       // OwnerとCriticalityを計算する
       if (GetPoCount() > interval) {
-        CalculateOwner(color, GetPoCount());
+        CalculateOwner(color);
         CalculateCriticality(color);
         interval += CRITICALITY_INTERVAL;
       }
@@ -1065,7 +1065,7 @@ ParallelUctSearchPondering( thread_arg_t *arg )
       enough_size = CheckRemainingHashSize();
       // OwnerとCriticalityを計算する
       if (GetPoCount() > interval) {
-        CalculateOwner(color, GetPoCount());
+        CalculateOwner(color);
         CalculateCriticality(color);
         interval += CRITICALITY_INTERVAL;
       }
@@ -1382,7 +1382,6 @@ CalculateCriticality( int color )
   const double win = static_cast<double>(uct_node[current_root].win) / uct_node[current_root].move_count;
   const double lose = 1.0 - win;
   double tmp;
-  const int count = GetPoCount();
 
   for (int i = 0; i < pure_board_max; i++) {
     const int pos = onboard_pos[i];
@@ -1434,14 +1433,12 @@ CalculateOwnerIndex( uct_node_t *node, statistic_t *node_statistic, int color, i
  * @~english
  * @brief Calculate ownership feature index.
  * @param[in] color Player's color.
- * @param[in] count Playout count.
  * @~japanese
  * @brief Ownershipの特徴インデックスの計算
  * @param[in] color 手番の色
- * @param[in] count プレイアウト回数
  */
 static void
-CalculateOwner( int color, int count )
+CalculateOwner( int color )
 {
   const double inv_count = (statistic_count.load() > 0) ? 1.0 / statistic_count.load() : 1.0;
 

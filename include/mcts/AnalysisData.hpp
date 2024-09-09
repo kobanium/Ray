@@ -64,7 +64,7 @@ private:
    * @~japanese
    * @brief PVリストの長さ上限
    */
-  int pv_depth_limit;
+  unsigned int pv_depth_limit;
 
   /**
    * @~english
