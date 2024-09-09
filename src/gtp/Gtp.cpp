@@ -1295,9 +1295,9 @@ GTP_cgos_genmove_analyze( void )
   if (point != RESIGN) {
     PutStone(game, point, color);
 
-    CgosAnalyzeData data(GetRootNode(), color);
-    analyze_data = data.GetJsonData();
   }
+  CgosAnalyzeData data(GetRootNode(), color);
+  analyze_data = data.GetJsonData();
 
   IntegerToString(point, pos);
 
