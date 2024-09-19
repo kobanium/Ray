@@ -258,7 +258,7 @@ public:
         const int owner_index = static_cast<int>(owner * 62);
         ownership += owner_char[owner_index];
       }
-      comment = u8"Ray selected the next move based on Monte-Carlo tree search.";
+      comment = u8"Ray selected next move based on Monte-Carlo tree search.";
     }
 
   }
