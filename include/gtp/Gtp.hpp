@@ -48,7 +48,7 @@ constexpr char PROGRAM_NAME[] = "Ray";
  * @~japanese
  * @brief プログラムのバージョン
  */
-constexpr char PROGRAM_VERSION[] = "11.1.0";
+constexpr char PROGRAM_VERSION[] = "11.2.0";
 
 /**
  * @~english

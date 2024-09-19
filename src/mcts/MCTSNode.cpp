@@ -6,6 +6,8 @@
  * @~japanese
  * @brief MCTSのノードの操作
  */
+#include <algorithm>
+
 #include "mcts/MCTSNode.hpp"
 
 
